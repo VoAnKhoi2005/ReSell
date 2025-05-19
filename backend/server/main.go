@@ -22,7 +22,7 @@ func main() {
 	}
 
 	config.ConnectDatabase()
-
+	config.RunMigrations()
 	router := gin.Default()
 	routes.SetupRoutes(router)
 

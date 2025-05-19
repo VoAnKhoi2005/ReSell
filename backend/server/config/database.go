@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/VoAnKhoi2005/ReSell/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -27,4 +28,31 @@ func ConnectDatabase() {
 
 	DB = db
 	log.Println("Connected to PostgresSQL successfully!")
+}
+
+func RunMigrations() {
+	err := DB.AutoMigrate(
+		&models.User{},
+		&models.Admin{},
+		&models.Post{},
+		&models.PostImage{},
+		&models.Category{},
+		&models.Province{},
+		&models.District{},
+		&models.Ward{},
+		&models.Address{},
+		&models.Cart{},
+		&models.CartItem{},
+		&models.Wallet{},
+		&models.PaymentMethod{},
+		&models.ShopOrder{},
+		&models.UserReview{},
+		&models.WalletTransaction{},
+		&models.Conversation{},
+		&models.Message{},
+		&models.Follow{},
+	)
+	if err != nil {
+		panic("Failed to migrate database: " + err.Error())
+	}
 }

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type ShopOrders struct {
+type ShopOrder struct {
 	gorm.Model
 	UserId          string
 	PostId          string
@@ -23,7 +23,7 @@ type ShopOrders struct {
 	Address       Address
 }
 
-type UserReviews struct {
+type UserReview struct {
 	UserId    string `gorm:"primaryKey"`
 	OrderId   string `gorm:"primaryKey"`
 	Rating    int
@@ -31,5 +31,5 @@ type UserReviews struct {
 	CreatedAt time.Time
 
 	User  User
-	Order ShopOrders
+	Order ShopOrder
 }
