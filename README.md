@@ -1,9 +1,5 @@
 # ReSell
 # Tính năng
-
-> CLONE APP CHỢ TỐT (APP BÁN HÀNG SECOND HAND)
-> 
-
 # 1. Admin
 
 - Tạo danh mục sản phẩm (Danh mục sản phẩm gồm ID và tên)
