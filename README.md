@@ -1,5 +1,13 @@
 # ReSell
-# Tính năng
+Ứng dụng đồ án cho môn SE114
+|   **MSSV**   |    **Họ và tên**    |
+|:------------:|:-------------------:|
+| **23520790** | **Võ An Khôi**      |
+| **23520905** | **Võ Hồng Lương**   |
+| **23520819** | **Quách Gia Kiệt**  |
+| **23520887** | **Phạm Thành Long** |
+
+# Danh sách tính năng dự kiến
 # 1. Admin
 
 - Tạo danh mục sản phẩm (Danh mục sản phẩm gồm ID và tên)
