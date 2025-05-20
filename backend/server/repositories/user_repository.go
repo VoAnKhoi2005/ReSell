@@ -7,10 +7,15 @@ import (
 )
 
 type UserRepository interface {
+	// GetAll /User related
+	GetAll() ([]models.User, error)
 	GetByID(id string) (*models.User, error)
 	GetByUsername(username string) (*models.User, error)
 	GetByEmail(email string) (*models.User, error)
+	GetByPhone(phone string) (*models.User, error)
 	Create(user *models.User) error
+	Update(user *models.User) error
+	Delete(user *models.User) error
 }
 
 type userRepository struct {
@@ -21,7 +26,16 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db: db}
 }
 
-func (r userRepository) GetByID(id string) (*models.User, error) {
+func (r *userRepository) GetAll() ([]models.User, error) {
+	ctx, cancel := utils.NewDBContext()
+	defer cancel()
+
+	var users []models.User
+	err := r.db.WithContext(ctx).Find(&users).Error
+	return users, err
+}
+
+func (r *userRepository) GetByID(id string) (*models.User, error) {
 	ctx, cancel := utils.NewDBContext()
 	defer cancel()
 
@@ -30,7 +44,7 @@ func (r userRepository) GetByID(id string) (*models.User, error) {
 	return &user, err
 }
 
-func (r userRepository) GetByUsername(username string) (*models.User, error) {
+func (r *userRepository) GetByUsername(username string) (*models.User, error) {
 	ctx, cancel := utils.NewDBContext()
 	defer cancel()
 
@@ -39,7 +53,7 @@ func (r userRepository) GetByUsername(username string) (*models.User, error) {
 	return &user, err
 }
 
-func (r userRepository) GetByEmail(email string) (*models.User, error) {
+func (r *userRepository) GetByEmail(email string) (*models.User, error) {
 	ctx, cancel := utils.NewDBContext()
 	defer cancel()
 
@@ -48,9 +62,32 @@ func (r userRepository) GetByEmail(email string) (*models.User, error) {
 	return &user, err
 }
 
-func (r userRepository) Create(user *models.User) error {
+func (r *userRepository) GetByPhone(phone string) (*models.User, error) {
+	ctx, cancel := utils.NewDBContext()
+	defer cancel()
+
+	var user models.User
+	err := r.db.WithContext(ctx).First(&user, "phone = ?", phone).Error
+	return &user, err
+}
+
+func (r *userRepository) Create(user *models.User) error {
 	ctx, cancel := utils.NewDBContext()
 	defer cancel()
 
 	return r.db.WithContext(ctx).Create(user).Error
+}
+
+func (r *userRepository) Update(user *models.User) error {
+	ctx, cancel := utils.NewDBContext()
+	defer cancel()
+
+	return r.db.WithContext(ctx).Save(user).Error
+}
+
+func (r *userRepository) Delete(user *models.User) error {
+	ctx, cancel := utils.NewDBContext()
+	defer cancel()
+
+	return r.db.WithContext(ctx).Delete(user).Error
 }
