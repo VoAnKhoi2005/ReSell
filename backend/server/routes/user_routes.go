@@ -8,6 +8,5 @@ func RegisterUserRoutes(rg *gin.RouterGroup, controller *controllers.UserControl
 	users := rg.Group("/users")
 
 	//Add path to group
-	users.POST("/register", controller.Register)
-
+	users.DELETE("/user", controller.DeleteUser)
 }

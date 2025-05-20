@@ -3,6 +3,8 @@ package models
 type Province struct {
 	ID   uint
 	Name string
+
+	Districts []District
 }
 
 type District struct {
@@ -11,6 +13,7 @@ type District struct {
 	ProvinceID uint
 
 	Province *Province
+	Wards    []Ward
 }
 
 type Ward struct {
