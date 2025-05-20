@@ -12,10 +12,12 @@ type UserController struct {
 }
 
 func NewUserController(service service.UserService) *UserController {
+
 	return &UserController{service: service}
 }
 
 func (h *UserController) Register(c *gin.Context) {
+	//Not done
 	var req models.User
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -29,4 +31,12 @@ func (h *UserController) Register(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "registered successfully"})
+}
+
+func (h *UserController) Login(c *gin.Context) {
+
+}
+
+func (h *UserController) DeleteUser(c *gin.Context) {
+
 }
