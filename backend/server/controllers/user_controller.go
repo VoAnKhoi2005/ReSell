@@ -12,6 +12,7 @@ type UserController struct {
 }
 
 func NewUserController(service service.UserService) *UserController {
+
 	return &UserController{service: service}
 }
 
@@ -29,4 +30,12 @@ func (h *UserController) Register(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "registered successfully"})
+}
+
+func (h *UserController) Login(c *gin.Context) {
+
+}
+
+func (h *UserController) DeleteAccount(c *gin.Context) {
+
 }
