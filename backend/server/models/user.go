@@ -30,6 +30,17 @@ type Follow struct {
 	SellerId string `gorm:"primaryKey"`
 	BuyerId  string `gorm:"primaryKey"`
 
-	Seller User
-	Buyer  User
+	Seller *User
+	Buyer  *User
+}
+
+type Notification struct {
+	ID          uint
+	UserID      uint
+	Title       string
+	Description string
+	IsRead      bool
+	CreatedAt   time.Time
+
+	User *User
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/config"
 	"github.com/VoAnKhoi2005/ReSell/routes"
 	"github.com/gin-gonic/gin"
@@ -12,9 +11,6 @@ import (
 func main() {
 	config.LoadEnv()
 
-	fmt.Println("cloud name:", os.Getenv("CLOUDINARY_CLOUD_NAME"))
-	fmt.Println("api key:", os.Getenv("CLOUDINARY_API_KEY"))
-	fmt.Println("api secret:", os.Getenv("CLOUDINARY_API_SECRET"))
 	port := os.Getenv("PORT")
 
 	if port == "" {
@@ -23,6 +19,7 @@ func main() {
 
 	config.ConnectDatabase()
 	config.RunMigrations()
+
 	router := gin.Default()
 	routes.SetupRoutes(router)
 

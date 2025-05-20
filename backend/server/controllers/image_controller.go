@@ -1,4 +1,4 @@
-package controller
+package controllers
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/utils"

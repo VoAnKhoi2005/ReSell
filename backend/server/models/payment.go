@@ -15,7 +15,8 @@ type Wallet struct {
 	UserID        uint
 	Balance       uint
 	FrozenBalance uint
-	User          *User
+
+	User *User
 }
 type WalletTransaction struct {
 	gorm.Model
@@ -26,6 +27,6 @@ type WalletTransaction struct {
 	OrderId      string
 	CreatedAt    time.Time
 
-	Wallet Wallet
-	Order  ShopOrder
+	Wallet *Wallet
+	Order  *ShopOrder
 }

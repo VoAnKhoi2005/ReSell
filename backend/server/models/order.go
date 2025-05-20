@@ -1,12 +1,11 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"time"
 )
 
 type ShopOrder struct {
-	gorm.Model
+	ID              uint
 	UserId          string
 	PostId          string
 	PaymentMethodId string
@@ -17,10 +16,10 @@ type ShopOrder struct {
 	CompletedAt     time.Time
 	CanceledAt      time.Time
 
-	User          User
-	Post          Post
-	PaymentMethod PaymentMethod
-	Address       Address
+	User          *User
+	Post          *Post
+	PaymentMethod *PaymentMethod
+	Address       *Address
 }
 
 type UserReview struct {
@@ -30,6 +29,6 @@ type UserReview struct {
 	Comment   string
 	CreatedAt time.Time
 
-	User  User
-	Order ShopOrder
+	User  *User
+	Order *ShopOrder
 }

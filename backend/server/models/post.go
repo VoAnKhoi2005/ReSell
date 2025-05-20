@@ -9,7 +9,8 @@ type Category struct {
 	ID               uint
 	ParentCategoryID uint
 	Name             string
-	ParentCategory   *Category
+
+	ParentCategory *Category
 }
 
 type Post struct {
@@ -22,9 +23,10 @@ type Post struct {
 	Price       uint
 	Status      string
 	SoldAt      time.Time
-	User        *User
-	Category    *Category
-	Address     *Address
+	
+	User     *User
+	Category *Category
+	Address  *Address
 }
 
 type PostImage struct {

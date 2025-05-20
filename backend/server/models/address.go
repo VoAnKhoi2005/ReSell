@@ -9,14 +9,16 @@ type District struct {
 	ID         uint
 	Name       string
 	ProvinceID uint
-	Province   *Province
+
+	Province *Province
 }
 
 type Ward struct {
 	ID         uint
 	Name       string
 	DistrictID uint
-	District   *District
+
+	District *District
 }
 
 type Address struct {
@@ -25,6 +27,7 @@ type Address struct {
 	WardID    uint
 	Detail    string
 	IsDefault bool
-	User      *User
-	Ward      *Ward
+
+	User *User
+	Ward *Ward
 }

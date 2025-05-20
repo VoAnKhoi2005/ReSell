@@ -5,6 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterImageRoutes(r *gin.Engine) {
-	r.POST("/upload-image", controller.UploadImageHandler)
+func RegisterImageRoutes(rg *gin.RouterGroup) {
+	images := rg.Group("/image")
+
+	images.POST("/upload-image", controller.UploadImageHandler)
+
 }
