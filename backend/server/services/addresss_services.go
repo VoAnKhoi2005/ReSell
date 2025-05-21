@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/models"
@@ -8,7 +8,7 @@ import (
 type AddressService interface {
 	GetByID(addressID uint) (*models.Address, error)
 	GetByUserID(userID uint) (*models.Address, error)
-	GetByWard(wardID uint) ([]models.Address, error)
+	GetByWardID(wardID uint) ([]models.Address, error)
 	GetByDistrict(districtID uint) ([]models.Address, error)
 	GetByProvince(provinceID uint) ([]models.Address, error)
 }
@@ -29,8 +29,8 @@ func (a *addressService) GetByUserID(userID uint) (*models.Address, error) {
 	return a.AddressRepository.GetByID(userID)
 }
 
-func (a *addressService) GetByWard(wardId uint) ([]models.Address, error) {
-	addresses, err := a.AddressRepository.GetByWardID(wardId)
+func (a *addressService) GetByWardID(wardID uint) ([]models.Address, error) {
+	addresses, err := a.AddressRepository.GetByWardID(wardID)
 	return addresses, err
 }
 

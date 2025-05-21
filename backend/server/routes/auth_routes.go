@@ -10,8 +10,8 @@ import "github.com/VoAnKhoi2005/ReSell/controllers"
 
 func RegisterAuthRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	repo := repositories.NewUserRepository(db)
-	service := services.NewUserService(repo)
-	controller := controllers.NewAuthController(service)
+	userService := services.NewUserService(repo)
+	controller := controllers.NewAuthController(userService)
 
 	//Create auth group -> /api/auth/...
 	auth := rg.Group("/auth")
