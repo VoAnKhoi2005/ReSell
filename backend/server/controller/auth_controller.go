@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/VoAnKhoi2005/ReSell/middlewares"
+	"github.com/VoAnKhoi2005/ReSell/middleware"
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/gin-gonic/gin"
@@ -54,7 +54,7 @@ func (h *AuthController) RefreshToken(c *gin.Context) {
 	AccessTokenExpiryHour, err := strconv.Atoi(os.Getenv("ACCESS_TOKEN_EXPIRY_HOUR"))
 	RefreshTokenExpiryHour, err := strconv.Atoi(os.Getenv("REFRESH_TOKEN_EXPIRY_HOUR"))
 
-	id, err := middlewares.ExtractIDFromToken(request.RefreshToken, RefreshTokenSecret)
+	id, err := middleware.ExtractIDFromToken(request.RefreshToken, RefreshTokenSecret)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 		return
@@ -66,13 +66,13 @@ func (h *AuthController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := middlewares.CreateAccessToken(user, AccessTokenExpiryHour)
+	accessToken, err := middleware.CreateAccessToken(user, AccessTokenExpiryHour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	refreshToken, err := middlewares.CreateRefreshToken(user, RefreshTokenExpiryHour)
+	refreshToken, err := middleware.CreateRefreshToken(user, RefreshTokenExpiryHour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/VoAnKhoi2005/ReSell/utils"
+	"github.com/VoAnKhoi2005/ReSell/util"
 	"gorm.io/gorm"
 )
 
@@ -14,7 +14,7 @@ func NewBaseRepository[T any](db *gorm.DB) *BaseRepository[T] {
 }
 
 func (r *BaseRepository[T]) GetAll() ([]*T, error) {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	var results []*T
@@ -23,21 +23,21 @@ func (r *BaseRepository[T]) GetAll() ([]*T, error) {
 }
 
 func (r *BaseRepository[T]) Create(data *T) error {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	return r.db.WithContext(ctx).Create(data).Error
 }
 
 func (r *BaseRepository[T]) Update(data *T) error {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	return r.db.WithContext(ctx).Save(data).Error
 }
 
 func (r *BaseRepository[T]) Delete(data *T) error {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	return r.db.WithContext(ctx).Delete(data).Error
