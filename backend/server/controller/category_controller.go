@@ -1,8 +1,8 @@
 package controller
 
 import (
-	request "github.com/VoAnKhoi2005/ReSell/request"
 	"github.com/VoAnKhoi2005/ReSell/service"
+	request "github.com/VoAnKhoi2005/ReSell/transaction"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

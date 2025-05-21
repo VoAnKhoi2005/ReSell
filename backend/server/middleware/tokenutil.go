@@ -10,7 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func CreateAccessToken(userID string) (accessToken string, err error) {
+func CreateAccessToken(ID string, role string) (accessToken string, err error) {
 	AccessTokenExpiryHour, err := strconv.Atoi(os.Getenv("ACCESS_TOKEN_EXPIRY_HOUR"))
 	if err != nil {
 		return "", err
@@ -18,8 +18,9 @@ func CreateAccessToken(userID string) (accessToken string, err error) {
 	exp := time.Now().Add(time.Hour * time.Duration(AccessTokenExpiryHour)).Unix()
 
 	claims := jwt.MapClaims{
-		"user_id": userID,
-		"exp":     exp,
+		"id":   ID,
+		"role": role,
+		"exp":  exp,
 	}
 
 	secret := os.Getenv("ACCESS_TOKEN_SECRET")
@@ -31,7 +32,7 @@ func CreateAccessToken(userID string) (accessToken string, err error) {
 	return t, err
 }
 
-func CreateRefreshToken(userID string) (refreshToken string, err error) {
+func CreateRefreshToken(ID string, role string) (refreshToken string, err error) {
 	RefreshTokenExpiryHour, err := strconv.Atoi(os.Getenv("REFRESH_TOKEN_EXPIRY_HOUR"))
 	if err != nil {
 		return "", err
@@ -40,9 +41,10 @@ func CreateRefreshToken(userID string) (refreshToken string, err error) {
 	exp := time.Now().Add(time.Hour * time.Duration(RefreshTokenExpiryHour)).Unix()
 
 	claims := jwt.MapClaims{
-		"user_id": userID,
-		"exp":     exp,
-		"type":    "refresh",
+		"id":   ID,
+		"role": role,
+		"exp":  exp,
+		"type": "refresh",
 	}
 
 	secret := os.Getenv("REFRESH_TOKEN_SECRET")
@@ -97,4 +99,29 @@ func ExtractIDFromToken(requestToken string) (string, error) {
 	}
 
 	return ID, nil
+}
+
+func ExtractRoleFromToken(tokenString string) (string, error) {
+	secret := os.Getenv("ACCESS_TOKEN_SECRET")
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(secret), nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		return "", fmt.Errorf("invalid token")
+	}
+
+	role, ok := claims["role"].(string)
+	if !ok {
+		return "", fmt.Errorf("role claim is missing or not a string")
+	}
+
+	return role, nil
 }

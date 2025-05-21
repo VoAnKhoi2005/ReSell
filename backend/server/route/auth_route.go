@@ -9,15 +9,21 @@ import (
 )
 
 func RegisterAuthRoutes(rg *gin.RouterGroup, db *gorm.DB) {
-	repo := repository.NewUserRepository(db)
-	service := service.NewUserService(repo)
-	controller := controller.NewAuthController(service)
+	userRepo := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
+
+	adminRepo := repository.NewAdminRepository(db)
+	adminService := service.NewAdminService(adminRepo)
+	
+	authController := controller.NewAuthController(userService, adminService)
 
 	//Create auth group -> /api/auth/...
 	auth := rg.Group("/auth")
+	auth.POST("/register", authController.Register)
+	auth.POST("/login", authController.Login)
+	auth.POST("/refresh", authController.RefreshToken)
 
-	//Add path to group
-	auth.POST("/register", controller.Register)
-	auth.POST("/login", controller.Login)
-	auth.POST("/refresh", controller.RefreshToken)
+	admin := auth.Group("/admin")
+	admin.POST("/login", authController.LoginAdmin)
+	admin.POST("/refresh", authController.RefreshToken)
 }

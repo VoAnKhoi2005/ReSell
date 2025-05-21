@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/repository"
-	request "github.com/VoAnKhoi2005/ReSell/request"
+	request "github.com/VoAnKhoi2005/ReSell/transaction"
 )
 
 type CategoryService interface {

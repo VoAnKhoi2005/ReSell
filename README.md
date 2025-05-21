@@ -52,7 +52,7 @@
 - Thêm vào giỏ hàng
 - Liên lạc với người bán (nhắn tin, gọi điện)
 - Đặt hàng
-    - 1 user có thể có nhiều địa chỉ, có một địa chỉ mặc định
+    - 1 admin có thể có nhiều địa chỉ, có một địa chỉ mặc định
 - Theo dõi đơn hàng
 - Thanh toán (tiền mặt/ví)
 - Theo dõi người bán (nhận thông báo khi người bán đăng tin mới)

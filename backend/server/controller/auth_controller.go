@@ -1,38 +1,29 @@
 package controller
 
 import (
-	"github.com/VoAnKhoi2005/ReSell/model"
-	"net/http"
-
 	"github.com/VoAnKhoi2005/ReSell/middleware"
+	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/service"
+	"github.com/VoAnKhoi2005/ReSell/transaction"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
+	"net/http"
 )
 
 type AuthController struct {
-	service service.UserService
+	userService  service.UserService
+	adminService service.AdminService
 }
 
-func NewAuthController(service service.UserService) *AuthController {
-	return &AuthController{service: service}
-}
-
-type RegisterRequest struct {
-	Username string `form:"username" binding:"required"`
-	Email    string `form:"email" binding:"required"`
-	Phone    string `form:"phone" binding:"required"`
-	Password string `form:"password" binding:"required"`
-}
-
-type RegisterResponse struct {
-	User         model.User `json:"user"`
-	AccessToken  string     `json:"accessToken"`
-	RefreshToken string     `json:"refreshToken"`
+func NewAuthController(userService service.UserService, adminService service.AdminService) *AuthController {
+	return &AuthController{
+		userService:  userService,
+		adminService: adminService,
+	}
 }
 
 func (h *AuthController) Register(c *gin.Context) {
-	var req RegisterRequest
+	var req transaction.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -40,19 +31,19 @@ func (h *AuthController) Register(c *gin.Context) {
 
 	var errors []string
 	var err error
-	_, err = h.service.GetUserByEmail(req.Email)
+	_, err = h.userService.GetUserByEmail(req.Email)
 	if err == nil {
-		errors = append(errors, "email already taken")
+		errors = append(errors, "email: email already taken")
 	}
 
-	_, err = h.service.GetUserByPhone(req.Phone)
+	_, err = h.userService.GetUserByPhone(req.Phone)
 	if err == nil {
-		errors = append(errors, "phone number already taken")
+		errors = append(errors, "phone: phone number already taken")
 	}
 
-	_, err = h.service.GetUserByUsername(req.Username)
+	_, err = h.userService.GetUserByUsername(req.Username)
 	if err == nil {
-		errors = append(errors, "username already taken")
+		errors = append(errors, "username: username already taken")
 	}
 
 	if len(errors) > 0 {
@@ -76,25 +67,25 @@ func (h *AuthController) Register(c *gin.Context) {
 		Password: string(encryptedPassword),
 	}
 
-	err = h.service.Register(&user)
+	err = h.userService.Register(&user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	accessToken, err := middleware.CreateAccessToken(user.ID)
+	accessToken, err := middleware.CreateAccessToken(user.ID, "user")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	refreshToken, err := middleware.CreateRefreshToken(user.ID)
+	refreshToken, err := middleware.CreateRefreshToken(user.ID, "user")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	response := RegisterResponse{
+	response := transaction.RegisterResponse{
 		User:         user,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -103,18 +94,8 @@ func (h *AuthController) Register(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-type LoginRequest struct {
-	Identifier string `json:"identifier" binding:"required"`
-	Password   string `json:"password" binding:"required"`
-	LoginType  string `json:"login_type" binding:"required"` // expects "email", "phone", "username"
-}
-type LoginResponse struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
-}
-
 func (h *AuthController) Login(c *gin.Context) {
-	var request LoginRequest
+	var request transaction.LoginRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -124,11 +105,11 @@ func (h *AuthController) Login(c *gin.Context) {
 	var err error
 	switch request.LoginType {
 	case "email":
-		user, err = h.service.GetUserByEmail(request.Identifier)
+		user, err = h.userService.GetUserByEmail(request.Identifier)
 	case "phone":
-		user, err = h.service.GetUserByPhone(request.Identifier)
+		user, err = h.userService.GetUserByPhone(request.Identifier)
 	case "username":
-		user, err = h.service.GetUserByUsername(request.Identifier)
+		user, err = h.userService.GetUserByUsername(request.Identifier)
 	default:
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid login type"})
 		return
@@ -144,19 +125,19 @@ func (h *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := middleware.CreateAccessToken(user.ID)
+	accessToken, err := middleware.CreateAccessToken(user.ID, "user")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	refreshToken, err := middleware.CreateRefreshToken(user.ID)
+	refreshToken, err := middleware.CreateRefreshToken(user.ID, "user")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	loginResponse := LoginResponse{
+	loginResponse := transaction.TokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
@@ -164,16 +145,50 @@ func (h *AuthController) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, loginResponse)
 }
 
-type RefreshTokenRequest struct {
-	RefreshToken string `json:"refreshToken" binding:"required"`
-}
-type RefreshTokenResponse struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
+func (h *AuthController) LoginAdmin(c *gin.Context) {
+	var request transaction.LoginAdminRequest
+
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	admin, err := h.adminService.GetByUsername(request.Username)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+	if admin == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		return
+	}
+
+	if bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(request.Password)) != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		return
+	}
+
+	accessToken, err := middleware.CreateAccessToken(admin.ID, "admin")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	refreshToken, err := middleware.CreateRefreshToken(admin.ID, "admin")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	loginAdminResponse := transaction.TokenResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+
+	c.JSON(http.StatusOK, loginAdminResponse)
 }
 
 func (h *AuthController) RefreshToken(c *gin.Context) {
-	var request RefreshTokenRequest
+	var request transaction.RefreshTokenRequest
 
 	err := c.ShouldBind(&request)
 	if err != nil {
@@ -181,31 +196,31 @@ func (h *AuthController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	userId, err := middleware.ExtractIDFromToken(request.RefreshToken)
+	ID, err := middleware.ExtractIDFromToken(request.RefreshToken)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 		return
 	}
 
-	user, err := h.service.GetUserByID(userId)
+	user, err := h.userService.GetUserByID(ID)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 		return
 	}
 
-	accessToken, err := middleware.CreateAccessToken(user.ID)
+	accessToken, err := middleware.CreateAccessToken(user.ID, "user")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	refreshToken, err := middleware.CreateRefreshToken(user.ID)
+	refreshToken, err := middleware.CreateRefreshToken(user.ID, "user")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	refreshTokenResponse := RefreshTokenResponse{
+	refreshTokenResponse := transaction.TokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
