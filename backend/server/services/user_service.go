@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/models"
