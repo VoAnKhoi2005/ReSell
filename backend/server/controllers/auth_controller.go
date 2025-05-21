@@ -10,15 +10,15 @@ import (
 	"strconv"
 )
 
-type UserController struct {
+type AuthController struct {
 	service services.UserService
 }
 
-func NewUserController(service services.UserService) *UserController {
-	return &UserController{service: service}
+func NewAuthController(service services.UserService) *AuthController {
+	return &AuthController{service: service}
 }
 
-func (h *UserController) Register(c *gin.Context) {
+func (h *AuthController) Register(c *gin.Context) {
 	//Not done
 	var req models.User
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -35,11 +35,11 @@ func (h *UserController) Register(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "registered successfully"})
 }
 
-func (h *UserController) Login(c *gin.Context) {
+func (h *AuthController) Login(c *gin.Context) {
 
 }
 
-func (h *UserController) RefreshToken(c *gin.Context) {
+func (h *AuthController) RefreshToken(c *gin.Context) {
 	var request struct {
 		RefreshToken string `json:"refreshToken" binding:"required"`
 	}
@@ -79,8 +79,4 @@ func (h *UserController) RefreshToken(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"accessToken": accessToken, "refreshToken": refreshToken})
-}
-
-func (h *UserController) DeleteUser(c *gin.Context) {
-
 }
