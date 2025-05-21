@@ -7,9 +7,10 @@ import (
 )
 
 type AddressRepository interface {
-	Create(address *model.Address) error
-	Delete(address *model.Address) error
-	Update(address *model.Address) error
+	GetAll() ([]*model.Address, error)
+	Create(user *model.Address) error
+	Update(user *model.Address) error
+	Delete(user *model.Address) error
 
 	GetByID(addressID string) (*model.Address, error)
 	GetByUserID(userID string) ([]model.Address, error)
@@ -24,32 +25,11 @@ type AddressRepository interface {
 }
 
 type addressRepository struct {
-	db *gorm.DB
+	*BaseRepository[model.Address]
 }
 
 func NewAddressRepository(db *gorm.DB) AddressRepository {
-	return &addressRepository{db: db}
-}
-
-func (a *addressRepository) Create(address *model.Address) error {
-	ctx, cancel := util.NewDBContext()
-	defer cancel()
-
-	return a.db.WithContext(ctx).Create(address).Error
-}
-
-func (a *addressRepository) Delete(address *model.Address) error {
-	ctx, cancel := util.NewDBContext()
-	defer cancel()
-
-	return a.db.WithContext(ctx).Delete(address).Error
-}
-
-func (a *addressRepository) Update(address *model.Address) error {
-	ctx, cancel := util.NewDBContext()
-	defer cancel()
-
-	return a.db.WithContext(ctx).Save(address).Error
+	return &addressRepository{BaseRepository: NewBaseRepository[model.Address](db)}
 }
 
 func (a *addressRepository) GetByID(addressID string) (*model.Address, error) {
@@ -66,7 +46,7 @@ func (a *addressRepository) GetByUserID(userID string) ([]model.Address, error) 
 	defer cancel()
 
 	var addresses []model.Address
-	err := a.db.WithContext(ctx).Find(&addresses, "UserID = ?", userID).Error
+	err := a.db.WithContext(ctx).Find(&addresses, "user_id = ?", userID).Error
 	return addresses, err
 }
 
@@ -75,7 +55,7 @@ func (a *addressRepository) GetByWardID(wardID string) ([]model.Address, error) 
 	defer cancel()
 
 	var addresses []model.Address
-	err := a.db.WithContext(ctx).Find(&addresses, "WardID = ?", wardID).Error
+	err := a.db.WithContext(ctx).Find(&addresses, "ward_id = ?", wardID).Error
 	return addresses, err
 }
 
@@ -84,7 +64,7 @@ func (a *addressRepository) GetByWardIDs(wardIDs []string) ([]model.Address, err
 	defer cancel()
 
 	var addresses []model.Address
-	err := a.db.WithContext(ctx).Find(&addresses, "WardID IN ?", wardIDs).Error
+	err := a.db.WithContext(ctx).Find(&addresses, "ward_id IN ?", wardIDs).Error
 	return addresses, err
 }
 
@@ -93,7 +73,7 @@ func (a *addressRepository) GetWards(districtID string) ([]model.Ward, error) {
 	defer cancel()
 
 	var wards []model.Ward
-	err := a.db.WithContext(ctx).Find(&wards, "DistrictID = ?", districtID).Error
+	err := a.db.WithContext(ctx).Find(&wards, "district_id = ?", districtID).Error
 
 	return wards, err
 }
@@ -103,7 +83,7 @@ func (a *addressRepository) GetDistricts(provinceID string) ([]model.District, e
 	defer cancel()
 
 	var districts []model.District
-	err := a.db.WithContext(ctx).Find(&districts, "ProvinceID = ?", provinceID).Error
+	err := a.db.WithContext(ctx).Find(&districts, "province_id = ?", provinceID).Error
 
 	return districts, err
 }

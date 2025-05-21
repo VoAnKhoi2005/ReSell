@@ -33,7 +33,7 @@ func UploadToCloudinary(file multipart.File, fileHeader *multipart.FileHeader) (
 
 	writer.Close()
 
-	//Build request
+	//Build transaction
 	url := fmt.Sprintf("https://api.cloudinary.com/v1_1/%s/image/upload", os.Getenv("CLOUDINARY_CLOUD_NAME"))
 	req, err := http.NewRequest("POST", url, &b)
 	if err != nil {

@@ -60,13 +60,13 @@ func (h *UserController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := middleware.CreateAccessToken(user.ID)
+	accessToken, err := middleware.CreateAccessToken(user.ID, "user")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	refreshToken, err := middleware.CreateRefreshToken(user.ID)
+	refreshToken, err := middleware.CreateRefreshToken(user.ID, "user")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
