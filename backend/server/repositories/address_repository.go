@@ -12,9 +12,9 @@ type AddressRepository interface {
 	Update(address *models.Address) error
 
 	GetByID(addressID uint) (*models.Address, error)
-	GetByWard(wardID uint) ([]models.Address, error)
-	GetByDistrict(districtID uint) ([]models.Address, error)
-	GetByProvince(provinceID uint) ([]models.Address, error)
+	GetByUserID(userID uint) ([]models.Address, error)
+	GetByWardID(wardID uint) ([]models.Address, error)
+	GetByWardIDs(wardIDs []uint) ([]models.Address, error)
 
 	GetWards(districtID uint) ([]models.Ward, error)
 	GetDistricts(provinceID uint) ([]models.District, error)
@@ -61,71 +61,30 @@ func (a *addressRepository) GetByID(addressID uint) (*models.Address, error) {
 	return &address, err
 }
 
-func (a *addressRepository) GetByWard(wardId uint) ([]models.Address, error) {
+func (a *addressRepository) GetByUserID(userID uint) ([]models.Address, error) {
 	ctx, cancel := utils.NewDBContext()
 	defer cancel()
 
 	var addresses []models.Address
-	err := a.db.WithContext(ctx).Find(&addresses, "WardID = ?", wardId).Error
+	err := a.db.WithContext(ctx).Find(&addresses, "UserID = ?", userID).Error
 	return addresses, err
 }
 
-func (a *addressRepository) GetByDistrict(districtId uint) ([]models.Address, error) {
+func (a *addressRepository) GetByWardID(wardID uint) ([]models.Address, error) {
 	ctx, cancel := utils.NewDBContext()
 	defer cancel()
 
-	var wards []models.Ward
-	wards, err := a.GetWards(districtId)
-	if err != nil {
-		return nil, err
-	}
-	if len(wards) == 0 {
-		return []models.Address{}, nil
-	}
-
-	var wardIDs []uint
-	for _, ward := range wards {
-		wardIDs = append(wardIDs, ward.ID)
-	}
-
 	var addresses []models.Address
-	err = a.db.WithContext(ctx).Where("WardID IN ?", wardIDs).Find(&addresses).Error
-
+	err := a.db.WithContext(ctx).Find(&addresses, "WardID = ?", wardID).Error
 	return addresses, err
 }
 
-func (a *addressRepository) GetByProvince(provinceID uint) ([]models.Address, error) {
+func (a *addressRepository) GetByWardIDs(wardIDs []uint) ([]models.Address, error) {
 	ctx, cancel := utils.NewDBContext()
 	defer cancel()
 
-	var districts []models.District
-	districts, err := a.GetDistricts(provinceID)
-	if err != nil {
-		return nil, err
-	}
-
-	var districtIDs []uint
-	for _, district := range districts {
-		districtIDs = append(districtIDs, district.ID)
-	}
-
-	var wards []models.Ward
-	for _, districtID := range districtIDs {
-		wardsOfDistrict, err := a.GetWards(districtID)
-		if err != nil {
-			return nil, err
-		}
-		wards = append(wards, wardsOfDistrict...)
-	}
-
-	var wardIDs []uint
-	for _, ward := range wards {
-		wardIDs = append(wardIDs, ward.ID)
-	}
-
 	var addresses []models.Address
-	err = a.db.WithContext(ctx).Where("WardID IN ?", wardIDs).Find(&addresses).Error
-
+	err := a.db.WithContext(ctx).Find(&addresses, "WardID IN ?", wardIDs).Error
 	return addresses, err
 }
 

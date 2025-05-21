@@ -9,7 +9,7 @@ import (
 type UserRepository interface {
 	// GetAll /User related
 	GetAll() ([]models.User, error)
-	GetByID(id string) (*models.User, error)
+	GetByID(id uint) (*models.User, error)
 	GetByUsername(username string) (*models.User, error)
 	GetByEmail(email string) (*models.User, error)
 	GetByPhone(phone string) (*models.User, error)
@@ -35,7 +35,7 @@ func (r *userRepository) GetAll() ([]models.User, error) {
 	return users, err
 }
 
-func (r *userRepository) GetByID(id string) (*models.User, error) {
+func (r *userRepository) GetByID(id uint) (*models.User, error) {
 	ctx, cancel := utils.NewDBContext()
 	defer cancel()
 
