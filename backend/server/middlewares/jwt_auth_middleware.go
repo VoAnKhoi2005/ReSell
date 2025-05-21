@@ -1,12 +1,14 @@
-package middleware
+package middlewares
 
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"os"
 	"strings"
 )
 
-func JwtAuthMiddleware(secret string) gin.HandlerFunc {
+func JwtAuthMiddleware() gin.HandlerFunc {
+	secret := os.Getenv("ACCESS_TOKEN_SECRET")
 	return func(c *gin.Context) {
 		authHeader := c.Request.Header.Get("Authorization")
 		t := strings.Split(authHeader, " ")
