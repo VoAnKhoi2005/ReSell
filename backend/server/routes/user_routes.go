@@ -1,6 +1,8 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 import "github.com/VoAnKhoi2005/ReSell/controllers"
 
 func RegisterUserRoutes(rg *gin.RouterGroup, controller *controllers.UserController) {
@@ -8,5 +10,8 @@ func RegisterUserRoutes(rg *gin.RouterGroup, controller *controllers.UserControl
 	users := rg.Group("/users")
 
 	//Add path to group
-	users.DELETE("/user", controller.DeleteUser)
+	users.POST("/register", controller.Register)
+	users.POST("/login", controller.Login)
+	users.POST("/refresh", controller.RefreshToken)
+	users.DELETE("/user/:id", controller.DeleteUser)
 }
