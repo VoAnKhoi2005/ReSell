@@ -10,6 +10,7 @@ type UserService interface {
 	GetUserByID(id string) (*model.User, error)
 	GetUserByUsername(username string) (*model.User, error)
 	GetUserByEmail(email string) (*model.User, error)
+	GetUserByPhone(phone string) (*model.User, error)
 }
 
 type userService struct {
@@ -34,4 +35,8 @@ func (s userService) GetUserByUsername(username string) (*model.User, error) {
 
 func (s userService) GetUserByEmail(email string) (*model.User, error) {
 	return s.repo.GetByEmail(email)
+}
+
+func (s userService) GetUserByPhone(phone string) (*model.User, error) {
+	return s.repo.GetByPhone(phone)
 }
