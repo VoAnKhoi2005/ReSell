@@ -7,7 +7,7 @@ import (
 
 type UserService interface {
 	Register(user *models.User) error
-	GetUserByID(id uint) (*models.User, error)
+	GetUserByID(userID uint) (*models.User, error)
 	GetUserByUsername(username string) (*models.User, error)
 	GetUserByEmail(email string) (*models.User, error)
 	GetUserByPhone(phone string) (*models.User, error)
@@ -25,8 +25,8 @@ func (s userService) Register(user *models.User) error {
 	return s.UserRepository.Create(user)
 }
 
-func (s userService) GetUserByID(id uint) (*models.User, error) {
-	return s.UserRepository.GetByID(id)
+func (s userService) GetUserByID(userID uint) (*models.User, error) {
+	return s.UserRepository.GetByID(userID)
 }
 
 func (s userService) GetUserByUsername(username string) (*models.User, error) {
