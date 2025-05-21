@@ -18,5 +18,4 @@ func SetupRoutes(router *gin.Engine) {
 	RegisterAuthRoutes(api, db)
 	RegisterUserRoutes(api, db)
 	RegisterImageRoutes(api)
-
 }
