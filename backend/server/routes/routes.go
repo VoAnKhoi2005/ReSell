@@ -2,9 +2,6 @@ package routes
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/config"
-	"github.com/VoAnKhoi2005/ReSell/controllers"
-	"github.com/VoAnKhoi2005/ReSell/repositories"
-	"github.com/VoAnKhoi2005/ReSell/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,13 +13,10 @@ func SetupRoutes(router *gin.Engine) {
 
 	db := config.DB
 
-	userRepo := repositories.NewUserRepository(db)
-	userService := services.NewUserService(userRepo)
-	userController := controllers.NewUserController(userService)
-
 	// Group API -> ../api/..
 	api := router.Group("/api")
-	RegisterUserRoutes(api, userController)
+	RegisterAuthRoutes(api, db)
+	RegisterUserRoutes(api, db)
 	RegisterImageRoutes(api)
 
 }
