@@ -7,46 +7,31 @@ import (
 )
 
 type CategoryRepository interface {
+	//Imherit from base repo
 	GetAll() ([]*models.Category, error)
-	GetByID(id uint) (*models.Category, error)
 	Create(category *models.Category) error
-	Update(id uint, category *models.Category) error
-	Delete(id uint) error
+	Update(category *models.Category) error
+	Delete(category *models.Category) error
+
+	//self func
+	GetByID(id uint) (*models.Category, error)
 }
 
 type categoryRepository struct {
-	db *gorm.DB
+	*BaseRepository[models.Category] // embed
 }
 
 func NewCategoryRepository(db *gorm.DB) CategoryRepository {
-	return &categoryRepository{db: db}
+	return &categoryRepository{
+		BaseRepository: NewBaseRepository[models.Category](db),
+	}
 }
 
-func (r categoryRepository) GetAll() ([]*models.Category, error) {
+func (r *categoryRepository) GetByID(id uint) (*models.Category, error) {
 	ctx, cancel := utils.NewDBContext()
 	defer cancel()
 
-	var categories []*models.Category
-	err := r.db.WithContext(ctx).Find(&categories).Error
-	return categories, err
-}
-
-func (r categoryRepository) GetByID(id uint) (*models.Category, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r categoryRepository) Create(category *models.Category) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r categoryRepository) Update(id uint, category *models.Category) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r categoryRepository) Delete(id uint) error {
-	//TODO implement me
-	panic("implement me")
+	var category models.Category
+	err := r.db.WithContext(ctx).First(&category, "id = ?", id).Error
+	return &category, err
 }
