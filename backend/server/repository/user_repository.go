@@ -2,7 +2,7 @@ package repository
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/model"
-	"github.com/VoAnKhoi2005/ReSell/utils"
+	"github.com/VoAnKhoi2005/ReSell/util"
 	"gorm.io/gorm"
 )
 
@@ -31,7 +31,7 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 }
 
 func (r *userRepository) GetByID(id string) (*model.User, error) {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	var user model.User
@@ -40,7 +40,7 @@ func (r *userRepository) GetByID(id string) (*model.User, error) {
 }
 
 func (r *userRepository) GetByUsername(username string) (*model.User, error) {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	var user model.User
@@ -49,7 +49,7 @@ func (r *userRepository) GetByUsername(username string) (*model.User, error) {
 }
 
 func (r *userRepository) GetByEmail(email string) (*model.User, error) {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	var user model.User
@@ -58,7 +58,7 @@ func (r *userRepository) GetByEmail(email string) (*model.User, error) {
 }
 
 func (r *userRepository) GetByPhone(phone string) (*model.User, error) {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	var user model.User

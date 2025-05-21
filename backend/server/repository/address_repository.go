@@ -2,7 +2,7 @@ package repository
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/model"
-	"github.com/VoAnKhoi2005/ReSell/utils"
+	"github.com/VoAnKhoi2005/ReSell/util"
 	"gorm.io/gorm"
 )
 
@@ -32,28 +32,28 @@ func NewAddressRepository(db *gorm.DB) AddressRepository {
 }
 
 func (a *addressRepository) Create(address *model.Address) error {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	return a.db.WithContext(ctx).Create(address).Error
 }
 
 func (a *addressRepository) Delete(address *model.Address) error {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	return a.db.WithContext(ctx).Delete(address).Error
 }
 
 func (a *addressRepository) Update(address *model.Address) error {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	return a.db.WithContext(ctx).Save(address).Error
 }
 
 func (a *addressRepository) GetByID(addressID uint) (*model.Address, error) {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	var address model.Address
@@ -62,7 +62,7 @@ func (a *addressRepository) GetByID(addressID uint) (*model.Address, error) {
 }
 
 func (a *addressRepository) GetByWard(wardId uint) ([]model.Address, error) {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	var addresses []model.Address
@@ -71,7 +71,7 @@ func (a *addressRepository) GetByWard(wardId uint) ([]model.Address, error) {
 }
 
 func (a *addressRepository) GetByDistrict(districtId uint) ([]model.Address, error) {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	var wards []model.Ward
@@ -95,7 +95,7 @@ func (a *addressRepository) GetByDistrict(districtId uint) ([]model.Address, err
 }
 
 func (a *addressRepository) GetByProvince(provinceID uint) ([]model.Address, error) {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	var districts []model.District
@@ -130,7 +130,7 @@ func (a *addressRepository) GetByProvince(provinceID uint) ([]model.Address, err
 }
 
 func (a *addressRepository) GetWards(districtID uint) ([]model.Ward, error) {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	var wards []model.Ward
@@ -140,7 +140,7 @@ func (a *addressRepository) GetWards(districtID uint) ([]model.Ward, error) {
 }
 
 func (a *addressRepository) GetDistricts(provinceID uint) ([]model.District, error) {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	var districts []model.District
@@ -150,7 +150,7 @@ func (a *addressRepository) GetDistricts(provinceID uint) ([]model.District, err
 }
 
 func (a *addressRepository) GetAllProvinces() ([]model.Province, error) {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	var provinces []model.Province
@@ -160,7 +160,7 @@ func (a *addressRepository) GetAllProvinces() ([]model.Province, error) {
 }
 
 func (a *addressRepository) GetAllDistricts() ([]model.District, error) {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	var districts []model.District

@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/VoAnKhoi2005/ReSell/utils"
+	"github.com/VoAnKhoi2005/ReSell/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -15,7 +15,7 @@ func UploadImageHandler(c *gin.Context) {
 
 	defer file.Close()
 
-	imageURL, err := utils.UploadToCloudinary(file, fileHeader)
+	imageURL, err := util.UploadToCloudinary(file, fileHeader)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Upload failed", "details": err.Error()})
 		return

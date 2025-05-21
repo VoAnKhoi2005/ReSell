@@ -2,7 +2,7 @@ package repository
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/model"
-	"github.com/VoAnKhoi2005/ReSell/utils"
+	"github.com/VoAnKhoi2005/ReSell/util"
 	"gorm.io/gorm"
 )
 
@@ -28,7 +28,7 @@ func NewCategoryRepository(db *gorm.DB) CategoryRepository {
 }
 
 func (r *categoryRepository) GetByID(id string) (*model.Category, error) {
-	ctx, cancel := utils.NewDBContext()
+	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	var category model.Category
