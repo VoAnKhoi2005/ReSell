@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/VoAnKhoi2005/ReSell/model"
 	"net/http"
 
 	"github.com/VoAnKhoi2005/ReSell/middleware"
@@ -25,9 +26,9 @@ type RegisterRequest struct {
 }
 
 type RegisterResponse struct {
-	User         models.User `json:"user"`
-	AccessToken  string      `json:"accessToken"`
-	RefreshToken string      `json:"refreshToken"`
+	User         model.User `json:"user"`
+	AccessToken  string     `json:"accessToken"`
+	RefreshToken string     `json:"refreshToken"`
 }
 
 func (h *AuthController) Register(c *gin.Context) {
@@ -68,7 +69,7 @@ func (h *AuthController) Register(c *gin.Context) {
 		return
 	}
 
-	user := models.User{
+	user := model.User{
 		Username: req.Username,
 		Email:    req.Email,
 		Phone:    req.Phone,
@@ -81,13 +82,13 @@ func (h *AuthController) Register(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := middlewares.CreateAccessToken(user.ID)
+	accessToken, err := middleware.CreateAccessToken(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	refreshToken, err := middlewares.CreateRefreshToken(user.ID)
+	refreshToken, err := middleware.CreateRefreshToken(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -119,7 +120,7 @@ func (h *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	var user *models.User
+	var user *model.User
 	var err error
 	switch request.LoginType {
 	case "email":
@@ -143,13 +144,13 @@ func (h *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := middlewares.CreateAccessToken(user.ID)
+	accessToken, err := middleware.CreateAccessToken(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	refreshToken, err := middlewares.CreateRefreshToken(user.ID)
+	refreshToken, err := middleware.CreateRefreshToken(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -180,7 +181,7 @@ func (h *AuthController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	userId, err := middlewares.ExtractIDFromToken(request.RefreshToken)
+	userId, err := middleware.ExtractIDFromToken(request.RefreshToken)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 		return
@@ -192,13 +193,13 @@ func (h *AuthController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := middlewares.CreateAccessToken(user.ID)
+	accessToken, err := middleware.CreateAccessToken(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	refreshToken, err := middleware.CreateRefreshToken(user, RefreshTokenExpiryHour)
+	refreshToken, err := middleware.CreateRefreshToken(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

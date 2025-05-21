@@ -68,10 +68,10 @@ func IsAuthorized(requestToken string) (bool, error) {
 	return true, nil
 }
 
-func ExtractIDFromToken(requestToken string) (uint, error) {
+func ExtractIDFromToken(requestToken string) (string, error) {
 	secret := os.Getenv("REQUEST_TOKEN_SECRET")
 	if secret == "" {
-		return 0, errors.New("no secret provided")
+		return "", errors.New("no secret provided")
 	}
 
 	token, err := jwt.Parse(requestToken, func(token *jwt.Token) (interface{}, error) {
@@ -82,19 +82,19 @@ func ExtractIDFromToken(requestToken string) (uint, error) {
 	})
 
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 
 	if !ok || !token.Valid {
-		return 0, fmt.Errorf("invalid Token")
+		return "", fmt.Errorf("invalid Token")
 	}
 
-	idFloat, ok := claims["id"].(float64)
+	ID, ok := claims["id"].(string)
 	if !ok {
-		return 0, fmt.Errorf("id claim not found or not a number")
+		return "", fmt.Errorf("id claim is missing or not a string")
 	}
 
-	return uint(idFloat), nil
+	return ID, nil
 }

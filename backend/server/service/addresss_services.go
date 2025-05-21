@@ -1,52 +1,52 @@
-package services
+package service
 
 import (
-	"github.com/VoAnKhoi2005/ReSell/models"
-	"github.com/VoAnKhoi2005/ReSell/repositories"
+	"github.com/VoAnKhoi2005/ReSell/model"
+	"github.com/VoAnKhoi2005/ReSell/repository"
 )
 
 type AddressService interface {
-	GetByID(addressID uint) (*models.Address, error)
-	GetByUserID(userID uint) (*models.Address, error)
-	GetByWardID(wardID uint) ([]models.Address, error)
-	GetByDistrict(districtID uint) ([]models.Address, error)
-	GetByProvince(provinceID uint) ([]models.Address, error)
+	GetByID(addressID string) (*model.Address, error)
+	GetByUserID(userID string) (*model.Address, error)
+	GetByWardID(wardID string) ([]model.Address, error)
+	GetByDistrict(districtID string) ([]model.Address, error)
+	GetByProvince(provinceID string) ([]model.Address, error)
 }
 
 type addressService struct {
-	AddressRepository repositories.AddressRepository
+	AddressRepository repository.AddressRepository
 }
 
-func NewAddressService(repo repositories.AddressRepository) AddressService {
+func NewAddressService(repo repository.AddressRepository) AddressService {
 	return &addressService{AddressRepository: repo}
 }
 
-func (a *addressService) GetByID(addressID uint) (*models.Address, error) {
+func (a *addressService) GetByID(addressID string) (*model.Address, error) {
 	return a.AddressRepository.GetByID(addressID)
 }
 
-func (a *addressService) GetByUserID(userID uint) (*models.Address, error) {
+func (a *addressService) GetByUserID(userID string) (*model.Address, error) {
 	return a.AddressRepository.GetByID(userID)
 }
 
-func (a *addressService) GetByWardID(wardID uint) ([]models.Address, error) {
+func (a *addressService) GetByWardID(wardID string) ([]model.Address, error) {
 	addresses, err := a.AddressRepository.GetByWardID(wardID)
 	return addresses, err
 }
 
-func (a *addressService) GetByProvince(provinceID uint) ([]models.Address, error) {
-	var districts []models.District
+func (a *addressService) GetByProvince(provinceID string) ([]model.Address, error) {
+	var districts []model.District
 	districts, err := a.AddressRepository.GetDistricts(provinceID)
 	if err != nil {
 		return nil, err
 	}
 
-	var districtIDs []uint
+	var districtIDs []string
 	for _, district := range districts {
 		districtIDs = append(districtIDs, district.ID)
 	}
 
-	var wards []models.Ward
+	var wards []model.Ward
 	for _, districtID := range districtIDs {
 		wardsOfDistrict, err := a.AddressRepository.GetWards(districtID)
 		if err != nil {
@@ -55,7 +55,7 @@ func (a *addressService) GetByProvince(provinceID uint) ([]models.Address, error
 		wards = append(wards, wardsOfDistrict...)
 	}
 
-	var wardIDs []uint
+	var wardIDs []string
 	for _, ward := range wards {
 		wardIDs = append(wardIDs, ward.ID)
 	}
@@ -64,17 +64,17 @@ func (a *addressService) GetByProvince(provinceID uint) ([]models.Address, error
 	return addresses, err
 }
 
-func (a *addressService) GetByDistrict(districtId uint) ([]models.Address, error) {
-	var wards []models.Ward
+func (a *addressService) GetByDistrict(districtId string) ([]model.Address, error) {
+	var wards []model.Ward
 	wards, err := a.AddressRepository.GetWards(districtId)
 	if err != nil {
 		return nil, err
 	}
 	if len(wards) == 0 {
-		return []models.Address{}, nil
+		return []model.Address{}, nil
 	}
 
-	var wardIDs []uint
+	var wardIDs []string
 	for _, ward := range wards {
 		wardIDs = append(wardIDs, ward.ID)
 	}

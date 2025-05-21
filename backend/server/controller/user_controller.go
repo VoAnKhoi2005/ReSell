@@ -6,8 +6,6 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"os"
-	"strconv"
 )
 
 type UserController struct {
@@ -50,11 +48,7 @@ func (h *UserController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	RefreshTokenSecret := os.Getenv("REFRESH_TOKEN_SECRET")
-	AccessTokenExpiryHour, err := strconv.Atoi(os.Getenv("ACCESS_TOKEN_EXPIRY_HOUR"))
-	RefreshTokenExpiryHour, err := strconv.Atoi(os.Getenv("REFRESH_TOKEN_EXPIRY_HOUR"))
-
-	id, err := middleware.ExtractIDFromToken(request.RefreshToken, RefreshTokenSecret)
+	id, err := middleware.ExtractIDFromToken(request.RefreshToken)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 		return
@@ -66,13 +60,13 @@ func (h *UserController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := middleware.CreateAccessToken(user, AccessTokenExpiryHour)
+	accessToken, err := middleware.CreateAccessToken(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	refreshToken, err := middleware.CreateRefreshToken(user, RefreshTokenExpiryHour)
+	refreshToken, err := middleware.CreateRefreshToken(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
