@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/config"
-	"github.com/VoAnKhoi2005/ReSell/routes"
+	"github.com/VoAnKhoi2005/ReSell/route"
 	"github.com/gin-gonic/gin"
 	"log"
 	"os"
@@ -21,7 +21,7 @@ func main() {
 	config.RunMigrations()
 
 	router := gin.Default()
-	routes.SetupRoutes(router)
+	route.SetupRoutes(router)
 
 	log.Printf("Server is running at http://localhost:%s\n", port)
 	err := router.Run(":" + port)
