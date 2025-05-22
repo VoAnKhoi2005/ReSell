@@ -13,15 +13,15 @@ type AddressRepository interface {
 	Delete(user *model.Address) error
 
 	GetByID(addressID string) (*model.Address, error)
-	GetByUserID(userID string) ([]model.Address, error)
-	GetByWardID(wardID string) ([]model.Address, error)
-	GetByWardIDs(wardIDs []string) ([]model.Address, error)
+	GetByUserID(userID string) ([]*model.Address, error)
+	GetByWardID(wardID string) ([]*model.Address, error)
+	GetByWardIDs(wardIDs []string) ([]*model.Address, error)
 
-	GetWards(districtID string) ([]model.Ward, error)
-	GetDistricts(provinceID string) ([]model.District, error)
+	GetWards(districtID string) ([]*model.Ward, error)
+	GetDistricts(provinceID string) ([]*model.District, error)
 
-	GetAllProvinces() ([]model.Province, error)
-	GetAllDistricts() ([]model.District, error)
+	GetAllProvinces() ([]*model.Province, error)
+	GetAllDistricts() ([]*model.District, error)
 }
 
 type addressRepository struct {
@@ -41,68 +41,68 @@ func (a *addressRepository) GetByID(addressID string) (*model.Address, error) {
 	return &address, err
 }
 
-func (a *addressRepository) GetByUserID(userID string) ([]model.Address, error) {
+func (a *addressRepository) GetByUserID(userID string) ([]*model.Address, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var addresses []model.Address
+	var addresses []*model.Address
 	err := a.db.WithContext(ctx).Find(&addresses, "user_id = ?", userID).Error
 	return addresses, err
 }
 
-func (a *addressRepository) GetByWardID(wardID string) ([]model.Address, error) {
+func (a *addressRepository) GetByWardID(wardID string) ([]*model.Address, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var addresses []model.Address
+	var addresses []*model.Address
 	err := a.db.WithContext(ctx).Find(&addresses, "ward_id = ?", wardID).Error
 	return addresses, err
 }
 
-func (a *addressRepository) GetByWardIDs(wardIDs []string) ([]model.Address, error) {
+func (a *addressRepository) GetByWardIDs(wardIDs []string) ([]*model.Address, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var addresses []model.Address
+	var addresses []*model.Address
 	err := a.db.WithContext(ctx).Find(&addresses, "ward_id IN ?", wardIDs).Error
 	return addresses, err
 }
 
-func (a *addressRepository) GetWards(districtID string) ([]model.Ward, error) {
+func (a *addressRepository) GetWards(districtID string) ([]*model.Ward, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var wards []model.Ward
+	var wards []*model.Ward
 	err := a.db.WithContext(ctx).Find(&wards, "district_id = ?", districtID).Error
 
 	return wards, err
 }
 
-func (a *addressRepository) GetDistricts(provinceID string) ([]model.District, error) {
+func (a *addressRepository) GetDistricts(provinceID string) ([]*model.District, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var districts []model.District
+	var districts []*model.District
 	err := a.db.WithContext(ctx).Find(&districts, "province_id = ?", provinceID).Error
 
 	return districts, err
 }
 
-func (a *addressRepository) GetAllProvinces() ([]model.Province, error) {
+func (a *addressRepository) GetAllProvinces() ([]*model.Province, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var provinces []model.Province
+	var provinces []*model.Province
 	err := a.db.WithContext(ctx).Find(&provinces).Error
 
 	return provinces, err
 }
 
-func (a *addressRepository) GetAllDistricts() ([]model.District, error) {
+func (a *addressRepository) GetAllDistricts() ([]*model.District, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var districts []model.District
+	var districts []*model.District
 	err := a.db.WithContext(ctx).Find(&districts).Error
 
 	return districts, err
