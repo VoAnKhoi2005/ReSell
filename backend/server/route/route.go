@@ -17,6 +17,7 @@ func SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api")
 	RegisterAuthRoutes(api, db)
 	RegisterUserRoutes(api, db)
+	RegisterMessageRote(api, db)
 	RegisterCategoryRoutes(api, db)
 	RegisterImageRoutes(api)
 }
