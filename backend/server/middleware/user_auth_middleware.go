@@ -32,7 +32,7 @@ func UserAuthMiddleware() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
-
+			
 			c.Set("x-user-id", ID)
 			c.Next()
 			return

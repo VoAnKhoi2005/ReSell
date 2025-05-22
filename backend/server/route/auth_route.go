@@ -14,7 +14,7 @@ func RegisterAuthRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	adminRepo := repository.NewAdminRepository(db)
 	adminService := service.NewAdminService(adminRepo)
-	
+
 	authController := controller.NewAuthController(userService, adminService)
 
 	//Create auth group -> /api/auth/...
@@ -25,5 +25,5 @@ func RegisterAuthRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	admin := auth.Group("/admin")
 	admin.POST("/login", authController.LoginAdmin)
-	admin.POST("/refresh", authController.RefreshToken)
+	admin.POST("/refresh", authController.RefreshAdminToken)
 }
