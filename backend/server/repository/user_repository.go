@@ -18,6 +18,10 @@ type UserRepository interface {
 	GetByUsername(username string) (*model.User, error)
 	GetByEmail(email string) (*model.User, error)
 	GetByPhone(phone string) (*model.User, error)
+
+	DeleteByID(id string) error
+
+	FollowUser(followerID string, followedID string) error
 }
 
 type userRepository struct {
@@ -64,4 +68,18 @@ func (r *userRepository) GetByPhone(phone string) (*model.User, error) {
 	var user model.User
 	err := r.db.WithContext(ctx).First(&user, "phone = ?", phone).Error
 	return &user, err
+}
+
+func (r *userRepository) DeleteByID(id string) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return r.db.WithContext(ctx).Delete(&model.User{}, "id = ?", id).Error
+}
+
+func (r *userRepository) FollowUser(followerID string, followedID string) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return r.db.WithContext(ctx).Create(&model.Follow{BuyerId: followerID, SellerId: followedID}).Error
 }

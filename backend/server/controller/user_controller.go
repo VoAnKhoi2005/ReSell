@@ -1,80 +1,126 @@
 package controller
 
 import (
-	"github.com/VoAnKhoi2005/ReSell/middleware"
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/service"
+	"github.com/VoAnKhoi2005/ReSell/transaction"
+	"github.com/VoAnKhoi2005/ReSell/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type UserController struct {
-	service service.UserService
+	userService    service.UserService
+	addressService service.AddressService
 }
 
-func NewUserController(service service.UserService) *UserController {
-	return &UserController{service: service}
+func NewUserController(userService service.UserService, addressService service.AddressService) *UserController {
+	return &UserController{
+		userService:    userService,
+		addressService: addressService,
+	}
 }
 
-func (h *UserController) Register(c *gin.Context) {
-	//Not done
-	var req model.User
-	if err := c.ShouldBindJSON(&req); err != nil {
+func (h *UserController) GetUserByID(c *gin.Context) {
+	userID := c.Param("id")
+
+	user, err := h.userService.GetUserByID(userID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": user})
+}
+
+func (h *UserController) UpdateUser(c *gin.Context) {
+	var user *model.User
+
+	err := c.ShouldBind(&user)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err := h.service.Register(&req)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "register failed"})
+	if !util.IsUserOwner(c, user.ID) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "registered successfully"})
-}
-
-func (h *UserController) Login(c *gin.Context) {
-
-}
-
-func (h *UserController) RefreshToken(c *gin.Context) {
-	var request struct {
-		RefreshToken string `json:"refreshToken" binding:"required"`
+	err = h.userService.UpdateUser(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (h *UserController) DeleteUser(c *gin.Context) {
+	userID := c.Param("id")
+
+	if !util.IsUserOwner(c, userID) {
+		return
+	}
+
+	err := h.userService.DeleteUserByID(userID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (h *UserController) Follow(c *gin.Context) {
+	var request transaction.FollowRequest
 	err := c.ShouldBind(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	id, err := middleware.ExtractIDFromToken(request.RefreshToken)
+	follower, err := h.userService.GetUserByID(request.FollowerID)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	user, err := h.service.GetUserByID(id)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+	if !util.IsUserOwner(c, request.FollowerID) {
 		return
 	}
 
-	accessToken, err := middleware.CreateAccessToken(user.ID)
+	followee, err := h.userService.GetUserByID(request.FolloweeID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	refreshToken, err := middleware.CreateRefreshToken(user.ID)
+	err = h.userService.FollowUser(follower.ID, followee.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"accessToken": accessToken, "refreshToken": refreshToken})
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
-func (h *UserController) DeleteUser(c *gin.Context) {
+func (h *UserController) AddAddress(c *gin.Context) {
+	var address *model.Address
+	err := c.ShouldBind(&address)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
+	if !util.IsUserOwner(c, address.UserID) {
+		return
+	}
+
+	err = h.addressService.Create(address)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }

@@ -6,6 +6,8 @@ import (
 )
 
 type AddressService interface {
+	Create(address *model.Address) error
+
 	GetByID(addressID string) (*model.Address, error)
 	GetByUserID(userID string) (*model.Address, error)
 	GetByWardID(wardID string) ([]model.Address, error)
@@ -19,6 +21,10 @@ type addressService struct {
 
 func NewAddressService(repo repository.AddressRepository) AddressService {
 	return &addressService{AddressRepository: repo}
+}
+
+func (a *addressService) Create(address *model.Address) error {
+	return a.AddressRepository.Create(address)
 }
 
 func (a *addressService) GetByID(addressID string) (*model.Address, error) {

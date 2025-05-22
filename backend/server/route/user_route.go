@@ -1,26 +1,35 @@
 package route
 
 import (
+	"github.com/VoAnKhoi2005/ReSell/controller"
 	"github.com/VoAnKhoi2005/ReSell/middleware"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
-import "github.com/VoAnKhoi2005/ReSell/controller"
 
 func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
-	//init repo, service and controller
-	repo := repository.NewUserRepository(db)
-	service := service.NewUserService(repo)
-	controller := controller.NewUserController(service)
+	userRepo := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
+
+	addressRepo := repository.NewAddressRepository(db)
+	addressService := service.NewAddressService(addressRepo)
+
+	userController := controller.NewUserController(userService, addressService)
 
 	//Create users group -> /api/users/...
 	users := rg.Group("/users")
 
 	//Middleware
-	users.Use(middleware.JwtAuthMiddleware())
+	users.Use(middleware.UserAuthMiddleware())
 
 	//Add paths to group
-	users.DELETE("/:id", controller.DeleteUser)
+	users.GET("/:id", userController.GetUserByID)
+	users.PUT("", userController.UpdateUser)
+	users.DELETE("/:id", userController.DeleteUser)
+
+	users.POST("/follow", userController.Follow)
+
+	users.POST("/address", userController.AddAddress)
 }
