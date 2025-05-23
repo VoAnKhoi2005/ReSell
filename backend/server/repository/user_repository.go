@@ -80,7 +80,7 @@ func (r *userRepository) DeleteByID(id string) error {
 	return r.db.WithContext(ctx).Delete(&model.User{}, "id = ?", id).Error
 }
 
-func (r *userRepository) FollowUser(followerID string, followedID string) error {
+func (r *userRepository) FollowUser(followerID *string, followedID *string) error {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 

@@ -42,7 +42,7 @@ func (h *UserController) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	if !util.IsUserOwner(c, user.ID) {
+	if !util.IsUserOwner(c, &user.ID) {
 		return
 	}
 
@@ -58,7 +58,7 @@ func (h *UserController) UpdateUser(c *gin.Context) {
 func (h *UserController) DeleteUser(c *gin.Context) {
 	userID := c.Param("id")
 
-	if !util.IsUserOwner(c, userID) {
+	if !util.IsUserOwner(c, &userID) {
 		return
 	}
 
@@ -79,7 +79,7 @@ func (h *UserController) Follow(c *gin.Context) {
 		return
 	}
 
-	follower, err := h.userService.GetUserByID(request.FollowerID)
+	follower, err := h.userService.GetUserByID(*request.FollowerID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -89,13 +89,13 @@ func (h *UserController) Follow(c *gin.Context) {
 		return
 	}
 
-	followee, err := h.userService.GetUserByID(request.FolloweeID)
+	followee, err := h.userService.GetUserByID(*request.FolloweeID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = h.userService.FollowUser(follower.ID, followee.ID)
+	err = h.userService.FollowUser(&follower.ID, &followee.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
