@@ -32,16 +32,16 @@ type User struct {
 }
 
 type Follow struct {
-	SellerId string `gorm:"type:uuid;primaryKey"`
-	BuyerId  string `gorm:"type:uuid;primaryKey"`
+	SellerId *string `gorm:"type:uuid;primaryKey"`
+	BuyerId  *string `gorm:"type:uuid;primaryKey"`
 
 	Seller *User
 	Buyer  *User
 }
 
 type Notification struct {
-	ID          string `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	UserID      string `gorm:"type:uuid"`
+	ID          string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	UserID      *string `gorm:"type:uuid"`
 	Title       string
 	Description string
 	IsRead      bool

@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func IsUserOwner(c *gin.Context, expectedID string) bool {
+func IsUserOwner(c *gin.Context, expectedID *string) bool {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "requester_id not found"})
@@ -19,7 +19,7 @@ func IsUserOwner(c *gin.Context, expectedID string) bool {
 		return false
 	}
 
-	if userID != expectedID {
+	if userID != *expectedID {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not the owner of the user"})
 		return false
 	}

@@ -21,9 +21,9 @@ func NewMessageController(messageService service.MessageService) *MessageControl
 }
 
 type CreateConversationRequest struct {
-	BuyerID  string `json:"buyer_id" binding:"required"`
-	SellerID string `json:"seller_id" binding:"required"`
-	PostID   string `json:"post_id" binding:"required"`
+	BuyerID  *string `json:"buyer_id" binding:"required"`
+	SellerID *string `json:"seller_id" binding:"required"`
+	PostID   *string `json:"post_id" binding:"required"`
 }
 
 func (mc *MessageController) CreateConversation(c *gin.Context) {
@@ -59,9 +59,9 @@ func (mc *MessageController) CreateConversation(c *gin.Context) {
 }
 
 type CreateMessageRequest struct {
-	Content        string `json:"content" binding:"required"`
-	ConversationId string `json:"conversationId" binding:"required"`
-	SenderId       string `json:"senderId" binding:"required"`
+	Content        string  `json:"content" binding:"required"`
+	ConversationId *string `json:"conversationId" binding:"required"`
+	SenderId       *string `json:"senderId" binding:"required"`
 }
 
 func (mc *MessageController) CreateMessage(c *gin.Context) {
@@ -76,7 +76,7 @@ func (mc *MessageController) CreateMessage(c *gin.Context) {
 		return
 	}
 
-	conversation, err := mc.messageService.GetConversationByID(request.ConversationId)
+	conversation, err := mc.messageService.GetConversationByID(*request.ConversationId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
