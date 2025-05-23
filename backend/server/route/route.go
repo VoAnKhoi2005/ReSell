@@ -3,12 +3,13 @@ package route
 import (
 	"github.com/VoAnKhoi2005/ReSell/config"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 // SetupRoutes registers all API route
 func SetupRoutes(router *gin.Engine) {
 	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "pong"})
+		c.JSON(http.StatusOK, gin.H{"message": "pong"})
 	})
 
 	db := config.DB
