@@ -8,9 +8,9 @@ import (
 
 type AddressRepository interface {
 	GetAll() ([]*model.Address, error)
-	Create(user *model.Address) error
-	Update(user *model.Address) error
-	Delete(user *model.Address) error
+	Create(address *model.Address) error
+	Update(address *model.Address) error
+	Delete(address *model.Address) error
 
 	GetByID(addressID string) (*model.Address, error)
 	GetByUserID(userID string) ([]*model.Address, error)

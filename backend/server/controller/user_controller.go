@@ -10,14 +10,12 @@ import (
 )
 
 type UserController struct {
-	userService    service.UserService
-	addressService service.AddressService
+	userService service.UserService
 }
 
-func NewUserController(userService service.UserService, addressService service.AddressService) *UserController {
+func NewUserController(userService service.UserService) *UserController {
 	return &UserController{
-		userService:    userService,
-		addressService: addressService,
+		userService: userService,
 	}
 }
 
@@ -84,27 +82,6 @@ func (h *UserController) Follow(c *gin.Context) {
 	}
 
 	err = h.userService.FollowUser(&request.FollowerID, &request.FolloweeID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"success": true})
-}
-
-func (h *UserController) AddAddress(c *gin.Context) {
-	var address *model.Address
-	err := c.ShouldBind(&address)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if !util.IsUserOwner(c, *address.UserID) {
-		return
-	}
-
-	err = h.addressService.Create(address)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
