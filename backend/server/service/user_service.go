@@ -18,7 +18,7 @@ type UserService interface {
 	DeleteUser(user *model.User) error
 	DeleteUserByID(ID string) error
 
-	FollowUser(followerID string, followedID string) error
+	FollowUser(followerID *string, followedID *string) error
 	BanUserForDay(userID string, length uint) error
 	UnBanUser(userID string) error
 }
