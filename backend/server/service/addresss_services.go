@@ -13,6 +13,10 @@ type AddressService interface {
 	GetByWardID(wardID string) ([]*model.Address, error)
 	GetByDistrict(districtID string) ([]*model.Address, error)
 	GetByProvince(provinceID string) ([]*model.Address, error)
+
+	CreateProvince(province *model.Province) error
+	CreateDistrict(district *model.District) error
+	CreateWard(ward *model.Ward) error
 }
 
 type addressService struct {
@@ -87,4 +91,16 @@ func (a *addressService) GetByDistrict(districtId string) ([]*model.Address, err
 
 	addresses, err := a.AddressRepository.GetByWardIDs(wardIDs)
 	return addresses, err
+}
+
+func (a *addressService) CreateProvince(province *model.Province) error {
+	return a.AddressRepository.CreateProvince(province)
+}
+
+func (a *addressService) CreateDistrict(district *model.District) error {
+	return a.AddressRepository.CreateDistrict(district)
+}
+
+func (a *addressService) CreateWard(ward *model.Ward) error {
+	return a.AddressRepository.CreateWard(ward)
 }
