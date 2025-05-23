@@ -30,34 +30,12 @@ func (h *AuthController) Register(c *gin.Context) {
 		return
 	}
 
-	var errors []string
-	var err error
-	_, err = h.userService.GetUserByEmail(req.Email)
-	if err == nil {
-		errors = append(errors, "email: email already taken")
-	}
-
-	_, err = h.userService.GetUserByPhone(req.Phone)
-	if err == nil {
-		errors = append(errors, "phone: phone number already taken")
-	}
-
-	_, err = h.userService.GetUserByUsername(req.Username)
-	if err == nil {
-		errors = append(errors, "username: username already taken")
-	}
-
-	if len(errors) > 0 {
-		c.JSON(http.StatusConflict, gin.H{"errors": errors}) // return multiple error
-		return
-	}
-
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
 		[]byte(req.Password),
 		bcrypt.DefaultCost,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -67,16 +45,19 @@ func (h *AuthController) Register(c *gin.Context) {
 		Phone:    req.Phone,
 		Password: string(encryptedPassword),
 	}
+	errStr := h.userService.Register(&user)
+	if errStr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": errStr})
+		return
+	}
 
-	err = h.userService.Register(&user)
+	accessToken, refreshToken, err := util.GenerateToken(user.ID, "user")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	accessToken, refreshToken, err := util.GenerateToken(user.ID, "user")
-	response := transaction.RegisterResponse{
-		User:         user,
+	response := transaction.TokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
@@ -91,34 +72,24 @@ func (h *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	var user *model.User
-	var err error
-	switch request.LoginType {
-	case "email":
-		user, err = h.userService.GetUserByEmail(request.Identifier)
-	case "phone":
-		user, err = h.userService.GetUserByPhone(request.Identifier)
-	case "username":
-		user, err = h.userService.GetUserByUsername(request.Identifier)
-	default:
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid login type"})
-		return
-	}
-
-	if err != nil || user == nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-		return
-	}
-
-	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)) != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+	user, err := h.userService.Login(request.Identifier, request.Password, request.LoginType)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	accessToken, refreshToken, err := util.GenerateToken(user.ID, "user")
-	loginResponse := transaction.TokenResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	loginResponse := transaction.LoginResponse{
+		User: user,
+		Token: transaction.TokenResponse{
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+		},
 	}
 
 	c.JSON(http.StatusOK, loginResponse)
@@ -154,6 +125,44 @@ func (h *AuthController) RefreshToken(c *gin.Context) {
 	c.JSON(http.StatusOK, refreshTokenResponse)
 }
 
+func (h *AuthController) RegisterAdmin(c *gin.Context) {
+	var request transaction.RegisterAdminRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	encryptedPassword, err := bcrypt.GenerateFromPassword(
+		[]byte(request.Password),
+		bcrypt.DefaultCost,
+	)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	admin := model.Admin{
+		Username: request.Username,
+		Email:    request.Email,
+		Password: string(encryptedPassword),
+	}
+
+	errors := h.adminService.Register(&admin)
+
+	if errors != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": errors})
+		return
+	}
+
+	accessToken, refreshToken, err := util.GenerateToken(admin.ID, "admin")
+	tokenResponse := transaction.TokenResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+
+	c.JSON(http.StatusOK, tokenResponse)
+}
+
 func (h *AuthController) LoginAdmin(c *gin.Context) {
 	var request transaction.LoginAdminRequest
 
@@ -162,24 +171,24 @@ func (h *AuthController) LoginAdmin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	admin, err := h.adminService.GetByUsername(request.Username)
+	admin, err := h.adminService.Login(request.Username, request.Password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	}
-	if admin == nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-		return
-	}
-
-	if bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(request.Password)) != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
 	}
 
 	accessToken, refreshToken, err := util.GenerateToken(admin.ID, "admin")
-	loginAdminResponse := transaction.TokenResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	loginAdminResponse := transaction.LoginAdminResponse{
+		Admin: admin,
+		Token: transaction.TokenResponse{
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+		},
 	}
 
 	c.JSON(http.StatusOK, loginAdminResponse)
