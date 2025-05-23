@@ -124,3 +124,62 @@ func (h *UserController) AddAddress(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
+
+func (h *UserController) BanUser(c *gin.Context) {
+	var request transaction.BanRequest
+	err := c.ShouldBind(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !util.IsAdmin(c, request.AdminID) {
+		return
+	}
+
+	if request.Length < 1 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "length must be larger than 0"})
+		return
+	}
+
+	user, err := h.userService.GetUserByID(request.BanUserID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	if user == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
+	}
+
+	err = h.userService.BanUserForDay(request.BanUserID, request.Length)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (h *UserController) UnBanUser(c *gin.Context) {
+	userID := c.Param("id")
+
+	user, err := h.userService.GetUserByID(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if user == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
+	}
+
+	err = h.userService.UnBanUser(user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
