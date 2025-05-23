@@ -15,16 +15,23 @@ func RegisterAddressRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	addressController := controller.NewAddressController(addressService)
 
 	addressRoute := rg.Group("/address")
-	//Create
-	addressRoute.POST("/province", middleware.AdminAuthMiddleware(), addressController.CreateProvince)
-	addressRoute.POST("/provinces", middleware.AdminAuthMiddleware(), addressController.CreateProvinces)
-	addressRoute.POST("/districts", middleware.AdminAuthMiddleware(), addressController.CreateDistricts)
-	addressRoute.POST("/wards", middleware.AdminAuthMiddleware(), addressController.CreateWards)
-	//Get
+	addressRoute.Use(middleware.UserAuthMiddleware())
+
+	//User
+	addressRoute.POST("/user/:id", addressController.CreateAddress)
 	addressRoute.GET("/province/all", addressController.GetAllProvinces)
 	addressRoute.GET("district/:province_id", addressController.GetDistricts)
 	addressRoute.GET("ward/:district_id", addressController.GetWards)
-
 	addressRoute.GET("/:address_id", addressController.GetAddressByID)
 	addressRoute.GET("/user/:user_id", addressController.GetAddressByUserID)
+	addressRoute.PUT("/")
+	addressRoute.DELETE("/:address_id")
+
+	//Admin
+	adminAddressRoute := addressRoute.Group("/admin")
+	adminAddressRoute.Use(middleware.AdminAuthMiddleware())
+	adminAddressRoute.POST("/province", addressController.CreateProvince)
+	adminAddressRoute.POST("/provinces", addressController.CreateProvinces)
+	adminAddressRoute.POST("/districts", addressController.CreateDistricts)
+	adminAddressRoute.POST("/wards", addressController.CreateWards)
 }

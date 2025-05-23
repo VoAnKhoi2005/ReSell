@@ -12,11 +12,7 @@ import (
 func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
-
-	addressRepo := repository.NewAddressRepository(db)
-	addressService := service.NewAddressService(addressRepo)
-
-	userController := controller.NewUserController(userService, addressService)
+	userController := controller.NewUserController(userService)
 
 	//CreateMessage users group -> /api/users/...
 	users := rg.Group("/users")
@@ -28,7 +24,6 @@ func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	users.DELETE("/:id", userController.DeleteUser)
 
 	users.POST("/follow", userController.Follow)
-	users.POST("/address", userController.AddAddress)
 
 	//admin
 	adminRoute := users.Group("/admin")
