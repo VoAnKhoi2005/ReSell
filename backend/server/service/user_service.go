@@ -19,6 +19,8 @@ type UserService interface {
 	DeleteUserByID(ID string) error
 
 	FollowUser(followerID string, followedID string) error
+	BanUserForDay(userID string, length uint) error
+	UnBanUser(userID string) error
 }
 
 type userService struct {
@@ -63,4 +65,12 @@ func (s userService) DeleteUserByID(ID string) error {
 
 func (s userService) FollowUser(followerID string, followedID string) error {
 	return s.userRepo.FollowUser(followerID, followedID)
+}
+
+func (s userService) BanUserForDay(userID string, length uint) error {
+	return s.userRepo.BanUserForDay(userID, length)
+}
+
+func (s userService) UnBanUser(userID string) error {
+	return s.userRepo.UnBanUser(userID)
 }
