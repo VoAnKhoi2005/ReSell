@@ -6,18 +6,18 @@ import (
 )
 
 type Category struct {
-	ID               string `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	ParentCategoryID string `gorm:"type:uuid"`
+	ID               string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	ParentCategoryID *string `gorm:"type:uuid"`
 	Name             string
 
 	ParentCategory *Category
 }
 
 type Post struct {
-	ID          string `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	UserID      string `gorm:"type:uuid"`
-	CategoryID  string `gorm:"type:uuid"`
-	AddressID   string `gorm:"type:uuid"`
+	ID          string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	UserID      *string `gorm:"type:uuid"`
+	CategoryID  *string `gorm:"type:uuid"`
+	AddressID   *string `gorm:"type:uuid"`
 	Title       string
 	Description string
 	Price       uint
@@ -33,7 +33,7 @@ type Post struct {
 }
 
 type PostImage struct {
-	PostID     string `gorm:"type:uuid;primaryKey"`
-	ImageURL   string `gorm:"primaryKey"`
+	PostID     *string `gorm:"type:uuid;primaryKey"`
+	ImageURL   string  `gorm:"primaryKey"`
 	ImageOrder uint
 }

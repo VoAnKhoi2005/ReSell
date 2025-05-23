@@ -10,8 +10,8 @@ type PaymentMethod struct {
 }
 
 type Wallet struct {
-	ID            string `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	UserID        string `gorm:"type:uuid"`
+	ID            string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	UserID        *string `gorm:"type:uuid"`
 	Balance       uint
 	FrozenBalance uint
 	CreatedAt     time.Time
@@ -21,12 +21,12 @@ type Wallet struct {
 }
 
 type WalletTransaction struct {
-	ID           string `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	WalletId     string `gorm:"type:uuid"`
+	ID           string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	WalletId     *string `gorm:"type:uuid"`
 	Type         string
 	Amount       int
 	BalanceAfter int
-	OrderId      string `gorm:"type:uuid"`
+	OrderId      *string `gorm:"type:uuid"`
 	CreatedAt    time.Time
 
 	Wallet *Wallet
