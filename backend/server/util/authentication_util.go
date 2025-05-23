@@ -27,6 +27,27 @@ func IsUserOwner(c *gin.Context, expectedID *string) bool {
 	return true
 }
 
+func IsAdmin(c *gin.Context, expectedID string) bool {
+	adminIDValue, exists := c.Get("x-admin-id")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "requester_id not found"})
+		return false
+	}
+
+	adminID, ok := adminIDValue.(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid admin ID format"})
+		return false
+	}
+
+	if adminID != expectedID {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not an admin"})
+		return false
+	}
+
+	return true
+}
+
 func GenerateToken(id string, role string) (accessToken string, refreshToken string, err error) {
 	accessToken, err = middleware.CreateAccessToken(id, role)
 	if err != nil {

@@ -47,6 +47,7 @@ func AdminAuthMiddleware() gin.HandlerFunc {
 			}
 
 			c.Set("x-admin-id", ID)
+			c.Set("x-role", role)
 			c.Next()
 			return
 		}
