@@ -3,14 +3,15 @@ package service
 import (
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/repository"
-	request "github.com/VoAnKhoi2005/ReSell/transaction"
+	"github.com/VoAnKhoi2005/ReSell/transaction"
+	"github.com/google/uuid"
 )
 
 type CategoryService interface {
 	GetAllCategories() ([]*model.Category, error)
 	GetCategoryByID(id string) (*model.Category, error)
-	CreateCategory(req *request.CreateCategoryRequest) (*model.Category, error)
-	UpdateCategory(id string, req *request.UpdateCategoryRequest) (*model.Category, error)
+	CreateCategory(req *transaction.CreateCategoryRequest) (*model.Category, error)
+	UpdateCategory(id string, req *transaction.UpdateCategoryRequest) (*model.Category, error)
 	DeleteCategory(id string) error
 }
 
@@ -18,14 +19,18 @@ type categoryService struct {
 	repo repository.CategoryRepository
 }
 
-func (s categoryService) CreateCategory(req *request.CreateCategoryRequest) (*model.Category, error) {
-	category := &model.Category{Name: req.Name}
+func (s categoryService) CreateCategory(req *transaction.CreateCategoryRequest) (*model.Category, error) {
+	category := &model.Category{
+		ID:               uuid.New().String(),
+		Name:             req.Name,
+		ParentCategoryID: req.ParentCategoryId,
+	}
 	err := s.repo.Create(category)
 
 	return category, err
 }
 
-func (s categoryService) UpdateCategory(id string, req *request.UpdateCategoryRequest) (*model.Category, error) {
+func (s categoryService) UpdateCategory(id string, req *transaction.UpdateCategoryRequest) (*model.Category, error) {
 	category, err := s.GetCategoryByID(id)
 
 	if err != nil {

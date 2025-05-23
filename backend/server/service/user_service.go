@@ -18,7 +18,7 @@ type UserService interface {
 	DeleteUser(user *model.User) error
 	DeleteUserByID(ID string) error
 
-	FollowUser(followerID string, followedID string) error
+	FollowUser(followerID *string, followedID *string) error
 }
 
 type userService struct {
@@ -61,6 +61,6 @@ func (s userService) DeleteUserByID(ID string) error {
 	return s.userRepo.DeleteByID(ID)
 }
 
-func (s userService) FollowUser(followerID string, followedID string) error {
+func (s userService) FollowUser(followerID *string, followedID *string) error {
 	return s.userRepo.FollowUser(followerID, followedID)
 }
