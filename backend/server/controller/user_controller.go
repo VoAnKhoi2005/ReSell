@@ -42,7 +42,7 @@ func (h *UserController) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	if !util.IsUserOwner(c, &user.ID) {
+	if !util.IsUserOwner(c, user.ID) {
 		return
 	}
 
@@ -58,7 +58,7 @@ func (h *UserController) UpdateUser(c *gin.Context) {
 func (h *UserController) DeleteUser(c *gin.Context) {
 	userID := c.Param("id")
 
-	if !util.IsUserOwner(c, &userID) {
+	if !util.IsUserOwner(c, userID) {
 		return
 	}
 
@@ -79,25 +79,13 @@ func (h *UserController) Follow(c *gin.Context) {
 		return
 	}
 
-	follower, err := h.userService.GetUserByID(*request.FollowerID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
 	if !util.IsUserOwner(c, request.FollowerID) {
 		return
 	}
 
-	followee, err := h.userService.GetUserByID(*request.FolloweeID)
+	err = h.userService.FollowUser(&request.FollowerID, &request.FolloweeID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	err = h.userService.FollowUser(&follower.ID, &followee.ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -112,7 +100,7 @@ func (h *UserController) AddAddress(c *gin.Context) {
 		return
 	}
 
-	if !util.IsUserOwner(c, address.UserID) {
+	if !util.IsUserOwner(c, *address.UserID) {
 		return
 	}
 
@@ -134,21 +122,6 @@ func (h *UserController) BanUser(c *gin.Context) {
 	}
 
 	if !util.IsAdmin(c, request.AdminID) {
-		return
-	}
-
-	if request.Length < 1 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "length must be larger than 0"})
-		return
-	}
-
-	user, err := h.userService.GetUserByID(request.BanUserID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	if user == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return
 	}
 

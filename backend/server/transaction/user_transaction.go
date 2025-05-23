@@ -1,8 +1,8 @@
 package transaction
 
 type FollowRequest struct {
-	FollowerID *string `json:"follower_id" binding:"required"`
-	FolloweeID *string `json:"followee_id" binding:"required"`
+	FollowerID string `json:"follower_id" binding:"required"`
+	FolloweeID string `json:"followee_id" binding:"required"`
 }
 
 type BanRequest struct {

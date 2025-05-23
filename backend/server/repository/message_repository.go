@@ -7,16 +7,14 @@ import (
 )
 
 type MessageRepository interface {
-	CreateConversation(conversation *model.Conversation) error
+	CreateConversation(conversation *model.Conversation) (*model.Conversation, error)
 	DeleteConversation(conversation *model.Conversation) error
 
 	GetConversationByID(conversationId string) (*model.Conversation, error)
 	GetConversationsByPostID(postID string) ([]*model.Conversation, error)
 
-	Create(message *model.Message) error
-	Update(message *model.Message) error
-	Delete(message *model.Message) error
-	GetAll() ([]*model.Message, error)
+	CreateMessage(message *model.Message) (*model.Message, error)
+	GetAll(conversationID string) ([]*model.Message, error)
 	GetMessageByID(messageId string) (*model.Message, error)
 
 	GetMessagesInRange(conversationID string, start uint, end uint) ([]*model.Message, error)
@@ -24,20 +22,22 @@ type MessageRepository interface {
 }
 
 type messageRepository struct {
-	*BaseRepository[model.Message]
+	db *gorm.DB
 }
 
 func NewMessageRepository(db *gorm.DB) MessageRepository {
-	return &messageRepository{
-		BaseRepository: NewBaseRepository[model.Message](db),
-	}
+	return &messageRepository{db: db}
 }
 
-func (m *messageRepository) CreateConversation(conversation *model.Conversation) error {
+func (m *messageRepository) CreateConversation(conversation *model.Conversation) (*model.Conversation, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	return m.db.WithContext(ctx).Create(conversation).Error
+	if err := m.db.WithContext(ctx).Create(&conversation).Error; err != nil {
+		return nil, err
+	}
+
+	return conversation, nil
 }
 
 func (m *messageRepository) DeleteConversation(conversation *model.Conversation) error {
@@ -63,6 +63,26 @@ func (m *messageRepository) GetConversationsByPostID(postID string) ([]*model.Co
 	var conversations []*model.Conversation
 	err := m.db.WithContext(ctx).First(&conversations, "post_id = ?", postID).Error
 	return conversations, err
+}
+
+func (m *messageRepository) CreateMessage(message *model.Message) (*model.Message, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	if err := m.db.WithContext(ctx).Create(&message).Error; err != nil {
+		return nil, err
+	}
+
+	return message, nil
+}
+
+func (m *messageRepository) GetAll(conversationID string) ([]*model.Message, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var messages []*model.Message
+	err := m.db.WithContext(ctx).Find(&messages, "conversation_id = ?", conversationID).Error
+	return messages, err
 }
 
 func (m *messageRepository) GetMessageByID(messageId string) (*model.Message, error) {

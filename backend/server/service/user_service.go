@@ -16,7 +16,7 @@ type UserService interface {
 	DeleteUser(user *model.User) error
 	DeleteUserByID(ID string) error
 
-	FollowUser(followerID *string, followedID *string) error
+	FollowUser(followerID *string, followeeID *string) error
 	BanUserForDay(userID string, length uint) error
 	UnBanUser(userID string) error
 }
@@ -102,11 +102,32 @@ func (s *userService) DeleteUserByID(ID string) error {
 	return s.userRepo.DeleteByID(ID)
 }
 
-func (s *userService) FollowUser(followerID *string, followedID *string) error {
-	return s.userRepo.FollowUser(followerID, followedID)
+func (s *userService) FollowUser(followerID *string, followeeID *string) error {
+	var err error
+
+	_, err = s.userRepo.GetByID(*followerID)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.userRepo.GetByID(*followeeID)
+	if err != nil {
+		return err
+	}
+
+	return s.userRepo.FollowUser(followerID, followeeID)
 }
 
 func (s *userService) BanUserForDay(userID string, length uint) error {
+	if length < 1 {
+		return errors.New("invalid length")
+	}
+
+	_, err := s.userRepo.GetByID(userID)
+	if err != nil {
+		return err
+	}
+
 	return s.userRepo.BanUserForDay(userID, length)
 }
 

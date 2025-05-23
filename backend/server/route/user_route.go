@@ -18,7 +18,7 @@ func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	userController := controller.NewUserController(userService, addressService)
 
-	//Create users group -> /api/users/...
+	//CreateMessage users group -> /api/users/...
 	users := rg.Group("/users")
 	//Middleware
 	users.Use(middleware.UserAuthMiddleware())
