@@ -27,9 +27,6 @@ func NewMessageService(messageRepo repository.MessageRepository) MessageService 
 }
 
 func (m *messageService) CreateConversation(conversation *model.Conversation) (*model.Conversation, error) {
-	//
-	//Thiếu kiểm tra post có tồn tại không
-	//
 	return m.messageRepository.CreateConversation(conversation)
 }
 
