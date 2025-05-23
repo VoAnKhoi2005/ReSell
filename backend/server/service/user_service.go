@@ -103,29 +103,12 @@ func (s *userService) DeleteUserByID(ID string) error {
 }
 
 func (s *userService) FollowUser(followerID *string, followeeID *string) error {
-	var err error
-
-	_, err = s.userRepo.GetByID(*followerID)
-	if err != nil {
-		return err
-	}
-
-	_, err = s.userRepo.GetByID(*followeeID)
-	if err != nil {
-		return err
-	}
-
 	return s.userRepo.FollowUser(followerID, followeeID)
 }
 
 func (s *userService) BanUserForDay(userID string, length uint) error {
 	if length < 1 {
 		return errors.New("invalid length")
-	}
-
-	_, err := s.userRepo.GetByID(userID)
-	if err != nil {
-		return err
 	}
 
 	return s.userRepo.BanUserForDay(userID, length)
