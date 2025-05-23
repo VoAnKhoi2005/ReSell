@@ -21,6 +21,9 @@ type AddressService interface {
 	CreateProvince(province *model.Province) error
 	CreateDistrict(district *model.District) error
 	CreateWard(ward *model.Ward) error
+
+	UpdateAddress(address *model.Address) error
+	DeleteAddress(addressID string) error
 }
 
 type addressService struct {
@@ -119,4 +122,16 @@ func (a *addressService) CreateDistrict(district *model.District) error {
 
 func (a *addressService) CreateWard(ward *model.Ward) error {
 	return a.AddressRepository.CreateWard(ward)
+}
+
+func (a *addressService) UpdateAddress(address *model.Address) error {
+	return a.AddressRepository.Update(address)
+}
+
+func (a *addressService) DeleteAddress(addressID string) error {
+	address, err := a.GetByID(addressID)
+	if err != nil {
+		return err
+	}
+	return a.AddressRepository.Delete(address)
 }

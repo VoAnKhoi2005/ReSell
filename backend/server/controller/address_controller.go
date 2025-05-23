@@ -4,6 +4,7 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/VoAnKhoi2005/ReSell/transaction"
+	"github.com/VoAnKhoi2005/ReSell/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -127,6 +128,34 @@ func (ac *AddressController) CreateWards(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
+func (ac *AddressController) CreateAddress(c *gin.Context) {
+	var request *transaction.CreateAddressRequest
+	err := c.ShouldBind(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !util.IsUserOwner(c, request.UserID) {
+		return
+	}
+
+	address := model.Address{
+		UserID:    &request.UserID,
+		WardID:    &request.WardID,
+		Detail:    request.Detail,
+		IsDefault: request.IsDefault,
+	}
+
+	err = ac.addressService.Create(&address)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
 func (ac *AddressController) GetAllProvinces(c *gin.Context) {
 	provinces, err := ac.addressService.GetAllProvinces()
 	if err != nil {
@@ -199,4 +228,41 @@ func (ac *AddressController) GetAddressByUserID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"addresses": addresses})
+}
+
+func (ac *AddressController) UpdateAddress(c *gin.Context) {
+	var address *model.Address
+	err := c.ShouldBind(&address)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !util.IsUserOwner(c, *address.UserID) {
+		return
+	}
+
+	err = ac.addressService.UpdateAddress(address)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (ac *AddressController) DeleteAddress(c *gin.Context) {
+	addressId := c.Param("address_id")
+	if addressId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Address id can't be empty"})
+		return
+	}
+
+	err := ac.addressService.DeleteAddress(addressId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }
