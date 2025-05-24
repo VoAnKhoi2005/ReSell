@@ -23,7 +23,7 @@ func (s categoryService) CreateCategory(req *transaction.CreateCategoryRequest) 
 	category := &model.Category{
 		ID:               uuid.New().String(),
 		Name:             req.Name,
-		ParentCategoryID: req.ParentCategoryId,
+		ParentCategoryID: &req.ParentCategoryId,
 	}
 	err := s.repo.Create(category)
 

@@ -2,6 +2,7 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/controller"
+	"github.com/VoAnKhoi2005/ReSell/middleware"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,7 @@ func RegisterAuthRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	authController := controller.NewAuthController(userService, adminService)
 
-	//Create auth group -> /api/auth/...
+	//CreateMessage auth group -> /api/auth/...
 	auth := rg.Group("/auth")
 	auth.POST("/register", authController.Register)
 	auth.POST("/login", authController.Login)
@@ -25,5 +26,6 @@ func RegisterAuthRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	admin := auth.Group("/admin")
 	admin.POST("/login", authController.LoginAdmin)
+	admin.POST("/register", middleware.AdminAuthMiddleware(), authController.RegisterAdmin)
 	admin.POST("/refresh", authController.RefreshAdminToken)
 }

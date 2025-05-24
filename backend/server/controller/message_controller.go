@@ -21,9 +21,9 @@ func NewMessageController(messageService service.MessageService) *MessageControl
 }
 
 type CreateConversationRequest struct {
-	BuyerID  *string `json:"buyer_id" binding:"required"`
-	SellerID *string `json:"seller_id" binding:"required"`
-	PostID   *string `json:"post_id" binding:"required"`
+	BuyerID  string `json:"buyer_id" binding:"required"`
+	SellerID string `json:"seller_id" binding:"required"`
+	PostID   string `json:"post_id" binding:"required"`
 }
 
 func (mc *MessageController) CreateConversation(c *gin.Context) {
@@ -38,30 +38,26 @@ func (mc *MessageController) CreateConversation(c *gin.Context) {
 		return
 	}
 
-	//
-	//Thiếu kiểm tra post có tồn tại không
-	//
-
 	conversation := model.Conversation{
-		BuyerId:   request.BuyerID,
-		SellerId:  request.SellerID,
-		PostId:    request.PostID,
+		BuyerId:   &request.BuyerID,
+		SellerId:  &request.SellerID,
+		PostId:    &request.PostID,
 		CreatedAt: time.Now(),
 	}
 
-	err = mc.messageService.CreateConversation(&conversation)
+	createdConversation, err := mc.messageService.CreateConversation(&conversation)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"conversation": conversation})
+	c.JSON(http.StatusOK, gin.H{"conversation": createdConversation})
 }
 
 type CreateMessageRequest struct {
-	Content        string  `json:"content" binding:"required"`
-	ConversationId *string `json:"conversationId" binding:"required"`
-	SenderId       *string `json:"senderId" binding:"required"`
+	Content        string `json:"content" binding:"required"`
+	ConversationId string `json:"conversationId" binding:"required"`
+	SenderId       string `json:"senderId" binding:"required"`
 }
 
 func (mc *MessageController) CreateMessage(c *gin.Context) {
@@ -76,48 +72,24 @@ func (mc *MessageController) CreateMessage(c *gin.Context) {
 		return
 	}
 
-	conversation, err := mc.messageService.GetConversationByID(*request.ConversationId)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	if conversation == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "conversation not found"})
-		return
-	}
-
 	message := model.Message{
 		Content:        request.Content,
-		ConversationId: request.ConversationId,
-		SenderId:       request.SenderId,
+		ConversationId: &request.ConversationId,
+		SenderId:       &request.SenderId,
 		CreatedAt:      time.Now(),
 	}
 
-	err = mc.messageService.CreateMessage(&message)
+	returnMessage, err := mc.messageService.CreateMessage(&message)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": message})
+	c.JSON(http.StatusOK, gin.H{"message": returnMessage})
 }
 
 func (mc *MessageController) GetMessagesInRange(c *gin.Context) {
 	conversationId := c.Param("id")
-	conversation, err := mc.messageService.GetConversationByID(conversationId)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	if conversation == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "conversation not found"})
-		return
-	}
-
-	if !util.IsUserOwner(c, conversation.BuyerId) && !util.IsUserOwner(c, conversation.SellerId) {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "not authorized"})
-		return
-	}
 
 	startStr := c.Query("start")
 	endStr := c.Query("end")
@@ -130,9 +102,15 @@ func (mc *MessageController) GetMessagesInRange(c *gin.Context) {
 		return
 	}
 
-	messages, err := mc.messageService.GetMessagesInRange(conversationId, uint(start), uint(end))
+	senderIDValue, exist := c.Get("x-user-id")
+	senderID := senderIDValue.(string)
+	if !exist {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Sender not exist"})
+		return
+	}
+	messages, err := mc.messageService.GetMessagesInRange(senderID, conversationId, uint(start), uint(end))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -148,14 +126,9 @@ func (mc *MessageController) GetLatestMessages(c *gin.Context) {
 		return
 	}
 
-	if amount < 1 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "`amount` must be greater than zero"})
-		return
-	}
-
 	messages, err := mc.messageService.GetLatestMessages(conversationID, uint(amount))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

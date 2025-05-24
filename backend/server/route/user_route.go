@@ -12,18 +12,12 @@ import (
 func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
+	userController := controller.NewUserController(userService)
 
-	addressRepo := repository.NewAddressRepository(db)
-	addressService := service.NewAddressService(addressRepo)
-
-	userController := controller.NewUserController(userService, addressService)
-
-	//Create users group -> /api/users/...
+	//CreateMessage users group -> /api/users/...
 	users := rg.Group("/users")
-
 	//Middleware
 	users.Use(middleware.UserAuthMiddleware())
-
 	//Add paths to group
 	users.GET("/:id", userController.GetUserByID)
 	users.PUT("", userController.UpdateUser)
@@ -31,5 +25,9 @@ func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	users.POST("/follow", userController.Follow)
 
-	users.POST("/address", userController.AddAddress)
+	//admin
+	adminRoute := users.Group("/admin")
+	adminRoute.Use(middleware.AdminAuthMiddleware())
+	adminRoute.PUT("/ban", userController.BanUser)
+	adminRoute.PUT("/unban/:id", userController.UnBanUser)
 }
