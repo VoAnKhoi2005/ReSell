@@ -2,13 +2,15 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"golang.org/x/crypto/bcrypt"
+	"strings"
 )
 
 type UserService interface {
-	Register(user *model.User) []string
+	Register(user *model.User) error
 	Login(identifier string, password string, loginType string) (*model.User, error)
 
 	GetUserByID(id string) (*model.User, error)
@@ -29,33 +31,28 @@ func NewUserService(repo repository.UserRepository) UserService {
 	return &userService{userRepo: repo}
 }
 
-func (s *userService) Register(user *model.User) []string {
-	var errors []string
-	var err error
+func (s *userService) Register(user *model.User) error {
+	var validationErrors []string
 
-	_, err = s.userRepo.GetByEmail(user.Email)
-	if err == nil {
-		errors = append(errors, "email: email already taken")
+	if _, err := s.userRepo.GetByEmail(user.Email); err == nil {
+		validationErrors = append(validationErrors, "email: email already taken")
 	}
 
-	_, err = s.userRepo.GetByUsername(user.Username)
-	if err == nil {
-		errors = append(errors, "phone: phone number already taken")
+	if _, err := s.userRepo.GetByPhone(user.Phone); err == nil {
+		validationErrors = append(validationErrors, "phone: phone number already taken")
 	}
 
-	_, err = s.userRepo.GetByUsername(user.Username)
-	if err == nil {
-		errors = append(errors, "username: username already taken")
+	if _, err := s.userRepo.GetByUsername(user.Username); err == nil {
+		validationErrors = append(validationErrors, "username: username already taken")
 	}
 
-	if len(errors) > 0 {
-		return errors
+	if len(validationErrors) > 0 {
+		return fmt.Errorf(strings.Join(validationErrors, ", "))
 	}
 
-	err = s.userRepo.Create(user)
+	err := s.userRepo.Create(user)
 	if err != nil {
-		errors = append(errors, err.Error())
-		return errors
+		return err
 	}
 
 	return nil

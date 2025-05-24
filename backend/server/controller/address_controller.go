@@ -17,117 +17,6 @@ func NewAddressController(addressService service.AddressService) *AddressControl
 	return &AddressController{addressService}
 }
 
-func (ac *AddressController) CreateProvince(c *gin.Context) {
-	provinceName := c.Param("name")
-	if provinceName == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Province name can't be empty"})
-		return
-	}
-
-	province := model.Province{
-		Name: provinceName,
-	}
-
-	err := ac.addressService.CreateProvince(&province)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"success": true})
-}
-
-func (ac *AddressController) CreateProvinces(c *gin.Context) {
-	var provinceNames []string
-	if err := c.BindJSON(&provinceNames); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	var failRequests []transaction.FailCreateRequest
-	for _, provinceName := range provinceNames {
-		province := model.Province{
-			Name: provinceName,
-		}
-
-		err := ac.addressService.CreateProvince(&province)
-		if err != nil {
-			failRequests = append(failRequests, transaction.FailCreateRequest{
-				ID:      provinceName,
-				Message: err.Error(),
-			})
-			return
-		}
-	}
-
-	if len(failRequests) > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": failRequests})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"success": true})
-}
-
-func (ac *AddressController) CreateDistricts(c *gin.Context) {
-	var requests []transaction.CreateDistrictRequest
-	if err := c.ShouldBindJSON(&requests); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	var failRequests []transaction.FailCreateRequest
-	for _, req := range requests {
-		district := model.District{
-			Name:       req.Name,
-			ProvinceID: &req.ProvinceID,
-		}
-		err := ac.addressService.CreateDistrict(&district)
-		if err != nil {
-			failRequests = append(failRequests, transaction.FailCreateRequest{
-				ID:      district.ID,
-				Message: err.Error(),
-			})
-		}
-	}
-
-	if len(failRequests) > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": failRequests})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"success": true})
-}
-
-func (ac *AddressController) CreateWards(c *gin.Context) {
-	var requests []transaction.CreateWardRequest
-	if err := c.ShouldBindJSON(&requests); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	var failRequests []transaction.FailCreateRequest
-	for _, req := range requests {
-		ward := model.Ward{
-			Name:       req.Name,
-			DistrictID: &req.DistrictID,
-		}
-		err := ac.addressService.CreateWard(&ward)
-		if err != nil {
-			failRequests = append(failRequests, transaction.FailCreateRequest{
-				ID:      ward.ID,
-				Message: err.Error(),
-			})
-		}
-	}
-
-	if len(failRequests) > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": failRequests})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"success": true})
-}
-
 func (ac *AddressController) CreateAddress(c *gin.Context) {
 	var request *transaction.CreateAddressRequest
 	err := c.ShouldBind(&request)
@@ -143,11 +32,11 @@ func (ac *AddressController) CreateAddress(c *gin.Context) {
 	address := model.Address{
 		UserID:    &request.UserID,
 		WardID:    &request.WardID,
-		Detail:    request.Detail,
+		Detail:    *request.Detail,
 		IsDefault: request.IsDefault,
 	}
 
-	err = ac.addressService.Create(&address)
+	err = ac.addressService.CreateAddress(&address)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -259,6 +148,216 @@ func (ac *AddressController) DeleteAddress(c *gin.Context) {
 	}
 
 	err := ac.addressService.DeleteAddress(addressId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (ac *AddressController) CreateProvince(c *gin.Context) {
+	provinceName := c.Param("name")
+	if provinceName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Province name can't be empty"})
+		return
+	}
+
+	province := model.Province{
+		Name: provinceName,
+	}
+
+	err := ac.addressService.CreateProvince(&province)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (ac *AddressController) CreateProvinces(c *gin.Context) {
+	var provinceNames []string
+	if err := c.BindJSON(&provinceNames); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var failRequests []transaction.FailCreateRequest
+	for _, provinceName := range provinceNames {
+		province := model.Province{
+			Name: provinceName,
+		}
+
+		err := ac.addressService.CreateProvince(&province)
+		if err != nil {
+			failRequests = append(failRequests, transaction.FailCreateRequest{
+				ID:      provinceName,
+				Message: err.Error(),
+			})
+			return
+		}
+	}
+
+	if len(failRequests) > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": failRequests})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (ac *AddressController) CreateDistricts(c *gin.Context) {
+	var requests []transaction.CreateDistrictRequest
+	if err := c.ShouldBindJSON(&requests); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var failRequests []transaction.FailCreateRequest
+	for _, req := range requests {
+		district := model.District{
+			Name:       req.Name,
+			ProvinceID: &req.ProvinceID,
+		}
+		err := ac.addressService.CreateDistrict(&district)
+		if err != nil {
+			failRequests = append(failRequests, transaction.FailCreateRequest{
+				ID:      district.ID,
+				Message: err.Error(),
+			})
+		}
+	}
+
+	if len(failRequests) > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": failRequests})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (ac *AddressController) CreateWards(c *gin.Context) {
+	var requests []transaction.CreateWardRequest
+	if err := c.ShouldBindJSON(&requests); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var failRequests []transaction.FailCreateRequest
+	for _, req := range requests {
+		ward := model.Ward{
+			Name:       req.Name,
+			DistrictID: &req.DistrictID,
+		}
+		err := ac.addressService.CreateWard(&ward)
+		if err != nil {
+			failRequests = append(failRequests, transaction.FailCreateRequest{
+				ID:      ward.ID,
+				Message: err.Error(),
+			})
+		}
+	}
+
+	if len(failRequests) > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": failRequests})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (ac *AddressController) UpdateProvince(c *gin.Context) {
+	provinceID := c.Param("id")
+	newName := c.Param("new_name")
+	if provinceID == "" || newName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid province id or new_name"})
+		return
+	}
+
+	err := ac.addressService.UpdateProvince(provinceID, newName)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (ac *AddressController) UpdateDistrict(c *gin.Context) {
+	districtID := c.Param("id")
+	newName := c.Param("new_name")
+	if districtID == "" || newName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid district id or new_name"})
+		return
+	}
+
+	err := ac.addressService.UpdateDistrict(districtID, newName)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (ac *AddressController) UpdateWard(c *gin.Context) {
+	wardID := c.Param("id")
+	newName := c.Param("new_name")
+	if wardID == "" || newName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ward id or new_name"})
+		return
+	}
+
+	err := ac.addressService.UpdateWard(wardID, newName)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (ac *AddressController) DeleteProvince(c *gin.Context) {
+	provinceId := c.Param("province_id")
+	if provinceId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Province id can't be empty"})
+		return
+	}
+
+	err := ac.addressService.DeleteProvince(provinceId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (ac *AddressController) DeleteDistrict(c *gin.Context) {
+	districtId := c.Param("district_id")
+	if districtId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "District id can't be empty"})
+		return
+	}
+
+	err := ac.addressService.DeleteDistrict(districtId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (ac *AddressController) DeleteWard(c *gin.Context) {
+	wardId := c.Param("ward_id")
+	if wardId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Ward id can't be empty"})
+		return
+	}
+
+	err := ac.addressService.DeleteWard(wardId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
