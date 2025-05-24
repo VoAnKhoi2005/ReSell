@@ -6,7 +6,9 @@ import (
 )
 
 type AddressService interface {
-	Create(address *model.Address) error
+	CreateAddress(address *model.Address) error
+	UpdateAddress(address *model.Address) error
+	DeleteAddress(addressID string) error
 
 	GetByID(addressID string) (*model.Address, error)
 	GetByUserID(userID string) ([]*model.Address, error)
@@ -22,8 +24,13 @@ type AddressService interface {
 	CreateDistrict(district *model.District) error
 	CreateWard(ward *model.Ward) error
 
-	UpdateAddress(address *model.Address) error
-	DeleteAddress(addressID string) error
+	UpdateProvince(provinceID string, newName string) error
+	UpdateDistrict(districtID string, newName string) error
+	UpdateWard(WardID string, newName string) error
+
+	DeleteProvince(provinceID string) error
+	DeleteDistrict(districtID string) error
+	DeleteWard(wardID string) error
 }
 
 type addressService struct {
@@ -34,8 +41,20 @@ func NewAddressService(repo repository.AddressRepository) AddressService {
 	return &addressService{AddressRepository: repo}
 }
 
-func (a *addressService) Create(address *model.Address) error {
+func (a *addressService) CreateAddress(address *model.Address) error {
 	return a.AddressRepository.Create(address)
+}
+
+func (a *addressService) UpdateAddress(address *model.Address) error {
+	return a.AddressRepository.Update(address)
+}
+
+func (a *addressService) DeleteAddress(addressID string) error {
+	address, err := a.GetByID(addressID)
+	if err != nil {
+		return err
+	}
+	return a.AddressRepository.Delete(address)
 }
 
 func (a *addressService) GetByID(addressID string) (*model.Address, error) {
@@ -124,14 +143,59 @@ func (a *addressService) CreateWard(ward *model.Ward) error {
 	return a.AddressRepository.CreateWard(ward)
 }
 
-func (a *addressService) UpdateAddress(address *model.Address) error {
-	return a.AddressRepository.Update(address)
-}
-
-func (a *addressService) DeleteAddress(addressID string) error {
-	address, err := a.GetByID(addressID)
+func (a *addressService) UpdateProvince(provinceID string, newName string) error {
+	province, err := a.AddressRepository.GetProvince(provinceID)
 	if err != nil {
 		return err
 	}
-	return a.AddressRepository.Delete(address)
+
+	province.Name = newName
+	return a.AddressRepository.UpdateProvince(province)
+}
+
+func (a *addressService) UpdateDistrict(districtID string, newName string) error {
+	district, err := a.AddressRepository.GetDistrict(districtID)
+	if err != nil {
+		return err
+	}
+
+	district.Name = newName
+	return a.AddressRepository.UpdateDistrict(district)
+}
+
+func (a *addressService) UpdateWard(wardID string, newName string) error {
+	ward, err := a.AddressRepository.GetWard(wardID)
+	if err != nil {
+		return err
+	}
+
+	ward.Name = newName
+	return a.AddressRepository.UpdateWard(ward)
+}
+
+func (a *addressService) DeleteProvince(provinceID string) error {
+	province, err := a.AddressRepository.GetProvince(provinceID)
+	if err != nil {
+		return err
+	}
+
+	return a.AddressRepository.DeleteProvince(province)
+}
+
+func (a *addressService) DeleteDistrict(districtID string) error {
+	district, err := a.AddressRepository.GetDistrict(districtID)
+	if err != nil {
+		return err
+	}
+
+	return a.AddressRepository.DeleteDistrict(district)
+}
+
+func (a *addressService) DeleteWard(wardID string) error {
+	ward, err := a.AddressRepository.GetWard(wardID)
+	if err != nil {
+		return err
+	}
+
+	return a.AddressRepository.DeleteWard(ward)
 }
