@@ -15,7 +15,7 @@ func RegisterAddressRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	addressController := controller.NewAddressController(addressService)
 
 	addressRoute := rg.Group("/address")
-	addressRoute.Use(middleware.UserAuthMiddleware())
+	addressRoute.Use(middleware.AuthMiddleware())
 
 	//User
 	addressRoute.POST("/user/:id", addressController.CreateAddress)
@@ -38,7 +38,7 @@ func RegisterAddressRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	adminAddressRoute.PUT("/province/:id/:new_name", addressController.UpdateProvince)
 	adminAddressRoute.PUT("/district/:id/:new_name", addressController.UpdateDistrict)
 	adminAddressRoute.PUT("/ward/:id/:new_name", addressController.UpdateWard)
-	adminAddressRoute.DELETE("province/:province_id")
-	adminAddressRoute.DELETE("district/:district_id")
-	adminAddressRoute.DELETE("ward/:ward_id")
+	adminAddressRoute.DELETE("province/:province_id", addressController.DeleteProvince)
+	adminAddressRoute.DELETE("district/:district_id", addressController.DeleteDistrict)
+	adminAddressRoute.DELETE("ward/:ward_id", addressController.DeleteWard)
 }
