@@ -68,6 +68,12 @@ func (h *PostController) UpdatePost(c *gin.Context) {
 		return
 	}
 
+	userID, _ := util.GetUserID(c)
+
+	if !util.IsUserOwner(c, userID) {
+		return
+	}
+
 	post, err := h.service.UpdatePost(id, &req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
