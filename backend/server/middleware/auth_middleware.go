@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func UserAuthMiddleware() gin.HandlerFunc {
+func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.Request.Header.Get("Authorization")
 		parts := strings.Split(authHeader, " ")
@@ -34,7 +34,7 @@ func UserAuthMiddleware() gin.HandlerFunc {
 				return
 			}
 
-			c.Set("x-user-id", ID)
+			c.Set("x-id", ID)
 			c.Set("x-role", role)
 			c.Next()
 			return

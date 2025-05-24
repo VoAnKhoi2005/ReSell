@@ -17,7 +17,7 @@ func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	//CreateMessage users group -> /api/users/...
 	users := rg.Group("/users")
 	//Middleware
-	users.Use(middleware.UserAuthMiddleware())
+	users.Use(middleware.AuthMiddleware())
 	//Add paths to group
 	users.GET("/:id", userController.GetUserByID)
 	users.PUT("", userController.UpdateUser)
