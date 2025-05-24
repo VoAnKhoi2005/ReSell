@@ -19,19 +19,26 @@ func RegisterAddressRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	//User
 	addressRoute.POST("/user/:id", addressController.CreateAddress)
+	addressRoute.GET("/:address_id", addressController.GetAddressByID)
+	addressRoute.GET("/user/:user_id", addressController.GetAddressByUserID)
+	addressRoute.PUT("/", addressController.UpdateAddress)
+	addressRoute.DELETE("/:address_id", addressController.DeleteAddress)
+
 	addressRoute.GET("/province/all", addressController.GetAllProvinces)
 	addressRoute.GET("district/:province_id", addressController.GetDistricts)
 	addressRoute.GET("ward/:district_id", addressController.GetWards)
-	addressRoute.GET("/:address_id", addressController.GetAddressByID)
-	addressRoute.GET("/user/:user_id", addressController.GetAddressByUserID)
-	addressRoute.PUT("/")
-	addressRoute.DELETE("/:address_id")
 
 	//Admin
-	adminAddressRoute := addressRoute.Group("/admin")
+	adminAddressRoute := rg.Group("/address/admin")
 	adminAddressRoute.Use(middleware.AdminAuthMiddleware())
 	adminAddressRoute.POST("/province", addressController.CreateProvince)
 	adminAddressRoute.POST("/provinces", addressController.CreateProvinces)
 	adminAddressRoute.POST("/districts", addressController.CreateDistricts)
 	adminAddressRoute.POST("/wards", addressController.CreateWards)
+	adminAddressRoute.PUT("/province/:id/:new_name", addressController.UpdateProvince)
+	adminAddressRoute.PUT("/district/:id/:new_name", addressController.UpdateDistrict)
+	adminAddressRoute.PUT("/ward/:id/:new_name", addressController.UpdateWard)
+	adminAddressRoute.DELETE("province/:province_id")
+	adminAddressRoute.DELETE("district/:district_id")
+	adminAddressRoute.DELETE("ward/:ward_id")
 }
