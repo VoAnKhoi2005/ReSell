@@ -19,18 +19,18 @@ type categoryService struct {
 	repo repository.CategoryRepository
 }
 
-func (s categoryService) CreateCategory(req *transaction.CreateCategoryRequest) (*model.Category, error) {
+func (s *categoryService) CreateCategory(req *transaction.CreateCategoryRequest) (*model.Category, error) {
 	category := &model.Category{
 		ID:               uuid.New().String(),
 		Name:             req.Name,
-		ParentCategoryID: &req.ParentCategoryId,
+		ParentCategoryID: req.ParentCategoryId,
 	}
 	err := s.repo.Create(category)
 
 	return category, err
 }
 
-func (s categoryService) UpdateCategory(id string, req *transaction.UpdateCategoryRequest) (*model.Category, error) {
+func (s *categoryService) UpdateCategory(id string, req *transaction.UpdateCategoryRequest) (*model.Category, error) {
 	category, err := s.GetCategoryByID(id)
 
 	if err != nil {
@@ -42,15 +42,15 @@ func (s categoryService) UpdateCategory(id string, req *transaction.UpdateCatego
 	return category, err
 }
 
-func (s categoryService) GetAllCategories() ([]*model.Category, error) {
+func (s *categoryService) GetAllCategories() ([]*model.Category, error) {
 	return s.repo.GetAll()
 }
 
-func (s categoryService) GetCategoryByID(id string) (*model.Category, error) {
+func (s *categoryService) GetCategoryByID(id string) (*model.Category, error) {
 	return s.repo.GetByID(id)
 }
 
-func (s categoryService) DeleteCategory(id string) error {
+func (s *categoryService) DeleteCategory(id string) error {
 	category, err := s.repo.GetByID(id)
 	if err != nil {
 		return err
