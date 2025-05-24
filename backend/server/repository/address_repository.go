@@ -17,15 +17,27 @@ type AddressRepository interface {
 	GetByWardID(wardID string) ([]*model.Address, error)
 	GetByWardIDs(wardIDs []string) ([]*model.Address, error)
 
-	GetWards(districtID string) ([]*model.Ward, error)
+	GetAllProvinces() ([]*model.Province, error)
+	GetProvince(provinceID string) (*model.Province, error)
+
+	GetAllDistricts() ([]*model.District, error)
+	GetDistrict(districtID string) (*model.District, error)
 	GetDistricts(provinceID string) ([]*model.District, error)
 
-	GetAllProvinces() ([]*model.Province, error)
-	GetAllDistricts() ([]*model.District, error)
+	GetWard(wardID string) (*model.Ward, error)
+	GetWards(districtID string) ([]*model.Ward, error)
 
 	CreateProvince(province *model.Province) error
 	CreateDistrict(district *model.District) error
 	CreateWard(ward *model.Ward) error
+
+	UpdateProvince(province *model.Province) error
+	UpdateDistrict(province *model.District) error
+	UpdateWard(ward *model.Ward) error
+
+	DeleteProvince(province *model.Province) error
+	DeleteDistrict(district *model.District) error
+	DeleteWard(ward *model.Ward) error
 }
 
 type addressRepository struct {
@@ -72,14 +84,42 @@ func (a *addressRepository) GetByWardIDs(wardIDs []string) ([]*model.Address, er
 	return addresses, err
 }
 
-func (a *addressRepository) GetWards(districtID string) ([]*model.Ward, error) {
+func (a *addressRepository) GetAllProvinces() ([]*model.Province, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var wards []*model.Ward
-	err := a.db.WithContext(ctx).Find(&wards, "district_id = ?", districtID).Error
+	var provinces []*model.Province
+	err := a.db.WithContext(ctx).Find(&provinces).Error
 
-	return wards, err
+	return provinces, err
+}
+
+func (a *addressRepository) GetProvince(provinceID string) (*model.Province, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var province model.Province
+	err := a.db.WithContext(ctx).First(&province, provinceID).Error
+	return &province, err
+}
+
+func (a *addressRepository) GetAllDistricts() ([]*model.District, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var districts []*model.District
+	err := a.db.WithContext(ctx).Find(&districts).Error
+
+	return districts, err
+}
+
+func (a *addressRepository) GetDistrict(districtID string) (*model.District, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var district model.District
+	err := a.db.WithContext(ctx).First(&district, districtID).Error
+	return &district, err
 }
 
 func (a *addressRepository) GetDistricts(provinceID string) ([]*model.District, error) {
@@ -92,24 +132,23 @@ func (a *addressRepository) GetDistricts(provinceID string) ([]*model.District, 
 	return districts, err
 }
 
-func (a *addressRepository) GetAllProvinces() ([]*model.Province, error) {
+func (a *addressRepository) GetWard(wardID string) (*model.Ward, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var provinces []*model.Province
-	err := a.db.WithContext(ctx).Find(&provinces).Error
-
-	return provinces, err
+	var ward model.Ward
+	err := a.db.WithContext(ctx).First(&ward, wardID).Error
+	return &ward, err
 }
 
-func (a *addressRepository) GetAllDistricts() ([]*model.District, error) {
+func (a *addressRepository) GetWards(districtID string) ([]*model.Ward, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var districts []*model.District
-	err := a.db.WithContext(ctx).Find(&districts).Error
+	var wards []*model.Ward
+	err := a.db.WithContext(ctx).Find(&wards, "district_id = ?", districtID).Error
 
-	return districts, err
+	return wards, err
 }
 
 func (a *addressRepository) CreateProvince(province *model.Province) error {
@@ -131,4 +170,46 @@ func (a *addressRepository) CreateWard(ward *model.Ward) error {
 	defer cancel()
 
 	return a.db.WithContext(ctx).Create(&ward).Error
+}
+
+func (a *addressRepository) UpdateProvince(province *model.Province) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return a.db.WithContext(ctx).Updates(province).Error
+}
+
+func (a *addressRepository) UpdateDistrict(district *model.District) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return a.db.WithContext(ctx).Updates(district).Error
+}
+
+func (a *addressRepository) UpdateWard(ward *model.Ward) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return a.db.WithContext(ctx).Updates(ward).Error
+}
+
+func (a *addressRepository) DeleteProvince(province *model.Province) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return a.db.WithContext(ctx).Delete(&province).Error
+}
+
+func (a *addressRepository) DeleteDistrict(district *model.District) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return a.db.WithContext(ctx).Delete(&district).Error
+}
+
+func (a *addressRepository) DeleteWard(ward *model.Ward) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return a.db.WithContext(ctx).Delete(&ward).Error
 }
