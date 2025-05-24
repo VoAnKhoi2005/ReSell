@@ -23,6 +23,7 @@ func RegisterAuthRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	auth.POST("/register", authController.Register)
 	auth.POST("/login", authController.Login)
 	auth.POST("/refresh", authController.RefreshToken)
+	auth.POST("/addadmin", authController.RegisterAdmin)
 
 	admin := auth.Group("/admin")
 	admin.POST("/login", authController.LoginAdmin)

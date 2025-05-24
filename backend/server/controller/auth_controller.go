@@ -51,9 +51,9 @@ func (h *AuthController) Register(c *gin.Context) {
 		CreatedAt:  time.Now(),
 		UpdatedAt:  nil,
 	}
-	errStr := h.userService.Register(&user)
-	if errStr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": errStr})
+	err = h.userService.Register(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true})
