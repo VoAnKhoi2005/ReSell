@@ -11,10 +11,10 @@ type CreateWardRequest struct {
 }
 
 type CreateAddressRequest struct {
-	UserID    string `json:"user_id" binding:"required"`
-	WardID    string `json:"ward_id" binding:"required"`
-	Detail    string `json:"detail" binding:"required"`
-	IsDefault bool   `json:"is_default" binding:"required"`
+	UserID    string  `json:"user_id" binding:"required"`
+	WardID    string  `json:"ward_id" binding:"required"`
+	Detail    *string `json:"detail" binding:"omitempty"`
+	IsDefault bool    `json:"is_default" binding:"required"`
 }
 
 type FailCreateRequest struct {
