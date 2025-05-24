@@ -148,14 +148,7 @@ func (h *AuthController) RegisterAdmin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": errors})
 		return
 	}
-
-	accessToken, refreshToken, err := util.GenerateToken(admin.ID, "admin")
-	tokenResponse := transaction.TokenResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-	}
-
-	c.JSON(http.StatusOK, tokenResponse)
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
 func (h *AuthController) LoginAdmin(c *gin.Context) {
