@@ -27,6 +27,7 @@ func UserAuthMiddleware() gin.HandlerFunc {
 
 		if authorized {
 			ID, err := ExtractIDFromToken(authToken)
+			role, err := ExtractRoleFromToken(authToken)
 			if err != nil {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 				c.Abort()
@@ -34,6 +35,7 @@ func UserAuthMiddleware() gin.HandlerFunc {
 			}
 
 			c.Set("x-user-id", ID)
+			c.Set("x-role", role)
 			c.Next()
 			return
 		}

@@ -4,6 +4,7 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/util"
 	"gorm.io/gorm"
+	"time"
 )
 
 type UserRepository interface {
@@ -22,6 +23,8 @@ type UserRepository interface {
 	DeleteByID(id string) error
 
 	FollowUser(followerID *string, followedID *string) error
+	BanUserForDay(userID string, length uint) error
+	UnBanUser(userID string) error
 }
 
 type userRepository struct {
@@ -82,4 +85,27 @@ func (r *userRepository) FollowUser(followerID *string, followedID *string) erro
 	defer cancel()
 
 	return r.db.WithContext(ctx).Create(&model.Follow{BuyerId: followerID, SellerId: followedID}).Error
+}
+
+func (r *userRepository) BanUserForDay(userID string, length uint) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	banStart := time.Now()
+	banEnd := banStart.Add(time.Duration(length) * time.Hour * 24)
+
+	return r.db.WithContext(ctx).Model(&model.User{}).Where("id = ?", userID).Updates(map[string]interface{}{
+		"ban_start": banStart,
+		"ban_end":   banEnd,
+	}).Error
+}
+
+func (r *userRepository) UnBanUser(userID string) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return r.db.WithContext(ctx).Model(&model.User{}).Where("id = ?", userID).Updates(map[string]interface{}{
+		"ban_start": nil,
+		"ban_end":   nil,
+	}).Error
 }
