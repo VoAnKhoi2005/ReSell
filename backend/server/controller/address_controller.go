@@ -32,7 +32,7 @@ func (ac *AddressController) CreateAddress(c *gin.Context) {
 	address := model.Address{
 		UserID:    &request.UserID,
 		WardID:    &request.WardID,
-		Detail:    request.Detail,
+		Detail:    *request.Detail,
 		IsDefault: request.IsDefault,
 	}
 
