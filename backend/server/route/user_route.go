@@ -21,7 +21,7 @@ func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	//Add paths to group
 	users.GET("/:id", userController.GetUserByID)
 	users.PUT("", userController.UpdateUser)
-	users.DELETE("/:id", userController.DeleteUser)
+	users.DELETE("delete/:id", userController.DeleteUser)
 
 	users.POST("/follow", userController.Follow)
 

@@ -71,7 +71,7 @@ func IsAuthorized(requestToken string) (bool, error) {
 }
 
 func ExtractIDFromToken(requestToken string) (string, error) {
-	secret := os.Getenv("REQUEST_TOKEN_SECRET")
+	secret := os.Getenv("ACCESS_TOKEN_SECRET")
 	if secret == "" {
 		return "", errors.New("no secret provided")
 	}

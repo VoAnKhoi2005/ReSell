@@ -1,7 +1,6 @@
 package model
 
 import (
-	"gorm.io/gorm"
 	"time"
 )
 
@@ -11,8 +10,6 @@ type Admin struct {
 	Email     string
 	Password  string
 	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 type User struct {
@@ -25,10 +22,10 @@ type User struct {
 	CitizenId  string
 	Status     string
 	Reputation int
-	BanStart   time.Time
-	BanEnd     time.Time
+	BanStart   *time.Time
+	BanEnd     *time.Time
 	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	UpdatedAt  *time.Time
 }
 
 type Follow struct {

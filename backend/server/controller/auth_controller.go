@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"time"
 )
 
 type AuthController struct {
@@ -40,29 +41,22 @@ func (h *AuthController) Register(c *gin.Context) {
 	}
 
 	user := model.User{
-		Username: req.Username,
-		Email:    req.Email,
-		Phone:    req.Phone,
-		Password: string(encryptedPassword),
+		Username:   req.Username,
+		Email:      req.Email,
+		Phone:      req.Phone,
+		Password:   string(encryptedPassword),
+		Reputation: 100,
+		BanStart:   nil,
+		BanEnd:     nil,
+		CreatedAt:  time.Now(),
+		UpdatedAt:  nil,
 	}
 	errStr := h.userService.Register(&user)
 	if errStr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": errStr})
 		return
 	}
-
-	accessToken, refreshToken, err := util.GenerateToken(user.ID, "user")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	response := transaction.TokenResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-	}
-
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
 func (h *AuthController) Login(c *gin.Context) {
@@ -74,7 +68,7 @@ func (h *AuthController) Login(c *gin.Context) {
 
 	user, err := h.userService.Login(request.Identifier, request.Password, request.LoginType)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -142,9 +136,10 @@ func (h *AuthController) RegisterAdmin(c *gin.Context) {
 	}
 
 	admin := model.Admin{
-		Username: request.Username,
-		Email:    request.Email,
-		Password: string(encryptedPassword),
+		Username:  request.Username,
+		Email:     request.Email,
+		Password:  string(encryptedPassword),
+		CreatedAt: time.Now(),
 	}
 
 	errors := h.adminService.Register(&admin)
