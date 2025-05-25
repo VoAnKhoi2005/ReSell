@@ -22,7 +22,7 @@ type Post struct {
 	Description string
 	Price       uint
 	Status      string
-	SoldAt      time.Time
+	SoldAt      *time.Time
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
