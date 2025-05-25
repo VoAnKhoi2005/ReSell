@@ -13,8 +13,8 @@ type ShopOrder struct {
 	AddressId       *string `gorm:"type:uuid"`
 	Total           int
 	CreatedAt       time.Time
-	CompletedAt     time.Time
-	CanceledAt      time.Time
+	CompletedAt     *time.Time
+	CanceledAt      *time.Time
 
 	User          *User
 	Post          *Post
