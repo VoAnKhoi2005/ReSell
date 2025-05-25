@@ -17,12 +17,12 @@ func RegisterCategoryRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	categoryController := controller.NewCategoryController(categoryService)
 
 	//Both admin and user can access
-	categories.Use(middleware.UserAuthMiddleware())
+	categories.Use(middleware.AuthMiddleware())
 	categories.GET("/", categoryController.GetAllCategories)
 	categories.GET("/:id", categoryController.GetCategoryByID)
 
 	//Only admin
-	admin := categories.Group("/admin")
+	admin := rg.Group("/admin/categories")
 	admin.Use(middleware.AdminAuthMiddleware())
 	admin.POST("/", categoryController.CreateCategory)
 	admin.PUT("/:id", categoryController.UpdateCategory)
