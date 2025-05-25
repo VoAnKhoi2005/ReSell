@@ -1,8 +1,10 @@
 package service
 
 import (
+	"errors"
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/repository"
+	"gorm.io/gorm"
 )
 
 type AddressService interface {
@@ -28,8 +30,13 @@ type AddressService interface {
 	UpdateDistrict(districtID string, newName string) error
 	UpdateWard(WardID string, newName string) error
 
+	DeleteProvinces() []error
 	DeleteProvince(provinceID string) error
+
+	DeleteDistricts(provinceID string) []error
 	DeleteDistrict(districtID string) error
+
+	DeleteWards(districtID string) []error
 	DeleteWard(wardID string) error
 }
 
@@ -132,14 +139,38 @@ func (a *addressService) GetWards(provinceID string) ([]*model.Ward, error) {
 }
 
 func (a *addressService) CreateProvince(province *model.Province) error {
+	_, err := a.AddressRepository.GetProvinceByName(province.Name)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	if err == nil {
+		return errors.New("province already exists")
+	}
+
 	return a.AddressRepository.CreateProvince(province)
 }
 
 func (a *addressService) CreateDistrict(district *model.District) error {
+	_, err := a.AddressRepository.GetDistrictByName(district.Name)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	if err == nil {
+		return errors.New("district already exists")
+	}
+
 	return a.AddressRepository.CreateDistrict(district)
 }
 
 func (a *addressService) CreateWard(ward *model.Ward) error {
+	_, err := a.AddressRepository.GetWardByName(ward.Name)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	if err == nil {
+		return errors.New("district already exists")
+	}
+
 	return a.AddressRepository.CreateWard(ward)
 }
 
@@ -173,6 +204,23 @@ func (a *addressService) UpdateWard(wardID string, newName string) error {
 	return a.AddressRepository.UpdateWard(ward)
 }
 
+func (a *addressService) DeleteProvinces() []error {
+	provinces, err := a.AddressRepository.GetAllProvinces()
+	if err != nil {
+		return []error{err}
+	}
+
+	var errs []error
+	for _, province := range provinces {
+		err = a.AddressRepository.DeleteProvince(province)
+		if err != nil {
+			errs = append(errs, err)
+		}
+	}
+
+	return errs
+}
+
 func (a *addressService) DeleteProvince(provinceID string) error {
 	province, err := a.AddressRepository.GetProvince(provinceID)
 	if err != nil {
@@ -182,6 +230,23 @@ func (a *addressService) DeleteProvince(provinceID string) error {
 	return a.AddressRepository.DeleteProvince(province)
 }
 
+func (a *addressService) DeleteDistricts(provinceID string) []error {
+	districts, err := a.AddressRepository.GetDistricts(provinceID)
+	if err != nil {
+		return []error{err}
+	}
+
+	var errs []error
+	for _, district := range districts {
+		err = a.AddressRepository.DeleteDistrict(district)
+		if err != nil {
+			errs = append(errs, err)
+		}
+	}
+
+	return errs
+}
+
 func (a *addressService) DeleteDistrict(districtID string) error {
 	district, err := a.AddressRepository.GetDistrict(districtID)
 	if err != nil {
@@ -189,6 +254,22 @@ func (a *addressService) DeleteDistrict(districtID string) error {
 	}
 
 	return a.AddressRepository.DeleteDistrict(district)
+}
+
+func (a *addressService) DeleteWards(provinceID string) []error {
+	wards, err := a.AddressRepository.GetWards(provinceID)
+	if err != nil {
+		return []error{err}
+	}
+
+	var errs []error
+	for _, ward := range wards {
+		err = a.AddressRepository.DeleteWard(ward)
+		if err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errs
 }
 
 func (a *addressService) DeleteWard(wardID string) error {

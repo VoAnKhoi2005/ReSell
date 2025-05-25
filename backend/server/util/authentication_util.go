@@ -28,6 +28,7 @@ func IsUserOwner(c *gin.Context, expectedID string) bool {
 	userID, err := GetUserID(c)
 
 	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user Name format"})
 		return false
 	}
 
@@ -48,7 +49,7 @@ func IsAdmin(c *gin.Context, expectedID string) bool {
 
 	adminID, ok := adminIDValue.(string)
 	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid admin ID format"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid admin Name format"})
 		return false
 	}
 

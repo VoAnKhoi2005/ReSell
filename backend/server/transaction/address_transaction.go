@@ -17,7 +17,7 @@ type CreateAddressRequest struct {
 	IsDefault bool    `json:"is_default" binding:"required"`
 }
 
-type FailCreateRequest struct {
-	ID      string `json:"id"`
+type FailCreateResponse struct {
+	Name    string `json:"name"`
 	Message string `json:"message"`
 }
