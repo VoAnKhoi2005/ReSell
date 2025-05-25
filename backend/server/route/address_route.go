@@ -29,7 +29,7 @@ func RegisterAddressRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	addressRoute.GET("/wards/:district_id", addressController.GetWards)
 
 	//Admin
-	adminAddressRoute := rg.Group("/address/admin")
+	adminAddressRoute := rg.Group("/admin/address")
 	adminAddressRoute.Use(middleware.AdminAuthMiddleware())
 	adminAddressRoute.POST("/province", addressController.CreateProvince)
 	adminAddressRoute.POST("/provinces", addressController.CreateProvinces)
