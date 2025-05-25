@@ -4,6 +4,18 @@ import (
 	"time"
 )
 
+type OrderStatus string
+
+const (
+	OrderStatusOrdered   OrderStatus = "ordered"
+	OrderStatusPending   OrderStatus = "pending"
+	OrderStatusRejected  OrderStatus = "rejected"
+	OrderStatusSold      OrderStatus = "completed"
+	OrderStatusShipping  OrderStatus = "shipping"
+	OrderStatusCancelled OrderStatus = "cancelled"
+	OrderStatusProcessed OrderStatus = "processed"
+)
+
 type ShopOrder struct {
 	ID              string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
 	UserId          *string `gorm:"type:uuid"`

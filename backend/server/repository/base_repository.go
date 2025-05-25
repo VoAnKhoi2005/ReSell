@@ -40,5 +40,5 @@ func (r *BaseRepository[T]) Delete(data *T) error {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	return r.db.WithContext(ctx).Delete(data).Error
+	return r.db.WithContext(ctx).Unscoped().Delete(data).Error
 }

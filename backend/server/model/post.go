@@ -5,6 +5,17 @@ import (
 	"time"
 )
 
+type PostStatus string
+
+const (
+	PostStatusPending  PostStatus = "pending"
+	PostStatusApproved PostStatus = "approved"
+	PostStatusRejected PostStatus = "rejected"
+	PostStatusSold     PostStatus = "sold"
+	PostStatusHidden   PostStatus = "hidden"
+	PostStatusDeleted  PostStatus = "deleted"
+)
+
 type Category struct {
 	ID               string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
 	ParentCategoryID *string `gorm:"type:uuid"`
@@ -21,7 +32,7 @@ type Post struct {
 	Title       string
 	Description string
 	Price       uint
-	Status      string
+	Status      PostStatus
 	SoldAt      *time.Time
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
