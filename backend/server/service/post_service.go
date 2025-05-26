@@ -16,11 +16,16 @@ type PostService interface {
 	CreatePost(req *transaction.CreatePostRequest, userID string) (*model.Post, error)
 	UpdatePost(id string, req *transaction.UpdatePostRequest) (*model.Post, error)
 	DeletePost(id string) error
+	GetAllDeletedPosts() ([]*model.Post, error)
+	GetDeletedPostByID(id string) (*model.Post, error)
+	GetPostsByFilter(filters map[string]string) ([]*model.Post, error)
+	SearchPosts(query string) ([]*model.Post, error)
 
 	// Admin duyệt bài
 	ApprovePost(id string) (*model.Post, error)
 	RejectPost(id string) (*model.Post, error)
 	HidePost(id string) (*model.Post, error)
+	UnhidePost(id string) (*model.Post, error)
 
 	// Hệ thống đánh dấu đã bán hoặc hoàn lại
 	MarkPostAsSold(id string) (*model.Post, error)
@@ -58,6 +63,10 @@ func (s *postService) RejectPost(id string) (*model.Post, error) {
 
 func (s *postService) HidePost(id string) (*model.Post, error) {
 	return s.updatePostStatus(id, model.PostStatusHidden)
+}
+
+func (s *postService) UnhidePost(id string) (*model.Post, error) {
+	return s.updatePostStatus(id, model.PostStatusApproved)
 }
 
 func (s *postService) MarkPostAsSold(id string) (*model.Post, error) {
@@ -166,6 +175,22 @@ func (s *postService) DeletePost(id string) error {
 	return s.repo.Delete(post)
 }
 
+func (s *postService) GetAllDeletedPosts() ([]*model.Post, error) {
+	return s.repo.GetAllDeleted()
+}
+
+func (s *postService) GetDeletedPostByID(id string) (*model.Post, error) {
+	return s.repo.GetDeletedByID(id)
+}
+
 func NewPostService(repo repository.PostRepository) PostService {
 	return &postService{repo: repo}
+}
+
+func (s *postService) GetPostsByFilter(filters map[string]string) ([]*model.Post, error) {
+	return s.repo.GetByFilter(filters)
+}
+
+func (s *postService) SearchPosts(query string) ([]*model.Post, error) {
+	return s.repo.Search(query)
 }
