@@ -55,9 +55,9 @@ func (a *addressRepository) GetByID(addressID string) (*model.Address, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var address model.Address
+	var address *model.Address = nil
 	err := a.db.WithContext(ctx).First(&address, addressID).Error
-	return &address, err
+	return address, err
 }
 
 func (a *addressRepository) GetByUserID(userID string) ([]*model.Address, error) {
@@ -101,18 +101,18 @@ func (a *addressRepository) GetProvince(provinceID string) (*model.Province, err
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var province model.Province
+	var province *model.Province = nil
 	err := a.db.WithContext(ctx).First(&province, provinceID).Error
-	return &province, err
+	return province, err
 }
 
 func (a *addressRepository) GetProvinceByName(provinceName string) (*model.Province, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var province model.Province
+	var province *model.Province = nil
 	err := a.db.WithContext(ctx).First(&province, "name = ?", provinceName).Error
-	return &province, err
+	return province, err
 }
 
 func (a *addressRepository) GetAllDistricts() ([]*model.District, error) {
@@ -129,9 +129,9 @@ func (a *addressRepository) GetDistrict(districtID string) (*model.District, err
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var district model.District
+	var district *model.District = nil
 	err := a.db.WithContext(ctx).First(&district, districtID).Error
-	return &district, err
+	return district, err
 }
 
 func (a *addressRepository) GetDistricts(provinceID string) ([]*model.District, error) {
@@ -148,18 +148,18 @@ func (a *addressRepository) GetDistrictByName(districtName string) (*model.Distr
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var district model.District
+	var district *model.District = nil
 	err := a.db.WithContext(ctx).First(&district, "name = ?", districtName).Error
-	return &district, err
+	return district, err
 }
 
 func (a *addressRepository) GetWard(wardID string) (*model.Ward, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var ward model.Ward
+	var ward *model.Ward = nil
 	err := a.db.WithContext(ctx).First(&ward, wardID).Error
-	return &ward, err
+	return ward, err
 }
 
 func (a *addressRepository) GetWards(districtID string) ([]*model.Ward, error) {
@@ -176,9 +176,9 @@ func (a *addressRepository) GetWardByName(wardName string) (*model.Ward, error) 
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var ward model.Ward
+	var ward *model.Ward = nil
 	err := a.db.WithContext(ctx).First(&ward, "name = ?", wardName).Error
-	return &ward, err
+	return ward, err
 }
 
 func (a *addressRepository) CreateProvince(province *model.Province) error {
