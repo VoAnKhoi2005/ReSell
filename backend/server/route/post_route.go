@@ -15,17 +15,27 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	postService := service.NewPostService(postRepo)
 	postController := controller.NewPostController(postService)
 
-	//All
+	// User & common
 	posts := rg.Group("/posts")
 	posts.Use(middleware.AuthMiddleware())
 	posts.GET("/", postController.GetAllPosts)
 	posts.GET("/:id", postController.GetPostByID)
+	posts.GET("/trash", postController.GetAllDeletedPosts)     // Get all deleted posts
+	posts.GET("/trash/:id", postController.GetDeletedPostByID) // Get a specific deleted post
 	posts.POST("/", postController.CreatePost)
 	posts.PUT("/:id", postController.UpdatePost)
-	posts.DELETE("/:id", postController.DeletePost)
+	posts.PUT("/:id/restore", postController.RestoreDeletedPost)
+	posts.PUT("/:id/sold", postController.MarkPostAsSold)
+	posts.PUT("/:id/revert-sold", postController.RevertSoldStatus)
+	posts.DELETE("/:id/soft-delete", postController.MarkPostAsDeleted) // soft delete
+	posts.DELETE("/:id", postController.DeletePost)                    // hard delete
 
-	//Admin
+	// Admin actions
 	admin := rg.Group("/admin/posts")
 	admin.Use(middleware.AdminAuthMiddleware())
+	admin.PUT("/:id/approve", postController.ApprovePost)
+	admin.PUT("/:id/reject", postController.RejectPost)
+	admin.PUT("/:id/hide", postController.HidePost)
+	admin.PUT("/:id/unhide", postController.UnhidePost)
 
 }

@@ -17,6 +17,9 @@ type PostRepository interface {
 	SoftDelete(post *model.Post) error
 	GetByID(id string) (*model.Post, error)
 	GetDeletedByID(id string) (*model.Post, error)
+	GetAllDeleted() ([]*model.Post, error)
+	GetByFilter(filters map[string]string) ([]*model.Post, error)
+	Search(query string) ([]*model.Post, error)
 }
 
 type postRepository struct {
@@ -49,4 +52,78 @@ func (r *postRepository) GetDeletedByID(id string) (*model.Post, error) {
 	var post model.Post
 	err := r.db.Unscoped().Where("id = ?", id).First(&post).Error
 	return &post, err
+}
+
+func (r *postRepository) GetAllDeleted() ([]*model.Post, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var posts []*model.Post
+	err := r.db.WithContext(ctx).Unscoped().Where("deleted_at IS NOT NULL").Find(&posts).Error
+	return posts, err
+}
+
+func (r *postRepository) GetByFilter(filters map[string]string) ([]*model.Post, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var posts []*model.Post
+
+	query := r.db.WithContext(ctx).
+		Model(&model.Post{}).
+		Joins("JOIN addresses ON addresses.id = posts.address_id").
+		Joins("JOIN wards ON wards.id = addresses.ward_id").
+		Joins("JOIN districts ON districts.id = wards.district_id").
+		Joins("JOIN provinces ON provinces.id = districts.province_id").
+		Preload("Address.Ward.District.Province")
+
+	// ========== FILTERS ==========
+
+	if status, ok := filters["status"]; ok {
+		query = query.Where("posts.status = ?", status)
+	}
+
+	if minPrice, ok := filters["min_price"]; ok {
+		query = query.Where("posts.price >= ?", minPrice)
+	}
+	if maxPrice, ok := filters["max_price"]; ok {
+		query = query.Where("posts.price <= ?", maxPrice)
+	}
+
+	if provinceID, ok := filters["province_id"]; ok {
+		query = query.Where("provinces.id = ?", provinceID)
+	}
+	if districtID, ok := filters["district_id"]; ok {
+		query = query.Where("districts.id = ?", districtID)
+	}
+	if wardID, ok := filters["ward_id"]; ok {
+		query = query.Where("wards.id = ?", wardID)
+	}
+
+	if categoryID, ok := filters["category_id"]; ok {
+		query = query.Where("posts.category_id = ?", categoryID)
+	}
+	if userID, ok := filters["user_id"]; ok {
+		query = query.Where("posts.user_id = ?", userID)
+	}
+
+	// ========== QUERY ==========
+
+	err := query.Find(&posts).Error
+	return posts, err
+}
+
+func (r *postRepository) Search(queryStr string) ([]*model.Post, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var posts []*model.Post
+
+	err := r.db.WithContext(ctx).
+		Model(&model.Post{}).
+		Where("posts.title ILIKE ? OR posts.description ILIKE ?", "%"+queryStr+"%", "%"+queryStr+"%").
+		Preload("Address.Ward.District.Province").
+		Find(&posts).Error
+
+	return posts, err
 }
