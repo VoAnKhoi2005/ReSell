@@ -19,13 +19,16 @@ type AddressRepository interface {
 
 	GetAllProvinces() ([]*model.Province, error)
 	GetProvince(provinceID string) (*model.Province, error)
+	GetProvinceByName(provinceName string) (*model.Province, error)
 
 	GetAllDistricts() ([]*model.District, error)
 	GetDistrict(districtID string) (*model.District, error)
 	GetDistricts(provinceID string) ([]*model.District, error)
+	GetDistrictByName(districtName string) (*model.District, error)
 
 	GetWard(wardID string) (*model.Ward, error)
 	GetWards(districtID string) ([]*model.Ward, error)
+	GetWardByName(wardName string) (*model.Ward, error)
 
 	CreateProvince(province *model.Province) error
 	CreateDistrict(district *model.District) error
@@ -103,6 +106,15 @@ func (a *addressRepository) GetProvince(provinceID string) (*model.Province, err
 	return &province, err
 }
 
+func (a *addressRepository) GetProvinceByName(provinceName string) (*model.Province, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var province model.Province
+	err := a.db.WithContext(ctx).First(&province, "name = ?", provinceName).Error
+	return &province, err
+}
+
 func (a *addressRepository) GetAllDistricts() ([]*model.District, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
@@ -132,6 +144,15 @@ func (a *addressRepository) GetDistricts(provinceID string) ([]*model.District, 
 	return districts, err
 }
 
+func (a *addressRepository) GetDistrictByName(districtName string) (*model.District, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var district model.District
+	err := a.db.WithContext(ctx).First(&district, "name = ?", districtName).Error
+	return &district, err
+}
+
 func (a *addressRepository) GetWard(wardID string) (*model.Ward, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
@@ -149,6 +170,15 @@ func (a *addressRepository) GetWards(districtID string) ([]*model.Ward, error) {
 	err := a.db.WithContext(ctx).Find(&wards, "district_id = ?", districtID).Error
 
 	return wards, err
+}
+
+func (a *addressRepository) GetWardByName(wardName string) (*model.Ward, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var ward model.Ward
+	err := a.db.WithContext(ctx).First(&ward, "name = ?", wardName).Error
+	return &ward, err
 }
 
 func (a *addressRepository) CreateProvince(province *model.Province) error {
