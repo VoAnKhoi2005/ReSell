@@ -20,15 +20,15 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	posts.Use(middleware.AuthMiddleware())
 	posts.GET("/", postController.GetAllPosts)
 	posts.GET("/:id", postController.GetPostByID)
-	posts.GET("/trash", postController.GetAllDeletedPosts)     // Get all deleted posts
-	posts.GET("/trash/:id", postController.GetDeletedPostByID) // Get a specific deleted post
-	posts.GET("/search", postController.SearchPosts)           // Search posts by query
-	posts.GET("/filter", postController.GetFiltedPosts)        // Filter posts by various criteria
+	posts.GET("/trash", postController.GetAllDeletedPosts) // Get all deleted posts
+	//posts.GET("/trash/:id", postController.GetDeletedPostByID) // Get a specific deleted post
+	posts.GET("/search", postController.SearchPosts)    // Search posts by query
+	posts.GET("/filter", postController.GetFiltedPosts) // Filter posts by various criteria
 	posts.POST("/", postController.CreatePost)
 	posts.PUT("/:id", postController.UpdatePost)
 	posts.PUT("/:id/restore", postController.RestoreDeletedPost)
-	posts.PUT("/:id/sold", postController.MarkPostAsSold)
-	posts.PUT("/:id/revert-sold", postController.RevertSoldStatus)
+	//posts.PUT("/:id/sold", postController.MarkPostAsSold)
+	//posts.PUT("/:id/revert-sold", postController.RevertSoldStatus)
 	posts.DELETE("/:id/soft-delete", postController.MarkPostAsDeleted) // soft delete
 	posts.DELETE("/:id", postController.DeletePost)                    // hard delete
 

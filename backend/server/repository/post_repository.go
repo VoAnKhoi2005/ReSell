@@ -49,8 +49,11 @@ func (r *postRepository) SoftDelete(post *model.Post) error {
 }
 
 func (r *postRepository) GetDeletedByID(id string) (*model.Post, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
 	var post model.Post
-	err := r.db.Unscoped().Where("id = ?", id).First(&post).Error
+	err := r.db.WithContext(ctx).Unscoped().Where("id = ? AND deleted_at IS NOT NULL", id).First(&post).Error
 	return &post, err
 }
 
