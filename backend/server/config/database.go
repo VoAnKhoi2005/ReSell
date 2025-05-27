@@ -51,6 +51,7 @@ func RunMigrations() {
 		&model.Conversation{},
 		&model.Message{},
 		&model.Follow{},
+		&model.Notification{},
 	)
 	if err != nil {
 		panic("Failed to migrate database: " + err.Error())
