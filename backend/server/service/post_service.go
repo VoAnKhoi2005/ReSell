@@ -66,6 +66,13 @@ func (s *postService) HidePost(id string) (*model.Post, error) {
 }
 
 func (s *postService) UnhidePost(id string) (*model.Post, error) {
+	post, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if post.Status != model.PostStatusHidden {
+		return nil, gorm.ErrRecordNotFound
+	}
 	return s.updatePostStatus(id, model.PostStatusApproved)
 }
 
@@ -168,7 +175,7 @@ func (s *postService) GetPostByID(id string) (*model.Post, error) {
 }
 
 func (s *postService) DeletePost(id string) error {
-	post, err := s.repo.GetByID(id)
+	post, err := s.repo.GetDeletedByID(id)
 	if err != nil {
 		return err
 	}
