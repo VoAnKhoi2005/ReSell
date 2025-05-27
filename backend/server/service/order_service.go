@@ -12,6 +12,7 @@ type OrderService interface {
 	GetByID(orderID string) (*model.ShopOrder, error)
 	GetByPostID(PostID string) (*model.ShopOrder, error)
 	GetByBuyerID(BuyerID string) (*model.ShopOrder, error)
+	GetBySellerID(SellerID string) (*model.ShopOrder, error)
 
 	UpdateStatus(orderID string, status string) error
 
@@ -21,10 +22,11 @@ type OrderService interface {
 
 type OderService struct {
 	orderRepository repository.OrderRepository
+	postRepository  repository.PostRepository
 }
 
-func NewOrderService(repo repository.OrderRepository) OrderService {
-	return &OderService{orderRepository: repo}
+func NewOrderService(orderRepo repository.OrderRepository, postRepo repository.PostRepository) OrderService {
+	return &OderService{orderRepository: orderRepo, postRepository: postRepo}
 }
 
 func (o *OderService) CreateOrder(order *model.ShopOrder) error {
@@ -52,6 +54,11 @@ func (o *OderService) GetByBuyerID(BuyerID string) (*model.ShopOrder, error) {
 	return o.orderRepository.GetByBuyerID(BuyerID)
 }
 
+func (o *OderService) GetBySellerID(SellerID string) (*model.ShopOrder, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (o *OderService) UpdateStatus(orderID string, status string) error {
 	order, err := o.orderRepository.GetByID(orderID)
 	if err != nil {
@@ -71,6 +78,6 @@ func (o *OderService) DeleteReview(reviewID string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	return o.orderRepository.DeleteReview(review)
 }
