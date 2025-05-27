@@ -17,34 +17,34 @@ const (
 )
 
 type Category struct {
-	ID               string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	ParentCategoryID *string `gorm:"type:uuid"`
-	Name             string
+	ID               string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
+	ParentCategoryID *string `gorm:"type:uuid" json:"parent_category_id"`
+	Name             string  `json:"name"`
 
-	ParentCategory *Category
+	ParentCategory *Category `json:"parent_category,omitempty"`
 }
 
 type Post struct {
-	ID          string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	UserID      *string `gorm:"type:uuid"`
-	CategoryID  *string `gorm:"type:uuid"`
-	AddressID   *string `gorm:"type:uuid"`
-	Title       string
-	Description string
-	Price       uint
-	Status      PostStatus
-	SoldAt      *time.Time
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	DeletedAt   gorm.DeletedAt `gorm:"index"`
+	ID          string         `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
+	UserID      *string        `gorm:"type:uuid" json:"user_id"`
+	CategoryID  *string        `gorm:"type:uuid" json:"category_id"`
+	AddressID   *string        `gorm:"type:uuid" json:"address_id"`
+	Title       string         `json:"title"`
+	Description string         `json:"description"`
+	Price       uint           `json:"price"`
+	Status      PostStatus     `json:"status"`
+	SoldAt      *time.Time     `json:"sold_at,omitempty"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
 
-	User     *User
-	Category *Category
-	Address  *Address
+	User     *User     `json:"user,omitempty"`
+	Category *Category `json:"category,omitempty"`
+	Address  *Address  `json:"address,omitempty"`
 }
 
 type PostImage struct {
-	PostID     *string `gorm:"type:uuid;primaryKey"`
-	ImageURL   string  `gorm:"primaryKey"`
-	ImageOrder uint
+	PostID     *string `gorm:"type:uuid;primaryKey" json:"post_id"`
+	ImageURL   string  `gorm:"primaryKey" json:"image_url"`
+	ImageOrder uint    `json:"image_order"`
 }
