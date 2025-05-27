@@ -106,3 +106,65 @@ func (oc *OrderController) GetByBuyerID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"order": order})
 }
+
+func (oc *OrderController) UpdateStatus(c *gin.Context) {
+	orderID := c.Param("order_id")
+	if orderID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "order id is required"})
+		return
+	}
+
+	newStatus := c.PostForm("new_status")
+	if newStatus == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "new status is required"})
+		return
+	}
+
+	err := oc.orderService.UpdateStatus(orderID, newStatus)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (oc *OrderController) CreateReview(c *gin.Context) {
+	var request transaction.CreateReviewRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	review := model.UserReview{
+		UserId:  &request.UserID,
+		OrderId: &request.OrderID,
+		Rating:  request.Rating,
+		Comment: request.Comment,
+	}
+
+	err = oc.orderService.CreateReview(&review)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (oc *OrderController) DeleteReview(c *gin.Context) {
+	reviewID := c.Param("review_id")
+	if reviewID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "review id is required"})
+		return
+	}
+
+	err := oc.orderService.DeleteReview(reviewID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}

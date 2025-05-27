@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 )
@@ -65,11 +66,28 @@ func (o *OderService) UpdateStatus(orderID string, status string) error {
 		return err
 	}
 
-	order.Status = status
-	return o.orderRepository.Update(order)
+	switch status {
+	case "Processing", "Shipping", "Delivered", "Cancel":
+		order.Status = status
+		return o.orderRepository.Update(order)
+	default:
+		return errors.New("invalid status")
+	}
 }
 
 func (o *OderService) CreateReview(review *model.UserReview) error {
+	order, err := o.orderRepository.GetByID(*review.OrderId)
+	if err != nil {
+		return err
+	}
+
+	if order.UserId != review.UserId {
+		return errors.New("unauthorized review of order")
+	}
+
+	if order.Status != "Delivered" {
+		return errors.New("order status is invalid for creating review")
+	}
 	return o.orderRepository.CreateReview(review)
 }
 
