@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const DefaultDBTimeout = 2 * time.Second
+const DefaultDBTimeout = 5 * time.Second
 
 func NewDBContext() (context.Context, context.CancelFunc) {
 	return context.WithTimeout(context.Background(), DefaultDBTimeout)
