@@ -19,7 +19,7 @@ func NewAddressController(addressService service.AddressService) *AddressControl
 
 func (ac *AddressController) CreateAddress(c *gin.Context) {
 	var request *transaction.CreateAddressRequest
-	err := c.ShouldBind(&request)
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
