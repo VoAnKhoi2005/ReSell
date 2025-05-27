@@ -9,7 +9,7 @@ type ShopOrder struct {
 	UserId          *string `gorm:"type:uuid"`
 	PostId          *string `gorm:"type:uuid"`
 	PaymentMethodId *string `gorm:"type:uuid"`
-	Status          string
+	Status          string  //"Processing", "Shipping", "Delivered", "Cancel"
 	AddressId       *string `gorm:"type:uuid"`
 	Total           int
 	CreatedAt       time.Time
