@@ -368,3 +368,37 @@ func (h *PostController) UploadPostImages(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"image_urls": imagesUrls, "message": "Images uploaded successfully"})
 }
+
+func (h *PostController) DeletePostImages(c *gin.Context) {
+	postID := c.Param("id")
+
+	var req struct {
+		ImageURLs []string `json:"image_urls"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil || len(req.ImageURLs) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid image_urls"})
+		return
+	}
+
+	for _, imageURL := range req.ImageURLs {
+		// 1. Tách public_id từ URL
+		publicID := util.ExtractPublicID(imageURL)
+
+		// 2. Xóa Cloudinary
+		err := util.DeleteFromCloudinary(publicID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to delete image from Cloudinary: %s", err.Error())})
+			return
+		}
+
+		// 3. Xóa trong DB
+		err = h.service.DeletePostImage(postID, imageURL)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to delete image from database: %s", err.Error())})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Images deleted"})
+
+}

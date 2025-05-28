@@ -21,6 +21,7 @@ type PostService interface {
 	GetPostsByFilter(filters map[string]string) ([]*model.Post, error)
 	SearchPosts(query string) ([]*model.Post, error)
 	CreatePostImage(postID, url string, order uint) (*model.PostImage, error)
+	DeletePostImage(postID, url string) error
 
 	// Admin duyệt bài
 	ApprovePost(id string) (*model.Post, error)
@@ -212,4 +213,12 @@ func (s *postService) CreatePostImage(postID, url string, order uint) (*model.Po
 
 	err := s.repo.CreatePostImage(postImage)
 	return postImage, err
+}
+
+func (s *postService) DeletePostImage(postID, url string) error {
+	postImage, err := s.repo.GetPostImage(postID, url)
+	if err != nil {
+		return err
+	}
+	return s.repo.DeletePostImage(postImage)
 }
