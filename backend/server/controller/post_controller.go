@@ -328,3 +328,43 @@ func (h *PostController) SearchPosts(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, posts)
 }
+
+func (h *PostController) UploadPostImages(c *gin.Context) {
+	postId := c.Param("id")
+
+	form, err := c.MultipartForm()
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid form data"})
+		return
+	}
+
+	files := form.File["images"]
+	if len(files) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "no images provided"})
+		return
+	}
+
+	var imagesUrls []string
+	for i, fileHeader := range files {
+		file, err := fileHeader.Open()
+		defer file.Close()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to open file"})
+			return
+		}
+		url, err := util.UploadToCloudinary(file, fileHeader)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to upload image: %s", err.Error())})
+			return
+		}
+
+		imagesUrls = append(imagesUrls, url)
+		_, err = h.service.CreatePostImage(postId, url, uint(i+1))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to create post image: %s", err.Error())})
+			return
+		}
+	}
+	c.JSON(http.StatusOK, gin.H{"image_urls": imagesUrls, "message": "Images uploaded successfully"})
+}

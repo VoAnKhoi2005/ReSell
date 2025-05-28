@@ -20,6 +20,7 @@ type PostService interface {
 	GetDeletedPostByID(id string) (*model.Post, error)
 	GetPostsByFilter(filters map[string]string) ([]*model.Post, error)
 	SearchPosts(query string) ([]*model.Post, error)
+	CreatePostImage(postID, url string, order uint) (*model.PostImage, error)
 
 	// Admin duyệt bài
 	ApprovePost(id string) (*model.Post, error)
@@ -200,4 +201,15 @@ func (s *postService) GetPostsByFilter(filters map[string]string) ([]*model.Post
 
 func (s *postService) SearchPosts(query string) ([]*model.Post, error) {
 	return s.repo.Search(query)
+}
+
+func (s *postService) CreatePostImage(postID, url string, order uint) (*model.PostImage, error) {
+	postImage := &model.PostImage{
+		PostID:     &postID,
+		ImageURL:   url,
+		ImageOrder: order,
+	}
+
+	err := s.repo.CreatePostImage(postImage)
+	return postImage, err
 }
