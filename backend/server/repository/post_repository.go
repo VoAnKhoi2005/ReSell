@@ -20,6 +20,7 @@ type PostRepository interface {
 	GetAllDeleted() ([]*model.Post, error)
 	GetByFilter(filters map[string]string) ([]*model.Post, error)
 	Search(query string) ([]*model.Post, error)
+	CreatePostImage(postImage *model.PostImage) error
 }
 
 type postRepository struct {
@@ -129,4 +130,11 @@ func (r *postRepository) Search(queryStr string) ([]*model.Post, error) {
 		Find(&posts).Error
 
 	return posts, err
+}
+
+func (r *postRepository) CreatePostImage(postImage *model.PostImage) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return r.db.WithContext(ctx).Create(postImage).Error
 }
