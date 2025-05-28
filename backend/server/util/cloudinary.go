@@ -8,6 +8,8 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 type CloudinaryResponse struct {
@@ -60,4 +62,38 @@ func UploadToCloudinary(file multipart.File, fileHeader *multipart.FileHeader) (
 		return "", err
 	}
 	return cloudRes.URL, nil
+}
+
+func ExtractPublicID(imageURL string) string {
+	// Ví dụ: https://res.cloudinary.com/demo/image/upload/v123456/folder/image123.jpg
+	parts := strings.Split(imageURL, "/")
+	publicIDWithExt := parts[len(parts)-1]
+	folder := parts[len(parts)-2]
+	publicID := folder + "/" + strings.TrimSuffix(publicIDWithExt, filepath.Ext(publicIDWithExt))
+	return publicID
+}
+
+func DeleteFromCloudinary(publicID string) error {
+	url := fmt.Sprintf("https://api.cloudinary.com/v1_1/%s/image/destroy", os.Getenv("CLOUDINARY_CLOUD_NAME"))
+
+	payload := map[string]string{
+		"public_id": publicID,
+	}
+	body, _ := json.Marshal(payload)
+
+	req, _ := http.NewRequest("POST", url, bytes.NewReader(body))
+	req.SetBasicAuth(os.Getenv("CLOUDINARY_API_KEY"), os.Getenv("CLOUDINARY_API_SECRET"))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		data, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("cloudinary error: %s", data)
+	}
+	return nil
 }
