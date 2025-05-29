@@ -40,4 +40,10 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	admin.PUT("/:id/hide", postController.HidePost)
 	admin.PUT("/:id/unhide", postController.UnhidePost)
 
+	//images
+	images := rg.Group("/posts/:id/images")
+
+	images.POST("/", postController.UploadPostImages)
+	images.DELETE("/", postController.DeletePostImages)
+
 }

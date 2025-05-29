@@ -20,6 +20,9 @@ type PostRepository interface {
 	GetAllDeleted() ([]*model.Post, error)
 	GetByFilter(filters map[string]string) ([]*model.Post, error)
 	Search(query string) ([]*model.Post, error)
+	CreatePostImage(postImage *model.PostImage) error
+	DeletePostImage(postImage *model.PostImage) error
+	GetPostImage(postID, url string) (*model.PostImage, error)
 }
 
 type postRepository struct {
@@ -129,4 +132,27 @@ func (r *postRepository) Search(queryStr string) ([]*model.Post, error) {
 		Find(&posts).Error
 
 	return posts, err
+}
+
+func (r *postRepository) CreatePostImage(postImage *model.PostImage) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return r.db.WithContext(ctx).Create(postImage).Error
+}
+
+func (r *postRepository) DeletePostImage(postImage *model.PostImage) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return r.db.WithContext(ctx).Unscoped().Delete(postImage).Error
+}
+
+func (r *postRepository) GetPostImage(postID, url string) (*model.PostImage, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var postImage model.PostImage
+	err := r.db.WithContext(ctx).Where("post_id = ? AND image_url = ?", postID, url).First(&postImage).Error
+	return &postImage, err
 }
