@@ -4,6 +4,7 @@
     <inspection_tool class="GoDfaErrorMayBeNotNil" enabled="true" level="WARNING" enabled_by_default="true">
       <methods>
         <method importPath="github.com/VoAnKhoi2005/ReSell/services" receiver="UserService" name="GetUserByEmail" />
+        <method importPath="github.com/VoAnKhoi2005/ReSell/service" receiver="PostService" name="GetPostByID" />
       </methods>
     </inspection_tool>
   </profile>

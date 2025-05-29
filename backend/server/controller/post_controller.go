@@ -305,7 +305,7 @@ func (h *PostController) GetFiltedPosts(c *gin.Context) {
 		filters["category_id"] = filter.CategoryID
 	}
 
-	// Gọi service
+	// Gọi cartService
 	posts, err := h.service.GetPostsByFilter(filters)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -331,42 +331,77 @@ func (h *PostController) SearchPosts(c *gin.Context) {
 
 func (h *PostController) UploadPostImages(c *gin.Context) {
 	postId := c.Param("id")
-
 	form, err := c.MultipartForm()
-
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid form data"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid multipart form", "details": err.Error()})
 		return
 	}
 
 	files := form.File["images"]
 	if len(files) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "no images provided"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No images provided"})
 		return
 	}
 
-	var imagesUrls []string
+	var imageUrls []string
+
 	for i, fileHeader := range files {
+		// Mở từng file
 		file, err := fileHeader.Open()
-		defer file.Close()
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to open file"})
-			return
-		}
-		url, err := util.UploadToCloudinary(file, fileHeader)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to upload image: %s", err.Error())})
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Failed to open file %s", fileHeader.Filename)})
 			return
 		}
 
-		imagesUrls = append(imagesUrls, url)
-		_, err = h.service.CreatePostImage(postId, url, uint(i+1))
+		// Upload lên Cloudinary
+		imageURL, err := util.UploadToCloudinary(file, fileHeader)
+		file.Close() // Đóng file sau khi dùng
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to create post image: %s", err.Error())})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":   fmt.Sprintf("Failed to upload image %s", fileHeader.Filename),
+				"details": err.Error(),
+			})
+			return
+		}
+
+		imageUrls = append(imageUrls, imageURL)
+
+		// Lưu vào database
+		_, err = h.service.CreatePostImage(postId, imageURL, uint(i+1))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":   fmt.Sprintf("Failed to save image %s to DB", fileHeader.Filename),
+				"details": err.Error(),
+			})
 			return
 		}
 	}
-	c.JSON(http.StatusOK, gin.H{"image_urls": imagesUrls, "message": "Images uploaded successfully"})
+
+	c.JSON(http.StatusOK, gin.H{
+		"image_urls": imageUrls,
+		"message":    "Images uploaded successfully",
+	})
+}
+
+func (h *PostController) UploadPostImage(c *gin.Context) {
+	postID := c.Param("id")
+	file, fileHeader, err := c.Request.FormFile("image")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing image file"})
+		return
+	}
+
+	defer file.Close()
+
+	imageURL, err := util.UploadToCloudinary(file, fileHeader)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Upload failed", "details": err.Error()})
+		return
+	}
+
+	postImage, err := h.service.CreatePostImage(postID, imageURL, 0) // Order is not used here
+
+	c.JSON(http.StatusOK, gin.H{"post_image": postImage, "message": "Image uploaded successfully"})
 }
 
 func (h *PostController) DeletePostImages(c *gin.Context) {
