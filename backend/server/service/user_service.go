@@ -7,6 +7,7 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"golang.org/x/crypto/bcrypt"
 	"strings"
+	"time"
 )
 
 type UserService interface {
@@ -108,9 +109,27 @@ func (s *userService) BanUserForDay(userID string, length uint) error {
 		return errors.New("invalid length")
 	}
 
-	return s.userRepo.BanUserForDay(userID, length)
+	user, err := s.userRepo.GetByID(userID)
+	if err != nil {
+		return err
+	}
+
+	banStart := time.Now()
+	banEnd := banStart.Add(time.Duration(length) * time.Hour * 24)
+
+	user.BanStart = &banStart
+	user.BanEnd = &banEnd
+
+	return s.userRepo.Update(user)
 }
 
 func (s *userService) UnBanUser(userID string) error {
-	return s.userRepo.UnBanUser(userID)
+	user, err := s.userRepo.GetByID(userID)
+	if err != nil {
+		return err
+	}
+
+	user.BanStart = nil
+	user.BanEnd = nil
+	return s.userRepo.Update(user)
 }
