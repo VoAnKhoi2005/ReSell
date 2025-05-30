@@ -123,7 +123,7 @@ func (ac *AddressController) GetAddressByUserID(c *gin.Context) {
 
 func (ac *AddressController) UpdateAddress(c *gin.Context) {
 	var address *model.Address
-	err := c.ShouldBind(&address)
+	err := c.ShouldBindJSON(&address)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

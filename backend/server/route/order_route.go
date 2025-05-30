@@ -11,8 +11,9 @@ import (
 
 func RegisterOrderRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	orderRepository := repository.NewOrderRepository(db)
-	postRepository := repository.NewPostRepository(db)
-	orderService := service.NewOrderService(orderRepository, postRepository)
+	postRepo := repository.NewPostRepository(db)
+	addressRepo := repository.NewAddressRepository(db)
+	orderService := service.NewOrderService(orderRepository, postRepo, addressRepo)
 	orderController := controller.NewOrderController(orderService)
 
 	orderRoute := rg.Group("/order")
@@ -22,7 +23,7 @@ func RegisterOrderRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	orderRoute.PUT("/:order_id/set_status/:new_status", orderController.UpdateStatus)
 
 	orderRoute.GET("/:order_id", orderController.GetOrderByID)
-	orderRoute.GET("/post/:post_id", orderController.GetOrderByID)
+	orderRoute.GET("/post/:post_id", orderController.GetByPostID)
 	orderRoute.GET("/buyer/:buyer_id", orderController.GetByBuyerID)
 	orderRoute.GET("/seller/:seller_id", orderController.GetBySellerID)
 
