@@ -17,16 +17,16 @@ const (
 )
 
 type ShopOrder struct {
-	ID              string     `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
-	UserId          *string    `gorm:"type:uuid" json:"user_id"`
-	PostId          *string    `gorm:"type:uuid" json:"post_id"`
-	PaymentMethodId *string    `gorm:"type:uuid" json:"payment_method_id"`
-	Status          string     `json:"status"`
-	AddressId       *string    `gorm:"type:uuid" json:"address_id"`
-	Total           int        `json:"total"`
-	CreatedAt       time.Time  `json:"created_at"`
-	CompletedAt     *time.Time `json:"completed_at,omitempty"`
-	CanceledAt      *time.Time `json:"canceled_at,omitempty"`
+	ID              string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	UserId          *string `gorm:"type:uuid"`
+	PostId          *string `gorm:"type:uuid"`
+	PaymentMethodId *string `gorm:"type:uuid"`
+	Status          string  //"Processing", "Shipping", "Delivered", "Cancel"
+	AddressId       *string `gorm:"type:uuid"`
+	Total           int
+	CreatedAt       time.Time
+	CompletedAt     *time.Time
+	CanceledAt      *time.Time
 
 	User          *User          `json:"user,omitempty"`
 	Post          *Post          `json:"post,omitempty"`
