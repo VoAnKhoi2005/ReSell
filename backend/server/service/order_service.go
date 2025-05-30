@@ -15,22 +15,41 @@ type OrderService interface {
 	GetByBuyerID(BuyerID string) (*model.ShopOrder, error)
 	GetBySellerID(SellerID string) ([]*model.ShopOrder, error)
 
-	UpdateStatus(orderID string, status string) error
+	UpdateStatus(orderID string, userID string, status model.OrderStatus) error
 
 	CreateReview(review *model.UserReview) error
 	DeleteReview(reviewID string) error
 }
 
 type OderService struct {
-	orderRepository repository.OrderRepository
-	postRepository  repository.PostRepository
+	orderRepository   repository.OrderRepository
+	postRepository    repository.PostRepository
+	addressRepository repository.AddressRepository
 }
 
-func NewOrderService(orderRepo repository.OrderRepository, postRepo repository.PostRepository) OrderService {
-	return &OderService{orderRepository: orderRepo, postRepository: postRepo}
+func NewOrderService(orderRepo repository.OrderRepository, postRepo repository.PostRepository, addressRepo repository.AddressRepository) OrderService {
+	return &OderService{orderRepository: orderRepo, postRepository: postRepo, addressRepository: addressRepo}
 }
 
 func (o *OderService) CreateOrder(order *model.ShopOrder) error {
+	post, err := o.postRepository.GetByID(*order.PostId)
+	if err != nil {
+		return err
+	}
+
+	if *post.UserID == *order.UserId {
+		return errors.New("user can not create order for their own post")
+	}
+
+	address, err := o.addressRepository.GetByID(*order.AddressId)
+	if err != nil {
+		return err
+	}
+
+	if *address.UserID != *order.UserId {
+		return errors.New("address is not owned by this user")
+	}
+
 	return o.orderRepository.Create(order)
 }
 
@@ -64,22 +83,41 @@ func (o *OderService) GetByBuyerID(BuyerID string) (*model.ShopOrder, error) {
 }
 
 func (o *OderService) GetBySellerID(SellerID string) ([]*model.ShopOrder, error) {
-	return o.orderRepository.GetBySellerID(SellerID)
+	filter := map[string]string{"user_id": SellerID}
+
+	posts, err := o.postRepository.GetByFilter(filter)
+	if err != nil {
+		return nil, err
+	}
+
+	var orders []*model.ShopOrder
+	for _, post := range posts {
+		order, err := o.orderRepository.GetByID(post.ID)
+		if err != nil {
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
+	return orders, nil
 }
 
-func (o *OderService) UpdateStatus(orderID string, status string) error {
+func (o *OderService) UpdateStatus(orderID string, userID string, status model.OrderStatus) error {
 	order, err := o.orderRepository.GetByID(orderID)
 	if err != nil {
 		return err
 	}
 
-	switch status {
-	case "Processing", "Shipping", "Delivered", "Cancel":
-		order.Status = status
-		return o.orderRepository.Update(order)
-	default:
-		return errors.New("invalid status")
+	post, err := o.postRepository.GetByID(*order.PostId)
+	if err != nil {
+		return err
 	}
+
+	if *post.UserID != userID {
+		return errors.New("unauthorized to change status of the order")
+	}
+
+	order.Status = status
+	return o.orderRepository.Update(order)
 }
 
 func (o *OderService) CreateReview(review *model.UserReview) error {
@@ -89,10 +127,10 @@ func (o *OderService) CreateReview(review *model.UserReview) error {
 	}
 
 	if order.UserId != review.UserId {
-		return errors.New("unauthorized review of order")
+		return errors.New("unauthorized to review order")
 	}
 
-	if order.Status != "Delivered" {
+	if order.Status != model.OrderStatusSold {
 		return errors.New("order status is invalid for creating review")
 	}
 	return o.orderRepository.CreateReview(review)

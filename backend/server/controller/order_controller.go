@@ -29,7 +29,7 @@ func (oc *OrderController) CreateOrder(c *gin.Context) {
 	order := model.ShopOrder{
 		UserId:    &request.UserID,
 		PostId:    &request.PostID,
-		Status:    request.Status,
+		Status:    model.OrderStatusPending,
 		AddressId: &request.AddressID,
 		Total:     request.Total,
 		CreatedAt: time.Now(),
@@ -137,13 +137,25 @@ func (oc *OrderController) UpdateStatus(c *gin.Context) {
 		return
 	}
 
-	newStatus := c.PostForm("new_status")
-	if newStatus == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "new status is required"})
+	statusStr := c.Param("new_status")
+	if statusStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "status is required"})
 		return
 	}
 
-	err := oc.orderService.UpdateStatus(orderID, newStatus)
+	newStatus, err := model.ParseOrderStatus(statusStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID, err := util.GetUserID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = oc.orderService.UpdateStatus(orderID, userID, newStatus)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

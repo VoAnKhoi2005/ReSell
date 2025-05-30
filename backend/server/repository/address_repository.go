@@ -56,7 +56,7 @@ func (a *addressRepository) GetByID(addressID string) (*model.Address, error) {
 	defer cancel()
 
 	var address *model.Address = nil
-	err := a.db.WithContext(ctx).First(&address, addressID).Error
+	err := a.db.WithContext(ctx).First(&address, "id = ?", addressID).Error
 	return address, err
 }
 
@@ -93,7 +93,6 @@ func (a *addressRepository) GetAllProvinces() ([]*model.Province, error) {
 
 	var provinces []*model.Province
 	err := a.db.WithContext(ctx).Find(&provinces).Error
-
 	return provinces, err
 }
 
@@ -102,7 +101,7 @@ func (a *addressRepository) GetProvince(provinceID string) (*model.Province, err
 	defer cancel()
 
 	var province *model.Province = nil
-	err := a.db.WithContext(ctx).First(&province, provinceID).Error
+	err := a.db.WithContext(ctx).First(&province, "id = ?", provinceID).Error
 	return province, err
 }
 
@@ -121,7 +120,6 @@ func (a *addressRepository) GetAllDistricts() ([]*model.District, error) {
 
 	var districts []*model.District
 	err := a.db.WithContext(ctx).Find(&districts).Error
-
 	return districts, err
 }
 
@@ -130,7 +128,7 @@ func (a *addressRepository) GetDistrict(districtID string) (*model.District, err
 	defer cancel()
 
 	var district *model.District = nil
-	err := a.db.WithContext(ctx).First(&district, districtID).Error
+	err := a.db.WithContext(ctx).First(&district, "id = ?", districtID).Error
 	return district, err
 }
 
@@ -140,7 +138,6 @@ func (a *addressRepository) GetDistricts(provinceID string) ([]*model.District, 
 
 	var districts []*model.District
 	err := a.db.WithContext(ctx).Find(&districts, "province_id = ?", provinceID).Error
-
 	return districts, err
 }
 
@@ -158,7 +155,7 @@ func (a *addressRepository) GetWard(wardID string) (*model.Ward, error) {
 	defer cancel()
 
 	var ward *model.Ward = nil
-	err := a.db.WithContext(ctx).First(&ward, wardID).Error
+	err := a.db.WithContext(ctx).First(&ward, "id = ?", wardID).Error
 	return ward, err
 }
 
@@ -168,7 +165,6 @@ func (a *addressRepository) GetWards(districtID string) ([]*model.Ward, error) {
 
 	var wards []*model.Ward
 	err := a.db.WithContext(ctx).Find(&wards, "district_id = ?", districtID).Error
-
 	return wards, err
 }
 

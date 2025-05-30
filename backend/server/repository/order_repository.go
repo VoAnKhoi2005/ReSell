@@ -13,9 +13,10 @@ type OrderRepository interface {
 	Delete(order *model.ShopOrder) error
 
 	GetByID(orderID string) (*model.ShopOrder, error)
+	GetByIDs(orderIDs []string) ([]*model.ShopOrder, error)
 	GetByPostID(PostID string) (*model.ShopOrder, error)
 	GetByBuyerID(BuyerID string) (*model.ShopOrder, error)
-	GetBySellerID(SellerID string) ([]*model.ShopOrder, error)
+	//GetBySellerID(SellerID string) ([]*model.ShopOrder, error)
 
 	CreateReview(review *model.UserReview) error
 	GetReviewByID(reviewID string) (*model.UserReview, error)
@@ -39,6 +40,15 @@ func (o *oderRepository) GetByID(orderID string) (*model.ShopOrder, error) {
 	return order, err
 }
 
+func (o *oderRepository) GetByIDs(orderIDs []string) ([]*model.ShopOrder, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var orders []*model.ShopOrder = nil
+	err := o.db.WithContext(ctx).Find(&orders, "id IN ?", orderIDs).Error
+	return orders, err
+}
+
 func (o *oderRepository) GetByPostID(PostID string) (*model.ShopOrder, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
@@ -57,7 +67,7 @@ func (o *oderRepository) GetByBuyerID(BuyerID string) (*model.ShopOrder, error) 
 	return order, err
 }
 
-func (o *oderRepository) GetBySellerID(SellerID string) ([]*model.ShopOrder, error) {
+/*func (o *oderRepository) GetBySellerID(SellerID string) ([]*model.ShopOrder, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
@@ -72,7 +82,7 @@ func (o *oderRepository) GetBySellerID(SellerID string) ([]*model.ShopOrder, err
 	}
 
 	return orders, nil
-}
+}*/
 
 func (o *oderRepository) CreateReview(review *model.UserReview) error {
 	ctx, cancel := util.NewDBContext()
