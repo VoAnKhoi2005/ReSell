@@ -8,12 +8,12 @@ import (
 
 type OrderService interface {
 	CreateOrder(order *model.ShopOrder) error
-	DeleteOrder(orderID string) error
+	DeleteOrder(orderID string, userID string) error
 
 	GetByID(orderID string) (*model.ShopOrder, error)
 	GetByPostID(PostID string) (*model.ShopOrder, error)
 	GetByBuyerID(BuyerID string) (*model.ShopOrder, error)
-	GetBySellerID(SellerID string) (*model.ShopOrder, error)
+	GetBySellerID(SellerID string) ([]*model.ShopOrder, error)
 
 	UpdateStatus(orderID string, status string) error
 
@@ -34,10 +34,18 @@ func (o *OderService) CreateOrder(order *model.ShopOrder) error {
 	return o.orderRepository.Create(order)
 }
 
-func (o *OderService) DeleteOrder(orderID string) error {
+func (o *OderService) DeleteOrder(orderID string, userID string) error {
 	order, err := o.orderRepository.GetByID(orderID)
 	if err != nil {
 		return err
+	}
+
+	if *order.UserId != userID {
+		return errors.New("you are not the owner of the order")
+	}
+
+	if order.Status != "Processing" {
+		return errors.New("the order can not be deleted now")
 	}
 
 	return o.orderRepository.Delete(order)
@@ -55,9 +63,8 @@ func (o *OderService) GetByBuyerID(BuyerID string) (*model.ShopOrder, error) {
 	return o.orderRepository.GetByBuyerID(BuyerID)
 }
 
-func (o *OderService) GetBySellerID(SellerID string) (*model.ShopOrder, error) {
-	//TODO implement me
-	panic("implement me")
+func (o *OderService) GetBySellerID(SellerID string) ([]*model.ShopOrder, error) {
+	return o.orderRepository.GetBySellerID(SellerID)
 }
 
 func (o *OderService) UpdateStatus(orderID string, status string) error {
