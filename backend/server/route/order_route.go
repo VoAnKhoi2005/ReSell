@@ -19,12 +19,12 @@ func RegisterOrderRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	orderRoute.Use(middleware.AuthMiddleware())
 	orderRoute.POST("/create", orderController.CreateOrder)
 	orderRoute.DELETE("/:order_id", orderController.DeleteOrder)
+	orderRoute.PUT("/:order_id/set_status/:new_status", orderController.UpdateStatus)
 
 	orderRoute.GET("/:order_id", orderController.GetOrderByID)
 	orderRoute.GET("/post/:post_id", orderController.GetOrderByID)
 	orderRoute.GET("/buyer/:buyer_id", orderController.GetByBuyerID)
-
-	orderRoute.PUT("/:order_id/set_status/:new_status", orderController.UpdateStatus)
+	orderRoute.GET("/seller/:seller_id", orderController.GetBySellerID)
 
 	orderRoute.POST("/review", orderController.CreateReview)
 	orderRoute.DELETE("/review/:review_id", orderController.DeleteReview)

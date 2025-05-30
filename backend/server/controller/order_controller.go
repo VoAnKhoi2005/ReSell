@@ -4,6 +4,7 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/VoAnKhoi2005/ReSell/transaction"
+	"github.com/VoAnKhoi2005/ReSell/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -50,7 +51,13 @@ func (oc *OrderController) DeleteOrder(c *gin.Context) {
 		return
 	}
 
-	err := oc.orderService.DeleteOrder(orderID)
+	userID, err := util.GetUserID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = oc.orderService.DeleteOrder(orderID, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -105,6 +112,22 @@ func (oc *OrderController) GetByBuyerID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"order": order})
+}
+
+func (oc *OrderController) GetBySellerID(c *gin.Context) {
+	sellerID := c.Param("seller_id")
+	if sellerID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "seller id is required"})
+		return
+	}
+
+	orders, err := oc.orderService.GetBySellerID(sellerID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"orders": orders})
 }
 
 func (oc *OrderController) UpdateStatus(c *gin.Context) {
