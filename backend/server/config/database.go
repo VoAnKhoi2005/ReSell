@@ -41,7 +41,7 @@ func RunMigrations() {
 		&model.District{},
 		&model.Ward{},
 		&model.Address{},
-		&model.Cart{},
+		//&model.Cart{},
 		&model.CartItem{},
 		&model.Wallet{},
 		&model.PaymentMethod{},
@@ -51,6 +51,7 @@ func RunMigrations() {
 		&model.Conversation{},
 		&model.Message{},
 		&model.Follow{},
+		&model.Notification{},
 	)
 	if err != nil {
 		panic("Failed to migrate database: " + err.Error())
