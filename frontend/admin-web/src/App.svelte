@@ -1,18 +1,20 @@
 <script>
+  import {
+    isLoggedIn,
+    clearToken,
+    clearUser,
+    getUser,
+  } from "./services/authService.js";
   import Login from "./pages/Login.svelte";
   import AppLayout from "./layouts/AppLayout.svelte";
 
-  let isLoggedIn = true; // Đặt true để test luôn giao diện admin
+  let loggedIn = isLoggedIn();
 
-  function handleLoginSuccess() {
-    isLoggedIn = true;
-  }
+  // Nếu cần: khi token hết hạn và reload, sẽ tự vào login luôn do isLoggedIn = false
 </script>
 
-{#if !isLoggedIn}
-  <Login on:loginSuccess={handleLoginSuccess} />
+{#if loggedIn}
+  <AppLayout />
 {:else}
-  <div class="admin-root w-100 h-100" style="min-height:100vh;">
-    <AppLayout />
-  </div>
+  <Login />
 {/if}

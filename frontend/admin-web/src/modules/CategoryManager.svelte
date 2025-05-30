@@ -1,6 +1,7 @@
 <script>
   import CategoryTree from "../components/CategoryTree.svelte";
 
+  // Mảng lưu toàn bộ danh mục
   let categories = [
     { id: "1", name: "Đồ điện tử", parent_category_id: null },
     { id: "2", name: "Điện thoại", parent_category_id: "1" },
@@ -9,23 +10,53 @@
     { id: "5", name: "Xe máy", parent_category_id: "4" },
   ];
 
+  // Thêm danh mục gốc
   let addingCategory = false;
   let newCategoryName = "";
 
   function handleAddCategory() {
     if (newCategoryName.trim() === "") return;
-    // Tạo id mới (random đơn giản, thực tế dùng uuid)
-    const newId = Date.now().toString();
+    const newId = Date.now().toString() + Math.random();
     categories = [
       ...categories,
-      {
-        id: newId,
-        name: newCategoryName,
-        parent_category_id: null,
-      },
+      { id: newId, name: newCategoryName, parent_category_id: null },
     ];
     newCategoryName = "";
     addingCategory = false;
+  }
+
+  // Handler: Xóa danh mục
+  function handleDeleteCategory(e) {
+    const id = e.detail.id;
+    function removeWithChildren(id) {
+      categories
+        .filter((c) => c.parent_category_id === id)
+        .forEach((c) => removeWithChildren(c.id));
+      const idx = categories.findIndex((c) => c.id === id);
+      if (idx > -1) categories.splice(idx, 1);
+    }
+    removeWithChildren(id);
+    categories = [...categories];
+  }
+
+  // Handler: Thêm danh mục con
+  function handleAddChildCategory(e) {
+    const { parentId, name } = e.detail;
+    const newId = Date.now().toString() + Math.random();
+    categories = [
+      ...categories,
+      { id: newId, name, parent_category_id: parentId },
+    ];
+  }
+
+  // Handler: Đổi tên danh mục
+  function handleRenameCategory(e) {
+    const { id, name } = e.detail;
+    const idx = categories.findIndex((c) => c.id === id);
+    if (idx > -1) {
+      categories[idx].name = name;
+      categories = [...categories];
+    }
   }
 </script>
 
@@ -46,6 +77,7 @@
           on:keydown={(e) => {
             if (e.key === "Enter") handleAddCategory();
           }}
+          autofocus
         />
         <button class="btn btn-success btn-sm me-1" on:click={handleAddCategory}
           >OK</button
@@ -63,7 +95,13 @@
 
   <div class="card">
     <div class="card-body p-0">
-      <CategoryTree {categories} parentId={null} level={0} />
+      <CategoryTree
+        {categories}
+        parentId={null}
+        on:deleteCategory={handleDeleteCategory}
+        on:addChildCategory={handleAddChildCategory}
+        on:renameCategory={handleRenameCategory}
+      />
     </div>
   </div>
 </div>

@@ -1,24 +1,29 @@
 <script>
+  import { clickOutside } from "../utils/clickOutside.js";
+  import { createEventDispatcher } from "svelte";
   import CategoryTree from "./CategoryTree.svelte";
+
   export let categories = [];
   export let parentId = null;
   export let level = 0;
 
+  const dispatch = createEventDispatcher();
+
   let expanded = {};
   let showMenu = {};
 
+  // Thêm con
   let addingChild = {};
   let newChildName = {};
 
-  // NEW: State đổi tên
-  let editingName = {}; // id -> boolean
-  let editedName = {}; // id -> string
+  // Đổi tên
+  let editingName = {};
+  let editedName = {};
 
   function toggleExpand(id) {
     expanded[id] = !expanded[id];
     expanded = { ...expanded };
   }
-
   function toggleMenu(id) {
     showMenu[id] = !showMenu[id];
     showMenu = { ...showMenu };
@@ -32,10 +37,7 @@
   function confirmRename(category) {
     const name = (editedName[category.id] || "").trim();
     if (name && name !== category.name) {
-      // Đổi tên thực tế
-      const idx = categories.findIndex((c) => c.id === category.id);
-      if (idx > -1) categories[idx].name = name;
-      categories = [...categories];
+      dispatch("renameCategory", { id: category.id, name });
     }
     editingName[category.id] = false;
   }
@@ -52,15 +54,9 @@
   function confirmAddChild(category) {
     const name = (newChildName[category.id] || "").trim();
     if (name === "") return;
-    const newId = Date.now().toString() + Math.random();
-    categories.push({
-      id: newId,
-      name,
-      parent_category_id: category.id,
-    });
+    dispatch("addChildCategory", { parentId: category.id, name });
     addingChild[category.id] = false;
     newChildName[category.id] = "";
-    categories = [...categories];
   }
   function cancelAddChild(category) {
     addingChild[category.id] = false;
@@ -71,7 +67,6 @@
 
   function deleteCategory(category) {
     toggleMenu(category.id);
-    // Kiểm tra có con không
     const hasChild = categories.some(
       (c) => c.parent_category_id === category.id
     );
@@ -80,16 +75,7 @@
       confirmMsg +=
         "\nDanh mục này có danh mục con. Xóa sẽ xóa toàn bộ các danh mục con.";
     if (window.confirm(confirmMsg)) {
-      // Xóa đệ quy toàn bộ con
-      function removeWithChildren(id) {
-        categories
-          .filter((c) => c.parent_category_id === id)
-          .forEach((c) => removeWithChildren(c.id));
-        const idx = categories.findIndex((c) => c.id === id);
-        if (idx > -1) categories.splice(idx, 1);
-      }
-      removeWithChildren(category.id);
-      categories = [...categories];
+      dispatch("deleteCategory", { id: category.id });
     }
   }
 </script>
@@ -146,6 +132,10 @@
       {#if showMenu[category.id]}
         <ul
           class="dropdown-menu show"
+          use:clickOutside={() => {
+            showMenu[category.id] = false;
+            showMenu = { ...showMenu };
+          }}
           style="position: absolute; right: 0; z-index: 999;"
         >
           <li>
@@ -203,7 +193,14 @@
   {/if}
 
   {#if expanded[category.id]}
-    <CategoryTree {categories} parentId={category.id} level={level + 1} />
+    <CategoryTree
+      {categories}
+      parentId={category.id}
+      level={level + 1}
+      on:deleteCategory
+      on:addChildCategory
+      on:renameCategory
+    />
   {/if}
 {/each}
 
