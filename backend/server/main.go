@@ -33,6 +33,14 @@ func main() {
 		AllowCredentials: true,
 	}))
 
+	r.Use(func(c *gin.Context) {
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	})
+
 	route.SetupRoutes(r)
 
 	log.Printf("Server is running at http://localhost:%s\n", port)
