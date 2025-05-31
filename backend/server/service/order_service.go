@@ -11,14 +11,11 @@ type OrderService interface {
 	DeleteOrder(orderID string, userID string) error
 
 	GetByID(orderID string) (*model.ShopOrder, error)
-	GetByPostID(PostID string) (*model.ShopOrder, error)
-	GetByBuyerID(BuyerID string) (*model.ShopOrder, error)
-	GetBySellerID(SellerID string) ([]*model.ShopOrder, error)
+	GetByPostID(postID string) (*model.ShopOrder, error)
+	GetByBuyerID(buyerID string) ([]*model.ShopOrder, error)
+	GetBySellerID(sellerID string) ([]*model.ShopOrder, error)
 
 	UpdateStatus(orderID string, userID string, status model.OrderStatus) error
-
-	CreateReview(review *model.UserReview) error
-	DeleteReview(reviewID string) error
 }
 
 type OderService struct {
@@ -74,16 +71,16 @@ func (o *OderService) GetByID(orderID string) (*model.ShopOrder, error) {
 	return o.orderRepository.GetByID(orderID)
 }
 
-func (o *OderService) GetByPostID(PostID string) (*model.ShopOrder, error) {
-	return o.orderRepository.GetByPostID(PostID)
+func (o *OderService) GetByPostID(postID string) (*model.ShopOrder, error) {
+	return o.orderRepository.GetByPostID(postID)
 }
 
-func (o *OderService) GetByBuyerID(BuyerID string) (*model.ShopOrder, error) {
-	return o.orderRepository.GetByBuyerID(BuyerID)
+func (o *OderService) GetByBuyerID(buyerID string) ([]*model.ShopOrder, error) {
+	return o.orderRepository.GetByBuyerID(buyerID)
 }
 
-func (o *OderService) GetBySellerID(SellerID string) ([]*model.ShopOrder, error) {
-	filter := map[string]string{"user_id": SellerID}
+func (o *OderService) GetBySellerID(sellerID string) ([]*model.ShopOrder, error) {
+	filter := map[string]string{"user_id": sellerID}
 
 	posts, err := o.postRepository.GetByFilter(filter)
 	if err != nil {
@@ -118,29 +115,4 @@ func (o *OderService) UpdateStatus(orderID string, userID string, status model.O
 
 	order.Status = status
 	return o.orderRepository.Update(order)
-}
-
-func (o *OderService) CreateReview(review *model.UserReview) error {
-	order, err := o.orderRepository.GetByID(*review.OrderId)
-	if err != nil {
-		return err
-	}
-
-	if order.UserId != review.UserId {
-		return errors.New("unauthorized to review order")
-	}
-
-	if order.Status != model.OrderStatusSold {
-		return errors.New("order status is invalid for creating review")
-	}
-	return o.orderRepository.CreateReview(review)
-}
-
-func (o *OderService) DeleteReview(reviewID string) error {
-	review, err := o.orderRepository.GetReviewByID(reviewID)
-	if err != nil {
-		return err
-	}
-
-	return o.orderRepository.DeleteReview(review)
 }
