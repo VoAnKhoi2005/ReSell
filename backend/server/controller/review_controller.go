@@ -48,9 +48,9 @@ func (rc *ReviewController) CreateReview(c *gin.Context) {
 }
 
 func (rc *ReviewController) GetReviewsByBuyerID(c *gin.Context) {
-	userID := c.Param("user_id")
+	userID := c.Param("buyer_id")
 	if userID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "user id is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "buyer id is required"})
 		return
 	}
 
