@@ -35,7 +35,7 @@
     } catch (err) {
       // Nếu là response lỗi từ server
       let msg = "Lỗi khi xóa danh mục!";
-      if (err.includes("foreign key"))
+      if (typeof err === "string" && err.includes("foreign key"))
         msg = "Không thể xóa vì đang có bài đăng thuộc danh mục này.";
       alert(msg);
       console.error(err);
