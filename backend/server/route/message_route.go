@@ -17,7 +17,7 @@ func RegisterMessageRote(rg *gin.RouterGroup, db *gorm.DB) {
 	messageRoute := rg.Group("/conversation")
 	messageRoute.Use(middleware.AuthMiddleware())
 
-	messageRoute.POST("/", messageController.CreateConversation)
+	messageRoute.POST("", messageController.CreateConversation)
 
 	messageRoute.POST("/:id/messages/", messageController.CreateMessage)
 	messageRoute.GET("/:id/messages/latest/:amount", messageController.GetLatestMessages)

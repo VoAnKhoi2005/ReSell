@@ -15,6 +15,7 @@ type CategoryRepository interface {
 
 	//self func
 	GetByID(id string) (*model.Category, error)
+	GetByParentID(parentID string) ([]*model.Category, error)
 }
 
 type categoryRepository struct {
@@ -34,4 +35,13 @@ func (r *categoryRepository) GetByID(id string) (*model.Category, error) {
 	var category model.Category
 	err := r.db.WithContext(ctx).First(&category, "id = ?", id).Error
 	return &category, err
+}
+
+func (r *categoryRepository) GetByParentID(parentID string) ([]*model.Category, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var categories []*model.Category
+	err := r.db.WithContext(ctx).Where("parent_category_id = ?", parentID).Find(&categories).Error
+	return categories, err
 }
