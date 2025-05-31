@@ -13,6 +13,7 @@ type CategoryService interface {
 	CreateCategory(req *transaction.CreateCategoryRequest) (*model.Category, error)
 	UpdateCategory(id string, req *transaction.UpdateCategoryRequest) (*model.Category, error)
 	DeleteCategory(id string) error
+	GetCategoriesByParentID(parentID string) ([]*model.Category, error)
 }
 
 type categoryService struct {
@@ -60,4 +61,8 @@ func (s *categoryService) DeleteCategory(id string) error {
 
 func NewCategoryService(repo repository.CategoryRepository) CategoryService {
 	return &categoryService{repo: repo}
+}
+
+func (s *categoryService) GetCategoriesByParentID(parentID string) ([]*model.Category, error) {
+	return s.repo.GetByParentID(parentID)
 }
