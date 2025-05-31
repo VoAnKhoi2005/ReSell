@@ -31,25 +31,25 @@ func (a *adminRepository) GetByID(ID string) (*model.Admin, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var admin model.Admin
+	var admin *model.Admin = nil
 	err := a.db.WithContext(ctx).First(&admin, ID).Error
-	return &admin, err
+	return admin, err
 }
 
 func (a *adminRepository) GetByUsername(username string) (*model.Admin, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var admin model.Admin
+	var admin *model.Admin = nil
 	err := a.db.WithContext(ctx).First(&admin, "username = ?", username).Error
-	return &admin, err
+	return admin, err
 }
 
 func (a *adminRepository) GetByEmail(email string) (*model.Admin, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var admin model.Admin
+	var admin *model.Admin = nil
 	err := a.db.WithContext(ctx).First(&admin, "email = ?", email).Error
-	return &admin, err
+	return admin, err
 }

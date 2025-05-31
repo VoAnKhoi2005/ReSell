@@ -119,38 +119,6 @@ func (h *AuthController) RefreshToken(c *gin.Context) {
 	c.JSON(http.StatusOK, refreshTokenResponse)
 }
 
-func (h *AuthController) RegisterAdmin(c *gin.Context) {
-	var request transaction.RegisterAdminRequest
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	encryptedPassword, err := bcrypt.GenerateFromPassword(
-		[]byte(request.Password),
-		bcrypt.DefaultCost,
-	)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	admin := model.Admin{
-		Username:  request.Username,
-		Email:     request.Email,
-		Password:  string(encryptedPassword),
-		CreatedAt: time.Now(),
-	}
-
-	errors := h.adminService.Register(&admin)
-
-	if errors != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": errors})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"success": true})
-}
-
 func (h *AuthController) LoginAdmin(c *gin.Context) {
 	var request transaction.LoginAdminRequest
 

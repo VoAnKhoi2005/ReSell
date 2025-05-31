@@ -11,6 +11,9 @@ type AdminService interface {
 	Register(admin *model.Admin) []string
 	Login(username string, password string) (*model.Admin, error)
 
+	ChangeAdminEmail(adminID string, newEmail string) error
+	ChangeAdminPassword(adminID string, oldPassword string, newPassword string) error
+
 	GetByID(id string) (*model.Admin, error)
 	GetAll() ([]*model.Admin, error)
 	Delete(admin *model.Admin) error
@@ -62,6 +65,36 @@ func (as *adminService) Login(username string, password string) (*model.Admin, e
 	}
 
 	return admin, nil
+}
+
+func (as *adminService) ChangeAdminEmail(adminID string, newEmail string) error {
+	admin, err := as.adminRepository.GetByID(adminID)
+	if err != nil {
+		return err
+	}
+
+	admin.Email = newEmail
+	return as.adminRepository.Update(admin)
+}
+
+func (as *adminService) ChangeAdminPassword(adminID string, oldPassword string, newPassword string) error {
+	admin, err := as.adminRepository.GetByID(adminID)
+	if err != nil {
+		return err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(oldPassword))
+	if err != nil {
+		return err
+	}
+
+	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	admin.Password = string(encryptedPassword)
+	return as.adminRepository.Update(admin)
 }
 
 func (as *adminService) GetByID(ID string) (*model.Admin, error) {
