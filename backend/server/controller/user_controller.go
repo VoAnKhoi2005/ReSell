@@ -128,6 +128,22 @@ func (h *UserController) Follow(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
+func (h *UserController) GetAllFollowee(c *gin.Context) {
+	userID, err := util.GetUserID(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	followees, err := h.userService.GetAllFollowees(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"followees": followees})
+}
+
 func (h *UserController) UnFollow(c *gin.Context) {
 	followeeID := c.Param("id")
 	if followeeID == "" {

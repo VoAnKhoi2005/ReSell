@@ -23,6 +23,7 @@ func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	users.PUT("/change_password", userController.ChangePassword)
 	users.DELETE("/:id", userController.DeleteUser)
 	users.POST("/follow/:id", userController.Follow)
+	users.GET("/follow/all", userController.GetAllFollowee)
 	users.DELETE("unfollow/:id", userController.UnFollow)
 
 	//admin

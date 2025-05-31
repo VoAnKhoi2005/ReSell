@@ -7,6 +7,7 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	request "github.com/VoAnKhoi2005/ReSell/transaction"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"strings"
 	"time"
 )
@@ -23,7 +24,9 @@ type UserService interface {
 	DeleteUserByID(userID string) error
 
 	FollowUser(followerID string, followeeID string) error
+	GetAllFollowees(followerID string) ([]*model.User, error)
 	UnFollowUser(followerID string, followeeID string) error
+
 	BanUserForDay(userID string, length uint) error
 	UnBanUser(userID string) error
 }
@@ -172,7 +175,18 @@ func (s *userService) DeleteUserByID(ID string) error {
 }
 
 func (s *userService) FollowUser(followerID string, followeeID string) error {
+	_, err := s.userRepo.GetByID(followeeID)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.New("user to follow not found")
+	} else if err != nil {
+		return err
+	}
+
 	return s.userRepo.FollowUser(&followerID, &followeeID)
+}
+
+func (s *userService) GetAllFollowees(followerID string) ([]*model.User, error) {
+	return s.userRepo.GetAllFollowUser(&followerID)
 }
 
 func (s *userService) UnFollowUser(followerID string, followeeID string) error {
