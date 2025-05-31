@@ -55,9 +55,9 @@ func (a *addressRepository) GetByID(addressID string) (*model.Address, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var address model.Address
-	err := a.db.WithContext(ctx).First(&address, addressID).Error
-	return &address, err
+	var address *model.Address = nil
+	err := a.db.WithContext(ctx).First(&address, "id = ?", addressID).Error
+	return address, err
 }
 
 func (a *addressRepository) GetByUserID(userID string) ([]*model.Address, error) {
@@ -93,7 +93,6 @@ func (a *addressRepository) GetAllProvinces() ([]*model.Province, error) {
 
 	var provinces []*model.Province
 	err := a.db.WithContext(ctx).Find(&provinces).Error
-
 	return provinces, err
 }
 
@@ -101,18 +100,18 @@ func (a *addressRepository) GetProvince(provinceID string) (*model.Province, err
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var province model.Province
-	err := a.db.WithContext(ctx).First(&province, provinceID).Error
-	return &province, err
+	var province *model.Province = nil
+	err := a.db.WithContext(ctx).First(&province, "id = ?", provinceID).Error
+	return province, err
 }
 
 func (a *addressRepository) GetProvinceByName(provinceName string) (*model.Province, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var province model.Province
+	var province *model.Province = nil
 	err := a.db.WithContext(ctx).First(&province, "name = ?", provinceName).Error
-	return &province, err
+	return province, err
 }
 
 func (a *addressRepository) GetAllDistricts() ([]*model.District, error) {
@@ -121,7 +120,6 @@ func (a *addressRepository) GetAllDistricts() ([]*model.District, error) {
 
 	var districts []*model.District
 	err := a.db.WithContext(ctx).Find(&districts).Error
-
 	return districts, err
 }
 
@@ -129,9 +127,9 @@ func (a *addressRepository) GetDistrict(districtID string) (*model.District, err
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var district model.District
-	err := a.db.WithContext(ctx).First(&district, districtID).Error
-	return &district, err
+	var district *model.District = nil
+	err := a.db.WithContext(ctx).First(&district, "id = ?", districtID).Error
+	return district, err
 }
 
 func (a *addressRepository) GetDistricts(provinceID string) ([]*model.District, error) {
@@ -140,7 +138,6 @@ func (a *addressRepository) GetDistricts(provinceID string) ([]*model.District, 
 
 	var districts []*model.District
 	err := a.db.WithContext(ctx).Find(&districts, "province_id = ?", provinceID).Error
-
 	return districts, err
 }
 
@@ -148,18 +145,18 @@ func (a *addressRepository) GetDistrictByName(districtName string) (*model.Distr
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var district model.District
+	var district *model.District = nil
 	err := a.db.WithContext(ctx).First(&district, "name = ?", districtName).Error
-	return &district, err
+	return district, err
 }
 
 func (a *addressRepository) GetWard(wardID string) (*model.Ward, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var ward model.Ward
-	err := a.db.WithContext(ctx).First(&ward, wardID).Error
-	return &ward, err
+	var ward *model.Ward = nil
+	err := a.db.WithContext(ctx).First(&ward, "id = ?", wardID).Error
+	return ward, err
 }
 
 func (a *addressRepository) GetWards(districtID string) ([]*model.Ward, error) {
@@ -168,7 +165,6 @@ func (a *addressRepository) GetWards(districtID string) ([]*model.Ward, error) {
 
 	var wards []*model.Ward
 	err := a.db.WithContext(ctx).Find(&wards, "district_id = ?", districtID).Error
-
 	return wards, err
 }
 
@@ -176,9 +172,9 @@ func (a *addressRepository) GetWardByName(wardName string) (*model.Ward, error) 
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var ward model.Ward
+	var ward *model.Ward = nil
 	err := a.db.WithContext(ctx).First(&ward, "name = ?", wardName).Error
-	return &ward, err
+	return ward, err
 }
 
 func (a *addressRepository) CreateProvince(province *model.Province) error {
