@@ -20,7 +20,8 @@ func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	users.Use(middleware.AuthMiddleware())
 	//Add paths to group
 	users.GET("/:id", userController.GetUserByID)
-	users.PUT("", userController.UpdateUser)
+	users.PUT("/update", userController.UpdateUser)
+	users.PUT("/change_password", userController.ChangePassword)
 	users.DELETE("/:id", userController.DeleteUser)
 
 	users.POST("/follow", userController.Follow)
