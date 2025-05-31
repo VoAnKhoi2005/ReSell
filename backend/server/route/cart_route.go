@@ -19,7 +19,7 @@ func RegisterCartRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	cart := rg.Group("/:post_id/cart")
 	cart.Use(middleware.AuthMiddleware())
 
-	cart.GET("/", cartController.GetCartItems)         // Get all items in the cart
-	cart.POST("/", cartController.CreateCartItem)      // Add an item to the cart
+	cart.GET("", cartController.GetCartItems)          // Get all items in the cart
+	cart.POST("", cartController.CreateCartItem)       // Add an item to the cart
 	cart.DELETE("/:id", cartController.DeleteCartItem) // Remove an item from the carts
 }
