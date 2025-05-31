@@ -1,2 +1,42 @@
-.env
+# Node
 node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# IDE & Editor configs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Mac OS, Linux, Windows system files
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+
+# Go
+bin/
+*.exe
+*.out
+
+# Build, dist, cache
+dist/
+build/
+.cache/
+*.log
+
+# Env, secret
+.env
+.env.*
+
+# Dependency vendoring
+vendor/
+
+# Others tùy project
+*.local
+coverage/
+tmp/
