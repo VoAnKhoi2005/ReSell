@@ -1,32 +1,44 @@
 package model
 
 import (
+	"fmt"
 	"time"
 )
 
 type OrderStatus string
 
 const (
-	OrderStatusOrdered   OrderStatus = "ordered"
-	OrderStatusPending   OrderStatus = "pending"
-	OrderStatusRejected  OrderStatus = "rejected"
-	OrderStatusSold      OrderStatus = "completed"
-	OrderStatusShipping  OrderStatus = "shipping"
-	OrderStatusCancelled OrderStatus = "cancelled"
-	OrderStatusProcessed OrderStatus = "processed"
+	OrderStatusPending    OrderStatus = "pending"
+	OrderStatusProcessing OrderStatus = "processing"
+	OrderStatusShipping   OrderStatus = "shipping"
+	OrderStatusSold       OrderStatus = "completed"
+	OrderStatusCancelled  OrderStatus = "cancelled"
 )
 
+func ParseOrderStatus(s string) (OrderStatus, error) {
+	switch s {
+	case string(OrderStatusPending),
+		string(OrderStatusProcessing),
+		string(OrderStatusShipping),
+		string(OrderStatusSold),
+		string(OrderStatusCancelled):
+		return OrderStatus(s), nil
+	default:
+		return "", fmt.Errorf("invalid order status: %s", s)
+	}
+}
+
 type ShopOrder struct {
-	ID              string     `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
-	UserId          *string    `gorm:"type:uuid" json:"user_id"`
-	PostId          *string    `gorm:"type:uuid" json:"post_id"`
-	PaymentMethodId *string    `gorm:"type:uuid" json:"payment_method_id"`
-	Status          string     `json:"status"`
-	AddressId       *string    `gorm:"type:uuid" json:"address_id"`
-	Total           int        `json:"total"`
-	CreatedAt       time.Time  `json:"created_at"`
-	CompletedAt     *time.Time `json:"completed_at,omitempty"`
-	CanceledAt      *time.Time `json:"canceled_at,omitempty"`
+	ID              string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	UserId          *string `gorm:"type:uuid"`
+	PostId          *string `gorm:"type:uuid"`
+	PaymentMethodId *string `gorm:"type:uuid"`
+	Status          OrderStatus
+	AddressId       *string `gorm:"type:uuid"`
+	Total           int
+	CreatedAt       time.Time
+	CompletedAt     *time.Time
+	CanceledAt      *time.Time
 
 	User          *User          `json:"user,omitempty"`
 	Post          *Post          `json:"post,omitempty"`

@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/VoAnKhoi2005/ReSell/transaction"
 	"github.com/VoAnKhoi2005/ReSell/util"
@@ -32,21 +31,44 @@ func (h *UserController) GetUserByID(c *gin.Context) {
 }
 
 func (h *UserController) UpdateUser(c *gin.Context) {
-	var user *model.User
-
-	err := c.ShouldBind(&user)
+	var request *transaction.UpdateUserRequest
+	err := c.ShouldBind(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if !util.IsUserOwner(c, user.ID) {
+	userID, err := util.GetUserID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = h.userService.UpdateUser(user)
+	err = h.userService.UpdateUser(userID, request)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (h *UserController) ChangePassword(c *gin.Context) {
+	var request transaction.ChangePasswordRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID, err := util.GetUserID(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = h.userService.ChangePassword(userID, request.OldPassword, request.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

@@ -51,9 +51,9 @@ func (m *messageRepository) GetConversationByID(conversationId string) (*model.C
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var conversation model.Conversation
-	err := m.db.WithContext(ctx).First(&conversation, "id = ?", conversationId).Error
-	return &conversation, err
+	var conversation *model.Conversation = nil
+	err := m.db.WithContext(ctx).First(&conversation, conversationId).Error
+	return conversation, err
 }
 
 func (m *messageRepository) GetConversationsByPostID(postID string) ([]*model.Conversation, error) {
@@ -89,9 +89,9 @@ func (m *messageRepository) GetMessageByID(messageId string) (*model.Message, er
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var message model.Message
+	var message *model.Message = nil
 	err := m.db.WithContext(ctx).First(&message, "id = ?", messageId).Error
-	return &message, err
+	return message, err
 }
 
 func (m *messageRepository) GetMessagesInRange(conversationID string, start uint, end uint) ([]*model.Message, error) {

@@ -6,6 +6,7 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/transaction"
 	"github.com/VoAnKhoi2005/ReSell/util"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"net/http"
 )
 
@@ -18,8 +19,8 @@ func NewAddressController(addressService service.AddressService) *AddressControl
 }
 
 func (ac *AddressController) CreateAddress(c *gin.Context) {
-	var request *transaction.CreateAddressRequest
-	err := c.ShouldBind(&request)
+	var request transaction.CreateAddressRequest
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -30,9 +31,10 @@ func (ac *AddressController) CreateAddress(c *gin.Context) {
 	}
 
 	address := model.Address{
+		ID:        uuid.New().String(),
 		UserID:    &request.UserID,
 		WardID:    &request.WardID,
-		Detail:    *request.Detail,
+		Detail:    request.Detail,
 		IsDefault: request.IsDefault,
 	}
 
@@ -121,7 +123,7 @@ func (ac *AddressController) GetAddressByUserID(c *gin.Context) {
 
 func (ac *AddressController) UpdateAddress(c *gin.Context) {
 	var address *model.Address
-	err := c.ShouldBind(&address)
+	err := c.ShouldBindJSON(&address)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
