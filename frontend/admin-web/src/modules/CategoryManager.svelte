@@ -1,61 +1,82 @@
 <script>
+  import { onMount } from "svelte";
   import CategoryTree from "../components/CategoryTree.svelte";
+  import {
+    fetchAllCategories,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+  } from "../services/categoryService";
 
-  // Mảng lưu toàn bộ danh mục
-  let categories = [
-    { id: "1", name: "Đồ điện tử", parent_category_id: null },
-    { id: "2", name: "Điện thoại", parent_category_id: "1" },
-    { id: "3", name: "Laptop", parent_category_id: "1" },
-    { id: "4", name: "Xe cộ", parent_category_id: null },
-    { id: "5", name: "Xe máy", parent_category_id: "4" },
-  ];
-
-  // Thêm danh mục gốc
+  let categories = [];
   let addingCategory = false;
   let newCategoryName = "";
 
-  function handleAddCategory() {
-    if (newCategoryName.trim() === "") return;
-    const newId = Date.now().toString() + Math.random();
-    categories = [
-      ...categories,
-      { id: newId, name: newCategoryName, parent_category_id: null },
-    ];
-    newCategoryName = "";
-    addingCategory = false;
-  }
-
-  // Handler: Xóa danh mục
-  function handleDeleteCategory(e) {
-    const id = e.detail.id;
-    function removeWithChildren(id) {
-      categories
-        .filter((c) => c.parent_category_id === id)
-        .forEach((c) => removeWithChildren(c.id));
-      const idx = categories.findIndex((c) => c.id === id);
-      if (idx > -1) categories.splice(idx, 1);
+  async function loadCategories() {
+    try {
+      categories = await fetchAllCategories();
+      console.log(categories);
+    } catch (err) {
+      console.error("Lỗi khi load danh mục:", err);
+      alert("Không thể tải danh mục!");
     }
-    removeWithChildren(id);
-    categories = [...categories];
   }
 
-  // Handler: Thêm danh mục con
-  function handleAddChildCategory(e) {
+  onMount(loadCategories);
+
+  // Xóa danh mục + reload lại danh sách từ server
+  async function handleDeleteCategory(e) {
+    const id = e.detail.id;
+    try {
+      const res = await deleteCategory(id); // deleteCategory trả về response hoặc throw lỗi
+
+      // Nếu API trả về 200 hoặc 204 thì tiếp tục load lại categories
+      await loadCategories();
+    } catch (err) {
+      // Nếu là response lỗi từ server
+      let msg = "Lỗi khi xóa danh mục!";
+      if (err.includes("foreign key"))
+        msg = "Không thể xóa vì đang có bài đăng thuộc danh mục này.";
+      alert(msg);
+      console.error(err);
+    }
+  }
+
+  // Thêm danh mục con
+  async function handleAddChildCategory(e) {
     const { parentId, name } = e.detail;
-    const newId = Date.now().toString() + Math.random();
-    categories = [
-      ...categories,
-      { id: newId, name, parent_category_id: parentId },
-    ];
+    try {
+      await createCategory(name, parentId);
+      await loadCategories();
+    } catch (err) {
+      alert("Lỗi khi tạo danh mục con!");
+      console.error(err);
+    }
   }
 
-  // Handler: Đổi tên danh mục
-  function handleRenameCategory(e) {
+  // Đổi tên danh mục
+  async function handleRenameCategory(e) {
     const { id, name } = e.detail;
-    const idx = categories.findIndex((c) => c.id === id);
-    if (idx > -1) {
-      categories[idx].name = name;
-      categories = [...categories];
+    try {
+      await updateCategory(id, name);
+      await loadCategories();
+    } catch (err) {
+      alert("Lỗi khi đổi tên danh mục!");
+      console.error(err);
+    }
+  }
+
+  // Thêm danh mục gốc
+  async function handleAddCategory() {
+    if (newCategoryName.trim() === "") return;
+    try {
+      await createCategory(newCategoryName, null);
+      newCategoryName = "";
+      addingCategory = false;
+      await loadCategories();
+    } catch (err) {
+      alert("Lỗi khi tạo danh mục mới!");
+      console.error(err);
     }
   }
 </script>
@@ -64,9 +85,9 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h3>Quản lý danh mục</h3>
     {#if !addingCategory}
-      <button class="btn btn-primary" on:click={() => (addingCategory = true)}
-        >+ Tạo danh mục</button
-      >
+      <button class="btn btn-primary" on:click={() => (addingCategory = true)}>
+        + Tạo danh mục
+      </button>
     {:else}
       <div class="d-flex align-items-center">
         <input
@@ -79,16 +100,21 @@
           }}
           autofocus
         />
-        <button class="btn btn-success btn-sm me-1" on:click={handleAddCategory}
-          >OK</button
+        <button
+          class="btn btn-success btn-sm me-1"
+          on:click={handleAddCategory}
         >
+          OK
+        </button>
         <button
           class="btn btn-secondary btn-sm"
           on:click={() => {
             addingCategory = false;
             newCategoryName = "";
-          }}>Huỷ</button
+          }}
         >
+          Huỷ
+        </button>
       </div>
     {/if}
   </div>

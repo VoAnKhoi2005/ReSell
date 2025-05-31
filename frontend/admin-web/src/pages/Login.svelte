@@ -17,6 +17,7 @@
       });
       if (!res.ok) throw new Error("Sai tài khoản hoặc mật khẩu!");
       const data = await res.json();
+      console.log("Dữ liệu trả về khi login:", data);
       setToken(data.token.access_token);
       setUser(data.user);
       window.location.reload();
