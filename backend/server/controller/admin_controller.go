@@ -51,6 +51,38 @@ func (a *AdminController) RegisterAdmin(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
+func (a *AdminController) GetAdminByID(c *gin.Context) {
+	adminID := c.Param("admin_id")
+	if adminID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "admin_id is required"})
+		return
+	}
+
+	admin, err := a.adminService.GetByID(adminID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"admin": admin})
+}
+
+func (a *AdminController) GetAdminByUsername(c *gin.Context) {
+	username := c.Param("username")
+	if username == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "admin_id is required"})
+		return
+	}
+
+	admin, err := a.adminService.GetByUsername(username)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"admin": admin})
+}
+
 func (a *AdminController) ChangeEmail(c *gin.Context) {
 	newEmail := c.Param("new_email")
 	if newEmail == "" {
@@ -87,6 +119,24 @@ func (a *AdminController) ChangePassword(c *gin.Context) {
 	}
 
 	err = a.adminService.ChangeAdminPassword(adminID, request.OldPassword, request.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (a *AdminController) DeleteAdmin(c *gin.Context) {
+	requestedByAdminID := c.Param("admin_id")
+
+	adminID, err := util.GetAdminID(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = a.adminService.DeleteAdmin(requestedByAdminID, adminID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
