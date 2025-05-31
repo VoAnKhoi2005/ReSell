@@ -23,6 +23,22 @@ func GetUserID(c *gin.Context) (string, error) {
 	return userID, nil
 }
 
+func GetAdminID(c *gin.Context) (string, error) {
+	adminIDValue, exists := c.Get("x-admin-id")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "requester_id not found"})
+		return "", errors.New("requester_id not found")
+	}
+
+	adminID, ok := adminIDValue.(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid admin ID format"})
+		return "", errors.New("invalid admin ID format")
+	}
+
+	return adminID, nil
+}
+
 func IsUserOwner(c *gin.Context, expectedID string) bool {
 
 	userID, err := GetUserID(c)
