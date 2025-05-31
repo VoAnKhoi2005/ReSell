@@ -2,6 +2,7 @@
   import { clickOutside } from "../utils/clickOutside.js";
   import { createEventDispatcher } from "svelte";
   import CategoryTree from "./CategoryTree.svelte";
+  import { confirmStore } from "../stores/confirmStore.js";
 
   export let categories = [];
   export let parentId = null;
