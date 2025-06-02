@@ -13,7 +13,6 @@
 - Tạo danh mục sản phẩm (Danh mục sản phẩm gồm ID và tên)
 - Kiểm duyệt bài đăng (tránh bán hàng giả, hàng cấm)
 - Kiểm duyệt thông tin tài khoản (tránh tài khoản lừa đảo, giả mạo)
-- Tạo sự kiện, ưu đãi, voucher
 
 # 2. Người dùng
 
@@ -63,13 +62,6 @@
 ## 3.1. Nhắn tin
 
 - Nhắn tin giữa người bán và người mua
-
-## 3.2. Thanh toán
-
-- Hệ thống thanh toán trung gian (Escrow)
-- Làm trung gian giữ tiền đến khi giao hàng thành công (khách hàng confirm hoặc giới hạn thời gian)
-- Lịch sử giao dịch
-- Hỗ trợ nạp qua Momo
 
 ## 3.3. Bảo mật
 
