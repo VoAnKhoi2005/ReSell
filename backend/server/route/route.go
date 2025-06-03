@@ -22,6 +22,7 @@ func SetupRoutes(router *gin.Engine) {
 	RegisterMessageRote(api, db)
 	RegisterAddressRoutes(api, db)
 	RegisterOrderRoutes(api, db)
+	RegisterReviewRoute(api, db)
 	RegisterCategoryRoutes(api, db)
 	RegisterPostRoutes(api, db)
 	RegisterCartRoutes(api, db)

@@ -26,7 +26,4 @@ func RegisterOrderRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	orderRoute.GET("/post/:post_id", orderController.GetByPostID)
 	orderRoute.GET("/buyer/:buyer_id", orderController.GetByBuyerID)
 	orderRoute.GET("/seller/:seller_id", orderController.GetBySellerID)
-
-	orderRoute.POST("/review", orderController.CreateReview)
-	orderRoute.DELETE("/review/:review_id", orderController.DeleteReview)
 }

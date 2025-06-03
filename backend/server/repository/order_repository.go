@@ -14,13 +14,9 @@ type OrderRepository interface {
 
 	GetByID(orderID string) (*model.ShopOrder, error)
 	GetByIDs(orderIDs []string) ([]*model.ShopOrder, error)
-	GetByPostID(PostID string) (*model.ShopOrder, error)
-	GetByBuyerID(BuyerID string) (*model.ShopOrder, error)
+	GetByPostID(postID string) (*model.ShopOrder, error)
+	GetByBuyerID(buyerID string) ([]*model.ShopOrder, error)
 	//GetBySellerID(SellerID string) ([]*model.ShopOrder, error)
-
-	CreateReview(review *model.UserReview) error
-	GetReviewByID(reviewID string) (*model.UserReview, error)
-	DeleteReview(review *model.UserReview) error
 }
 
 type oderRepository struct {
@@ -36,7 +32,7 @@ func (o *oderRepository) GetByID(orderID string) (*model.ShopOrder, error) {
 	defer cancel()
 
 	var order *model.ShopOrder = nil
-	err := o.db.WithContext(ctx).First(&order, orderID).Error
+	err := o.db.WithContext(ctx).First(&order, "id = ?", orderID).Error
 	return order, err
 }
 
@@ -49,60 +45,20 @@ func (o *oderRepository) GetByIDs(orderIDs []string) ([]*model.ShopOrder, error)
 	return orders, err
 }
 
-func (o *oderRepository) GetByPostID(PostID string) (*model.ShopOrder, error) {
+func (o *oderRepository) GetByPostID(postID string) (*model.ShopOrder, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	var order *model.ShopOrder = nil
-	err := o.db.WithContext(ctx).First(&order, "post_id = ?", PostID).Error
+	err := o.db.WithContext(ctx).First(&order, "post_id = ?", postID).Error
 	return order, err
 }
 
-func (o *oderRepository) GetByBuyerID(BuyerID string) (*model.ShopOrder, error) {
+func (o *oderRepository) GetByBuyerID(buyerID string) ([]*model.ShopOrder, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var order *model.ShopOrder = nil
-	err := o.db.WithContext(ctx).First(&order, "user_id = ?", BuyerID).Error
+	var order []*model.ShopOrder = nil
+	err := o.db.WithContext(ctx).Find(&order, "user_id = ?", buyerID).Error
 	return order, err
-}
-
-/*func (o *oderRepository) GetBySellerID(SellerID string) ([]*model.ShopOrder, error) {
-	ctx, cancel := util.NewDBContext()
-	defer cancel()
-
-	var orders []*model.ShopOrder = nil
-	err := o.db.WithContext(ctx).
-		Joins("Post").
-		Preload("Post").
-		Where("posts.user_id = ?", SellerID).
-		Find(&orders).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return orders, nil
-}*/
-
-func (o *oderRepository) CreateReview(review *model.UserReview) error {
-	ctx, cancel := util.NewDBContext()
-	defer cancel()
-
-	return o.db.WithContext(ctx).Create(review).Error
-}
-
-func (o *oderRepository) GetReviewByID(reviewID string) (*model.UserReview, error) {
-	ctx, cancel := util.NewDBContext()
-	defer cancel()
-
-	var review *model.UserReview = nil
-	err := o.db.WithContext(ctx).First(&review, reviewID).Error
-	return review, err
-}
-
-func (o *oderRepository) DeleteReview(review *model.UserReview) error {
-	ctx, cancel := util.NewDBContext()
-	defer cancel()
-
-	return o.db.WithContext(ctx).Delete(review).Error
 }

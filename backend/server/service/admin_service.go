@@ -15,8 +15,9 @@ type AdminService interface {
 	ChangeAdminPassword(adminID string, oldPassword string, newPassword string) error
 
 	GetByID(id string) (*model.Admin, error)
+	GetByUsername(username string) (*model.Admin, error)
 	GetAll() ([]*model.Admin, error)
-	Delete(admin *model.Admin) error
+	DeleteAdmin(adminID string, requestedByAdminID string) error
 }
 
 type adminService struct {
@@ -83,6 +84,10 @@ func (as *adminService) ChangeAdminPassword(adminID string, oldPassword string, 
 		return err
 	}
 
+	if oldPassword == newPassword {
+		return errors.New("old password cannot be the same as new password")
+	}
+
 	err = bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(oldPassword))
 	if err != nil {
 		return err
@@ -101,6 +106,10 @@ func (as *adminService) GetByID(ID string) (*model.Admin, error) {
 	return as.adminRepository.GetByID(ID)
 }
 
+func (as *adminService) GetByUsername(username string) (*model.Admin, error) {
+	return as.adminRepository.GetByUsername(username)
+}
+
 func (as *adminService) GetAll() ([]*model.Admin, error) {
 	return as.adminRepository.GetAll()
 }
@@ -109,6 +118,15 @@ func (as *adminService) Create(admin *model.Admin) error {
 	return as.adminRepository.Create(admin)
 }
 
-func (as *adminService) Delete(admin *model.Admin) error {
+func (as *adminService) DeleteAdmin(adminID string, requestedByAdminID string) error {
+	if adminID == requestedByAdminID {
+		return errors.New("cannot delete your own admin account")
+	}
+
+	admin, err := as.adminRepository.GetByID(adminID)
+	if err != nil {
+		return err
+	}
+
 	return as.adminRepository.Delete(admin)
 }
