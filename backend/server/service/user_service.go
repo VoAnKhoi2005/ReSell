@@ -7,6 +7,7 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	request "github.com/VoAnKhoi2005/ReSell/transaction"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"strings"
 	"time"
 )
@@ -17,11 +18,15 @@ type UserService interface {
 	ChangePassword(userID string, oldPassword string, newPassword string) error
 
 	GetUserByID(id string) (*model.User, error)
+	GetUserByUsername(username string) (*model.User, error)
 	UpdateUser(userID string, request *request.UpdateUserRequest) error
 	DeleteUser(user *model.User) error
-	DeleteUserByID(ID string) error
+	DeleteUserByID(userID string) error
 
-	FollowUser(followerID *string, followeeID *string) error
+	FollowUser(followerID string, followeeID string) error
+	GetAllFollowees(followerID string) ([]*model.User, error)
+	UnFollowUser(followerID string, followeeID string) error
+
 	BanUserForDay(userID string, length uint) error
 	UnBanUser(userID string) error
 }
@@ -92,6 +97,10 @@ func (s *userService) ChangePassword(userID string, oldPassword string, newPassw
 		return err
 	}
 
+	if newPassword == user.Password {
+		return errors.New("new password cannot be the same as old password")
+	}
+
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword))
 	if err != nil {
 		return err
@@ -110,30 +119,48 @@ func (s *userService) GetUserByID(id string) (*model.User, error) {
 	return s.userRepo.GetByID(id)
 }
 
+func (s *userService) GetUserByUsername(username string) (*model.User, error) {
+	return s.userRepo.GetByUsername(username)
+}
+
 func (s *userService) UpdateUser(userID string, request *request.UpdateUserRequest) error {
 	user, err := s.userRepo.GetByID(userID)
 	if err != nil {
 		return err
 	}
 
+	isChange := false
+
 	if request.Username != nil {
 		user.Username = *request.Username
+		isChange = true
 	}
 
 	if request.Email != nil {
 		user.Email = *request.Email
+		isChange = true
 	}
 
 	if request.Phone != nil {
 		user.Phone = *request.Phone
+		isChange = true
 	}
 
 	if request.FullName != nil {
 		user.Fullname = *request.FullName
+		isChange = true
 	}
 
 	if request.CitizenId != nil {
 		user.CitizenId = *request.CitizenId
+		isChange = true
+	}
+
+	if !isChange {
+		return errors.New("no change")
+	} else {
+		now := time.Now()
+		user.UpdatedAt = &now
 	}
 
 	return s.userRepo.Update(user)
@@ -147,8 +174,23 @@ func (s *userService) DeleteUserByID(ID string) error {
 	return s.userRepo.DeleteByID(ID)
 }
 
-func (s *userService) FollowUser(followerID *string, followeeID *string) error {
-	return s.userRepo.FollowUser(followerID, followeeID)
+func (s *userService) FollowUser(followerID string, followeeID string) error {
+	_, err := s.userRepo.GetByID(followeeID)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.New("user to follow not found")
+	} else if err != nil {
+		return err
+	}
+
+	return s.userRepo.FollowUser(&followerID, &followeeID)
+}
+
+func (s *userService) GetAllFollowees(followerID string) ([]*model.User, error) {
+	return s.userRepo.GetAllFollowUser(&followerID)
+}
+
+func (s *userService) UnFollowUser(followerID string, followeeID string) error {
+	return s.userRepo.UnFollowUser(&followerID, &followeeID)
 }
 
 func (s *userService) BanUserForDay(userID string, length uint) error {

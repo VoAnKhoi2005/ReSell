@@ -22,6 +22,8 @@ type UserRepository interface {
 	DeleteByID(id string) error
 
 	FollowUser(followerID *string, followedID *string) error
+	GetAllFollowUser(followerID *string) ([]*model.User, error)
+	UnFollowUser(followerID *string, followedID *string) error
 }
 
 type userRepository struct {
@@ -82,4 +84,26 @@ func (r *userRepository) FollowUser(followerID *string, followedID *string) erro
 	defer cancel()
 
 	return r.db.WithContext(ctx).Create(&model.Follow{BuyerId: followerID, SellerId: followedID}).Error
+}
+
+func (r *userRepository) GetAllFollowUser(followerID *string) ([]*model.User, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var users []*model.User = nil
+	err := r.db.WithContext(ctx).Find(&users, "buyer_id = ?", followerID).Error
+	return users, err
+}
+
+func (r *userRepository) UnFollowUser(followerID *string, followeeID *string) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var follow *model.Follow = nil
+	err := r.db.WithContext(ctx).First(&follow, "buyer_id = ? AND seller_id = ?", followerID, followeeID).Error
+	if err != nil {
+		return err
+	}
+
+	return r.db.WithContext(ctx).Unscoped().Delete(&follow).Error
 }

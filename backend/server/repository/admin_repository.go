@@ -32,7 +32,7 @@ func (a *adminRepository) GetByID(ID string) (*model.Admin, error) {
 	defer cancel()
 
 	var admin *model.Admin = nil
-	err := a.db.WithContext(ctx).First(&admin, ID).Error
+	err := a.db.WithContext(ctx).First(&admin, "id  = ?", ID).Error
 	return admin, err
 }
 
