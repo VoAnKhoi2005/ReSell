@@ -133,7 +133,7 @@ func (s *userService) GetUserByBatch(batchSize int, page int) ([]*model.User, in
 		return nil, 0, errors.New("page must be greater than zero")
 	}
 
-	return s.GetUserByBatch(batchSize, page)
+	return s.userRepo.GetUsersByBatch(batchSize, page)
 }
 
 func (s *userService) UpdateUser(userID string, request *request.UpdateUserRequest) error {

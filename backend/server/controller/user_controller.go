@@ -6,6 +6,7 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 type UserController struct {
@@ -46,14 +47,25 @@ func (h *UserController) GetUserByUsername(c *gin.Context) {
 }
 
 func (h *UserController) GetAllUserByBatch(c *gin.Context) {
-	var request transaction.GetAllUserRequest
-	err := c.ShouldBindJSON(&request)
+	batchSizeStr := c.Param("batch_size")
+	batchSize, err := strconv.Atoi(batchSizeStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "batch_size must be a valid integer",
+		})
 		return
 	}
 
-	users, totalBatchCount, err := h.userService.GetUserByBatch(request.BatchSize, request.Page)
+	pageStr := c.Param("page")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "page must be a valid integer",
+		})
+		return
+	}
+
+	users, totalBatchCount, err := h.userService.GetUserByBatch(batchSize, page)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
