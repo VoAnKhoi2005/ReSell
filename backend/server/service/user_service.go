@@ -19,6 +19,7 @@ type UserService interface {
 
 	GetUserByID(id string) (*model.User, error)
 	GetUserByUsername(username string) (*model.User, error)
+	GetUserByBatch(batchSize int, page int) ([]*model.User, int, error)
 	UpdateUser(userID string, request *request.UpdateUserRequest) error
 	DeleteUser(user *model.User) error
 	DeleteUserByID(userID string) error
@@ -121,6 +122,18 @@ func (s *userService) GetUserByID(id string) (*model.User, error) {
 
 func (s *userService) GetUserByUsername(username string) (*model.User, error) {
 	return s.userRepo.GetByUsername(username)
+}
+
+func (s *userService) GetUserByBatch(batchSize int, page int) ([]*model.User, int, error) {
+	if batchSize < 10 || batchSize > 1000 {
+		return nil, 0, errors.New("batch size too large or too small")
+	}
+
+	if page < 1 {
+		return nil, 0, errors.New("page must be greater than zero")
+	}
+
+	return s.GetUserByBatch(batchSize, page)
 }
 
 func (s *userService) UpdateUser(userID string, request *request.UpdateUserRequest) error {

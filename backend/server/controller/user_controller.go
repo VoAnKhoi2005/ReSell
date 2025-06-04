@@ -45,9 +45,26 @@ func (h *UserController) GetUserByUsername(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
+func (h *UserController) GetAllUserByBatch(c *gin.Context) {
+	var request transaction.GetAllUserRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	users, totalBatchCount, err := h.userService.GetUserByBatch(request.BatchSize, request.Page)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"users": users, "total_batch_count": totalBatchCount})
+}
+
 func (h *UserController) UpdateUser(c *gin.Context) {
 	var request *transaction.UpdateUserRequest
-	err := c.ShouldBind(&request)
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -168,7 +185,7 @@ func (h *UserController) UnFollow(c *gin.Context) {
 
 func (h *UserController) BanUser(c *gin.Context) {
 	var request transaction.BanRequest
-	err := c.ShouldBind(&request)
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
