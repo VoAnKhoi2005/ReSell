@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/util"
 	"gorm.io/gorm"
@@ -18,6 +19,7 @@ type UserRepository interface {
 	GetByUsername(username string) (*model.User, error)
 	GetByEmail(email string) (*model.User, error)
 	GetByPhone(phone string) (*model.User, error)
+	GetUsersByBatch(batchSize int, page int) ([]*model.User, int, error)
 
 	DeleteByID(id string) error
 
@@ -70,6 +72,32 @@ func (r *userRepository) GetByPhone(phone string) (*model.User, error) {
 	var user *model.User = nil
 	err := r.db.WithContext(ctx).First(&user, "phone = ?", phone).Error
 	return user, err
+}
+
+func (r *userRepository) GetUsersByBatch(batchSize int, page int) ([]*model.User, int, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var totalCount int64
+	err := r.db.WithContext(ctx).Model(&model.User{}).Count(&totalCount).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	totalBatches := int((totalCount + int64(batchSize) - 1) / int64(batchSize))
+	offset := (page - 1) * batchSize
+
+	if page > totalBatches && totalBatches != 0 {
+		return nil, totalBatches, fmt.Errorf("page %d out of range: total pages %d", page, totalBatches)
+	}
+
+	var users []*model.User = nil
+	err = r.db.WithContext(ctx).Order("id").Limit(batchSize).Offset(offset).Find(&users).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return users, totalBatches, err
 }
 
 func (r *userRepository) DeleteByID(id string) error {
