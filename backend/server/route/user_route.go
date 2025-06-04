@@ -31,6 +31,7 @@ func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	adminRoute.Use(middleware.AdminAuthMiddleware())
 	adminRoute.GET("/id/:id", userController.GetUserByID)
 	adminRoute.GET("/username/:username", userController.GetUserByUsername)
+	adminRoute.GET("/batch", userController.GetAllUserByBatch)
 	adminRoute.PUT("/ban", userController.BanUser)
 	adminRoute.PUT("/unban/:id", userController.UnBanUser)
 }
