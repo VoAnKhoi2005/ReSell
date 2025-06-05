@@ -105,6 +105,9 @@ func (r *postRepository) GetByID(id string) (*model.Post, error) {
 	err := r.db.WithContext(ctx).Preload("User").
 		Preload("Category").
 		Preload("Address.Ward.District.Province").
+		Preload("PostImages", func(db *gorm.DB) *gorm.DB {
+			return db.Order("image_order ASC")
+		}).
 		First(&post, "id = ?", id).Error
 	return &post, err
 }
