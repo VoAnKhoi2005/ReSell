@@ -1,129 +1,209 @@
 <script>
+  import { onMount } from "svelte";
   import AddressTree from "../components/AddressTree.svelte";
+  import {
+    fetchProvinces,
+    fetchDistricts,
+    fetchWards,
+    createProvince,
+    createDistrict,
+    createWard,
+    updateProvince,
+    updateDistrict,
+    updateWard,
+    deleteProvince,
+    deleteDistrict,
+    deleteWard,
+  } from "../services/addressService";
 
-  let provinces = [
-    { id: "1", name: "TP. Hồ Chí Minh" },
-    { id: "2", name: "Hà Nội" },
-  ];
-  let districts = [
-    { id: "11", name: "Quận 1", province_id: "1" },
-    { id: "12", name: "Quận 3", province_id: "1" },
-    { id: "21", name: "Ba Đình", province_id: "2" },
-  ];
-  let wards = [
-    { id: "111", name: "Phường Bến Nghé", district_id: "11" },
-    { id: "121", name: "Phường Võ Thị Sáu", district_id: "12" },
-    { id: "211", name: "Phường Phúc Xá", district_id: "21" },
-  ];
-
+  let provinces = [];
+  let districts = [];
+  let wards = [];
   let selectedProvince = null;
   let selectedDistrict = null;
 
-  // Thêm tỉnh
+  // Thêm mới
   let addingProvince = false;
   let newProvinceName = "";
-
-  // Thêm huyện
   let addingDistrict = false;
   let newDistrictName = "";
-
-  // Thêm xã
   let addingWard = false;
   let newWardName = "";
 
-  function handleAddProvince() {
-    if (newProvinceName.trim() === "") return;
-    const newId = Date.now().toString();
-    provinces = [...provinces, { id: newId, name: newProvinceName }];
-    newProvinceName = "";
-    addingProvince = false;
+  // Load tỉnh
+  async function loadProvinces() {
+    try {
+      provinces = await fetchProvinces();
+      console.log(provinces);
+    } catch (err) {
+      alert("Không thể tải danh sách tỉnh!");
+      console.error(err);
+    }
   }
 
-  function handleAddDistrict() {
-    if (newDistrictName.trim() === "" || !selectedProvince) return;
-    const newId = Date.now().toString();
-    districts = [
-      ...districts,
-      { id: newId, name: newDistrictName, province_id: selectedProvince },
-    ];
-    newDistrictName = "";
-    addingDistrict = false;
+  // Load huyện theo tỉnh
+  async function loadDistricts() {
+    try {
+      districts = selectedProvince
+        ? await fetchDistricts(selectedProvince)
+        : [];
+    } catch (err) {
+      alert("Không thể tải danh sách huyện!");
+      console.error(err);
+    }
   }
 
-  function handleAddWard() {
-    if (newWardName.trim() === "" || !selectedDistrict) return;
-    const newId = Date.now().toString();
-    wards = [
-      ...wards,
-      { id: newId, name: newWardName, district_id: selectedDistrict },
-    ];
-    newWardName = "";
-    addingWard = false;
+  // Load xã theo huyện
+  async function loadWards() {
+    try {
+      wards = selectedDistrict ? await fetchWards(selectedDistrict) : [];
+    } catch (err) {
+      alert("Không thể tải danh sách xã!");
+      console.error(err);
+    }
   }
 
-  function selectProvince(id) {
+  // Khi vào trang
+  onMount(loadProvinces);
+
+  // Chọn tỉnh → load huyện
+  async function selectProvince(id) {
     selectedProvince = id;
     selectedDistrict = null;
+    wards = [];
+    await loadDistricts();
   }
-  function selectDistrict(id) {
+  // Chọn huyện → load xã
+  async function selectDistrict(id) {
     selectedDistrict = id;
+    await loadWards();
   }
 
-  // Xử lý sự kiện menu (đổi tên/xóa) nhận từ AddressTree
-  function handleRenameProvince(e) {
-    const { id, name } = e.detail;
-    const idx = provinces.findIndex((p) => p.id === id);
-    if (idx > -1) {
-      provinces[idx].name = name;
-      provinces = [...provinces];
+  // Thêm tỉnh
+  async function handleAddProvince() {
+    if (newProvinceName.trim() === "") return;
+    try {
+      await createProvince(newProvinceName);
+      newProvinceName = "";
+      addingProvince = false;
+      await loadProvinces();
+    } catch (err) {
+      alert("Lỗi khi tạo tỉnh!");
+      console.error(err);
     }
   }
-  function handleDeleteProvince(e) {
+
+  // Thêm huyện
+  async function handleAddDistrict() {
+    if (newDistrictName.trim() === "" || !selectedProvince) return;
+    try {
+      await createDistrict(newDistrictName, selectedProvince);
+      newDistrictName = "";
+      addingDistrict = false;
+      await loadDistricts();
+    } catch (err) {
+      alert("Lỗi khi tạo huyện!");
+      console.error(err);
+    }
+  }
+
+  // Thêm xã
+  async function handleAddWard() {
+    if (newWardName.trim() === "" || !selectedDistrict) return;
+    try {
+      await createWard(newWardName, selectedDistrict);
+      newWardName = "";
+      addingWard = false;
+      await loadWards();
+    } catch (err) {
+      alert("Lỗi khi tạo xã!");
+      console.error(err);
+    }
+  }
+
+  // Đổi tên tỉnh
+  async function handleRenameProvince(e) {
+    const { id, name } = e.detail;
+    try {
+      await updateProvince(id, name);
+      await loadProvinces();
+    } catch (err) {
+      alert("Lỗi khi đổi tên tỉnh!");
+      console.error(err);
+    }
+  }
+  // Xóa tỉnh
+  async function handleDeleteProvince(e) {
     const { id } = e.detail;
-    if (window.confirm("Xóa tỉnh sẽ xóa tất cả huyện/xã liên quan. Đồng ý?")) {
-      // Xóa huyện, xã thuộc tỉnh
-      const removeDistrictIds = districts
-        .filter((d) => d.province_id === id)
-        .map((d) => d.id);
-      districts = districts.filter((d) => d.province_id !== id);
-      wards = wards.filter((w) => !removeDistrictIds.includes(w.district_id));
-      provinces = provinces.filter((p) => p.id !== id);
+    if (!window.confirm("Xóa tỉnh sẽ xóa toàn bộ huyện/xã liên quan. Đồng ý?"))
+      return;
+    try {
+      await deleteProvince(id);
       if (selectedProvince === id) selectedProvince = null;
+      await loadProvinces();
+      districts = [];
+      wards = [];
+    } catch (err) {
+      alert("Lỗi khi xóa tỉnh!");
+      console.error(err);
     }
   }
 
-  function handleRenameDistrict(e) {
+  // Đổi tên huyện
+  async function handleRenameDistrict(e) {
     const { id, name } = e.detail;
-    const idx = districts.findIndex((d) => d.id === id);
-    if (idx > -1) {
-      districts[idx].name = name;
-      districts = [...districts];
+    try {
+      await updateDistrict(id, name);
+      await loadDistricts();
+    } catch (err) {
+      alert("Lỗi khi đổi tên huyện!");
+      console.error(err);
     }
   }
-  function handleDeleteDistrict(e) {
+  // Xóa huyện
+  async function handleDeleteDistrict(e) {
     const { id } = e.detail;
-    if (window.confirm("Xóa huyện sẽ xóa tất cả xã liên quan. Đồng ý?")) {
-      wards = wards.filter((w) => w.district_id !== id);
-      districts = districts.filter((d) => d.id !== id);
+    if (!window.confirm("Xóa huyện sẽ xóa toàn bộ xã liên quan. Đồng ý?"))
+      return;
+    try {
+      await deleteDistrict(id);
       if (selectedDistrict === id) selectedDistrict = null;
+      await loadDistricts();
+      wards = [];
+    } catch (err) {
+      alert("Lỗi khi xóa huyện!");
+      console.error(err);
     }
   }
 
-  function handleRenameWard(e) {
+  // Đổi tên xã
+  async function handleRenameWard(e) {
     const { id, name } = e.detail;
-    const idx = wards.findIndex((w) => w.id === id);
-    if (idx > -1) {
-      wards[idx].name = name;
-      wards = [...wards];
+    try {
+      await updateWard(id, name);
+      await loadWards();
+    } catch (err) {
+      alert("Lỗi khi đổi tên xã!");
+      console.error(err);
     }
   }
-  function handleDeleteWard(e) {
+  // Xóa xã
+  async function handleDeleteWard(e) {
     const { id } = e.detail;
-    if (window.confirm("Bạn có chắc chắn muốn xóa xã này?")) {
-      wards = wards.filter((w) => w.id !== id);
+    if (!window.confirm("Bạn có chắc chắn muốn xóa xã này?")) return;
+    try {
+      await deleteWard(id);
+      await loadWards();
+    } catch (err) {
+      alert("Lỗi khi xóa xã!");
+      console.error(err);
     }
   }
 </script>
+
+<!--
+  ... Giữ nguyên phần giao diện bên dưới, chỉ thay đổi các biến FE như trên ...
+-->
 
 <div class="w-100">
   <div class="d-flex justify-content-between align-items-center mb-3">
@@ -140,8 +220,10 @@
           {#if !addingProvince}
             <button
               class="btn btn-sm btn-primary"
-              on:click={() => (addingProvince = true)}>+ Thêm tỉnh</button
+              on:click={() => (addingProvince = true)}
             >
+              + Thêm tỉnh
+            </button>
           {:else}
             <div class="d-flex align-items-center">
               <input
@@ -191,8 +273,10 @@
             {#if !addingDistrict}
               <button
                 class="btn btn-sm btn-primary"
-                on:click={() => (addingDistrict = true)}>+ Thêm huyện</button
+                on:click={() => (addingDistrict = true)}
               >
+                + Thêm huyện
+              </button>
             {:else}
               <div class="d-flex align-items-center">
                 <input
@@ -222,9 +306,7 @@
           <div class="card-body p-0">
             <AddressTree
               type="district"
-              items={districts.filter(
-                (d) => d.province_id === selectedProvince
-              )}
+              items={districts}
               selectedId={selectedDistrict}
               on:select={(e) => selectDistrict(e.detail.id)}
               on:rename={handleRenameDistrict}
@@ -244,8 +326,10 @@
             {#if !addingWard}
               <button
                 class="btn btn-sm btn-primary"
-                on:click={() => (addingWard = true)}>+ Thêm xã</button
+                on:click={() => (addingWard = true)}
               >
+                + Thêm xã
+              </button>
             {:else}
               <div class="d-flex align-items-center">
                 <input
@@ -275,7 +359,7 @@
           <div class="card-body p-0">
             <AddressTree
               type="ward"
-              items={wards.filter((w) => w.district_id === selectedDistrict)}
+              items={wards}
               on:rename={handleRenameWard}
               on:delete={handleDeleteWard}
             />

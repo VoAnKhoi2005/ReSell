@@ -11,14 +11,13 @@ import (
 
 type PostService interface {
 	// CRUD cơ bản
-	GetAllPosts() ([]*model.Post, error)
+	GetPosts(filters map[string]string, page, limit int) ([]*model.Post, int64, error)
 	GetPostByID(id string) (*model.Post, error)
 	CreatePost(req *transaction.CreatePostRequest, userID string) (*model.Post, error)
 	UpdatePost(id string, req *transaction.UpdatePostRequest) (*model.Post, error)
 	DeletePost(id string) error
 	GetAllDeletedPosts() ([]*model.Post, error)
 	GetDeletedPostByID(id string) (*model.Post, error)
-	GetPostsByFilter(filters map[string]string) ([]*model.Post, error)
 	SearchPosts(query string) ([]*model.Post, error)
 	CreatePostImage(postID, url string, order uint) (*model.PostImage, error)
 	DeletePostImage(postID, url string) error
@@ -168,10 +167,6 @@ func (s *postService) UpdatePost(id string, req *transaction.UpdatePostRequest) 
 	return post, err
 }
 
-func (s *postService) GetAllPosts() ([]*model.Post, error) {
-	return s.repo.GetAll()
-}
-
 func (s *postService) GetPostByID(id string) (*model.Post, error) {
 	return s.repo.GetByID(id)
 }
@@ -196,10 +191,6 @@ func NewPostService(repo repository.PostRepository) PostService {
 	return &postService{repo: repo}
 }
 
-func (s *postService) GetPostsByFilter(filters map[string]string) ([]*model.Post, error) {
-	return s.repo.GetByFilter(filters)
-}
-
 func (s *postService) SearchPosts(query string) ([]*model.Post, error) {
 	return s.repo.Search(query)
 }
@@ -221,4 +212,8 @@ func (s *postService) DeletePostImage(postID, url string) error {
 		return err
 	}
 	return s.repo.DeletePostImage(postImage)
+}
+
+func (s *postService) GetPosts(filters map[string]string, page, limit int) ([]*model.Post, int64, error) {
+	return s.repo.GetPosts(filters, page, limit)
 }
