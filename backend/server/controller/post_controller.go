@@ -468,7 +468,7 @@ func (h *PostController) UploadPostImages(c *gin.Context) {
 
 	var imageUrls []string
 
-	for i, fileHeader := range files {
+	for _, fileHeader := range files {
 		// Mở từng file
 		file, err := fileHeader.Open()
 		if err != nil {
@@ -490,7 +490,7 @@ func (h *PostController) UploadPostImages(c *gin.Context) {
 		imageUrls = append(imageUrls, imageURL)
 
 		// Lưu vào database
-		_, err = h.service.CreatePostImage(postId, imageURL, uint(i+1))
+		_, err = h.service.CreatePostImage(postId, imageURL)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error":   fmt.Sprintf("Failed to save image %s to DB", fileHeader.Filename),
@@ -522,7 +522,7 @@ func (h *PostController) UploadPostImage(c *gin.Context) {
 		return
 	}
 
-	postImage, err := h.service.CreatePostImage(postID, imageURL, 0) // Order is not used here
+	postImage, err := h.service.CreatePostImage(postID, imageURL) // Order is not used here
 
 	c.JSON(http.StatusOK, gin.H{"post_image": postImage, "message": "Image uploaded successfully"})
 }
