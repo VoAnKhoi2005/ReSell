@@ -14,15 +14,16 @@ type PostRepository interface {
 	Delete(post *model.Post) error
 
 	//self func
+	GetPosts(filters map[string]string, page, limit int) ([]*model.Post, int64, error)
 	SoftDelete(post *model.Post) error
 	GetByID(id string) (*model.Post, error)
 	GetDeletedByID(id string) (*model.Post, error)
 	GetAllDeleted() ([]*model.Post, error)
-	GetByFilter(filters map[string]string) ([]*model.Post, error)
 	Search(query string) ([]*model.Post, error)
 	CreatePostImage(postImage *model.PostImage) error
 	DeletePostImage(postImage *model.PostImage) error
 	GetPostImage(postID, url string) (*model.PostImage, error)
+	GetByFilter(filters map[string]string) ([]*model.Post, error) // Not implemented yet
 }
 
 type postRepository struct {
@@ -33,6 +34,67 @@ func NewPostRepository(db *gorm.DB) PostRepository {
 	return &postRepository{
 		BaseRepository: NewBaseRepository[model.Post](db),
 	}
+}
+
+func (r *postRepository) GetPosts(filters map[string]string, page, limit int) ([]*model.Post, int64, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var posts []*model.Post
+	var total int64
+
+	query := r.db.WithContext(ctx).
+		Model(&model.Post{}).
+		Joins("JOIN addresses ON addresses.id = posts.address_id").
+		Joins("JOIN wards ON wards.id = addresses.ward_id").
+		Joins("JOIN districts ON districts.id = wards.district_id").
+		Joins("JOIN provinces ON provinces.id = districts.province_id").
+		Preload("User").
+		Preload("Category").
+		Preload("Address.Ward.District.Province")
+
+	// ========== FILTERS ==========
+	if status, ok := filters["status"]; ok {
+		query = query.Where("posts.status = ?", status)
+	}
+	if minPrice, ok := filters["min_price"]; ok {
+		query = query.Where("posts.price >= ?", minPrice)
+	}
+	if maxPrice, ok := filters["max_price"]; ok {
+		query = query.Where("posts.price <= ?", maxPrice)
+	}
+	if provinceID, ok := filters["province_id"]; ok {
+		query = query.Where("provinces.id = ?", provinceID)
+	}
+	if districtID, ok := filters["district_id"]; ok {
+		query = query.Where("districts.id = ?", districtID)
+	}
+	if wardID, ok := filters["ward_id"]; ok {
+		query = query.Where("wards.id = ?", wardID)
+	}
+	if categoryID, ok := filters["category_id"]; ok {
+		query = query.Where("posts.category_id = ?", categoryID)
+	}
+	if userID, ok := filters["user_id"]; ok {
+		query = query.Where("posts.user_id = ?", userID)
+	}
+
+	// ========== COUNT ==========
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// ========== PAGINATION ==========
+	err := query.
+		Offset((page - 1) * limit).
+		Limit(limit).
+		Order("posts.created_at DESC").
+		Find(&posts).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return posts, total, nil
 }
 
 func (r *postRepository) GetByID(id string) (*model.Post, error) {
@@ -66,56 +128,6 @@ func (r *postRepository) GetAllDeleted() ([]*model.Post, error) {
 
 	var posts []*model.Post
 	err := r.db.WithContext(ctx).Unscoped().Where("deleted_at IS NOT NULL").Find(&posts).Error
-	return posts, err
-}
-
-func (r *postRepository) GetByFilter(filters map[string]string) ([]*model.Post, error) {
-	ctx, cancel := util.NewDBContext()
-	defer cancel()
-
-	var posts []*model.Post
-
-	query := r.db.WithContext(ctx).
-		Model(&model.Post{}).
-		Joins("JOIN addresses ON addresses.id = posts.address_id").
-		Joins("JOIN wards ON wards.id = addresses.ward_id").
-		Joins("JOIN districts ON districts.id = wards.district_id").
-		Joins("JOIN provinces ON provinces.id = districts.province_id").
-		Preload("Address.Ward.District.Province")
-
-	// ========== FILTERS ==========
-
-	if status, ok := filters["status"]; ok {
-		query = query.Where("posts.status = ?", status)
-	}
-
-	if minPrice, ok := filters["min_price"]; ok {
-		query = query.Where("posts.price >= ?", minPrice)
-	}
-	if maxPrice, ok := filters["max_price"]; ok {
-		query = query.Where("posts.price <= ?", maxPrice)
-	}
-
-	if provinceID, ok := filters["province_id"]; ok {
-		query = query.Where("provinces.id = ?", provinceID)
-	}
-	if districtID, ok := filters["district_id"]; ok {
-		query = query.Where("districts.id = ?", districtID)
-	}
-	if wardID, ok := filters["ward_id"]; ok {
-		query = query.Where("wards.id = ?", wardID)
-	}
-
-	if categoryID, ok := filters["category_id"]; ok {
-		query = query.Where("posts.category_id = ?", categoryID)
-	}
-	if userID, ok := filters["user_id"]; ok {
-		query = query.Where("posts.user_id = ?", userID)
-	}
-
-	// ========== QUERY ==========
-
-	err := query.Find(&posts).Error
 	return posts, err
 }
 
@@ -155,4 +167,8 @@ func (r *postRepository) GetPostImage(postID, url string) (*model.PostImage, err
 	var postImage model.PostImage
 	err := r.db.WithContext(ctx).Where("post_id = ? AND image_url = ?", postID, url).First(&postImage).Error
 	return &postImage, err
+}
+
+func (r *postRepository) GetByFilter(filters map[string]string) ([]*model.Post, error) {
+	panic("not implemented yet")
 }

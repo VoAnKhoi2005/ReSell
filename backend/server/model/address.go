@@ -1,14 +1,14 @@
 package model
 
 type Province struct {
-	ID   string `gorm:"type:uuid;primary_key" json:"id"`
+	ID   string `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
 	Name string `json:"name"`
 
 	Districts []District `json:"districts,omitempty"`
 }
 
 type District struct {
-	ID         string  `gorm:"type:uuid;primary_key" json:"id"`
+	ID         string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
 	Name       string  `json:"name"`
 	ProvinceID *string `gorm:"type:uuid" json:"province_id"`
 
@@ -17,7 +17,7 @@ type District struct {
 }
 
 type Ward struct {
-	ID         string  `gorm:"type:uuid;primary_key" json:"id"`
+	ID         string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
 	Name       string  `json:"name"`
 	DistrictID *string `gorm:"type:uuid" json:"district_id"`
 
@@ -25,7 +25,7 @@ type Ward struct {
 }
 
 type Address struct {
-	ID        string  `gorm:"type:uuid;primary_key" json:"id"`
+	ID        string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
 	UserID    *string `gorm:"type:uuid" json:"user_id"`
 	WardID    *string `gorm:"type:uuid" json:"ward_id"`
 	Detail    string  `json:"detail"`
