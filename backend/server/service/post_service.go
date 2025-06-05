@@ -1,9 +1,13 @@
 package service
 
 import (
+	"encoding/json"
+	"fmt"
+	"github.com/VoAnKhoi2005/ReSell/config"
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"github.com/VoAnKhoi2005/ReSell/transaction"
+	"github.com/VoAnKhoi2005/ReSell/util"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"time"
@@ -168,7 +172,32 @@ func (s *postService) UpdatePost(id string, req *transaction.UpdatePostRequest) 
 }
 
 func (s *postService) GetPostByID(id string) (*model.Post, error) {
-	return s.repo.GetByID(id)
+	// 1. Kiểm tra cache Redis trước
+	cacheKey := "post:" + id
+	ctx, cancel := util.NewRedisContext()
+	defer cancel()
+
+	val, err := config.RedisClient.Get(ctx, cacheKey).Result()
+	if err == nil {
+		var post model.Post
+		if err := json.Unmarshal([]byte(val), &post); err == nil {
+			fmt.Println("Cache hit")
+			return &post, nil // HIT cache
+		}
+	}
+
+	// 2. Nếu cache miss → fallback DB
+	post, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	// 3. Set lại cache cho lần sau
+	data, _ := json.Marshal(post)
+	config.RedisClient.Set(ctx, cacheKey, data, 5*time.Minute)
+
+	fmt.Println("Cache miss")
+	return post, nil
 }
 
 func (s *postService) DeletePost(id string) error {
@@ -215,5 +244,19 @@ func (s *postService) DeletePostImage(postID, url string) error {
 }
 
 func (s *postService) GetPosts(filters map[string]string, page, limit int) ([]*model.Post, int64, error) {
-	return s.repo.GetPosts(filters, page, limit)
+	var posts []*model.Post
+
+	postIDs, total, err := s.repo.GetPostIDsByFilter(filters, page, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	for _, id := range postIDs {
+		post, err := s.GetPostByID(id)
+		if err != nil {
+			return nil, 0, err
+		}
+		posts = append(posts, post)
+	}
+	return posts, total, nil
 }
