@@ -1,71 +1,93 @@
 <script>
+  import { onMount } from "svelte";
   import PostList from "../components/PostList.svelte";
+  import {
+    fetchPosts,
+    approvePost,
+    rejectPost,
+  } from "../services/postService.js";
 
-  // Mock data
-  let posts = [
-    {
-      id: "1",
-      title: "Bán iPhone 13 Pro Max",
-      description: "Hàng xách tay, còn mới 99%.",
-      category: "Điện thoại",
-      user: "khoict",
-      status: "pending",
-    },
-    {
-      id: "2",
-      title: "Xe Wave Alpha",
-      description: "Wave alpha 2022 biển Sài Gòn.",
-      category: "Xe máy",
-      user: "admin1",
-      status: "approved",
-    },
-    {
-      id: "3",
-      title: "Laptop Dell XPS",
-      description: "Dell XPS 13, i7, RAM 16GB.",
-      category: "Laptop",
-      user: "user2",
-      status: "rejected",
-    },
-  ];
-
+  let posts = [];
   let search = "";
   let filterStatus = "all"; // all | pending | approved | rejected
+  let selectedPost = null;
+  let loading = true;
 
+  let page = 1;
+  let limit = 10;
+  let total = 0;
+
+  // Gọi khi load ban đầu hoặc khi đổi page
+  async function loadPosts() {
+    loading = true;
+    try {
+      const params = { page, limit };
+      const res = await fetchPosts(params);
+      posts = res.data || [];
+      total = res.total || 0;
+    } catch (err) {
+      console.error("Lỗi khi load bài đăng:", err);
+    } finally {
+      loading = false;
+    }
+  }
+
+  onMount(loadPosts);
+
+  // Gọi lại loadPosts nếu đổi page
+  $: if (page) loadPosts();
+
+  // Danh sách hiển thị sau khi lọc theo trạng thái + search
   $: showPosts = posts.filter((p) => {
-    const matchesSearch =
+    const matchStatus = filterStatus === "all" || p.status === filterStatus;
+    const matchSearch =
       search.trim() === "" ||
       p.title.toLowerCase().includes(search.trim().toLowerCase());
-    const matchesFilter = filterStatus === "all" || p.status === filterStatus;
-    return matchesSearch && matchesFilter;
+    return matchStatus && matchSearch;
   });
-
-  let selectedPost = null;
 
   function handleViewDetail(e) {
     selectedPost = e.detail.post;
   }
+
   function handleCloseDetail() {
     selectedPost = null;
   }
 
-  function handleApprove(e) {
+  async function handleApprove(e) {
     const { id } = e.detail;
-    const idx = posts.findIndex((p) => p.id === id);
-    if (idx > -1) {
-      posts[idx].status = "approved";
-      posts = [...posts];
-      selectedPost = null;
+    try {
+      await approvePost(id);
+      const idx = posts.findIndex((p) => p.id === id);
+      if (idx > -1) {
+        posts[idx].status = "approved";
+        posts = [...posts];
+        selectedPost = null;
+      }
+    } catch (err) {
+      alert("Lỗi khi duyệt bài");
+      console.error(err);
     }
   }
-  function handleReject(e) {
+
+  async function handleReject(e) {
     const { id } = e.detail;
-    const idx = posts.findIndex((p) => p.id === id);
-    if (idx > -1) {
-      posts[idx].status = "rejected";
-      posts = [...posts];
-      selectedPost = null;
+    try {
+      await rejectPost(id);
+      const idx = posts.findIndex((p) => p.id === id);
+      if (idx > -1) {
+        posts[idx].status = "rejected";
+        posts = [...posts];
+        selectedPost = null;
+      }
+    } catch (err) {
+      alert("Lỗi khi từ chối bài");
+      console.error(err);
     }
+  }
+
+  function handlePageChange(e) {
+    page = e.detail.page;
   }
 </script>
 
@@ -92,7 +114,18 @@
     </div>
   </div>
 
-  <PostList {showPosts} on:viewDetail={handleViewDetail} />
+  {#if loading}
+    <div class="text-center text-muted my-3">Đang tải bài đăng...</div>
+  {:else}
+    <PostList
+      {showPosts}
+      {page}
+      {limit}
+      {total}
+      on:viewDetail={handleViewDetail}
+      on:changePage={handlePageChange}
+    />
+  {/if}
 
   {#if selectedPost}
     <div
@@ -100,7 +133,7 @@
       style="display:block; background:rgba(0,0,0,0.25);"
       tabindex="-1"
     >
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">{selectedPost.title}</h5>
@@ -108,17 +141,30 @@
             ></button>
           </div>
           <div class="modal-body">
+            {#if selectedPost.post_images?.length}
+              <div class="mb-3 d-flex flex-wrap gap-2">
+                {#each selectedPost.post_images.sort((a, b) => a.image_order - b.image_order) as img}
+                  <img
+                    src={img.image_url}
+                    alt="Ảnh"
+                    style="width: 250px; height: 160px; object-fit: cover; border-radius: 8px;"
+                  />
+                {/each}
+              </div>
+            {/if}
             <div><b>Mô tả:</b> {selectedPost.description}</div>
-            <div><b>Danh mục:</b> {selectedPost.category}</div>
-            <div><b>Người đăng:</b> {selectedPost.user}</div>
+            <div><b>Danh mục:</b> {selectedPost.category?.name}</div>
+            <div><b>Người đăng:</b> {selectedPost.user?.username}</div>
             <div>
               <b>Trạng thái:</b>
               {#if selectedPost.status === "pending"}
                 <span class="badge bg-warning text-dark">Chờ duyệt</span>
               {:else if selectedPost.status === "approved"}
                 <span class="badge bg-success">Đã duyệt</span>
-              {:else}
+              {:else if selectedPost.status === "rejected"}
                 <span class="badge bg-danger">Bị từ chối</span>
+              {:else}
+                <span class="badge bg-secondary">Không xác định</span>
               {/if}
             </div>
           </div>
