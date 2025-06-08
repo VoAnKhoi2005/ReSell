@@ -1,6 +1,4 @@
-package com.example.myapplication.ui.screen.login
-
-
+package com.example.myapplication.ui.view.register
 import Roboto
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -38,22 +36,23 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
+import com.example.myapplication.ui.view.login.LoginTextField
 import com.example.myapplication.ui.theme.LoginButton
 import com.example.myapplication.ui.theme.LoginTitle
 import com.example.myapplication.ui.theme.Red
 import com.example.myapplication.ui.theme.SoftBlue
 
 @Composable
-fun LoginScreen(){
-  Surface {
+fun RegisterScreen(){
+    Surface {
         Column(modifier = Modifier.fillMaxSize() ) {
             TopSection()
             Spacer(modifier = Modifier.height(36.dp))
             Column(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 30.dp)
             ) {
-                LoginForm()
-                RegisterSection()
+                RegisterForm()
+                LoginSection()
 
 
             }
@@ -64,7 +63,7 @@ fun LoginScreen(){
 }
 
 @Composable
-private fun RegisterSection() {
+private fun LoginSection() {
     Box(
         modifier = Modifier
             .fillMaxHeight(fraction = 0.8f)
@@ -82,7 +81,7 @@ private fun RegisterSection() {
                         fontWeight = FontWeight.Normal
                     )
                 ) {
-                    append("Chưa có tài khoản?")
+                    append("Đã có tài khoản?")
                 }
                 withStyle(
                     style = SpanStyle(
@@ -93,7 +92,7 @@ private fun RegisterSection() {
                     )
                 ) {
                     append(" ")
-                    append("Tạo ngay")
+                    append("Đăng nhập")
                 }
             }
         )
@@ -102,7 +101,7 @@ private fun RegisterSection() {
 }
 
 @Composable
-private fun LoginForm() {
+private fun RegisterForm() {
     LoginTextField(
         lable = "Email",
         trailing = "",
@@ -110,8 +109,20 @@ private fun LoginForm() {
     )
     Spacer(modifier = Modifier.height(15.dp))
     LoginTextField(
+        lable = "Tên đăng nhập",
+        trailing = "",
+        modifier = Modifier.fillMaxWidth()
+    )
+    Spacer(modifier = Modifier.height(15.dp))
+    LoginTextField(
+        lable = "Số điện thoại",
+        trailing = "",
+        modifier = Modifier.fillMaxWidth()
+    )
+    Spacer(modifier = Modifier.height(15.dp))
+    LoginTextField(
         lable = "Password",
-        trailing = "Forgot?",
+        trailing = "",
         modifier = Modifier.fillMaxWidth()
     )
     Spacer(modifier = Modifier.height(20.dp))
@@ -129,7 +140,7 @@ private fun LoginForm() {
 
     ) {
         Text(
-            text = "Đăng nhập",
+            text = "Đăng ký",
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
         )
     }
@@ -177,7 +188,7 @@ private fun TopSection() {
         }
         Text(
             style = MaterialTheme.typography.headlineLarge,
-            text = stringResource(id = R.string.login),
+            text = stringResource(id = R.string.register),
             color = LoginTitle,
             modifier = Modifier
                 .padding(bottom = 10.dp)

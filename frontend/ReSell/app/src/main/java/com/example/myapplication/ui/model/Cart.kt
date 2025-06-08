@@ -1,4 +1,4 @@
-package model
+package com.example.myapplication.ui.model
 
 data class Cart (
     val id: String,
