@@ -221,6 +221,7 @@ func (s *userService) BanUserForDay(userID string, length uint) error {
 
 	user.BanStart = &banStart
 	user.BanEnd = &banEnd
+	user.Status = model.BannedStatus
 
 	return s.userRepo.Update(user)
 }
@@ -233,5 +234,7 @@ func (s *userService) UnBanUser(userID string) error {
 
 	user.BanStart = nil
 	user.BanEnd = nil
+	user.Status = model.ActiveStatus
+
 	return s.userRepo.Update(user)
 }

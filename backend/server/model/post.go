@@ -37,6 +37,7 @@ type Post struct {
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
+	PostImages  []PostImage    `gorm:"foreignKey:PostID" json:"post_images,omitempty"`
 
 	User     *User     `json:"user,omitempty"`
 	Category *Category `json:"category,omitempty"`
