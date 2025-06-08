@@ -11,5 +11,6 @@ data class ShopOrder(
     var total: Int,
     val createdAt: LocalDateTime?,
     var completedAt:LocalDateTime?,
-    var canceledAt: LocalDateTime?
+    var canceledAt: LocalDateTime?,
+    val review: Review?
 )

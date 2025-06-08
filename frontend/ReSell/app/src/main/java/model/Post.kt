@@ -14,5 +14,8 @@ data class Post(
     val createdAt: LocalDateTime?,
     var soldAt: LocalDateTime?,
     var updatedAt: LocalDateTime?,
-    var deletedAt: LocalDateTime?
+    var deletedAt: LocalDateTime?,
+    val conversations: List<Conversation>,
+    val order: ShopOrder?,
+    val images: List<PostImage>
 )
