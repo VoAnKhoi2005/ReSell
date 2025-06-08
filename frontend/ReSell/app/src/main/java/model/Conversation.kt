@@ -7,5 +7,6 @@ data class Conversation(
     val buyerId: String,
     val sellerId: String,
     val postId: String,
-    val createdAt: LocalDateTime?
+    val createdAt: LocalDateTime?,
+    val messages: List<Message>
 )

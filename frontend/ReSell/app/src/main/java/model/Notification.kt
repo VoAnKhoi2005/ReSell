@@ -9,5 +9,4 @@ data class Notification (
     val description: String,
     val createdAt: LocalDateTime?,
     var isRead: Boolean
-
 )

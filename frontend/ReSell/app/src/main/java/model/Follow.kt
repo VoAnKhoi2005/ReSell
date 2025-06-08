@@ -1,6 +1,6 @@
 package model
 
 data class Follow (
-    val sellerId: String,
-    val buyerId: String
+    val followerId: String,
+    val followeeId: String
 )

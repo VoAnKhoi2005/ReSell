@@ -5,5 +5,6 @@ data class Address (
     val userId: String,
     var wardId: String,
     var detail: String,
-    var idDefault: Boolean
+    var idDefault: Boolean,
+    val ward: Ward?
 )
