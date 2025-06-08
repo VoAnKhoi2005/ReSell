@@ -1,6 +1,8 @@
 <resources>
-    <string name="app_name">ReSell</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="app_name">My Application</string>
+    <string name="app_logo">App Logo</string>
+    <string name="the_resell">Resell</string>
+    <string name="the_slogan">Cả thế giới rao vặt trong túi bạn !</string>
+    <string name="login">ĐĂNG NHẬP</string>
+    <string name="register">ĐĂNG KÝ</string>
 </resources>
