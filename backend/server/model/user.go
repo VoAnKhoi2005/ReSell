@@ -10,6 +10,13 @@ type Admin struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type UserStatus string
+
+const (
+	ActiveStatus UserStatus = "active"
+	BannedStatus UserStatus = "banned"
+)
+
 type User struct {
 	ID         string     `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
 	Username   string     `json:"username"`
@@ -18,7 +25,7 @@ type User struct {
 	Password   string     `json:"password"`
 	Fullname   string     `json:"fullname"`
 	CitizenId  string     `json:"citizen_id"`
-	Status     string     `json:"status"`
+	Status     UserStatus `json:"status"`
 	Reputation int        `json:"reputation"`
 	BanStart   *time.Time `json:"ban_start,omitempty"`
 	BanEnd     *time.Time `json:"ban_end,omitempty"`
