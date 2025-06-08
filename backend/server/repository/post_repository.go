@@ -26,7 +26,6 @@ type PostRepository interface {
 	CreatePostImage(postImage *model.PostImage) error
 	DeletePostImage(postImage *model.PostImage) error
 	GetPostImage(postID, url string) (*model.PostImage, error)
-	GetByFilter(filters map[string]string) ([]*model.Post, error) // Not implemented yet
 }
 
 type postRepository struct {
@@ -300,8 +299,4 @@ func (r *postRepository) GetPostImage(postID, url string) (*model.PostImage, err
 	var postImage model.PostImage
 	err := r.db.WithContext(ctx).Where("post_id = ? AND image_url = ?", postID, url).First(&postImage).Error
 	return &postImage, err
-}
-
-func (r *postRepository) GetByFilter(filters map[string]string) ([]*model.Post, error) {
-	panic("not implemented yet")
 }
