@@ -1,4 +1,4 @@
-package model
+package com.example.myapplication.ui.model
 
 data class Address (
     val id: String,

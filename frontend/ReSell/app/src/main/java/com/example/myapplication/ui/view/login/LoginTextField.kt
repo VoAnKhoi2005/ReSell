@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.screen.login
+package com.example.myapplication.ui.view.login
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
