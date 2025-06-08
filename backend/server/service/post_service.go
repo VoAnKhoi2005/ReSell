@@ -1,9 +1,14 @@
 package service
 
 import (
+	"encoding/json"
+	"fmt"
+	"github.com/VoAnKhoi2005/ReSell/config"
+	"github.com/VoAnKhoi2005/ReSell/dto"
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"github.com/VoAnKhoi2005/ReSell/transaction"
+	"github.com/VoAnKhoi2005/ReSell/util"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"time"
@@ -11,16 +16,16 @@ import (
 
 type PostService interface {
 	// CRUD cơ bản
-	GetAllPosts() ([]*model.Post, error)
+	GetAdminPosts(filters map[string]string, page, limit int) ([]*dto.PostListAdminDTO, int64, error)
+	GetUserPosts(filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 	GetPostByID(id string) (*model.Post, error)
 	CreatePost(req *transaction.CreatePostRequest, userID string) (*model.Post, error)
 	UpdatePost(id string, req *transaction.UpdatePostRequest) (*model.Post, error)
 	DeletePost(id string) error
 	GetAllDeletedPosts() ([]*model.Post, error)
 	GetDeletedPostByID(id string) (*model.Post, error)
-	GetPostsByFilter(filters map[string]string) ([]*model.Post, error)
 	SearchPosts(query string) ([]*model.Post, error)
-	CreatePostImage(postID, url string, order uint) (*model.PostImage, error)
+	CreatePostImage(postID, url string) (*model.PostImage, error)
 	DeletePostImage(postID, url string) error
 
 	// Admin duyệt bài
@@ -42,6 +47,14 @@ type postService struct {
 	repo repository.PostRepository
 }
 
+func (s *postService) GetAdminPosts(filters map[string]string, page, limit int) ([]*dto.PostListAdminDTO, int64, error) {
+	return s.repo.GetAdminPostsByFilter(filters, page, limit)
+}
+
+func (s *postService) GetUserPosts(filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
+	return s.repo.GetUserPostsByFilter(filters, page, limit)
+}
+
 func (s *postService) updatePostStatus(id string, status model.PostStatus) (*model.Post, error) {
 	post, err := s.GetPostByID(id)
 
@@ -52,6 +65,12 @@ func (s *postService) updatePostStatus(id string, status model.PostStatus) (*mod
 	post.Status = status
 
 	err = s.repo.Update(post)
+
+	cacheKey := "post:" + id
+	ctx, cancel := util.NewRedisContext()
+	defer cancel()
+
+	_ = config.RedisClient.Del(ctx, cacheKey)
 	return post, err
 }
 
@@ -168,12 +187,33 @@ func (s *postService) UpdatePost(id string, req *transaction.UpdatePostRequest) 
 	return post, err
 }
 
-func (s *postService) GetAllPosts() ([]*model.Post, error) {
-	return s.repo.GetAll()
-}
-
 func (s *postService) GetPostByID(id string) (*model.Post, error) {
-	return s.repo.GetByID(id)
+	// 1. Kiểm tra cache Redis trước
+	cacheKey := "post:" + id
+	ctx, cancel := util.NewRedisContext()
+	defer cancel()
+
+	val, err := config.RedisClient.Get(ctx, cacheKey).Result()
+	if err == nil {
+		var post model.Post
+		if err := json.Unmarshal([]byte(val), &post); err == nil {
+			fmt.Println("Cache hit")
+			return &post, nil // HIT cache
+		}
+	}
+
+	// 2. Nếu cache miss → fallback DB
+	post, err := s.repo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	// 3. Set lại cache cho lần sau
+	data, _ := json.Marshal(post)
+	config.RedisClient.Set(ctx, cacheKey, data, 5*time.Minute)
+
+	fmt.Println("Cache miss")
+	return post, nil
 }
 
 func (s *postService) DeletePost(id string) error {
@@ -196,22 +236,27 @@ func NewPostService(repo repository.PostRepository) PostService {
 	return &postService{repo: repo}
 }
 
-func (s *postService) GetPostsByFilter(filters map[string]string) ([]*model.Post, error) {
-	return s.repo.GetByFilter(filters)
-}
-
 func (s *postService) SearchPosts(query string) ([]*model.Post, error) {
 	return s.repo.Search(query)
 }
 
-func (s *postService) CreatePostImage(postID, url string, order uint) (*model.PostImage, error) {
+func (s *postService) CreatePostImage(postID, url string) (*model.PostImage, error) {
+	var maxOrder uint
+	err := config.DB.Model(&model.PostImage{}).
+		Where("post_id = ?", postID).
+		Select("COALESCE(MAX(image_order), 0)").Scan(&maxOrder).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get max image order: %w", err)
+	}
+
 	postImage := &model.PostImage{
 		PostID:     &postID,
 		ImageURL:   url,
-		ImageOrder: order,
+		ImageOrder: maxOrder + 1,
 	}
 
-	err := s.repo.CreatePostImage(postImage)
+	err = s.repo.CreatePostImage(postImage)
 	return postImage, err
 }
 
