@@ -3,13 +3,14 @@
   import PostList from "../components/PostList.svelte";
   import {
     fetchPosts,
+    fetchPostById,
     approvePost,
     rejectPost,
   } from "../services/postService.js";
 
   let posts = [];
   let search = "";
-  let filterStatus = "all"; // all | pending | approved | rejected
+  let filterStatus = "all";
   let selectedPost = null;
   let loading = true;
 
@@ -17,11 +18,13 @@
   let limit = 10;
   let total = 0;
 
-  // Gọi khi load ban đầu hoặc khi đổi page
   async function loadPosts() {
     loading = true;
     try {
       const params = { page, limit };
+      if (filterStatus !== "all") {
+        params.status = filterStatus;
+      }
       const res = await fetchPosts(params);
       posts = res.data || [];
       total = res.total || 0;
@@ -34,20 +37,11 @@
 
   onMount(loadPosts);
 
-  // Gọi lại loadPosts nếu đổi page
-  $: if (page) loadPosts();
+  $: if (page || filterStatus) loadPosts();
 
-  // Danh sách hiển thị sau khi lọc theo trạng thái + search
-  $: showPosts = posts.filter((p) => {
-    const matchStatus = filterStatus === "all" || p.status === filterStatus;
-    const matchSearch =
-      search.trim() === "" ||
-      p.title.toLowerCase().includes(search.trim().toLowerCase());
-    return matchStatus && matchSearch;
-  });
-
-  function handleViewDetail(e) {
-    selectedPost = e.detail.post;
+  async function handleViewDetail(e) {
+    const post = await fetchPostById(e.detail.post.id);
+    selectedPost = post;
   }
 
   function handleCloseDetail() {
@@ -58,15 +52,12 @@
     const { id } = e.detail;
     try {
       await approvePost(id);
-      const idx = posts.findIndex((p) => p.id === id);
-      if (idx > -1) {
-        posts[idx].status = "approved";
-        posts = [...posts];
-        selectedPost = null;
-      }
+      posts = posts.map((p) =>
+        p.id === id ? { ...p, status: "approved" } : p
+      );
+      selectedPost = null;
     } catch (err) {
       alert("Lỗi khi duyệt bài");
-      console.error(err);
     }
   }
 
@@ -74,15 +65,12 @@
     const { id } = e.detail;
     try {
       await rejectPost(id);
-      const idx = posts.findIndex((p) => p.id === id);
-      if (idx > -1) {
-        posts[idx].status = "rejected";
-        posts = [...posts];
-        selectedPost = null;
-      }
+      posts = posts.map((p) =>
+        p.id === id ? { ...p, status: "rejected" } : p
+      );
+      selectedPost = null;
     } catch (err) {
       alert("Lỗi khi từ chối bài");
-      console.error(err);
     }
   }
 
@@ -118,7 +106,7 @@
     <div class="text-center text-muted my-3">Đang tải bài đăng...</div>
   {:else}
     <PostList
-      {showPosts}
+      showPosts={posts}
       {page}
       {limit}
       {total}
@@ -147,7 +135,7 @@
                   <img
                     src={img.image_url}
                     alt="Ảnh"
-                    style="width: 250px; height: 160px; object-fit: cover; border-radius: 8px;"
+                    style="width: 240px; height: 160px; object-fit: cover; border-radius: 8px;"
                   />
                 {/each}
               </div>

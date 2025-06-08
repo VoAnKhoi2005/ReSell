@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/VoAnKhoi2005/ReSell/dto"
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/util"
 	"gorm.io/gorm"
@@ -14,7 +15,9 @@ type PostRepository interface {
 	Delete(post *model.Post) error
 
 	//self func
-	GetPostIDsByFilter(filters map[string]string, page, limit int) ([]string, int64, error)
+	//GetPostIDsByFilter(filters map[string]string, page, limit int) ([]string, int64, error)
+	GetAdminPostsByFilter(filters map[string]string, page, limit int) ([]*dto.PostListAdminDTO, int64, error)
+	GetUserPostsByFilter(filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 	SoftDelete(post *model.Post) error
 	GetByID(id string) (*model.Post, error)
 	GetDeletedByID(id string) (*model.Post, error)
@@ -36,21 +39,24 @@ func NewPostRepository(db *gorm.DB) PostRepository {
 	}
 }
 
-func (r *postRepository) GetPostIDsByFilter(filters map[string]string, page, limit int) ([]string, int64, error) {
+func (r *postRepository) GetAdminPostsByFilter(filters map[string]string, page, limit int) ([]*dto.PostListAdminDTO, int64, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	var postIDs []string
+	var result []*dto.PostListAdminDTO
 	var total int64
 
 	query := r.db.WithContext(ctx).
 		Model(&model.Post{}).
+		Select("posts.id, posts.title, posts.status, categories.name AS category, users.username AS owner").
+		Joins("JOIN users ON users.id = posts.user_id").
+		Joins("JOIN categories ON categories.id = posts.category_id").
 		Joins("JOIN addresses ON addresses.id = posts.address_id").
 		Joins("JOIN wards ON wards.id = addresses.ward_id").
 		Joins("JOIN districts ON districts.id = wards.district_id").
 		Joins("JOIN provinces ON provinces.id = districts.province_id")
 
-	// ========== FILTERS ==========
+	// ========== FILTER ==========
 	if status, ok := filters["status"]; ok {
 		query = query.Where("posts.status = ?", status)
 	}
@@ -78,24 +84,145 @@ func (r *postRepository) GetPostIDsByFilter(filters map[string]string, page, lim
 
 	// ========== COUNT ==========
 	countQuery := query.Session(&gorm.Session{})
-
 	if err := countQuery.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	// ========== PAGINATION ==========
+	// ========== FETCH + SCAN ==========
 	err := query.
-		Select("posts.id").
-		Offset((page-1)*limit).
+		Offset((page - 1) * limit).
 		Limit(limit).
 		Order("posts.created_at DESC").
-		Pluck("posts.id", &postIDs).Error
+		Scan(&result).Error
 	if err != nil {
 		return nil, 0, err
 	}
 
-	return postIDs, total, nil
+	return result, total, nil
 }
+
+func (r *postRepository) GetUserPostsByFilter(filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var result []*dto.PostListUserDTO
+	var total int64
+
+	query := r.db.WithContext(ctx).
+		Model(&model.Post{}).
+		Select("posts.id, posts.title, posts.status, categories.name AS category, users.username AS owner").
+		Joins("JOIN users ON users.id = posts.user_id").
+		Joins("JOIN categories ON categories.id = posts.category_id").
+		Joins("JOIN addresses ON addresses.id = posts.address_id").
+		Joins("JOIN wards ON wards.id = addresses.ward_id").
+		Joins("JOIN districts ON districts.id = wards.district_id").
+		Joins("JOIN provinces ON provinces.id = districts.province_id")
+
+	// ========== FILTER ==========
+	if status, ok := filters["status"]; ok {
+		query = query.Where("posts.status = ?", status)
+	}
+	if minPrice, ok := filters["min_price"]; ok {
+		query = query.Where("posts.price >= ?", minPrice)
+	}
+	if maxPrice, ok := filters["max_price"]; ok {
+		query = query.Where("posts.price <= ?", maxPrice)
+	}
+	if provinceID, ok := filters["province_id"]; ok {
+		query = query.Where("provinces.id = ?", provinceID)
+	}
+	if districtID, ok := filters["district_id"]; ok {
+		query = query.Where("districts.id = ?", districtID)
+	}
+	if wardID, ok := filters["ward_id"]; ok {
+		query = query.Where("wards.id = ?", wardID)
+	}
+	if categoryID, ok := filters["category_id"]; ok {
+		query = query.Where("posts.category_id = ?", categoryID)
+	}
+	if userID, ok := filters["user_id"]; ok {
+		query = query.Where("posts.user_id = ?", userID)
+	}
+
+	// ========== COUNT ==========
+	countQuery := query.Session(&gorm.Session{})
+	if err := countQuery.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// ========== FETCH + SCAN ==========
+	err := query.
+		Offset((page - 1) * limit).
+		Limit(limit).
+		Order("posts.created_at DESC").
+		Scan(&result).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return result, total, nil
+}
+
+//func (r *postRepository) GetPostIDsByFilter(filters map[string]string, page, limit int) ([]string, int64, error) {
+//	ctx, cancel := util.NewDBContext()
+//	defer cancel()
+//
+//	var postIDs []string
+//	var total int64
+//
+//	query := r.db.WithContext(ctx).
+//		Model(&model.Post{}).
+//		Joins("JOIN addresses ON addresses.id = posts.address_id").
+//		Joins("JOIN wards ON wards.id = addresses.ward_id").
+//		Joins("JOIN districts ON districts.id = wards.district_id").
+//		Joins("JOIN provinces ON provinces.id = districts.province_id")
+//
+//	// ========== FILTERS ==========
+//	if status, ok := filters["status"]; ok {
+//		query = query.Where("posts.status = ?", status)
+//	}
+//	if minPrice, ok := filters["min_price"]; ok {
+//		query = query.Where("posts.price >= ?", minPrice)
+//	}
+//	if maxPrice, ok := filters["max_price"]; ok {
+//		query = query.Where("posts.price <= ?", maxPrice)
+//	}
+//	if provinceID, ok := filters["province_id"]; ok {
+//		query = query.Where("provinces.id = ?", provinceID)
+//	}
+//	if districtID, ok := filters["district_id"]; ok {
+//		query = query.Where("districts.id = ?", districtID)
+//	}
+//	if wardID, ok := filters["ward_id"]; ok {
+//		query = query.Where("wards.id = ?", wardID)
+//	}
+//	if categoryID, ok := filters["category_id"]; ok {
+//		query = query.Where("posts.category_id = ?", categoryID)
+//	}
+//	if userID, ok := filters["user_id"]; ok {
+//		query = query.Where("posts.user_id = ?", userID)
+//	}
+//
+//	// ========== COUNT ==========
+//	countQuery := query.Session(&gorm.Session{})
+//
+//	if err := countQuery.Count(&total).Error; err != nil {
+//		return nil, 0, err
+//	}
+//
+//	// ========== PAGINATION ==========
+//	err := query.
+//		Select("posts.id").
+//		Offset((page-1)*limit).
+//		Limit(limit).
+//		Order("posts.created_at DESC").
+//		Pluck("posts.id", &postIDs).Error
+//	if err != nil {
+//		return nil, 0, err
+//	}
+//
+//	return postIDs, total, nil
+//}
 
 func (r *postRepository) GetByID(id string) (*model.Post, error) {
 	ctx, cancel := util.NewDBContext()
