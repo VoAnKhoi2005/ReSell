@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/config"
+	"github.com/VoAnKhoi2005/ReSell/dto"
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"github.com/VoAnKhoi2005/ReSell/transaction"
@@ -15,7 +16,8 @@ import (
 
 type PostService interface {
 	// CRUD cơ bản
-	GetPosts(filters map[string]string, page, limit int) ([]*model.Post, int64, error)
+	GetAdminPosts(filters map[string]string, page, limit int) ([]*dto.PostListAdminDTO, int64, error)
+	GetUserPosts(filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 	GetPostByID(id string) (*model.Post, error)
 	CreatePost(req *transaction.CreatePostRequest, userID string) (*model.Post, error)
 	UpdatePost(id string, req *transaction.UpdatePostRequest) (*model.Post, error)
@@ -45,6 +47,14 @@ type postService struct {
 	repo repository.PostRepository
 }
 
+func (s *postService) GetAdminPosts(filters map[string]string, page, limit int) ([]*dto.PostListAdminDTO, int64, error) {
+	return s.repo.GetAdminPostsByFilter(filters, page, limit)
+}
+
+func (s *postService) GetUserPosts(filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
+	return s.repo.GetUserPostsByFilter(filters, page, limit)
+}
+
 func (s *postService) updatePostStatus(id string, status model.PostStatus) (*model.Post, error) {
 	post, err := s.GetPostByID(id)
 
@@ -55,6 +65,12 @@ func (s *postService) updatePostStatus(id string, status model.PostStatus) (*mod
 	post.Status = status
 
 	err = s.repo.Update(post)
+
+	cacheKey := "post:" + id
+	ctx, cancel := util.NewRedisContext()
+	defer cancel()
+
+	_ = config.RedisClient.Del(ctx, cacheKey)
 	return post, err
 }
 
@@ -250,22 +266,4 @@ func (s *postService) DeletePostImage(postID, url string) error {
 		return err
 	}
 	return s.repo.DeletePostImage(postImage)
-}
-
-func (s *postService) GetPosts(filters map[string]string, page, limit int) ([]*model.Post, int64, error) {
-	var posts []*model.Post
-
-	postIDs, total, err := s.repo.GetPostIDsByFilter(filters, page, limit)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	for _, id := range postIDs {
-		post, err := s.GetPostByID(id)
-		if err != nil {
-			return nil, 0, err
-		}
-		posts = append(posts, post)
-	}
-	return posts, total, nil
 }

@@ -19,7 +19,7 @@ func NewPostController(service service.PostService) *PostController {
 	return &PostController{service: service}
 }
 
-func (h *PostController) GetPosts(c *gin.Context) {
+func (h *PostController) GetAdminPosts(c *gin.Context) {
 
 	pageStr := c.DefaultQuery("page", "1")
 	limitStr := c.DefaultQuery("limit", "10")
@@ -138,7 +138,7 @@ func (h *PostController) GetPosts(c *gin.Context) {
 		filters["category_id"] = filter.CategoryID
 	}
 
-	posts, total, err := h.service.GetPosts(filters, page, limit)
+	posts, total, err := h.service.GetAdminPosts(filters, page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

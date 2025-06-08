@@ -6,7 +6,6 @@
   export let limit = 10;
 
   const dispatch = createEventDispatcher();
-
   const totalPages = Math.ceil(total / limit);
 
   function view(post) {
@@ -27,19 +26,14 @@
       <th>Danh mục</th>
       <th>Người đăng</th>
       <th>Trạng thái</th>
-      <th></th>
     </tr>
   </thead>
   <tbody>
     {#each showPosts as post (post.id)}
-      <tr>
-        <td>
-          <a href="" on:click|preventDefault={() => view(post)}>
-            {post.title}
-          </a>
-        </td>
-        <td>{post.category?.name || "-"}</td>
-        <td>{post.user?.username || "-"}</td>
+      <tr style="cursor: pointer;" on:click={() => view(post)}>
+        <td>{post.title}</td>
+        <td>{post.category || "-"}</td>
+        <td>{post.owner || "-"}</td>
         <td>
           {#if post.status === "pending"}
             <span class="badge bg-warning text-dark">Chờ duyệt</span>
@@ -51,17 +45,12 @@
             <span class="badge bg-secondary">Không xác định</span>
           {/if}
         </td>
-        <td>
-          <button class="btn btn-link btn-sm" on:click={() => view(post)}>
-            Chi tiết
-          </button>
-        </td>
       </tr>
     {/each}
 
     {#if showPosts.length === 0}
       <tr>
-        <td colspan="5" class="text-center text-muted">Không có bài đăng nào</td
+        <td colspan="4" class="text-center text-muted">Không có bài đăng nào</td
         >
       </tr>
     {/if}

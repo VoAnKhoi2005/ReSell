@@ -18,7 +18,7 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	// User & common
 	posts := rg.Group("/posts")
 	posts.Use(middleware.AuthMiddleware())
-	posts.GET("", postController.GetPosts)
+	//posts.GET("", postController.GetPosts)
 	posts.GET("/:id", postController.GetPostByID)
 	posts.GET("/trash", postController.GetAllDeletedPosts) // Get all deleted posts
 	//posts.GET("/trash/:id", postController.GetDeletedPostByID) // Get a specific deleted post
@@ -34,6 +34,7 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	// Admin actions
 	admin := rg.Group("/admin/posts")
 	admin.Use(middleware.AdminAuthMiddleware())
+	admin.GET("", postController.GetAdminPosts) // Get all posts for admin
 	admin.PUT("/:id/approve", postController.ApprovePost)
 	admin.PUT("/:id/reject", postController.RejectPost)
 	admin.PUT("/:id/hide", postController.HidePost)
