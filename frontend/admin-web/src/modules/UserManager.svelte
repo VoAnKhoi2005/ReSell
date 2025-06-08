@@ -1,48 +1,40 @@
 <script>
+  import { onMount } from "svelte";
   import UserList from "../components/UserList.svelte";
+  import { fetchUsers, banUser, unbanUser } from "../services/userService";
 
-  // Mock data mẫu
-  let users = [
-    {
-      id: "1",
-      username: "admin1",
-      email: "admin1@example.com",
-      phone: "0909000001",
-      fullname: "Nguyễn Văn A",
-      cccd: "123456789",
-      reputation: 90,
-      status: "active",
-    },
-    {
-      id: "2",
-      username: "user2",
-      email: "user2@example.com",
-      phone: "0909000002",
-      fullname: "Trần Thị B",
-      cccd: "223456789",
-      reputation: 65,
-      status: "banned",
-    },
-    {
-      id: "3",
-      username: "khoict",
-      email: "khoict@gmail.com",
-      phone: "0912333444",
-      fullname: "Võ An Khôi",
-      cccd: "1111222233",
-      reputation: 99,
-      status: "active",
-    },
-  ];
-
+  let users = [];
   let search = "";
   let filter = "all"; // all | active | banned
 
-  // Tính toán user hiển thị (filter + search)
+  // Load users từ server
+  async function loadUsers() {
+    try {
+      // Lấy 100 user đầu tiên (tùy backend, có thể sửa page/pageSize)
+      const data = await fetchUsers(100, 1);
+      users = (data.users || []).map((u) => ({
+        id: u.id,
+        username: u.username,
+        email: u.email,
+        phone: u.phone,
+        fullname: u.fullname || "",
+        cccd: u.citizen_id || "",
+        reputation: u.reputation || 0,
+        status: u.status === "banned" ? "banned" : "active", // fallback nếu backend trả về rỗng
+      }));
+    } catch (err) {
+      alert("Không thể tải danh sách người dùng!");
+      console.error(err);
+    }
+  }
+
+  onMount(loadUsers);
+
+  // Filter user hiển thị
   $: filteredUsers = users.filter((u) => {
     const matchesSearch =
       search.trim() === "" ||
-      u.username.toLowerCase().includes(search.trim().toLowerCase());
+      u.username?.toLowerCase().includes(search.trim().toLowerCase());
     const matchesFilter =
       filter === "all" ||
       (filter === "active" && u.status === "active") ||
@@ -50,13 +42,23 @@
     return matchesSearch && matchesFilter;
   });
 
-  // Ban/Unban
-  function handleToggleBan(e) {
+  // Ban/Unban user
+  async function handleToggleBan(e) {
     const { id } = e.detail;
-    const idx = users.findIndex((u) => u.id === id);
-    if (idx > -1) {
-      users[idx].status = users[idx].status === "active" ? "banned" : "active";
+    const user = users.find((u) => u.id === id);
+    if (!user) return;
+    try {
+      if (user.status === "active") {
+        await banUser(id);
+        user.status = "banned";
+      } else {
+        await unbanUser(id);
+        user.status = "active";
+      }
       users = [...users];
+    } catch (err) {
+      alert("Lỗi khi cập nhật trạng thái người dùng!");
+      console.error(err);
     }
   }
 </script>

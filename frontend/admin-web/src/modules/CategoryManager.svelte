@@ -15,7 +15,6 @@
   async function loadCategories() {
     try {
       categories = await fetchAllCategories();
-      console.log(categories);
     } catch (err) {
       console.error("Lỗi khi load danh mục:", err);
       alert("Không thể tải danh mục!");
