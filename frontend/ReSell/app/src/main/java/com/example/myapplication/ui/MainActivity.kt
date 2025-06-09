@@ -27,11 +27,12 @@ class MainActivity : ComponentActivity() {
 
                 //RegisterScreen()
                 val navController = rememberNavController()
-                MainLayout(navController=navController)
+                MainLayout(navController = navController)
+
 
 
             }
         }
     }
-}
 
+}
