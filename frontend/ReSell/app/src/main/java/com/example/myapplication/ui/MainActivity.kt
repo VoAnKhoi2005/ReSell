@@ -11,10 +11,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.ui.screen.MainLayout
-import com.example.myapplication.ui.screen.login.LoginScreen
-import com.example.myapplication.ui.screen.register.RegisterScreen
+import com.example.myapplication.ui.view.login.LoginScreen
+import com.example.myapplication.ui.view.register.RegisterScreen
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,9 +24,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
+
                 //RegisterScreen()
                 val navController = rememberNavController()
                 MainLayout(navController=navController)
+
 
             }
         }
