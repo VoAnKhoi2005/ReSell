@@ -1,6 +1,4 @@
-import model.Address
-import model.Notification
-import model.Post
+package com.example.myapplication.ui.model
 import java.time.LocalDate
 import java.time.LocalDateTime
 
