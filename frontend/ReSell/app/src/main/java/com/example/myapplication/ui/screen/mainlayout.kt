@@ -24,7 +24,7 @@ var selectedIndex by remember { mutableStateOf(bottomNavItems[0])}
           BottomBar(
               items = bottomNavItems,
               selectedItem = selectedIndex,
-              onItemClick = {selectedIndex = it}
+              onItemClick = {selectedIndex = it}//navigate ở đây
           )
         }
     ) {
@@ -35,5 +35,5 @@ var selectedIndex by remember { mutableStateOf(bottomNavItems[0])}
 
 @Composable
 fun ContentScreen(modifier: Modifier) {
-
+//nơi chuyển hướng
 }
