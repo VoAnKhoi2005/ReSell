@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -30,11 +31,12 @@ fun IconButtonVertical(//nút dưới bottombar
     label: String,
     iconSize: Dp = 32.dp,
     fontSize: TextUnit = 14.sp,
+    iconTint: Color
 
 ) {
     Column(
         modifier = modifier
-            .padding(8.dp),
+            .padding(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -42,7 +44,7 @@ fun IconButtonVertical(//nút dưới bottombar
             imageVector = icon,
             contentDescription = contentDescription,
             modifier = Modifier.size(iconSize),
-            tint = MainButton
+            tint = iconTint
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
