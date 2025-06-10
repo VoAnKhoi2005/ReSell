@@ -1,6 +1,4 @@
-import model.Address
-import model.Notification
-import model.Post
+package model
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -19,6 +17,8 @@ data class User(
     var banStart: LocalDateTime?,
     var banEnd: LocalDateTime?,
     val createdAt: LocalDateTime?,
+    val updateAt: LocalDateTime?,
+
     val notifications: List<Notification>,
     val addresses: List<Address>,
     val posts: List<Post>
