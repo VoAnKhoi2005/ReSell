@@ -16,7 +16,7 @@ type OrderRepository interface {
 	GetByIDs(orderIDs []string) ([]*model.ShopOrder, error)
 	GetByPostID(postID string) (*model.ShopOrder, error)
 	GetByBuyerID(buyerID string) ([]*model.ShopOrder, error)
-	//GetBySellerID(SellerID string) ([]*model.ShopOrder, error)
+	GetBySellerID(SellerID string) ([]*model.ShopOrder, error)
 }
 
 type oderRepository struct {
@@ -61,4 +61,16 @@ func (o *oderRepository) GetByBuyerID(buyerID string) ([]*model.ShopOrder, error
 	var order []*model.ShopOrder = nil
 	err := o.db.WithContext(ctx).Find(&order, "user_id = ?", buyerID).Error
 	return order, err
+}
+
+func (o *oderRepository) GetBySellerID(SellerID string) ([]*model.ShopOrder, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var orders []*model.ShopOrder = nil
+	err := o.db.WithContext(ctx).Joins("Post").
+		Where("posts.user_id = ?", SellerID).
+		Preload("Post").
+		Find(&orders).Error
+	return orders, err
 }

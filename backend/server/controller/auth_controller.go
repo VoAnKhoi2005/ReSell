@@ -46,6 +46,7 @@ func (h *AuthController) Register(c *gin.Context) {
 		Phone:      req.Phone,
 		Password:   string(encryptedPassword),
 		Reputation: 100,
+		Status:     model.ActiveStatus,
 		BanStart:   nil,
 		BanEnd:     nil,
 		CreatedAt:  time.Now(),
