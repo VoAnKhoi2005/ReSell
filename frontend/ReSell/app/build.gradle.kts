@@ -2,9 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
     alias(libs.plugins.hilt)
     id("kotlin-kapt")
-    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -34,21 +34,16 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-
-
     kotlinOptions {
         jvmTarget = "11"
     }
     buildFeatures {
         compose = true
     }
-
 }
 
 dependencies {
-    implementation(libs.navigation.compose)
-    implementation(libs.kotlinx.serialization.json)
-
+    implementation("androidx.navigation:navigation-compose:2.9.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -73,7 +68,7 @@ dependencies {
     implementation(libs.coroutines)
     implementation(libs.coil)
     implementation(libs.converter.gson)
-    implementation ("androidx.hilt:hilt-navigation-compose:1.0.0")
+
     // Arrow
     implementation("io.arrow-kt:arrow-core:1.2.0")
     implementation("io.arrow-kt:arrow-fx-coroutines:1.2.0")
