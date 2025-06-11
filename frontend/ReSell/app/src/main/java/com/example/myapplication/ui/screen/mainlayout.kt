@@ -11,7 +11,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.internal.composableLambda
+
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -55,6 +55,5 @@ fun MainLayout(modifier: Modifier = Modifier, navController: NavController) {
 
 @Composable
 fun ContentScreen(modifier: Modifier = Modifier, navController: NavController) {
-
-
+  HomeScreen()
 }
