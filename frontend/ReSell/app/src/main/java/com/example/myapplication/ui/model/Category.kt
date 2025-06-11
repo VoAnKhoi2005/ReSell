@@ -1,7 +1,0 @@
-package com.example.myapplication.ui.model
-
-data class Category(
-    val id: String,
-    val parentId: String,
-    val name: String
-)
