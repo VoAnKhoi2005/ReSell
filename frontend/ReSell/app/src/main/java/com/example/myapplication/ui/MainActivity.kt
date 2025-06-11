@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import SetupNavGraph
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -17,24 +18,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavHostController
 
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.ui.screen.MainLayout
-import com.example.myapplication.ui.view.login.LoginScreen
-import com.example.myapplication.ui.view.register.RegisterScreen
+
+
 import com.example.myapplication.ui.theme.MyApplicationTheme
-import com.example.myapplication.ui.view.test.PostsScreen
+
 import dagger.hilt.android.AndroidEntryPoint
 import util.Event
 import util.EventBus
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    lateinit var navController: NavHostController
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
+
                 val lifecycle = LocalLifecycleOwner.current.lifecycle
                 LaunchedEffect(key1 = lifecycle) {
                     repeatOnLifecycle(state = Lifecycle.State.STARTED){
@@ -50,10 +55,9 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    PostsScreen()
-                    //RegisterScreen()
-                    //  val navController = rememberNavController()
-                    //  MainLayout(navController = navController)
+
+                    navController = rememberNavController()
+                    SetupNavGraph(navController = navController)
                 }
             }
         }
