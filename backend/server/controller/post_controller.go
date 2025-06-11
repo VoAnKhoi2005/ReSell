@@ -19,7 +19,7 @@ func NewPostController(service service.PostService) *PostController {
 	return &PostController{service: service}
 }
 
-func (h *PostController) GetPosts(c *gin.Context) {
+func (h *PostController) GetAdminPosts(c *gin.Context) {
 
 	pageStr := c.DefaultQuery("page", "1")
 	limitStr := c.DefaultQuery("limit", "10")
@@ -138,7 +138,7 @@ func (h *PostController) GetPosts(c *gin.Context) {
 		filters["category_id"] = filter.CategoryID
 	}
 
-	posts, total, err := h.service.GetPosts(filters, page, limit)
+	posts, total, err := h.service.GetAdminPosts(filters, page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -468,7 +468,7 @@ func (h *PostController) UploadPostImages(c *gin.Context) {
 
 	var imageUrls []string
 
-	for i, fileHeader := range files {
+	for _, fileHeader := range files {
 		// Mở từng file
 		file, err := fileHeader.Open()
 		if err != nil {
@@ -490,7 +490,7 @@ func (h *PostController) UploadPostImages(c *gin.Context) {
 		imageUrls = append(imageUrls, imageURL)
 
 		// Lưu vào database
-		_, err = h.service.CreatePostImage(postId, imageURL, uint(i+1))
+		_, err = h.service.CreatePostImage(postId, imageURL)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error":   fmt.Sprintf("Failed to save image %s to DB", fileHeader.Filename),
@@ -522,7 +522,7 @@ func (h *PostController) UploadPostImage(c *gin.Context) {
 		return
 	}
 
-	postImage, err := h.service.CreatePostImage(postID, imageURL, 0) // Order is not used here
+	postImage, err := h.service.CreatePostImage(postID, imageURL) // Order is not used here
 
 	c.JSON(http.StatusOK, gin.H{"post_image": postImage, "message": "Image uploaded successfully"})
 }

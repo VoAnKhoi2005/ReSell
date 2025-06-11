@@ -80,22 +80,7 @@ func (o *OderService) GetByBuyerID(buyerID string) ([]*model.ShopOrder, error) {
 }
 
 func (o *OderService) GetBySellerID(sellerID string) ([]*model.ShopOrder, error) {
-	filter := map[string]string{"user_id": sellerID}
-
-	posts, err := o.postRepository.GetByFilter(filter)
-	if err != nil {
-		return nil, err
-	}
-
-	var orders []*model.ShopOrder
-	for _, post := range posts {
-		order, err := o.orderRepository.GetByID(post.ID)
-		if err != nil {
-			return nil, err
-		}
-		orders = append(orders, order)
-	}
-	return orders, nil
+	return o.orderRepository.GetBySellerID(sellerID)
 }
 
 func (o *OderService) UpdateStatus(orderID string, userID string, status model.OrderStatus) error {

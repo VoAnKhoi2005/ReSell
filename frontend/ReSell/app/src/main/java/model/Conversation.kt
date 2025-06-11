@@ -1,0 +1,12 @@
+package model
+
+import java.time.LocalDateTime
+
+data class Conversation(
+    val id: String,
+    val buyerId: String,
+    val sellerId: String,
+    val postId: String,
+    val createdAt: LocalDateTime?,
+    val messages: List<Message>
+)

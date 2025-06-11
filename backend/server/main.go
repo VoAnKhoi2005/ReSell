@@ -20,6 +20,7 @@ func main() {
 
 	config.ConnectDatabase()
 	config.RunMigrations()
+	config.InitRedis()
 
 	r := gin.Default()
 	allowOrigin := os.Getenv("FRONTEND_URL")
