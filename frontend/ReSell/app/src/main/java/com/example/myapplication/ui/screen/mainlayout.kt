@@ -1,14 +1,8 @@
 package com.example.myapplication.ui.screen
 
-import android.service.controls.Control
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,38 +10,73 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.ui.components.BottomBar
 import com.example.myapplication.ui.components.TopBar
 import com.example.myapplication.ui.components.bottomNavItems
+import com.example.myapplication.ui.navigation.Screen
+import com.example.myapplication.ui.screen.home.HomeScreen
+import com.example.myapplication.ui.screen.market.MarketScreen
+import com.example.myapplication.ui.screen.newsmanagement.PostMangamentScreen
+import com.example.myapplication.ui.screen.profile.ProfileScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun MainLayout(modifier: Modifier = Modifier, navController: NavController) {
-    var selectedIndex by remember { mutableStateOf(bottomNavItems[0])}
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
-        state = rememberTopAppBarState()
-    )
+fun MainLayout(navController: NavController, modifier: Modifier = Modifier) {
+    var selectedItem by remember { mutableStateOf(bottomNavItems[0]) }
+    val bottomNavController = rememberNavController()
+    // LẤY THÔNG TIN VỀ ROUTE HIỆN TẠI
+    val currentBackStackEntry by bottomNavController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
     Scaffold(
-        bottomBar = {
-          BottomBar(
-              items = bottomNavItems,
-              selectedItem = selectedIndex,
-              onItemClick = {selectedIndex = it}//navigate ở đây
-          )
-        },
         topBar = {
-            TopBar()
+            when (currentRoute) {
+                Screen.Home.route -> TopBar()
+                else -> {} // Không hiện TopBar ở màn Login, Register chẳng hạn
+            }
+        },
+        bottomBar = {
+            BottomBar(
+                items = bottomNavItems,
+                selectedItem = selectedItem,
+                onItemClick = {
+                    selectedItem = it
+                    bottomNavController.navigate(it.screen.route) {
+                        launchSingleTop = true
+                        restoreState = true
+                        popUpTo(bottomNavController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                    }
+                }
+            )
         }
+    ) { innerPadding ->
+        DashboardScreen(
+            modifier = modifier.padding(innerPadding),
+            navController = bottomNavController
+        )
 
+    }
 
+    }
+@Composable
+fun DashboardScreen(modifier: Modifier, navController: NavHostController)
+{
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Home.route,
+        modifier = modifier
     ) {
-        ContentScreen(modifier=modifier.padding(it))
-
+        composable(Screen.Home.route) { HomeScreen() }
+        composable(Screen.Market.route) { MarketScreen() }
+        composable(Screen.Profile.route) { ProfileScreen() }
+        composable(Screen.Manage.route) { PostMangamentScreen() }
     }
 }
 
-@Composable
-fun ContentScreen(modifier: Modifier) {
-//nơi chuyển hướng
-}
+
