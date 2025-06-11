@@ -1,6 +1,8 @@
 package com.example.myapplication.ui.components
 
 import android.R
+import android.media.tv.AdRequest
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -28,6 +31,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.myapplication.ui.theme.GrayFont
 import com.example.myapplication.ui.theme.LightGray
 import com.example.myapplication.ui.theme.priceColor
 import java.time.LocalDateTime
@@ -46,9 +50,15 @@ fun ProductPostItem(
     Card (
         modifier = modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .border(
+                width = 1.dp,
+                color = LightGray
+            ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(4.dp)
+        shape = RoundedCornerShape(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             // Hình ảnh đầu tiên (thumbnail)
@@ -68,7 +78,7 @@ fun ProductPostItem(
             Text(
                 text = title,
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
-                maxLines = 2,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis//quá dài ...
             )
 
@@ -92,15 +102,15 @@ fun ProductPostItem(
             Spacer(modifier = Modifier.height(4.dp))
 
             // Thời gian đăng
-            TimeInfor(time)
+            TimeInfor(time,address)
         }
     }
 }
 @Composable
-fun TimeInfor(label: String) {
+fun TimeInfor(label: String, address: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier.padding(2.dp)
     ) {
         Icon(
             imageVector = Icons.Default.DateRange,
@@ -108,11 +118,19 @@ fun TimeInfor(label: String) {
             modifier = Modifier.width(18.dp).height(18.dp),
             tint = LightGray
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(2.dp))
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, fontSize = 12.sp),
-            color = LightGray,
+            color = GrayFont,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Spacer(modifier = Modifier.width(2.dp))
+        Text(
+            text = "-"+ address,
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, fontSize = 12.sp),
+            color = GrayFont,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
