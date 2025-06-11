@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import SetupNavGraph
+
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -58,6 +59,7 @@ class MainActivity : ComponentActivity() {
 
                     navController = rememberNavController()
                     SetupNavGraph(navController = navController)
+
                 }
             }
         }
