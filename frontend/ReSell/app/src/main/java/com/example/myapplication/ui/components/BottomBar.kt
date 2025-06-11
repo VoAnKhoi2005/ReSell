@@ -28,16 +28,14 @@ import com.example.myapplication.ui.theme.SoftBlue
 data class BottomNavItem(
     val icon: ImageVector,
     val label: String,
-    val contentDescription: String,
-    val route: String
-
+    val contentDescription: String
 )
 val bottomNavItems = listOf(
-    BottomNavItem(Icons.Default.Home, "Trang chủ", "Trang chủ","home"),
-    BottomNavItem(Icons.Default.Create, "Quản lý tin", "Quản lý tin","manage_posts"),
-    BottomNavItem(Icons.Default.AddCircle, "Đăng tin", "Đăng tin","create_post"),
-    BottomNavItem(Icons.Default.ShoppingCart, "Dạo chợ", "Dạo chợ","market"),
-    BottomNavItem(Icons.Default.AccountCircle, "Tài khoản", "Tài khoản","account")
+    BottomNavItem(Icons.Default.Home, "Trang chủ", "Trang chủ"),
+    BottomNavItem(Icons.Default.Create, "Quản lý tin", "Quản lý tin"),
+    BottomNavItem(Icons.Default.AddCircle, "Đăng tin", "Đăng tin"),
+    BottomNavItem(Icons.Default.ShoppingCart, "Dạo chợ", "Dạo chợ"),
+    BottomNavItem(Icons.Default.AccountCircle, "Tài khoản", "Tài khoản")
 )
 @Composable
 fun BottomBar(
