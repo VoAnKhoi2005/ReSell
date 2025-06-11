@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    PostsScreen()
+                   // PostsScreen()
                     //RegisterScreen()
                       val navController = rememberNavController()
                       MainLayout(navController = navController)
