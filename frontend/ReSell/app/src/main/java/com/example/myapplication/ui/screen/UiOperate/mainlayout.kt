@@ -1,8 +1,7 @@
-package com.example.myapplication.ui.screen
+package com.example.myapplication.ui.screen.UiOperate
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,10 +34,30 @@ fun MainLayout(navController: NavController, modifier: Modifier = Modifier) {
     Scaffold(
         topBar = {
             when (currentRoute) {
-                Screen.Home.route -> TopBar()
-                else -> {} // Không hiện TopBar ở màn Login, Register chẳng hạn
+                Screen.Home.route -> TopBar(
+                    showSearch = true,
+                    showNotificationIcon = true,
+                    showEmailIcon = true,
+                    onSearchNavigate = {
+                        navController.navigate(Screen.Search.route)
+                    // đã điều hướng đến controller qua 3 hàm trung gian từ my searchbar dến topbar và đến mainlayout
+                    }
+                )
+                Screen.Manage.route -> TopBar(
+                    titleText = "Quản lý tin đăng",
+                    showNotificationIcon = true,
+                    showEmailIcon = true
+                )
+                Screen.Market.route -> TopBar(
+                    titleText = "Dạo chợ",
+                    showNotificationIcon = true,
+                    showEmailIcon = true
+                )
+                Screen.Profile.route -> TopBar(titleText = "Thêm")
+                else -> {}
             }
-        },
+        }
+        ,
         bottomBar = {
             BottomBar(
                 items = bottomNavItems,
@@ -78,5 +97,6 @@ fun DashboardScreen(modifier: Modifier, navController: NavHostController)
         composable(Screen.Manage.route) { PostMangamentScreen() }
     }
 }
+
 
 
