@@ -1,16 +1,29 @@
 package com.example.myapplication.ui.components
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -19,8 +32,53 @@ import androidx.compose.ui.unit.sp
 import com.example.myapplication.ui.theme.GrayFont
 import com.example.myapplication.ui.theme.MainButton
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchTopBarContent(
+fun MySearchBar(
+    modifier: Modifier = Modifier,
+    onActivateSearch: (() -> Unit)? = null
+) {
+    var internalActive by remember { mutableStateOf(false) }
+
+    SearchBar(
+        query = "",
+        onQueryChange = {},
+        onSearch = {},
+        active = internalActive,
+        onActiveChange = { isActive ->
+            internalActive = isActive
+            if (isActive) {
+                onActivateSearch?.invoke()
+            }
+        },
+        placeholder = {
+            Text(
+                text = "Tìm kiếm trên chợ tốt",
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Light,
+                    fontSize = 16.sp
+                ),
+                color = GrayFont
+            )
+        },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search",
+                tint = MainButton
+            )
+        },
+        modifier = modifier.fillMaxWidth()
+    ) {
+        // Không hiển thị nội dung kết quả
+    }
+}
+
+
+
+@Composable
+fun SearchBar1(
     onSearchTextChanged: (String) -> Unit,
     searchText: String
 ) {
@@ -29,7 +87,7 @@ fun SearchTopBarContent(
         onValueChange = onSearchTextChanged,
         placeholder = {
             Text("Tìm kiếm trên chợ tốt",
-            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Light, fontSize = 16.sp),
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Light, fontSize = 14.sp),
             color = GrayFont
         )
                       },
@@ -43,7 +101,8 @@ fun SearchTopBarContent(
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(end = 8.dp),
+            .padding(8.dp)
+            ,
         singleLine = true,
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.White,
