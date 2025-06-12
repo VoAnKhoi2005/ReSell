@@ -35,7 +35,11 @@ import com.example.myapplication.ui.model.PostImage
 
 @Composable
 fun HomeScreen() {
-    HomeContent()
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color.White
+    ) { HomeContent() }
+
 }
 
 @Composable

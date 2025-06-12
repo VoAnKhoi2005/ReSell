@@ -20,7 +20,7 @@ import com.example.myapplication.ui.components.bottomNavItems
 import com.example.myapplication.ui.navigation.Screen
 import com.example.myapplication.ui.screen.home.HomeScreen
 import com.example.myapplication.ui.screen.market.MarketScreen
-import com.example.myapplication.ui.screen.newsmanagement.PostMangamentScreen
+import com.example.myapplication.ui.screen.postmanagement.PostMangamentScreen
 import com.example.myapplication.ui.screen.profile.ProfileScreen
 
 

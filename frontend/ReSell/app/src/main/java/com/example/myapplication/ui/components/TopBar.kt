@@ -44,7 +44,7 @@ fun TopBar(
             when {
                 showSearch -> {
                     MySearchBar(
-                        modifier = Modifier.padding(vertical = 8.dp),
+                        modifier = Modifier.padding(bottom = 16.dp),
                         onActivateSearch = {
                             onSearchNavigate?.invoke() // Gọi callback để điều hướng
                         }
