@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/controller"
-	"github.com/VoAnKhoi2005/ReSell/middleware/auth"
+	"github.com/VoAnKhoi2005/ReSell/middleware"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/gin-gonic/gin"
@@ -16,7 +16,7 @@ func RegisterReviewRoute(rg *gin.RouterGroup, db *gorm.DB) {
 	reviewController := controller.NewReviewController(reviewService)
 
 	reviewRoute := rg.Group("/review")
-	reviewRoute.Use(auth.AuthMiddleware())
+	reviewRoute.Use(middleware.AuthMiddleware())
 	reviewRoute.POST("/create", reviewController.CreateReview)
 	reviewRoute.GET("/buyer/:buyer_id", reviewController.GetReviewsByBuyerID)
 	reviewRoute.GET("/post/:post_id", reviewController.GetReviewByPostID)

@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/controller"
-	"github.com/VoAnKhoi2005/ReSell/middleware/auth"
+	"github.com/VoAnKhoi2005/ReSell/middleware"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/gin-gonic/gin"
@@ -17,7 +17,7 @@ func RegisterOrderRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	orderController := controller.NewOrderController(orderService)
 
 	orderRoute := rg.Group("/order")
-	orderRoute.Use(auth.AuthMiddleware())
+	orderRoute.Use(middleware.AuthMiddleware())
 	orderRoute.POST("/create", orderController.CreateOrder)
 	orderRoute.DELETE("/:order_id", orderController.DeleteOrder)
 	orderRoute.PUT("/:order_id/set_status/:new_status", orderController.UpdateStatus)
