@@ -1,6 +1,7 @@
 package com.example.myapplication.ui
 
-import com.example.myapplication.ui.model.*
+
+import model.*
 import retrofit2.http.GET
 
 interface ApiService {
