@@ -22,6 +22,7 @@ val MainButton = Color(0xFF94A3B8)
 val Red = Color(0xFFFF453A)
 val LoginTitle = Color(0xFF1E293B)
 val priceColor = Color(0xFFF44336)
+val BuyerMessage = Color(0xFFEFEFEF)
 
 val ColorScheme.focusedTextFieldText
 @Composable

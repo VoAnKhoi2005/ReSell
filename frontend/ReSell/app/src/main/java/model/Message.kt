@@ -7,5 +7,6 @@ data class Message(
     val conversationId: String,
     val senderId: String,
     val content: String,
-    val createdAt: LocalDateTime?
+    val createdAt: LocalDateTime?,
+    val avatarURL: String//tạm thời thêm
 )
