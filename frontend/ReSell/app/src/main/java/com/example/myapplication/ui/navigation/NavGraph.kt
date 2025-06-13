@@ -53,7 +53,7 @@ fun SetupNavGraph(
         composable(
             route = Screen.Main.route
         ) {
-            MainLayout(navController)
+            MainLayout()
         }
         composable(Screen.Search.route) {
             SearchScreen(navController) // màn hình tìm kiếm của bạn
