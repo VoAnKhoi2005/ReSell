@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/VoAnKhoi2005/ReSell/middleware"
+	"github.com/VoAnKhoi2005/ReSell/middleware/auth"
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/VoAnKhoi2005/ReSell/transaction"
@@ -99,7 +99,7 @@ func (h *AuthController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	ID, err := middleware.ExtractIDFromToken(request.RefreshToken)
+	ID, err := auth.ExtractIDFromToken(request.RefreshToken)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 		return
@@ -160,7 +160,7 @@ func (h *AuthController) RefreshAdminToken(c *gin.Context) {
 		return
 	}
 
-	ID, err := middleware.ExtractIDFromToken(request.RefreshToken)
+	ID, err := auth.ExtractIDFromToken(request.RefreshToken)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 		return

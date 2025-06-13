@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/controller"
-	"github.com/VoAnKhoi2005/ReSell/middleware"
+	"github.com/VoAnKhoi2005/ReSell/middleware/auth"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/gin-gonic/gin"
@@ -15,7 +15,7 @@ func RegisterAdminRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	adminController := controller.NewAdminController(adminService)
 
 	adminRouter := router.Group("/admin")
-	adminRouter.Use(middleware.AdminAuthMiddleware())
+	adminRouter.Use(auth.AdminAuthMiddleware())
 	adminRouter.POST("/register", adminController.RegisterAdmin)
 	adminRouter.GET("/id/:admin_id", adminController.GetAdminByID)
 	adminRouter.GET("/username/:username", adminController.GetAdminByUsername)
