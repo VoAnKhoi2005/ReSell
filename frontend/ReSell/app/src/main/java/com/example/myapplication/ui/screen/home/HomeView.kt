@@ -31,7 +31,6 @@ import androidx.navigation.NavHost
 import com.example.myapplication.R
 import com.example.myapplication.ui.components.ProductPostItem
 import com.example.myapplication.ui.components.TopBar
-import com.example.myapplication.ui.model.PostImage
 
 @Composable
 fun HomeScreen() {
