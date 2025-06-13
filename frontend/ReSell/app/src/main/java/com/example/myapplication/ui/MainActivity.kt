@@ -19,8 +19,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
+import androidx.navigation.Navigation
 
 import androidx.navigation.compose.rememberNavController
+import com.example.myapplication.ui.navigation.NavigationController
 import com.example.myapplication.ui.screen.MainLayout
 
 
@@ -58,6 +60,7 @@ class MainActivity : ComponentActivity() {
 
                     navController = rememberNavController()
                     SetupNavGraph(navController = navController)
+                    NavigationController.navController = navController
                 }
             }
         }

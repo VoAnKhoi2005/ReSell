@@ -1,9 +1,9 @@
 package com.example.myapplication.ui.viewmodel.chat
 
-import model.Message
+import model.Conversation
 
-data class ChatViewState(
+data class ChatHomeViewState(
     val isLoading: Boolean = false,
-    val messages: List<Message> = emptyList(),
+    val conversations: List<Conversation> = emptyList(),
     val error: String?= null
 )
