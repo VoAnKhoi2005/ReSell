@@ -40,7 +40,7 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize:   1024,
 	EnableCompression: true,
 	CheckOrigin: func(r *http.Request) bool {
-		return true // Adjust for production
+		return true
 	},
 }
 
@@ -93,38 +93,59 @@ func (h *WSHandler) readLoop(sess *model.Session) {
 			break
 		}
 
-		var msg model.Message
-		if err := json.Unmarshal(raw, &msg); err != nil {
-			log.Printf("ws: message parse error for user %s: %v", sess.UserID, err)
+		var incoming model.IncomingSocketMessage
+		if err := json.Unmarshal(raw, &incoming); err != nil {
+			h.sendError(sess, "Malformed socket message")
 			continue
 		}
 
-		go h.handleMessage(sess, &msg)
+		switch incoming.Type {
+		case model.MessageSend:
+			var payload *model.SendMessagePayload
+			if err := json.Unmarshal(incoming.Data, payload); err != nil {
+				log.Printf("ws: invalid send payload from user %s: %v", sess.UserID, err)
+				continue
+			}
+			go h.handleSendMessage(sess, payload)
+
+		case model.TypingIndicator:
+			var payload *model.TypingPayload
+			if err := json.Unmarshal(incoming.Data, payload); err != nil {
+				log.Printf("ws: invalid typing payload from user %s: %v", sess.UserID, err)
+				continue
+			}
+			go h.handleTyping(sess, payload)
+
+		default:
+			h.sendError(sess, "Unknown message type: "+string(incoming.Type))
+		}
 	}
 }
 
-func (h *WSHandler) handleMessage(sess *model.Session, msg *model.Message) {
-	msg.SenderId = &sess.UserID
+func (h *WSHandler) handleSendMessage(sess *model.Session, msg *model.SendMessagePayload) {
+	message := model.Message{
+		ConversationId: &msg.ConversationId,
+		Content:        msg.Content,
+		SenderId:       &sess.UserID,
+		CreatedAt:      time.Now(),
+	}
 
 	// Save to database
-	savedMsg, err := h.messageService.CreateMessage(msg)
+	savedMsg, err := h.messageService.CreateMessage(&message)
 	if err != nil {
 		log.Printf("Error saving message for user %s: %v", sess.UserID, err)
-		h.sendToSession(sess, map[string]interface{}{
-			"type":  "error",
-			"error": "Failed to save message",
-		})
+		h.sendError(sess, "Failed to save message")
 		return
 	}
 
 	conversation, err := h.messageService.GetConversationByID(*savedMsg.ConversationId)
 	if err != nil {
-		log.Printf("Error loading conversation %s: %v", *msg.ConversationId, err)
+		log.Printf("Error loading conversation %s: %v", *savedMsg.ConversationId, err)
 		return
 	}
 
 	response := map[string]interface{}{
-		"type": "new_message",
+		"type": model.NewMessage,
 		"data": map[string]interface{}{
 			"id":              savedMsg.ID,
 			"content":         savedMsg.Content,
@@ -136,7 +157,7 @@ func (h *WSHandler) handleMessage(sess *model.Session, msg *model.Message) {
 
 	// Send confirmation to sender
 	h.sendToSession(sess, map[string]interface{}{
-		"type": "message_delivered",
+		"type": model.MessageSend,
 		"id":   savedMsg.ID,
 	})
 
@@ -144,13 +165,51 @@ func (h *WSHandler) handleMessage(sess *model.Session, msg *model.Message) {
 	var recipientID string
 	if conversation.BuyerId != nil && *conversation.BuyerId != sess.UserID {
 		recipientID = *conversation.BuyerId
-	} else if conversation.SellerId != nil {
+	} else if conversation.SellerId != nil && *conversation.SellerId != sess.UserID {
+		recipientID = *conversation.SellerId
+	}
+
+	if recipientID != "" {
+		h.broadcastToUsers([]string{recipientID}, response)
+	} else {
+		log.Printf("No recipient found for conversation %s", *savedMsg.ConversationId)
+		return
+	}
+}
+
+func (h *WSHandler) handleTyping(sess *model.Session, payload *model.TypingPayload) {
+	conversation, err := h.messageService.GetConversationByID(payload.ConversationId)
+	if err != nil {
+		log.Printf("Typing error: cannot find conversation %s", payload.ConversationId)
+		return
+	}
+
+	response := map[string]interface{}{
+		"type": model.TypingIndicator,
+		"data": map[string]interface{}{
+			"user_id":         sess.UserID,
+			"conversation_id": payload.ConversationId,
+			"is_typing":       payload.IsTyping,
+		},
+	}
+
+	var recipientID string
+	if conversation.BuyerId != nil && *conversation.BuyerId != sess.UserID {
+		recipientID = *conversation.BuyerId
+	} else if conversation.SellerId != nil && *conversation.SellerId != sess.UserID {
 		recipientID = *conversation.SellerId
 	}
 
 	if recipientID != "" {
 		h.broadcastToUsers([]string{recipientID}, response)
 	}
+}
+
+func (h *WSHandler) sendError(sess *model.Session, errMsg string) {
+	h.sendToSession(sess, map[string]interface{}{
+		"type":  model.ErrorMessage,
+		"error": errMsg,
+	})
 }
 
 func (h *WSHandler) writeLoop(sess *model.Session) {

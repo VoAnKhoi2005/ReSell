@@ -42,8 +42,6 @@ func main() {
 		c.Next()
 	})
 
-	config.Globals.SessionStore = store.NewSessionStore()
-
 	route.SetupRoutes(r)
 
 	log.Printf("Server is running at http://localhost:%s\n", port)
