@@ -50,6 +50,7 @@ fun SetupNavGraph(
                 Text("Error: Conversation ID missing")
             }
         }
+        composable(
             route = Screen.Main.route
         ) {
             MainLayout(navController)

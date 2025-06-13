@@ -19,7 +19,7 @@ import androidx.navigation.Navigation
 
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.ui.navigation.NavigationController
-import com.example.myapplication.ui.screen.MainLayout
+
 import com.example.myapplication.ui.components.MySearchBar
 
 
