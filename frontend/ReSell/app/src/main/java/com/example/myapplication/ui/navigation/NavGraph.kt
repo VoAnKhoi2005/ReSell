@@ -9,8 +9,10 @@ import androidx.navigation.navArgument
 import com.example.myapplication.ui.navigation.Screen
 import com.example.myapplication.ui.screen.chat.chathomescreen.ChatHomeScreen
 import com.example.myapplication.ui.screen.chat.chatscreen.ChatScreen
+import com.example.myapplication.ui.screen.UiOperate.MainLayout
 import com.example.myapplication.ui.screen.login.LoginScreen
 import com.example.myapplication.ui.screen.register.RegisterScreen
+import com.example.myapplication.ui.screen.search.SearchScreen
 
 @Composable
 fun SetupNavGraph(
@@ -18,7 +20,7 @@ fun SetupNavGraph(
 ){
     NavHost(
         navController = navController,
-        startDestination = Screen.ChatHome.route
+        startDestination = Screen.Main.route
     ){
         composable(
             route = Screen.Login.route
@@ -48,5 +50,14 @@ fun SetupNavGraph(
                 Text("Error: Conversation ID missing")
             }
         }
+            route = Screen.Main.route
+        ) {
+            MainLayout(navController)
+        }
+        composable(Screen.Search.route) {
+            SearchScreen(navController) // màn hình tìm kiếm của bạn
+        }
     }
 }
+
+
