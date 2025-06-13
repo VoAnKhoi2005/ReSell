@@ -1,6 +1,6 @@
 package com.example.myapplication.ui
 
-import com.example.myapplication.ui.model.*
+import model.*
 import arrow.core.Either
 import com.example.myapplication.ui.domain.NetworkError
 
