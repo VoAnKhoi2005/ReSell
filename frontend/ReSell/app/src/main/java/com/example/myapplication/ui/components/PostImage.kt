@@ -1,7 +1,5 @@
 package com.example.myapplication.ui.components
 
-import android.R
-import android.media.tv.AdRequest
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,8 +31,6 @@ import coil.compose.AsyncImage
 import com.example.myapplication.ui.theme.GrayFont
 import com.example.myapplication.ui.theme.LightGray
 import com.example.myapplication.ui.theme.priceColor
-import java.time.LocalDateTime
-import kotlin.time.Duration
 
 @Composable
 fun ProductPostItem(
@@ -106,8 +101,9 @@ fun ProductPostItem(
         }
     }
 }
+
 @Composable
-fun TimeInfor(label: String, address: String) {
+fun TimeInfor(time: String, address: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(2.dp)
@@ -120,7 +116,7 @@ fun TimeInfor(label: String, address: String) {
         )
         Spacer(modifier = Modifier.width(2.dp))
         Text(
-            text = label,
+            text = time,
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, fontSize = 12.sp),
             color = GrayFont,
             maxLines = 1,
@@ -134,6 +130,74 @@ fun TimeInfor(label: String, address: String) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+    }
+}
+
+@Composable
+fun ProductPostItemHorizontalImage(
+    title: String,
+    time: String,
+    imageUrl: String,
+    modifier: Modifier = Modifier,
+    price: Int,
+    address: String
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .border(1.dp, LightGray),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp)
+        ) {
+            // Ảnh nằm ngang bên trái
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = "Product thumbnail",
+                modifier = Modifier
+                    .size(width = 120.dp, height = 100.dp) // ảnh ngang
+                    .clip(RoundedCornerShape(4.dp)),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Phần nội dung bên phải
+            Column(
+                modifier = Modifier
+                    .weight(1f) // chiếm phần còn lại
+                    .align(Alignment.CenterVertically)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+
+
+                Text(
+                    text = price.toString(),
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Medium,
+                        color = priceColor
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                TimeInfor(time,address)
+            }
+        }
     }
 }
 
