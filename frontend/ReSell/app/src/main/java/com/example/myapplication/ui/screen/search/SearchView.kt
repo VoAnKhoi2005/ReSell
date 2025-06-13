@@ -90,7 +90,7 @@ fun SearchScreen(navController: NavHostController) {
                 Text(
                     text = "Nhập từ khóa để tìm kiếm...",
                     modifier = Modifier.padding(16.dp),
-                    color = GrayFont
+                    color = MainButton
                 )
             }
         }
