@@ -53,14 +53,16 @@ class ChatHomeViewModel @Inject constructor(
                     conversationId = conversationId,
                     senderId = buyerId,
                     content = "Hello, I'm buyer $i",
-                    createdAt = LocalDateTime.now()
+                    createdAt = LocalDateTime.now(),
+                    avatarURL = "https://images.unsplash.com/photo-1571757767119-68b8dbed8c97?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 ),
                 Message(
                     id = "msg_${i}_2",
                     conversationId = conversationId,
                     senderId = sellerId,
                     content = "Hi, I'm seller $i",
-                    createdAt = LocalDateTime.now()
+                    createdAt = LocalDateTime.now(),
+                    avatarURL = "https://images.unsplash.com/photo-1571757767119-68b8d"
                 )
             )
 
