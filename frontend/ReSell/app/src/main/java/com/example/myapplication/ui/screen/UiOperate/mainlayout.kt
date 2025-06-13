@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.ui.components.BottomBar
 import com.example.myapplication.ui.components.TopBar
 import com.example.myapplication.ui.components.bottomNavItems
+import com.example.myapplication.ui.navigation.NavigationController
 import com.example.myapplication.ui.navigation.Screen
 import com.example.myapplication.ui.screen.home.HomeScreen
 import com.example.myapplication.ui.screen.market.MarketScreen
@@ -25,7 +26,7 @@ import com.example.myapplication.ui.screen.profile.ProfileScreen
 
 
 @Composable
-fun MainLayout(navController: NavController, modifier: Modifier = Modifier) {
+fun MainLayout(modifier: Modifier = Modifier) {
     var selectedItem by remember { mutableStateOf(bottomNavItems[0]) }
     val bottomNavController = rememberNavController()
     // LẤY THÔNG TIN VỀ ROUTE HIỆN TẠI
@@ -39,7 +40,7 @@ fun MainLayout(navController: NavController, modifier: Modifier = Modifier) {
                     showNotificationIcon = true,
                     showEmailIcon = true,
                     onSearchNavigate = {
-                        navController.navigate(Screen.Search.route)
+                        NavigationController.navController.navigate(Screen.Search.route)
                     // đã điều hướng đến controller qua 3 hàm trung gian từ my searchbar dến topbar và đến mainlayout
                     }
                 )

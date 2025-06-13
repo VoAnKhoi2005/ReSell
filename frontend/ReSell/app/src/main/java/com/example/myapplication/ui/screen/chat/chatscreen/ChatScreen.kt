@@ -69,6 +69,8 @@ import com.example.myapplication.ui.navigation.Screen
 import com.example.myapplication.ui.theme.DarkBlue
 import com.example.myapplication.ui.theme.LightGray
 import androidx.compose.ui.res.painterResource
+import com.example.myapplication.R
+
 @Composable
 fun ChatScreen(conversationId : String){
     val viewModel : ChatViewModel = hiltViewModel()
@@ -141,7 +143,7 @@ fun ChatMessages(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = {}) {
-                Icon(Icons.Rounded.AddCircle,
+                Icon(painter = painterResource(id = R.drawable.add_icon),
                     tint = DarkBlue,
                     contentDescription = "Send")
         }
@@ -213,6 +215,7 @@ fun ChatBubble(message: Message) {
 
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatTopBar(title: String) {
