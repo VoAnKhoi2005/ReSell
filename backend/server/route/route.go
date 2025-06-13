@@ -2,6 +2,8 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/config"
+	"github.com/VoAnKhoi2005/ReSell/middleware"
+	"github.com/VoAnKhoi2005/ReSell/middleware/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,6 +17,8 @@ func SetupRoutes(router *gin.Engine) {
 
 	// Group API -> ../api/..
 	api := router.Group("/api")
+
+	api.GET("/ws", auth.AuthMiddleware(), middleware.HandleWebSocket)
 
 	RegisterAuthRoutes(api, db)
 	RegisterUserRoutes(api, db)

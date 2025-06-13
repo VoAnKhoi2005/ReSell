@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/controller"
-	"github.com/VoAnKhoi2005/ReSell/middleware"
+	"github.com/VoAnKhoi2005/ReSell/middleware/auth"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/gin-gonic/gin"
@@ -15,7 +15,7 @@ func RegisterAddressRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	addressController := controller.NewAddressController(addressService)
 
 	addressRoute := rg.Group("/address")
-	addressRoute.Use(middleware.AuthMiddleware())
+	addressRoute.Use(auth.AuthMiddleware())
 
 	//User
 	addressRoute.POST("/user", addressController.CreateAddress)
@@ -30,7 +30,7 @@ func RegisterAddressRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	//Admin
 	adminAddressRoute := rg.Group("/admin/address")
-	adminAddressRoute.Use(middleware.AdminAuthMiddleware())
+	adminAddressRoute.Use(auth.AdminAuthMiddleware())
 	adminAddressRoute.POST("/province", addressController.CreateProvince)
 	adminAddressRoute.POST("/provinces", addressController.CreateProvinces)
 	adminAddressRoute.POST("/districts", addressController.CreateDistricts)

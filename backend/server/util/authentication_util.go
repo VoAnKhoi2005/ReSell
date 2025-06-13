@@ -2,7 +2,7 @@ package util
 
 import (
 	"errors"
-	"github.com/VoAnKhoi2005/ReSell/middleware"
+	"github.com/VoAnKhoi2005/ReSell/middleware/auth"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -78,12 +78,12 @@ func IsAdmin(c *gin.Context, expectedID string) bool {
 }
 
 func GenerateToken(id string, role string) (accessToken string, refreshToken string, err error) {
-	accessToken, err = middleware.CreateAccessToken(id, role)
+	accessToken, err = auth.CreateAccessToken(id, role)
 	if err != nil {
 		return "", "", err
 	}
 
-	refreshToken, err = middleware.CreateRefreshToken(id, role)
+	refreshToken, err = auth.CreateRefreshToken(id, role)
 	if err != nil {
 		return "", "", err
 	}
