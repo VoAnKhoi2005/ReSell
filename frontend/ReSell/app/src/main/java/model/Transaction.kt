@@ -2,6 +2,8 @@ package model
 
 import com.squareup.moshi.JsonClass
 
+
+//region User
 @JsonClass(generateAdapter = true)
 data class RegisterRequest(
     val username: String,
@@ -41,3 +43,20 @@ data class ChangePasswordRequest(
     val oldPassword: String,
     val newPassword: String
 )
+//endregion
+
+//region Address
+@JsonClass(generateAdapter = true)
+data class CreateAddressRequest(
+    val wardID: String,
+    val detail: String,
+    val isDefault: Boolean
+)
+
+@JsonClass(generateAdapter = true)
+data class UpdateAddressRequest(
+    val wardID: String? = null,
+    val detail: String? = null,
+    val isDefault: Boolean? = null
+)
+//endregion

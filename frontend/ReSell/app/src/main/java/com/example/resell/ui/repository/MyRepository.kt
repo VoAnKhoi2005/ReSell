@@ -17,7 +17,14 @@ interface UserRepository{
 }
 
 interface AddressRepository{
-
+    suspend fun createAddress(wardID: String, detail: String, isDefault: Boolean): Either<NetworkError, Boolean>
+    suspend fun getAddressByID(addressID: String): Either<NetworkError, Address>
+    suspend fun getAddressByUserID(userID: String): Either<NetworkError, List<Address>>
+    suspend fun getAllProvinces(): Either<NetworkError, List<Province>>
+    suspend fun getDistricts(provinceID: String): Either<NetworkError, List<District>>
+    suspend fun getWards(districtID: String): Either<NetworkError, List<Ward>>
+    suspend fun updateAddress(addressID: String, request: UpdateAddressRequest): Either<NetworkError, Boolean>
+    suspend fun deleteAddress(addressID: String): Either<NetworkError, Boolean>
 }
 
 interface CategoryRepository{
