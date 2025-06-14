@@ -3,6 +3,7 @@ package com.example.resell.ui
 
 import model.*
 import okhttp3.MultipartBody
+import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -215,4 +216,9 @@ interface ApiService {
         @Query("end") end: Int
     ): List<Message>
     //endregion
+}
+
+interface RefreshApiService {
+    @POST("api/auth/refresh")
+    fun refreshSession(@Body request: RefreshRequest): Call<AuthToken>
 }

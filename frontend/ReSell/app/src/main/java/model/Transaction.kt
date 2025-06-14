@@ -44,6 +44,11 @@ data class ChangePasswordRequest(
     val oldPassword: String,
     val newPassword: String
 )
+
+@JsonClass(generateAdapter = true)
+data class RefreshRequest(
+    val refreshToken: String
+)
 //endregion
 
 //region Address
