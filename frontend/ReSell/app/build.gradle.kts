@@ -73,7 +73,10 @@ dependencies {
     // Arrow
     implementation("io.arrow-kt:arrow-core:1.2.0")
     implementation("io.arrow-kt:arrow-fx-coroutines:1.2.0")
-
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
+    //Moshi
+    implementation("com.squareup.moshi:moshi:1.15.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
 }

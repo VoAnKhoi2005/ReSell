@@ -2,7 +2,7 @@ package com.example.resell.ui.viewmodel.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.resell.ui.repository.MyRepository
+import com.example.resell.ui.repository.MessageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatHomeViewModel @Inject constructor(
-    private val myRepository: MyRepository
+    private val myRepository: MessageRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(ChatHomeViewState())
     val state  = _state.asStateFlow()

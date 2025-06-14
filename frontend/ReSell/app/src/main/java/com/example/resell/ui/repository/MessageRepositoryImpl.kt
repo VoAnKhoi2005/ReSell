@@ -1,4 +1,8 @@
 package com.example.resell.ui.repository
 
-class MessageRepositoryImpl {
-}
+import com.example.resell.ui.ApiService
+import javax.inject.Inject
+
+class MessageRepositoryImpl @Inject constructor(
+    private val apiService: ApiService
+): MessageRepository {}
