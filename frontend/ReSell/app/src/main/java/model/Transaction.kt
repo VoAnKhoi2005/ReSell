@@ -60,3 +60,17 @@ data class UpdateAddressRequest(
     val isDefault: Boolean? = null
 )
 //endregion
+
+//region Category
+@JsonClass(generateAdapter = true)
+data class CreateCategoryRequest(
+    val name: String,
+    val parentCategoryID: String
+)
+
+@JsonClass(generateAdapter = true)
+data class UpdateCategoryRequest(
+    val name: String? = null,
+    //val parentCategoryID: String? = null,
+)
+//endregion

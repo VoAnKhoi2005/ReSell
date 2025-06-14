@@ -45,7 +45,7 @@ interface ApiService {
     suspend fun unfollowUser(@Path("user_id") userID: String): Boolean
     //endregion
 
-    //region address
+    //region Address
     @POST("api/address/user")
     suspend fun createAddress(
         @Body request: CreateAddressRequest
@@ -74,6 +74,31 @@ interface ApiService {
 
     @DELETE("api/address/{address_id}")
     suspend fun deleteAddress(@Path("address_id") addressID: String): Boolean
+    //endregion
+
+    //region Category
+    @GET("api/categories")
+    suspend fun getAllCategory(): List<Category>
+
+    @GET("api/categories/{category_id}")
+    suspend fun getCategoryByID(@Path("category_id") categoryID: String): Category
+
+    @POST("api/admin/categories")
+    suspend fun createCategory(
+        @Body request: CreateCategoryRequest
+    ): Boolean
+
+    @PUT("api/admin/categories/{category_id}")
+    suspend fun updateCategory(
+        @Path("category_id") categoryID: String,
+        @Body request: UpdateCategoryRequest
+    ): Boolean
+
+    @DELETE("api/admin/categories/{category_id}")
+    suspend fun deleteCategory(@Path("category_id") categoryID: String): Boolean
+
+    @GET("api/categories/{category_id}/children")
+    suspend fun getCategoryChildren(@Path("category_id") categoryID: String): List<Category>
     //endregion
 
     @GET("")
