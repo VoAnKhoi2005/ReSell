@@ -50,7 +50,11 @@ interface OrderRepository{
 }
 
 interface ReviewRepository{
-
+    suspend fun createReview(orderID: String, rating: Int, comment: String): Either<NetworkError, Boolean>
+    suspend fun getReviewByBuyerID(buyerID: String): Either<NetworkError, List<Review>>
+    suspend fun getReviewByPostID(postID: String): Either<NetworkError, Review>
+    suspend fun getReviewByOrderID(orderID: String): Either<NetworkError, Review>
+    suspend fun deleteReviewByOrderID(orderID: String): Either<NetworkError, Boolean>
 }
 
 interface MessageRepository{

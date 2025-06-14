@@ -130,4 +130,23 @@ interface ApiService {
     @GET("api/order/seller/{seller_id}")
     suspend fun getOrderBySellerID(@Path("seller_id") sellerID: String): List<ShopOrder>
     //endregion
+
+    //region Review
+    @POST("api/review/create")
+    suspend fun createReview(
+        @Body request: CreateReviewRequest
+    ): Boolean
+
+    @GET("api/review/buyer/{buyer_id}")
+    suspend fun getReviewByBuyerID(@Path("buyer_id") buyerID: String): List<Review>
+
+    @GET("api/review/post/{post_id}")
+    suspend fun getReviewByPostID(@Path("post_id") postID: String): Review
+
+    @GET("api/review/order/{order_id}")
+    suspend fun getReviewByOrderID(@Path("order_id") orderID: String): Review
+
+    @DELETE("api/review/order/{order_id}")
+    suspend fun deleteReviewByOrderID(@Path("order_id") orderID: String): Boolean
+    //endregion
 }
