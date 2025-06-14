@@ -2,6 +2,7 @@ package model
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import java.util.UUID
 
 
 //region User
@@ -132,4 +133,45 @@ data class CreateConversationRequest(
     val sellerID: String,
     val postID: String
 )
+
+@JsonClass(generateAdapter = true)
+data class IncomingSocketMessage(
+    val type: String,
+    val data: Map<String, Any>
+)
+
+enum class SocketMessageType {
+    message_send, new_message, typing, error
+}
+
+@JsonClass(generateAdapter = true)
+data class SocketMessage<T>(
+    val type: SocketMessageType,
+    val data: T
+)
+
+@JsonClass(generateAdapter = true)
+data class SendMessagePayload(
+    val conversationID: String,
+    val content: String
+)
+
+@JsonClass(generateAdapter = true)
+data class TypingPayload(
+    val conversationID: String,
+    val isTyping: Boolean
+)
+
+data class PendingMessage(
+    val id: String = UUID.randomUUID().toString(),
+    val json: String,
+    val raw: Any,
+    var status: MessageStatus = MessageStatus.FAILED
+)
+
+enum class MessageStatus {
+    FAILED,
+    SENT,
+    PENDING
+}
 //endregion

@@ -1,22 +1,22 @@
 package com.example.resell.ui.repository
 
 import arrow.core.Either
-import com.example.resell.ui.ApiService
-import com.example.resell.ui.RefreshApiService
+import com.example.resell.ui.network.ApiService
+import com.example.resell.ui.network.RefreshApiService
 import com.example.resell.ui.domain.NetworkError
 import com.example.resell.ui.mapper.toNetworkError
-import model.AuthToken
 import model.ChangePasswordRequest
 import model.LoginRequest
 import model.LoginResponse
 import model.LoginType
-import model.RefreshRequest
 import model.RegisterRequest
 import model.UpdateProfileRequest
 import model.User
 import store.TokenManager
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class UserRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     private val refreshApiService: RefreshApiService,

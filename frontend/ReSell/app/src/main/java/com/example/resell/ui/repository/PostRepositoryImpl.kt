@@ -1,12 +1,14 @@
 package com.example.resell.ui.repository
 
 import arrow.core.Either
-import com.example.resell.ui.ApiService
+import com.example.resell.ui.network.ApiService
 import com.example.resell.ui.domain.NetworkError
 import com.example.resell.ui.mapper.toNetworkError
 import model.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class PostRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ): PostRepository {

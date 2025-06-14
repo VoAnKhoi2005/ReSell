@@ -1,7 +1,6 @@
 package util
 
-import com.example.resell.ui.ApiService
-import com.example.resell.ui.RefreshApiService
+import com.example.resell.ui.network.RefreshApiService
 import model.AuthToken
 import model.RefreshRequest
 import okhttp3.Authenticator

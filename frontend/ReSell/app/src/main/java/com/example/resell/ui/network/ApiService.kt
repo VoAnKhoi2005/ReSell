@@ -1,4 +1,4 @@
-package com.example.resell.ui
+package com.example.resell.ui.network
 
 
 import model.*
@@ -216,9 +216,4 @@ interface ApiService {
         @Query("end") end: Int
     ): List<Message>
     //endregion
-}
-
-interface RefreshApiService {
-    @POST("api/auth/refresh")
-    fun refreshSession(@Body request: RefreshRequest): Call<AuthToken>
 }
