@@ -11,10 +11,12 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-object AppModuel {
+object AppModule {
     @Provides
     @Singleton
     fun providesApiService(): ApiService{
+
+
         return Retrofit
             .Builder()
             .baseUrl("https://jsonplaceholder.typicode.com/")
@@ -22,6 +24,4 @@ object AppModuel {
             .build()
             .create(ApiService::class.java)
     }
-
-
 }
