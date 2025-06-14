@@ -14,6 +14,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import store.TokenManager
 import util.AuthInterceptor
 import util.TokenAuthenticator
+import javax.inject.Named
 import javax.inject.Singleton
 
 const val BASE_URL = "https://localhost:8080/"
@@ -72,18 +73,32 @@ object AppModule {
         return retrofit.create(ApiService::class.java)
     }
 
+    //region Refresh API service
     @Provides
     @Singleton
-    fun provideRefreshRetrofit(moshi: Moshi): Retrofit {
+    @Named("refreshOkHttp")
+    fun provideRefreshOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder().build()
+    }
+
+    @Provides
+    @Singleton
+    @Named("refresh")
+    fun provideRefreshRetrofit(
+        moshi: Moshi,
+        @Named("refreshOkHttp") refreshClient: OkHttpClient
+    ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
+            .client(refreshClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
     }
 
     @Provides
     @Singleton
-    fun provideRefreshApiService(refreshRetrofit: Retrofit): RefreshApiService {
+    fun provideRefreshApiService(@Named("refresh") refreshRetrofit: Retrofit): RefreshApiService {
         return refreshRetrofit.create(RefreshApiService::class.java)
     }
+    //endregion
 }
