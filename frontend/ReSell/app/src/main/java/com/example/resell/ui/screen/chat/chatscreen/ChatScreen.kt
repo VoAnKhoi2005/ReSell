@@ -3,6 +3,8 @@ package com.example.resell.ui.screen.chat.chatscreen
 import Roboto
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,11 +25,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -42,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -63,18 +69,25 @@ import androidx.compose.ui.text.style.TextAlign
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.theme.DarkBlue
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.resell.R
 import com.example.resell.ui.theme.BuyerMessage
+import com.example.resell.ui.theme.LightGray
+import com.example.resell.ui.theme.Red
+import com.example.resell.ui.theme.greenButton
 
 @Composable
-fun ChatScreen(conversationId : String){
-    val viewModel : ChatViewModel = hiltViewModel()
+fun ChatScreen(conversationId : String) {
+    val viewModel: ChatViewModel = hiltViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
     LoadingDialog(isLoading = state.isLoading)
     LaunchedEffect(key1 = true) {
         viewModel.getMessages(conversationId)
     }
+    val hideKeyboardController = LocalSoftwareKeyboardController.current
+    val msg = remember { mutableStateOf("") }
     DataStore.user = User(
         id = "seller_1",
         username = "seller_one",
@@ -93,130 +106,208 @@ fun ChatScreen(conversationId : String){
     )
 
     val messages = state.messages
-    Column(modifier = Modifier.fillMaxSize()) {
-        ChatTopBar("Chúa MHề 4.0")
+    Scaffold(
+        topBar = { ChatTopBar("Chúa MHề 4.0") },
+        bottomBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(30.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = {}) {
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_add_circle_24),
+                        contentDescription = "Send",
+                        modifier = Modifier.size(32.dp),
+                        colorFilter = ColorFilter.tint(DarkBlue)
+                    )
+                }
+
+                IconButton(onClick = {}) {
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_image_24),
+                        contentDescription = "SendImage",
+                        modifier = Modifier.size(32.dp),
+                        colorFilter = ColorFilter.tint(DarkBlue)
+                    )
+                }
+                IconButton(onClick = {}) {
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_ondemand_video_24),
+                        contentDescription = "SendVideo",
+                        modifier = Modifier.size(32.dp),
+                        colorFilter = ColorFilter.tint(DarkBlue)
+                    )
+                }
+
+                TextField(
+                    value = msg.value,
+                    maxLines = 3,
+                    onValueChange = { msg.value = it },
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(24.dp)),
+                    placeholder = {
+                        Text(
+                            text = "Type a message...",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    },
+                    colors = TextFieldDefaults.colors(
+                        // Đã sửa: Sử dụng focusedContainerColor và unfocusedContainerColor
+                        focusedContainerColor = BuyerMessage, // Khi TextField được focus
+                        unfocusedContainerColor = BuyerMessage, // Khi TextField không được focus
+                        disabledContainerColor = BuyerMessage, // Tùy chọn: cho trạng thái bị vô hiệu hóa
+                        errorContainerColor = BuyerMessage,   // Tùy chọn: cho trạng thái lỗi
+
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        errorIndicatorColor = Color.Transparent
+                    ),
+                    textStyle = TextStyle(
+                        color = IconColor,
+                        fontSize = 14.sp,
+                        fontFamily = Roboto,
+                        fontWeight = FontWeight.Medium
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = {
+                        hideKeyboardController?.hide()
+                    })
+                )
+                IconButton(
+                    onClick = {
+                        if (msg.value.isNotBlank()) {
+                            viewModel.sendMessage(msg.value)
+                        }
+                        msg.value = ""
+                    },
+                    enabled = msg.value.isNotBlank()
+                ) {
+                    if (msg.value.isNotBlank()) {
+                        Image(
+                            painter = painterResource(id = R.drawable.baseline_send_24),
+                            contentDescription = "Send",
+                            colorFilter = ColorFilter.tint(DarkBlue),
+                            modifier = Modifier.size(32.dp) // hoặc chỉnh theo nhu cầu
+                        )
+                    }
+                }
+
+
+            }
+        }
+    ) { innerPadding ->
         ChatMessages(
             messages = messages,
-            onSendMessage = { text ->
-                viewModel.sendMessage(text)
-            }
+            modifier = Modifier.padding(innerPadding)
         )
     }
-
 }
 @Composable
 fun ChatMessages(
     messages: List<Message>,
-    onSendMessage: (String) -> Unit,
-) {
-    val hideKeyboardController = LocalSoftwareKeyboardController.current
-    val msg = remember { mutableStateOf("") }
-    val listState = rememberLazyListState()
+    modifier: Modifier
+) { val listState = rememberLazyListState()
 
     // Auto scroll to bottom on new message
     LaunchedEffect(messages.size) {
         listState.animateScrollToItem(messages.size)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+
+    ) {
+        OfferView(
+            avatarUrl = "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            displayName = "Sản phẩm: Phạm Thành Long sinh viên UIT abcxyzzzzz",
+            price = "Miễn phí"
+
+        )
+
+        // LazyColumn chiếm phần còn lại của không gian trong Column
         LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = 80.dp) // chừa khoảng cho TextField
+            state = listState// Chiếm hết phần còn lại của Column
         ) {
             items(messages) { message ->
                 ChatBubble(message = message)
             }
         }
+    }
 
-        Row(
+}
+
+@Composable
+fun OfferView( avatarUrl: String,
+               displayName: String,
+               price: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .border(1.dp, LightGray, RoundedCornerShape(0.dp))
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clickable {
+                //NavigationController.navController.navigate("chat/${conversation.id}")
+            }
+    ) {
+        Spacer(modifier = Modifier.width(12.dp))
+        AsyncImage(
+            model = avatarUrl,
+            contentDescription = "Avatar",
             modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 42.dp)
-                ,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = {}) {
-                Image(
-                    painter = painterResource(id = R.drawable.baseline_add_circle_24),
-                    contentDescription = "Send",
-                    modifier = Modifier.size(32.dp),
-                    colorFilter = ColorFilter.tint(DarkBlue)
+                .size(70.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp)),
+            contentScale = ContentScale.Crop
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.padding(end = 12.dp)) {
+            Row() {
+                Text(
+                    text = displayName,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
-
-            IconButton(onClick = {}) {
-                Image(
-                    painter = painterResource(id = R.drawable.baseline_image_24),
-                    contentDescription = "SendImage",
-                    modifier = Modifier.size(32.dp),
-                    colorFilter = ColorFilter.tint(DarkBlue)
+            Row() {
+                Text(
+                    text = price,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Red,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
-            }
-            IconButton(onClick = {}) {
-                Image(
-                    painter = painterResource(id = R.drawable.baseline_ondemand_video_24),
-                    contentDescription = "SendVideo",
-                    modifier = Modifier.size(32.dp),
-                    colorFilter = ColorFilter.tint(DarkBlue)
-                )
-            }
+                Spacer(modifier = Modifier.weight(1f))
+                Button(
 
-            TextField(
-                value = msg.value,
-                maxLines = 3,
-                onValueChange = { msg.value = it },
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(24.dp)),
-                placeholder = { Text(text = "Type a message...", style = MaterialTheme.typography.bodyMedium) },
-                colors = TextFieldDefaults.colors(
-                    // Đã sửa: Sử dụng focusedContainerColor và unfocusedContainerColor
-                    focusedContainerColor = BuyerMessage, // Khi TextField được focus
-                    unfocusedContainerColor = BuyerMessage, // Khi TextField không được focus
-                    disabledContainerColor = BuyerMessage, // Tùy chọn: cho trạng thái bị vô hiệu hóa
-                    errorContainerColor = BuyerMessage,   // Tùy chọn: cho trạng thái lỗi
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = greenButton,
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(size = 4.dp)
 
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    errorIndicatorColor = Color.Transparent
-                ),
-                textStyle = TextStyle(
-                    color = IconColor,
-                    fontSize = 14.sp,
-                    fontFamily = Roboto,
-                    fontWeight = FontWeight.Medium
-                ),
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = {
-                    hideKeyboardController?.hide()
-                })
-            )
-            IconButton(
-                onClick = {
-                    if (msg.value.isNotBlank()) {
-                        onSendMessage(msg.value)
-                        msg.value = ""
-                    }
-                },
-                enabled = msg.value.isNotBlank()
-            ) {
-                if (msg.value.isNotBlank()) {
-                    Image(
-                        painter = painterResource(id = R.drawable.baseline_send_24),
-                        contentDescription = "Send",
-                        colorFilter = ColorFilter.tint(DarkBlue),
-                        modifier = Modifier.size(32.dp) // hoặc chỉnh theo nhu cầu
+
+                ) {
+                    Text(
+                        text = "Mua ngay",
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
             }
 
 
         }
+
+
     }
+
 }
 
 @Composable
