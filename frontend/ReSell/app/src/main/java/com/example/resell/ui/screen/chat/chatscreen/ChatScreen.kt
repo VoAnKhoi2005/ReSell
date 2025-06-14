@@ -3,6 +3,8 @@ package com.example.resell.ui.screen.chat.chatscreen
 import Roboto
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,10 +29,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.resell.R
 import com.example.resell.ui.components.LoadingDialog
@@ -112,6 +116,16 @@ fun ChatMessages(
             .fillMaxSize()
             .padding(horizontal = 2.dp, vertical = 2.dp)
     ) {
+        stickyHeader {
+            Surface(color = Color.White) {
+                OfferView(
+                    avatarUrl = "https://plus.unsplash.com/premium_photo-1666700698946-fbf7baa0134a",
+                    displayName = "iPhone 15 Pro Max 1TB - VN/A",
+                    price = "43.000.000₫"
+                )
+            }
+
+        }
         items(messages) { message ->
             ChatBubble(message = message)
         }
@@ -297,3 +311,74 @@ fun ChatTopBar(
         )
     )
 }
+@Composable
+fun OfferView( avatarUrl: String,
+               displayName: String,
+               price: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .border(1.dp, LightGray, RoundedCornerShape(0.dp))
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clickable {
+                //NavigationController.navController.navigate("chat/${conversation.id}")
+            }
+    ) {
+        Spacer(modifier = Modifier.width(12.dp))
+        AsyncImage(
+            model = avatarUrl,
+            contentDescription = "Avatar",
+            modifier = Modifier
+                .size(70.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp)),
+            contentScale = ContentScale.Crop
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.padding(end = 12.dp)) {
+            Row() {
+                Text(
+                    text = displayName,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Row() {
+                Text(
+                    text = price,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Red,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Button(
+
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = greenButton,
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(size = 4.dp)
+
+
+                ) {
+                    Text(
+                        text = "Mua ngay",
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
+
+
+        }
+
+
+    }
+
+}
+
+
