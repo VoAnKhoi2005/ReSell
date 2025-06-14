@@ -101,6 +101,33 @@ interface ApiService {
     suspend fun getCategoryChildren(@Path("category_id") categoryID: String): List<Category>
     //endregion
 
+    //region Post
     @GET("")
     suspend fun getPosts():List<Post>
+    //endregion
+
+    //region Order
+    @POST("api/order/create")
+    suspend fun createOrder(
+        @Body request: CreateOrderRequest
+    ): Boolean
+
+    @DELETE("api/order/{order_id}")
+    suspend fun deleteOrder(@Path("order_id") orderID: String): Boolean
+
+    @PUT("api/order/{order_id}/set_status/{status}")
+    suspend fun updateOrderStatus(
+        @Path("order_id") orderID: String,
+        @Path("status") status: OrderStatus
+    ): Boolean
+
+    @GET("api/order/post/{post_id}")
+    suspend fun getOrderByPostID(@Path("post_id") postID: String): ShopOrder
+
+    @GET("api/order/buyer/{buyer_id}")
+    suspend fun getOrderByBuyerID(@Path("buyer_id") buyerID: String): List<ShopOrder>
+
+    @GET("api/order/seller/{seller_id}")
+    suspend fun getOrderBySellerID(@Path("seller_id") sellerID: String): List<ShopOrder>
+    //endregion
 }

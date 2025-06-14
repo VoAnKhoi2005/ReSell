@@ -74,3 +74,15 @@ data class UpdateCategoryRequest(
     //val parentCategoryID: String? = null,
 )
 //endregion
+
+//region Post
+//endregion
+
+//region Order
+@JsonClass(generateAdapter = true)
+data class CreateOrderRequest(
+    val postID: String,
+    val addressID: String,
+    val total: Double
+)
+//endregion
