@@ -88,9 +88,19 @@ data class CreateOrderRequest(
 //endregion
 
 //region Review
+@JsonClass(generateAdapter = true)
 data class CreateReviewRequest(
     val orderID: String,
     val rating: Int,
     val comment: String
+)
+//endregion
+
+//region Message
+@JsonClass(generateAdapter = true)
+data class CreateConversationRequest(
+    val buyerID: String,
+    val sellerID: String,
+    val postID: String
 )
 //endregion

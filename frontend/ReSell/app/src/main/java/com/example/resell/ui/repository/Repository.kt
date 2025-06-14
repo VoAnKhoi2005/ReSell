@@ -2,7 +2,6 @@ package com.example.resell.ui.repository
 
 import model.*
 import arrow.core.Either
-import arrow.core.EitherNel
 import com.example.resell.ui.domain.NetworkError
 
 interface UserRepository{
@@ -58,5 +57,9 @@ interface ReviewRepository{
 }
 
 interface MessageRepository{
-
+    suspend fun createConversation(buyerID: String, sellerID: String, postID: String): Either<NetworkError, Conversation>
+    suspend fun getConversationByID(conversationID: String): Either<NetworkError, Conversation>
+    suspend fun getConversationsByPostID(postID: String): Either<NetworkError, List<Conversation>>
+    suspend fun getLatestMessage(conversationID: String, amount: Int): Either<NetworkError,List<Message>>
+    suspend fun getMessageInRange(conversationID: String, start: Int, end: Int): Either<NetworkError,List<Message>>
 }
