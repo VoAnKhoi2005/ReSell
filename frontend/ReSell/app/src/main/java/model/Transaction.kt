@@ -86,3 +86,11 @@ data class CreateOrderRequest(
     val total: Double
 )
 //endregion
+
+//region Review
+data class CreateReviewRequest(
+    val orderID: String,
+    val rating: Int,
+    val comment: String
+)
+//endregion
