@@ -81,6 +81,22 @@ func (mc *MessageController) GetConversationByPostID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"conversation": conversation})
 }
 
+func (mc *MessageController) DeleteConversation(c *gin.Context) {
+	conversationID := c.Param("id")
+	if conversationID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "conversation id is required"})
+		return
+	}
+
+	err := mc.messageService.DeleteConversation(conversationID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
 func (mc *MessageController) CreateMessage(c *gin.Context) {
 	var request transaction.CreateMessageRequest
 	err := c.ShouldBindJSON(&request)

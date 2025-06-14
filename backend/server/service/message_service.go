@@ -8,7 +8,7 @@ import (
 
 type MessageService interface {
 	CreateConversation(conversation *model.Conversation) (*model.Conversation, error)
-	DeleteConversation(conversation *model.Conversation) error
+	DeleteConversation(conversationID string) error
 	GetConversationByID(conversationId string) (*model.Conversation, error)
 	GetConversationsByPostID(postID string) ([]*model.Conversation, error)
 
@@ -30,7 +30,12 @@ func (m *messageService) CreateConversation(conversation *model.Conversation) (*
 	return m.messageRepository.CreateConversation(conversation)
 }
 
-func (m *messageService) DeleteConversation(conversation *model.Conversation) error {
+func (m *messageService) DeleteConversation(conversationID string) error {
+	conversation, err := m.messageRepository.GetConversationByID(conversationID)
+	if err != nil {
+		return err
+	}
+
 	return m.messageRepository.DeleteConversation(conversation)
 }
 

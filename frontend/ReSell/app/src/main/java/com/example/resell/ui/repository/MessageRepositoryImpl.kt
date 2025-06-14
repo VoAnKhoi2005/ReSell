@@ -34,6 +34,12 @@ class MessageRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
+    override suspend fun deleteConversation(conversationID: String): Either<NetworkError, Boolean> {
+        return Either.catch {
+            apiService.deleteConversation(conversationID)
+        }.mapLeft { it.toNetworkError() }
+    }
+
     override suspend fun getConversationsByPostID(postID: String): Either<NetworkError, List<Conversation>> {
         return Either.catch {
             apiService.getConversationByPostID(postID)
