@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/controller"
-	"github.com/VoAnKhoi2005/ReSell/middleware/auth"
+	"github.com/VoAnKhoi2005/ReSell/middleware"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/gin-gonic/gin"
@@ -17,9 +17,9 @@ func RegisterCartRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	// Create cart group -> /api/cart/...
 	cart := rg.Group("/:post_id/cart")
-	cart.Use(auth.AuthMiddleware())
+	cart.Use(middleware.AuthMiddleware())
 
 	cart.GET("", cartController.GetCartItems)          // Get all items in the cart
 	cart.POST("", cartController.CreateCartItem)       // Add an item to the cart
-	cart.DELETE("/:id", cartController.DeleteCartItem) // Remove an item from the carts
+	cart.DELETE("/:id", cartController.DeleteCartItem) // RemoveSession an item from the carts
 }

@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/controller"
-	"github.com/VoAnKhoi2005/ReSell/middleware/auth"
+	"github.com/VoAnKhoi2005/ReSell/middleware"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/gin-gonic/gin"
@@ -17,7 +17,7 @@ func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	//CreateMessage users group -> /api/users/...
 	users := rg.Group("/user")
 	//Middleware
-	users.Use(auth.AuthMiddleware())
+	users.Use(middleware.AuthMiddleware())
 	//Add paths to group
 	users.PUT("/update", userController.UpdateUser)
 	users.PUT("/change_password", userController.ChangePassword)
@@ -28,7 +28,7 @@ func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	//admin
 	adminRoute := rg.Group("/admin/user")
-	adminRoute.Use(auth.AdminAuthMiddleware())
+	adminRoute.Use(middleware.AdminAuthMiddleware())
 	adminRoute.GET("/id/:id", userController.GetUserByID)
 	adminRoute.GET("/username/:username", userController.GetUserByUsername)
 	adminRoute.GET("/batch/:batch_size/:page", userController.GetAllUserByBatch)
