@@ -15,6 +15,8 @@ object AppModule {
     @Provides
     @Singleton
     fun providesApiService(): ApiService{
+
+
         return Retrofit
             .Builder()
             .baseUrl("https://jsonplaceholder.typicode.com/")
