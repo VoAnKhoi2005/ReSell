@@ -1,7 +1,9 @@
 package model
 
 import java.time.LocalDateTime
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class Conversation(
     val id: String,
     val buyerId: String,

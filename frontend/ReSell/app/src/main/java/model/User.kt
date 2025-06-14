@@ -2,7 +2,9 @@ package model
 
 import java.time.LocalDate
 import java.time.LocalDateTime
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class User(
     val id: String,
     val username: String,
