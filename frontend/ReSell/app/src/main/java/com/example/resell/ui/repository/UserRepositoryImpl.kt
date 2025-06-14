@@ -1,22 +1,26 @@
 package com.example.resell.ui.repository
 
-import android.provider.ContactsContract.CommonDataKinds.Phone
 import arrow.core.Either
 import com.example.resell.ui.ApiService
+import com.example.resell.ui.RefreshApiService
 import com.example.resell.ui.domain.NetworkError
 import com.example.resell.ui.mapper.toNetworkError
+import model.AuthToken
 import model.ChangePasswordRequest
 import model.LoginRequest
 import model.LoginResponse
 import model.LoginType
+import model.RefreshRequest
 import model.RegisterRequest
 import model.UpdateProfileRequest
 import model.User
+import store.TokenManager
 import javax.inject.Inject
-import kotlin.math.truncate
 
 class UserRepositoryImpl @Inject constructor(
-    private val apiService: ApiService
+    private val apiService: ApiService,
+    private val refreshApiService: RefreshApiService,
+    private val tokenManager: TokenManager
 ): UserRepository {
     override suspend fun registerUser(
         username: String,
@@ -48,7 +52,9 @@ class UserRepositoryImpl @Inject constructor(
                 loginType = loginType
             )
 
-            apiService.login(request)
+            val response = apiService.login(request)
+            tokenManager.saveToken(response.token)
+            response
         }.mapLeft { it.toNetworkError() }
     }
 
@@ -65,18 +71,21 @@ class UserRepositoryImpl @Inject constructor(
                 newPassword = newPassword
             )
             apiService.changePassword(request)
+            true
         }.mapLeft { it.toNetworkError() }
     }
 
     override suspend fun deleteUser(userID: String): Either<NetworkError, Boolean> {
         return Either.catch {
             apiService.deleteUser(userID)
+            true
         }.mapLeft { it.toNetworkError() }
     }
 
     override suspend fun followUser(userID: String): Either<NetworkError, Boolean> {
         return Either.catch {
             apiService.deleteUser(userID)
+            true
         }.mapLeft { it.toNetworkError() }
     }
 
@@ -89,6 +98,22 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun unfollowUser(userID: String): Either<NetworkError, Boolean> {
         return Either.catch {
             apiService.unfollowUser(userID)
+            true
+        }.mapLeft { it.toNetworkError() }
+    }
+
+    override suspend fun refreshSession(refreshToken: String): Either<NetworkError, AuthToken> {
+        return Either.catch {
+            val request = RefreshRequest(refreshToken)
+            val response = refreshApiService.refreshSession(request).execute()
+
+            if (response.isSuccessful) {
+                val token = response.body() ?: throw Exception("Empty response body")
+                tokenManager.saveToken(token)
+                token
+            } else {
+                throw Exception("Refresh failed: ${response.code()} ${response.message()}")
+            }
         }.mapLeft { it.toNetworkError() }
     }
 }

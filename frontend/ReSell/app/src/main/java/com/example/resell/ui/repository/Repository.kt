@@ -13,6 +13,7 @@ interface UserRepository{
     suspend fun followUser(userID: String): Either<NetworkError, Boolean>
     suspend fun getAllFollows(): Either<NetworkError, List<User>>
     suspend fun unfollowUser(userID: String): Either<NetworkError, Boolean>
+    suspend fun refreshSession(refreshToken: String) : Either<NetworkError, AuthToken>
 }
 
 interface AddressRepository{
