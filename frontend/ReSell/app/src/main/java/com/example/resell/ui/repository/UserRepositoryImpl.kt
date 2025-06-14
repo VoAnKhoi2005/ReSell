@@ -101,19 +101,4 @@ class UserRepositoryImpl @Inject constructor(
             true
         }.mapLeft { it.toNetworkError() }
     }
-
-    override suspend fun refreshSession(refreshToken: String): Either<NetworkError, AuthToken> {
-        return Either.catch {
-            val request = RefreshRequest(refreshToken)
-            val response = refreshApiService.refreshSession(request).execute()
-
-            if (response.isSuccessful) {
-                val token = response.body() ?: throw Exception("Empty response body")
-                tokenManager.saveToken(token)
-                token
-            } else {
-                throw Exception("Refresh failed: ${response.code()} ${response.message()}")
-            }
-        }.mapLeft { it.toNetworkError() }
-    }
 }
