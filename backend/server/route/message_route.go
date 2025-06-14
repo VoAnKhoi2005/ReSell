@@ -2,9 +2,10 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/controller"
-	"github.com/VoAnKhoi2005/ReSell/middleware/auth"
+	"github.com/VoAnKhoi2005/ReSell/middleware"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"github.com/VoAnKhoi2005/ReSell/service"
+	"github.com/VoAnKhoi2005/ReSell/websock"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -14,10 +15,13 @@ func RegisterMessageRote(rg *gin.RouterGroup, db *gorm.DB) {
 	messageService := service.NewMessageService(messageRepo)
 	messageController := controller.NewMessageController(messageService)
 
-	messageRoute := rg.Group("/conversation")
-	messageRoute.Use(auth.AuthMiddleware())
+	wsHandler := websock.NewWSHandler(messageService)
+	rg.GET("/ws", middleware.AuthMiddleware(), wsHandler.Handler)
 
-	messageRoute.POST("", messageController.CreateConversation)
+	messageRoute := rg.Group("/conversation")
+	messageRoute.Use(middleware.AuthMiddleware())
+
+	messageRoute.POST("/create", messageController.CreateConversation)
 
 	//messageRoute.POST("/:id/messages/", messageController.CreateMessage)
 	messageRoute.GET("/:id/messages/latest/:amount", messageController.GetLatestMessages)

@@ -1,4 +1,4 @@
-package auth
+package middleware
 
 import (
 	"github.com/gin-gonic/gin"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func AuthMiddleware() gin.HandlerFunc {
+func AdminAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.Request.Header.Get("Authorization")
 		parts := strings.Split(authHeader, " ")
@@ -26,15 +26,27 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		if authorized {
-			ID, err := ExtractIDFromToken(authToken)
 			role, err := ExtractRoleFromToken(authToken)
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+				c.Abort()
+				return
+			}
+
+			if role != "admin" {
+				c.JSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
+				c.Abort()
+				return
+			}
+
+			ID, err := ExtractIDFromToken(authToken)
 			if err != nil {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 				c.Abort()
 				return
 			}
 
-			c.Set("x-user-id", ID)
+			c.Set("x-admin-id", ID)
 			c.Set("x-role", role)
 			c.Next()
 			return

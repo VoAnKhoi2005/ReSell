@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type Conversation struct {
 	ID        string    `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
@@ -23,4 +26,28 @@ type Message struct {
 
 	Conversation *Conversation `json:"conversation,omitempty"`
 	Sender       *User         `json:"sender,omitempty"`
+}
+
+type SocketMessageType string
+
+const (
+	MessageSend     SocketMessageType = "message_send"
+	NewMessage      SocketMessageType = "new_message"
+	TypingIndicator SocketMessageType = "typing"
+	ErrorMessage    SocketMessageType = "error"
+)
+
+type IncomingSocketMessage struct {
+	Type SocketMessageType `json:"type"`
+	Data json.RawMessage   `json:"data"`
+}
+
+type SendMessagePayload struct {
+	ConversationId string `json:"conversation_id"`
+	Content        string `json:"content"`
+}
+
+type TypingPayload struct {
+	ConversationId string `json:"conversation_id"`
+	IsTyping       bool   `json:"is_typing"`
 }

@@ -34,4 +34,5 @@ go.work.sum
 .DS_Store
 Thumbs.db
 
+# Firebase Admin SDK private key
 resell-3afcc-firebase-adminsdk-fbsvc-a0b6d3db87.json
