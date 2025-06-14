@@ -6,14 +6,14 @@ import arrow.core.EitherNel
 import com.example.resell.ui.domain.NetworkError
 
 interface UserRepository{
-    suspend fun registerUser(): Either<NetworkError, Boolean>
-    suspend fun loginUser(): Either<NetworkError, Boolean>
-    suspend fun updateInfo(): Either<NetworkError, Boolean>
-    suspend fun changePassword(): Either<NetworkError, Boolean>
-    suspend fun deleteUser(): Either<NetworkError, Boolean>
-    suspend fun followUser(): Either<NetworkError, Boolean>
-    suspend fun getAllFollows(): Either<NetworkError, Boolean>
-    suspend fun unfollowUser(): Either<NetworkError, Boolean>
+    suspend fun registerUser(username: String, email: String, phone: String, password: String): Either<NetworkError, Boolean>
+    suspend fun loginUser(identifier: String, password: String, loginType: LoginType): Either<NetworkError, LoginResponse>
+    suspend fun updateInfo(request: UpdateProfileRequest): Either<NetworkError, Boolean>
+    suspend fun changePassword(oldPassword: String, newPassword: String): Either<NetworkError, Boolean>
+    suspend fun deleteUser(userID: String): Either<NetworkError, Boolean>
+    suspend fun followUser(userID: String): Either<NetworkError, Boolean>
+    suspend fun getAllFollows(): Either<NetworkError, List<User>>
+    suspend fun unfollowUser(userID: String): Either<NetworkError, Boolean>
 }
 
 interface AddressRepository{
