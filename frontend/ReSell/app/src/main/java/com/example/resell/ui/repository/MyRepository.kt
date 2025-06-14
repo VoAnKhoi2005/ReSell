@@ -41,7 +41,12 @@ interface PostRepository {
 }
 
 interface OrderRepository{
-    suspend fun createOrder
+    suspend fun createOrder(postID: String, addressID: String, total: Double): Either<NetworkError, Boolean>
+    suspend fun deleteOrder(orderID: String): Either<NetworkError, Boolean>
+    suspend fun updateOrderStatus(orderID: String, status: OrderStatus): Either<NetworkError, Boolean>
+    suspend fun getOrderByPostID(postID: String): Either<NetworkError, ShopOrder>
+    suspend fun getOrderByBuyerID(buyerID: String): Either<NetworkError, List<ShopOrder>>
+    suspend fun getOrderBySellerID(sellerID: String): Either<NetworkError, List<ShopOrder>>
 }
 
 interface ReviewRepository{
