@@ -28,7 +28,12 @@ interface AddressRepository{
 }
 
 interface CategoryRepository{
-
+    suspend fun getAllCategory(): Either<NetworkError, List<Category>>
+    suspend fun getCategoryByID(categoryID: String): Either<NetworkError, Category>
+    suspend fun createCategory(name: String, parentCategoryID: String): Either<NetworkError, Boolean>
+    suspend fun updateCategory(categoryID: String, request: UpdateCategoryRequest): Either<NetworkError, Boolean>
+    suspend fun deleteCategory(categoryID: String): Either<NetworkError, Boolean>
+    suspend fun getChildrenCategories(categoryID: String): Either<NetworkError, List<Category>>
 }
 
 interface PostRepository {
@@ -36,7 +41,7 @@ interface PostRepository {
 }
 
 interface OrderRepository{
-
+    suspend fun createOrder
 }
 
 interface ReviewRepository{
