@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.myapplication"
+    namespace = "com.example.resell"
     compileSdk = 35
 
     defaultConfig {

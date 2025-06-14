@@ -1,7 +1,7 @@
 package di
 
-import com.example.myapplication.ui.MyRepository
-import com.example.myapplication.ui.MyRepositoryImpl
+import com.example.resell.ui.MyRepository
+import com.example.resell.ui.MyRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
