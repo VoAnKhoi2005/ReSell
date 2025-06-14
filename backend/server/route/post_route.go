@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/controller"
-	"github.com/VoAnKhoi2005/ReSell/middleware/auth"
+	"github.com/VoAnKhoi2005/ReSell/middleware"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/gin-gonic/gin"
@@ -17,7 +17,7 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	// User & common
 	posts := rg.Group("/posts")
-	posts.Use(auth.AuthMiddleware())
+	posts.Use(middleware.AuthMiddleware())
 	//posts.GET("", postController.GetPosts)
 	posts.GET("/:id", postController.GetPostByID)
 	posts.GET("/trash", postController.GetAllDeletedPosts) // Get all deleted posts
@@ -33,7 +33,7 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	// Admin actions
 	admin := rg.Group("/admin/posts")
-	admin.Use(auth.AdminAuthMiddleware())
+	admin.Use(middleware.AdminAuthMiddleware())
 	admin.GET("", postController.GetAdminPosts) // Get all posts for admin
 	admin.PUT("/:id/approve", postController.ApprovePost)
 	admin.PUT("/:id/reject", postController.RejectPost)
