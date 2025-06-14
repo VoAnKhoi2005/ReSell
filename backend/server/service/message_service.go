@@ -8,7 +8,7 @@ import (
 
 type MessageService interface {
 	CreateConversation(conversation *model.Conversation) (*model.Conversation, error)
-	DeleteConversation(conversationID string) error
+	DeleteConversation(userID string, conversationID string) error
 	GetConversationByID(conversationId string) (*model.Conversation, error)
 	GetConversationsByPostID(postID string) ([]*model.Conversation, error)
 
@@ -30,10 +30,14 @@ func (m *messageService) CreateConversation(conversation *model.Conversation) (*
 	return m.messageRepository.CreateConversation(conversation)
 }
 
-func (m *messageService) DeleteConversation(conversationID string) error {
+func (m *messageService) DeleteConversation(userID string, conversationID string) error {
 	conversation, err := m.messageRepository.GetConversationByID(conversationID)
 	if err != nil {
 		return err
+	}
+
+	if *conversation.BuyerId != userID || *conversation.SellerId != userID {
+		return errors.New("unauthorized. cannot delete conversation")
 	}
 
 	return m.messageRepository.DeleteConversation(conversation)

@@ -88,7 +88,13 @@ func (mc *MessageController) DeleteConversation(c *gin.Context) {
 		return
 	}
 
-	err := mc.messageService.DeleteConversation(conversationID)
+	userID, err := util.GetUserID(c)
+	if err != nil || userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	err = mc.messageService.DeleteConversation(userID, conversationID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

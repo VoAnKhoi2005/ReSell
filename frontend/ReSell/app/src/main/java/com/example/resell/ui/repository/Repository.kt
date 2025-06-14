@@ -36,7 +36,17 @@ interface CategoryRepository{
 }
 
 interface PostRepository {
-    suspend fun getPosts(): Either<NetworkError, List<Post>>
+    suspend fun getAllPosts(): Either<NetworkError, List<Post>>
+    suspend fun getPostByID(postID: String): Either<NetworkError, Post>
+    suspend fun createPost(title: String, description: String,
+                           categoryID: String, addressID: String,
+                           price: Double): Either<NetworkError, Boolean>
+    suspend fun updatePost(postID: String, request: UpdatePostRequest): Either<NetworkError, Boolean>
+    suspend fun hardDeletePost(postID: String): Either<NetworkError, Boolean>
+    suspend fun softDeletePost(postID: String): Either<NetworkError, Boolean>
+    suspend fun getDeletedPosts(): Either<NetworkError, List<Post>>
+    suspend fun restoreDeletedPost(postID: String): Either<NetworkError, Boolean>
+    suspend fun uploadPostImage(postID: String): Either<NetworkError, ImageUploadResponse>
 }
 
 interface OrderRepository{
