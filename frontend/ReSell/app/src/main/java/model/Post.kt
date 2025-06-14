@@ -1,7 +1,9 @@
 package model
 
 import java.time.LocalDateTime
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class Post(
     val id: String,
     val userId: String,

@@ -4,12 +4,13 @@ import (
 	"errors"
 	"github.com/VoAnKhoi2005/ReSell/model"
 	"github.com/VoAnKhoi2005/ReSell/repository"
+	"github.com/VoAnKhoi2005/ReSell/transaction"
 	"gorm.io/gorm"
 )
 
 type AddressService interface {
 	CreateAddress(address *model.Address) error
-	UpdateAddress(address *model.Address) error
+	UpdateAddress(addressID string, userID string, request *transaction.UpdateAddressRequest) error
 	DeleteAddress(addressID string) error
 
 	GetByID(addressID string) (*model.Address, error)
@@ -52,7 +53,37 @@ func (a *addressService) CreateAddress(address *model.Address) error {
 	return a.AddressRepository.Create(address)
 }
 
-func (a *addressService) UpdateAddress(address *model.Address) error {
+func (a *addressService) UpdateAddress(addressID string, userID string, request *transaction.UpdateAddressRequest) error {
+	address, err := a.AddressRepository.GetByID(addressID)
+	if err != nil {
+		return err
+	}
+
+	if *address.UserID != userID {
+		return errors.New("unauthorized")
+	}
+
+	isChange := false
+
+	if request.WardID != nil && *request.WardID != "" {
+		address.WardID = request.WardID
+		isChange = true
+	}
+
+	if request.Detail != nil && *request.Detail != "" {
+		address.Detail = *request.Detail
+		isChange = true
+	}
+
+	if request.IsDefault != nil && *request.IsDefault != address.IsDefault {
+		address.IsDefault = *request.IsDefault
+		isChange = true
+	}
+
+	if !isChange {
+		return errors.New("no change")
+	}
+
 	return a.AddressRepository.Update(address)
 }
 
