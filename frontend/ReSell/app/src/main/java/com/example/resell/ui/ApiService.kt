@@ -163,6 +163,9 @@ interface ApiService {
     @GET("api/conversation/post/{post_id}")
     suspend fun getConversationByPostID(@Path("post_id") postID: String): List<Conversation>
 
+    @DELETE("api/conversation/{conv_id}")
+    suspend fun deleteConversation(@Path("conv_id") conversationID: String): Boolean
+
     @GET("api/conversation/{conv_id}/messages/latest/{amount}")
     suspend fun getLatestMessages(
         @Path("conv_id") conversationID: String,
