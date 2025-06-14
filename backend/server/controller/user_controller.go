@@ -83,8 +83,8 @@ func (h *UserController) UpdateUser(c *gin.Context) {
 	}
 
 	userID, err := util.GetUserID(c)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+	if err != nil || userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 

@@ -6,7 +6,6 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/transaction"
 	"github.com/VoAnKhoi2005/ReSell/util"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"net/http"
 )
 
@@ -26,13 +25,14 @@ func (ac *AddressController) CreateAddress(c *gin.Context) {
 		return
 	}
 
-	if !util.IsUserOwner(c, request.UserID) {
+	userID, err := util.GetUserID(c)
+	if err != nil || userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	address := model.Address{
-		ID:        uuid.New().String(),
-		UserID:    &request.UserID,
+		UserID:    &userID,
 		WardID:    &request.WardID,
 		Detail:    request.Detail,
 		IsDefault: request.IsDefault,
@@ -122,18 +122,26 @@ func (ac *AddressController) GetAddressByUserID(c *gin.Context) {
 }
 
 func (ac *AddressController) UpdateAddress(c *gin.Context) {
-	var address *model.Address
-	err := c.ShouldBindJSON(&address)
+	var request *transaction.UpdateAddressRequest
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if !util.IsUserOwner(c, *address.UserID) {
+	addressID := c.Param("address_id")
+	if addressID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Address id can't be empty"})
 		return
 	}
 
-	err = ac.addressService.UpdateAddress(address)
+	userID, err := util.GetUserID(c)
+	if err != nil || userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	err = ac.addressService.UpdateAddress(userID, addressID, request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
