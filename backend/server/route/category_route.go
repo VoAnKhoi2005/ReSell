@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/controller"
-	"github.com/VoAnKhoi2005/ReSell/middleware/auth"
+	"github.com/VoAnKhoi2005/ReSell/middleware"
 	"github.com/VoAnKhoi2005/ReSell/repository"
 	"github.com/VoAnKhoi2005/ReSell/service"
 	"github.com/gin-gonic/gin"
@@ -17,14 +17,14 @@ func RegisterCategoryRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	categoryController := controller.NewCategoryController(categoryService)
 
 	//Both admin and user can access
-	categories.Use(auth.AuthMiddleware())
+	categories.Use(middleware.AuthMiddleware())
 	categories.GET("", categoryController.GetAllCategories)
 	categories.GET("/:id", categoryController.GetCategoryByID)
 	categories.GET("/:id/children", categoryController.GetChildrenCategories) // Get children categories by parent ID
 
 	//Only admin
 	admin := rg.Group("/admin/categories")
-	admin.Use(auth.AdminAuthMiddleware())
+	admin.Use(middleware.AdminAuthMiddleware())
 	admin.POST("", categoryController.CreateCategory)
 	admin.PUT("/:id", categoryController.UpdateCategory)
 	admin.DELETE("/:id", categoryController.DeleteCategory)
