@@ -8,6 +8,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
 
@@ -148,5 +149,31 @@ interface ApiService {
 
     @DELETE("api/review/order/{order_id}")
     suspend fun deleteReviewByOrderID(@Path("order_id") orderID: String): Boolean
+    //endregion
+
+    //region Message
+    @POST("api/conversation/create")
+    suspend fun createConversation(
+        @Body request: CreateConversationRequest
+    ): Conversation
+
+    @GET("api/conversation/{conv_id}")
+    suspend fun getConversationByID(@Path("conv_id") conversationID: String): Conversation
+
+    @GET("api/conversation/post/{post_id}")
+    suspend fun getConversationByPostID(@Path("post_id") postID: String): List<Conversation>
+
+    @GET("api/conversation/{conv_id}/messages/latest/{amount}")
+    suspend fun getLatestMessages(
+        @Path("conv_id") conversationID: String,
+        @Path("amount") amount:Int
+    ): List<Message>
+
+    @GET("api/conversation/{conv_id}/messages/in_range")
+    suspend fun getMessagesInRange(
+        @Path("conv_id") conversationID: String,
+        @Query("start") start: Int,
+        @Query("end") end: Int
+    ): List<Message>
     //endregion
 }
