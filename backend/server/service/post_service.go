@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/config"
 	"github.com/VoAnKhoi2005/ReSell/dto"
@@ -177,11 +178,42 @@ func (s *postService) UpdatePost(id string, req *transaction.UpdatePostRequest) 
 		return nil, err
 	}
 
-	post.CategoryID = &req.CategoryID
-	post.AddressID = &req.AddressID
-	post.Title = req.Title
-	post.Description = req.Description
-	post.Price = req.Price
+	isChange := false
+
+	if req.CategoryID != nil && *req.CategoryID != "" {
+		post.CategoryID = req.CategoryID
+		isChange = true
+	}
+
+	if req.AddressID != nil && *req.AddressID != "" {
+		post.AddressID = req.AddressID
+		isChange = true
+	}
+
+	if req.Title != nil && *req.Title != "" {
+		post.Title = *req.Title
+		isChange = true
+	}
+
+	if req.Description != nil && *req.Description != "" {
+		post.Description = *req.Description
+		isChange = true
+	}
+
+	if req.Price != nil {
+		post.Price = *req.Price
+		isChange = true
+	}
+
+	if !isChange {
+		return nil, errors.New("no change")
+	}
+
+	//post.CategoryID = &req.CategoryID
+	//post.AddressID = &req.AddressID
+	//post.Title = req.Title
+	//post.Description = req.Description
+	//post.Price = req.Price
 
 	err = s.repo.Update(post)
 	return post, err

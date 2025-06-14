@@ -1,5 +1,6 @@
 package model
 
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 
@@ -76,6 +77,29 @@ data class UpdateCategoryRequest(
 //endregion
 
 //region Post
+@JsonClass(generateAdapter = true)
+data class CreatePostRequest(
+    val title: String,
+    val description: String,
+    val categoryID: String,
+    val addressID: String,
+    val price: Double
+)
+
+@JsonClass(generateAdapter = true)
+data class UpdatePostRequest(
+    val categoryID: String? = null,
+    val addressID: String? = null,
+    val title: String? = null,
+    val description: String? = null,
+    val price: Double? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class ImageUploadResponse(
+    val imageUrls: List<String>,
+    val message: String
+)
 //endregion
 
 //region Order

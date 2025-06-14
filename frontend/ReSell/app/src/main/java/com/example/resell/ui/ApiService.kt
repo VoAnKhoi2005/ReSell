@@ -2,11 +2,14 @@ package com.example.resell.ui
 
 
 import model.*
+import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -103,8 +106,41 @@ interface ApiService {
     //endregion
 
     //region Post
-    @GET("")
-    suspend fun getPosts():List<Post>
+    @GET("api/posts")
+    suspend fun getAllPosts(): List<Post>
+
+    @GET("api/posts/{post_id}")
+    suspend fun getPostByID(@Path("post_id") postID: String): Post
+
+    @POST("api/posts")
+    suspend fun createPost(
+        @Body request: CreatePostRequest
+    ): Boolean
+
+    @PUT("api/posts/{post_id}")
+    suspend fun updatePost(
+        @Path("post_id") postID: String,
+        @Body request: UpdatePostRequest
+    ): Boolean
+
+    @DELETE("api/posts/{post_id}")
+    suspend fun hardDeletePost(@Path("post_id") postID: String): Boolean
+
+    @DELETE("api/posts/{post_id}/soft-delete")
+    suspend fun softDeletePost(@Path("post_id") postID: String): Boolean
+
+    @GET("api/posts/trash")
+    suspend fun getAllDeletedPosts(): List<Post>
+
+    @PUT("api/posts/{post_id}/restore")
+    suspend fun restoreDeletedPost(@Path("post_id") postID: String): Boolean
+
+    @Multipart
+    @POST("images/{id}")
+    suspend fun uploadPostImages(
+        @Path("id") postId: String,
+        @Part images: List<MultipartBody.Part>
+    ): ImageUploadResponse
     //endregion
 
     //region Order
