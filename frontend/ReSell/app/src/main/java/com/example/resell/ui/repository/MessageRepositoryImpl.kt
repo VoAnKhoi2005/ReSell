@@ -1,16 +1,23 @@
 package com.example.resell.ui.repository
 
+import android.util.Log
 import arrow.core.Either
-import com.example.resell.ui.ApiService
+import com.example.resell.ui.network.ApiService
 import com.example.resell.ui.domain.NetworkError
 import com.example.resell.ui.mapper.toNetworkError
+import com.example.resell.ui.network.WebSocketManager
 import model.Conversation
 import model.CreateConversationRequest
 import model.Message
+import model.SendMessagePayload
+import model.SocketMessageType
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class MessageRepositoryImpl @Inject constructor(
-    private val apiService: ApiService
+    private val apiService: ApiService,
+    private val wsManager: WebSocketManager
 ): MessageRepository {
     override suspend fun createConversation(
         buyerID: String,
@@ -63,5 +70,20 @@ class MessageRepositoryImpl @Inject constructor(
         return Either.catch {
             apiService.getMessagesInRange(conversationID, start, end)
         }.mapLeft { it.toNetworkError() }
+    }
+
+    //Return temp message id before get update from server
+    override suspend fun sendWSMessage(conversationID: String, content: String): String {
+        if (!wsManager.isConnected()) {
+            Log.d("WebSocket", "Fail to send: not connected")
+            return ""
+        }
+
+        val payload = SendMessagePayload(
+            conversationID = conversationID,
+            content = content
+        )
+
+        return wsManager.send(SocketMessageType.new_message, payload, SendMessagePayload::class.java)
     }
 }

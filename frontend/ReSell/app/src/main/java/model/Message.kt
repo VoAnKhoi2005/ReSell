@@ -1,7 +1,7 @@
 package model
 
-import java.time.LocalDateTime
 import com.squareup.moshi.JsonClass
+import java.time.LocalDateTime
 
 @JsonClass(generateAdapter = true)
 data class Message(

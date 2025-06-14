@@ -1,7 +1,7 @@
 package di
 
-import com.example.resell.ui.ApiService
-import com.example.resell.ui.RefreshApiService
+import com.example.resell.ui.network.ApiService
+import com.example.resell.ui.network.RefreshApiService
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -13,6 +13,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import store.TokenManager
 import util.AuthInterceptor
+import util.LocalDateTimeAdapter
 import util.TokenAuthenticator
 import javax.inject.Named
 import javax.inject.Singleton
@@ -26,6 +27,7 @@ object AppModule {
     @Singleton
     fun provideMoshi(): Moshi {
         return Moshi.Builder()
+            .add(LocalDateTimeAdapter())
             .add(KotlinJsonAdapterFactory())
             .build()
     }

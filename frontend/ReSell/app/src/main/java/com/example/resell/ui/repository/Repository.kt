@@ -73,4 +73,5 @@ interface MessageRepository{
     suspend fun getConversationsByPostID(postID: String): Either<NetworkError, List<Conversation>>
     suspend fun getLatestMessage(conversationID: String, amount: Int): Either<NetworkError,List<Message>>
     suspend fun getMessageInRange(conversationID: String, start: Int, end: Int): Either<NetworkError,List<Message>>
+    suspend fun sendWSMessage(conversationID: String, content: String): String
 }

@@ -45,15 +45,15 @@ var upgrader = websocket.Upgrader{
 }
 
 func (h *WSHandler) Handler(c *gin.Context) {
-	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "WebSocket upgrade failed"})
-		return
-	}
-
 	userID, err := util.GetUserID(c)
 	if err != nil || userID == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User authentication failed"})
+		return
+	}
+
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "WebSocket upgrade failed"})
 		return
 	}
 
@@ -144,24 +144,18 @@ func (h *WSHandler) handleSendMessage(sess *model.Session, msg *model.SendMessag
 		return
 	}
 
-	response := map[string]interface{}{
-		"type": model.NewMessage,
-		"data": map[string]interface{}{
-			"id":              savedMsg.ID,
-			"content":         savedMsg.Content,
-			"sender_id":       savedMsg.SenderId,
-			"created_at":      savedMsg.CreatedAt,
-			"conversation_id": savedMsg.ConversationId,
-		},
-	}
-
 	// Send confirmation to sender
 	h.sendToSession(sess, map[string]interface{}{
 		"type": model.MessageSend,
-		"id":   savedMsg.ID,
+		"data": savedMsg,
 	})
 
 	// Broadcast to other participant
+	response := map[string]interface{}{
+		"type": model.NewMessage,
+		"data": savedMsg,
+	}
+
 	var recipientID string
 	if conversation.BuyerId != nil && *conversation.BuyerId != sess.UserID {
 		recipientID = *conversation.BuyerId
