@@ -1,0 +1,10 @@
+package com.example.resell.ui.repository
+
+import com.example.resell.ui.ApiService
+import javax.inject.Inject
+
+class AddressRepositoryImpl @Inject constructor(
+    private val apiService: ApiService
+): AddressRepository {
+
+}
