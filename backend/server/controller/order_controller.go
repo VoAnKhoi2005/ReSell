@@ -26,8 +26,14 @@ func (oc *OrderController) CreateOrder(c *gin.Context) {
 		return
 	}
 
+	userID, err := util.GetUserID(c)
+	if err != nil || userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "unauthorized"})
+		return
+	}
+
 	order := model.ShopOrder{
-		UserId:    &request.UserID,
+		UserId:    &userID,
 		PostId:    &request.PostID,
 		Status:    model.OrderStatusPending,
 		AddressId: &request.AddressID,
