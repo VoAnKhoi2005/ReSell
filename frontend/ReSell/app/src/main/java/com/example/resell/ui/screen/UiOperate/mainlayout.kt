@@ -21,7 +21,7 @@ import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.screen.home.HomeScreen
 import com.example.resell.ui.screen.market.MarketScreen
 import com.example.resell.ui.screen.postmanagement.PostMangamentScreen
-import com.example.resell.ui.screen.profile.ProfileScreen
+import com.example.resell.ui.screen.profile.ProfileScreen.ProfileScreen
 
 
 @Composable
