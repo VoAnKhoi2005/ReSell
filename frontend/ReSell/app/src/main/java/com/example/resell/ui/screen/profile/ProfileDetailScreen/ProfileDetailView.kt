@@ -45,6 +45,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.resell.R
 import com.example.resell.ui.components.ProfileHeaderSection
+import com.example.resell.ui.components.TopBar
+import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.screen.postmanagement.ApproveScreen
 import com.example.resell.ui.screen.postmanagement.NotApprovedScreen
 import com.example.resell.ui.theme.DarkBlue
@@ -55,7 +57,16 @@ import kotlinx.coroutines.launch
 fun ProfileDetailScreen() {
     val pagerState = rememberPagerState(pageCount = { ProfileDetailTab.entries.size })
     val selectedTabIndex = remember { derivedStateOf { pagerState.currentPage } }
+
     Column(modifier = Modifier.fillMaxSize()) {
+        TopBar(
+            titleText = "Phạm Thành Long",
+            showBackButton = true,
+            onBackClick = {
+                NavigationController.navController.popBackStack()
+            }
+        )
+
         ProfileHeaderSection(
             avatarUrl = "https://i.pinimg.com/736x/b0/d3/8c/b0d38ce8049048d15c70da852021fa82.jpg",
             coverUrl = "https://images.unsplash.com/photo-1560972550-aba3456b5564?w=600&auto=format&fit=crop&q=60",
@@ -75,15 +86,14 @@ fun ProfileDetailScreen() {
             showShareButton = true,
             showEditButton = true
         )
-            ProfileTabsPager(
-                selectedTabIndex = selectedTabIndex.value,
-                pagerState = pagerState,
-                onTabSelected = { /* optional: update ViewModel or other logic */ }
-            )
-            }
 
-        }
-
+        ProfileTabsPager(
+            selectedTabIndex = selectedTabIndex.value,
+            pagerState = pagerState,
+            onTabSelected = { /* optional: update ViewModel or other logic */ }
+        )
+    }
+}
 
 
 enum class ProfileDetailTab(
