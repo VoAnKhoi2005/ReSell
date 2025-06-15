@@ -1,10 +1,10 @@
 package route
 
 import (
-	"github.com/VoAnKhoi2005/ReSell/controller"
-	"github.com/VoAnKhoi2005/ReSell/middleware"
-	"github.com/VoAnKhoi2005/ReSell/repository"
-	"github.com/VoAnKhoi2005/ReSell/service"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/controller"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/middleware"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

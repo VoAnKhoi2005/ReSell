@@ -1,4 +1,4 @@
-module github.com/VoAnKhoi2005/ReSell
+module github.com/VoAnKhoi2005/ReSell/backend/server
 
 go 1.24.2
 

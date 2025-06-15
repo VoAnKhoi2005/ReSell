@@ -1,6 +1,6 @@
 package transaction
 
-import "github.com/VoAnKhoi2005/ReSell/model"
+import "github.com/VoAnKhoi2005/ReSell/backend/server/model"
 
 type RegisterRequest struct {
 	Username string `json:"username" binding:"required"`
