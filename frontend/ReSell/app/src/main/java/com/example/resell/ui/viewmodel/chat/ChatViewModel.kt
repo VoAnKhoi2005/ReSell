@@ -29,11 +29,15 @@ class ChatViewModel @Inject constructor(
             senderId = DataStore.user?.id ?: "",
             content = content,
             createdAt = LocalDateTime.now(),
-            avatarURL = "https://images.unsplash.com/photo-1571757767119-68b8d"
         )
         _state.update { it.copy(messages = it.messages + message) }
     }
-
+    fun showLoaading(){
+        _state.update { it.copy(isLoading = true) }
+    }
+    fun hideLoading(){
+        _state.update { it.copy(isLoading = false) }
+    }
      fun getMessages(conversationId : String){
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
@@ -54,7 +58,6 @@ class ChatViewModel @Inject constructor(
                     senderId = "buyer_1",
                     content = "Hello, I'm buyer 1",
                     createdAt = LocalDateTime.now().minusMinutes(10),
-                    avatarURL = "https://images.unsplash.com/photo-1571757767119-68b8d"
                 ),
                 Message(
                     id = "msg_2",
@@ -62,7 +65,6 @@ class ChatViewModel @Inject constructor(
                     senderId = "seller_1",
                     content = "Hi, I'm seller 1",
                     createdAt = LocalDateTime.now().minusMinutes(9),
-                    avatarURL = "https://images.unsplash.com/photo-1571757767119-68b8d"
                 ),
                 Message(
                     id = "msg_3",
@@ -70,7 +72,6 @@ class ChatViewModel @Inject constructor(
                     senderId = "buyer_1",
                     content = "I have a question about the product.",
                     createdAt = LocalDateTime.now().minusMinutes(8),
-                    avatarURL = "https://images.unsplash.com/photo-1571757767119-68b8d"
                 ),
                 Message(
                     id = "msg_4",
@@ -78,7 +79,6 @@ class ChatViewModel @Inject constructor(
                     senderId = "seller_1",
                     content = "Sure, go ahead.",
                     createdAt = LocalDateTime.now().minusMinutes(7),
-                    avatarURL = "https://images.unsplash.com/photo-1571757767119-68b8d"
                 ),
                 Message(
                     id = "msg_5",
@@ -86,7 +86,6 @@ class ChatViewModel @Inject constructor(
                     senderId = "buyer_1",
                     content = "Is this still available?",
                     createdAt = LocalDateTime.now().minusMinutes(6),
-                    avatarURL = "https://images.unsplash.com/photo-1571757767119-68b8d"
                 ),
                 Message(
                     id = "msg_6",
@@ -94,7 +93,6 @@ class ChatViewModel @Inject constructor(
                     senderId = "seller_1",
                     content = "Yes, it is.",
                     createdAt = LocalDateTime.now().minusMinutes(5),
-                    avatarURL = "https://images.unsplash.com/photo-1571757767119-68b8d"
                 ),
                 Message(
                     id = "msg_7",
@@ -102,7 +100,6 @@ class ChatViewModel @Inject constructor(
                     senderId = "buyer_1",
                     content = "Can you ship it tomorrow?",
                     createdAt = LocalDateTime.now().minusMinutes(4),
-                    avatarURL = "https://images.unsplash.com/photo-1571757767119-68b8d"
                 ),
                 Message(
                     id = "msg_8",
@@ -110,7 +107,6 @@ class ChatViewModel @Inject constructor(
                     senderId = "seller_1",
                     content = "Absolutely. I can send it first thing in the morning.By the way, i gonna dead after send you that, remember to find my body",
                     createdAt = LocalDateTime.now().minusMinutes(3),
-                    avatarURL = "https://images.unsplash.com/photo-1571757767119-68b8d"
                 ),
                 Message(
                     id = "msg_9",
@@ -118,7 +114,6 @@ class ChatViewModel @Inject constructor(
                     senderId = "buyer_1",
                     content = "Perfect! Thank you.",
                     createdAt = LocalDateTime.now().minusMinutes(2),
-                    avatarURL = "https://images.unsplash.com/photo-1571757767119-68b8d"
                 ),
                 Message(
                     id = "msg_10",
@@ -126,7 +121,6 @@ class ChatViewModel @Inject constructor(
                     senderId = "seller_1",
                     content = "You're welcome!",
                     createdAt = LocalDateTime.now().minusMinutes(1),
-                    avatarURL = "https://images.unsplash.com/photo-1571757767119-68b8d"
                 )
             )
 

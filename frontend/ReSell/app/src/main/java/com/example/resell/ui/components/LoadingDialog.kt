@@ -2,6 +2,7 @@ package com.example.resell.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,9 +24,7 @@ fun LoadingDialog(isLoading: Boolean){
             properties = DialogProperties(dismissOnClickOutside = false)
         ){
             Box(modifier = Modifier
-                .width(200.dp)
-                .clip(RoundedCornerShape(15.dp))
-                .background(color = SoftBlue),
+                .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ){
                 CircularProgressIndicator(modifier = Modifier.padding(10.dp))
