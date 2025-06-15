@@ -41,15 +41,33 @@ import com.example.resell.ui.components.LoadingDialog
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.theme.*
 import com.example.resell.ui.viewmodel.chat.ChatViewModel
+import com.example.resell.ui.viewmodel.chat.ChatViewState
 import model.Message
 import model.User
 import store.DataStore
 import java.time.LocalDate
 import java.time.LocalDateTime
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.accompanist.permissions.rememberPermissionState
+import android.Manifest
+import android.content.Intent
+import android.net.Uri
+import android.os.Looper
+
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+
 
 @Composable
 fun ChatScreen(conversationId: String) {
-    val viewModel: ChatViewModel = hiltViewModel()
+    val viewModel: ChatViewModel  = hiltViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LoadingDialog(isLoading = state.isLoading)
@@ -57,6 +75,7 @@ fun ChatScreen(conversationId: String) {
     LaunchedEffect(key1 = true) {
         viewModel.getMessages(conversationId)
     }
+   val receiverAvatarUrl = "https://plus.unsplash.com/premium_photo-1666700698946-fbf7baa0134a"
 
     // Mock user data
     DataStore.user = User(
@@ -81,12 +100,12 @@ fun ChatScreen(conversationId: String) {
         topBar = {
             ChatTopBar(
                 receiverName = "Chúa MHề 4.0",
-                receiverAvatarUrl = "https://plus.unsplash.com/premium_photo-1666700698946-fbf7baa0134a"
+                receiverAvatarUrl = receiverAvatarUrl.takeIf { it.isNotBlank() } ?: "https://static.vecteezy.com/system/resources/previews/009/734/564/original/default-avatar-profile-icon-of-social-media-user-vector.jpg"
             )
         },
         bottomBar = {
             Column {
-                ChatInputBar(onSendMessage = { text -> viewModel.sendMessage(text) })
+                ChatInputBar(viewModel,onSendMessage = { text -> viewModel.sendMessage(text) })
                 Spacer(modifier = Modifier.height(32.dp)) // đẩy lên 8dp
             }
         }
@@ -94,15 +113,16 @@ fun ChatScreen(conversationId: String) {
     ) { innerPadding ->
         ChatMessages(
             modifier = Modifier.padding(innerPadding),
-            messages = state.messages
+            messages = state.messages,
+            receiverAvatarUrl
         )
     }
 }
-
 @Composable
 fun ChatMessages(
     modifier: Modifier = Modifier,
-    messages: List<Message>
+    messages: List<Message>,
+    receiverAvatarUrl: String
 ) {
     val listState = rememberLazyListState()
 
@@ -127,7 +147,7 @@ fun ChatMessages(
 
         }
         items(messages) { message ->
-            ChatBubble(message = message)
+            ChatBubble(message = message,receiverAvatarUrl)
         }
         item {
             Spacer(modifier = Modifier.height(15.dp))
@@ -135,20 +155,65 @@ fun ChatMessages(
     }
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun ChatInputBar(
+fun ChatInputBar(viewModel: ChatViewModel,
     onSendMessage: (String) -> Unit
 ) {
     val msg = remember { mutableStateOf("") }
     val hideKeyboardController = LocalSoftwareKeyboardController.current
 
+    val locationPermissions = rememberMultiplePermissionsState(
+        listOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+    )
+    val context = LocalContext.current
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = {}) {
+        IconButton(onClick = {
+            locationPermissions.launchMultiplePermissionRequest()
+            if (locationPermissions.allPermissionsGranted) {
+                    viewModel.showLoaading()
+                val locationRequest = LocationRequest.create().apply {
+                    priority = Priority.PRIORITY_HIGH_ACCURACY
+                    interval = 1000
+                    fastestInterval = 500
+                    numUpdates = 1
+                }
+
+                val locationCallback = object : LocationCallback() {
+                    override fun onLocationResult(result: LocationResult) {
+                        viewModel.hideLoading()
+                        val location = result.lastLocation
+                        if (location != null) {
+                            val lat = location.latitude
+                            val lon = location.longitude
+                            val mapUrl = "https://maps.google.com/?q=$lat,$lon"
+                            onSendMessage("dab64614f35cbb2e3d8819ef6c1769e4 $mapUrl")
+
+                            fusedLocationClient.removeLocationUpdates(this)
+                        } else {
+                            Toast.makeText(context, "Không thể lấy vị trí", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+
+                fusedLocationClient.requestLocationUpdates(
+                    locationRequest,
+                    locationCallback,
+                    Looper.getMainLooper()
+                )
+            } else {
+                locationPermissions.launchMultiplePermissionRequest()
+            }
+        }) {
             Image(
                 painter = painterResource(id = R.drawable.baseline_add_circle_24),
                 contentDescription = "Send",
@@ -229,11 +294,12 @@ fun ChatInputBar(
 }
 
 @Composable
-fun ChatBubble(message: Message) {
+fun ChatBubble(message: Message, receiverAvatarUrl : String) {
     val isCurrentUser = message.senderId == DataStore.user?.id
     val alignment = if (isCurrentUser) Arrangement.End else Arrangement.Start
     val bubbleColor = if (isCurrentUser) SoftBlue else BuyerMessage
-
+    val isLocationMessage = message.content.contains("dab64614f35cbb2e3d8819ef6c1769e4")
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -244,7 +310,7 @@ fun ChatBubble(message: Message) {
         if (!isCurrentUser) {
             Image(
                 painter = rememberAsyncImagePainter(
-                    model = "https://plus.unsplash.com/premium_photo-1666700698946-fbf7baa0134a"
+                    model = receiverAvatarUrl.takeIf { it.isNotBlank() } ?: "https://static.vecteezy.com/system/resources/previews/009/734/564/original/default-avatar-profile-icon-of-social-media-user-vector.jpg"
                 ),
                 contentDescription = "Avatar",
                 modifier = Modifier
@@ -260,8 +326,18 @@ fun ChatBubble(message: Message) {
                 .background(color = bubbleColor, shape = RoundedCornerShape(8.dp))
                 .padding(8.dp)
                 .widthIn(max = 250.dp)
+                .clickable(enabled = isLocationMessage) {
+                    if (isLocationMessage) {
+                        val urlStartIndex = message.content.indexOf("https://maps.google.com")
+                        val url = message.content.substring(urlStartIndex)
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        context.startActivity(intent)
+                    }
+                }
         ) {
-            Text(text = message.content, color = IconColor)
+            var text = message.content;
+            if(message.content.contains("dab64614f35cbb2e3d8819ef6c1769e4")) text = "📍 Vị trí hiện tại của tôi"
+            Text(text =text, color = IconColor)
         }
     }
 }

@@ -10,5 +10,4 @@ data class Message(
     val senderId: String,
     val content: String,
     val createdAt: LocalDateTime?,
-    val avatarURL: String//tạm thời thêm
 )

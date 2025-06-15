@@ -79,4 +79,7 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.moshi.kotlin)
     implementation(libs.converter.moshi)
+
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }
