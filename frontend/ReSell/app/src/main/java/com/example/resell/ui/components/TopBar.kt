@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -25,7 +26,6 @@ import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.theme.IconColor
 import com.example.resell.ui.theme.SoftBlue
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
@@ -34,7 +34,9 @@ fun TopBar(
     titleText: String? = null,
     showNotificationIcon: Boolean = false,
     showEmailIcon: Boolean = false,
-    onSearchNavigate: (() -> Unit)? = null
+    onSearchNavigate: (() -> Unit)? = null,
+    showBackButton: Boolean = false, // ✅ Cho phép hiển thị nút back
+    onBackClick: (() -> Unit)? = null // ✅ Callback cho nút back
 ) {
     TopAppBar(
         modifier = modifier,
@@ -47,7 +49,7 @@ fun TopBar(
                     MySearchBar(
                         modifier = Modifier.padding(bottom = 16.dp),
                         onActivateSearch = {
-                            onSearchNavigate?.invoke() // Gọi callback để điều hướng
+                            onSearchNavigate?.invoke()
                         }
                     )
                 }
@@ -63,19 +65,30 @@ fun TopBar(
                 }
             }
         },
+        navigationIcon = {
+            if (showBackButton) {
+                IconButton(onClick = { onBackClick?.invoke() }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = IconColor
+                    )
+                }
+            }
+        },
         actions = {
             if (showNotificationIcon) {
                 Icon(
                     imageVector = Icons.Default.Notifications,
                     contentDescription = "Notifications",
-                    modifier = Modifier.padding(start = 16.dp, end = 8.dp).size(30.dp),
-                    tint = IconColor,
-
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 8.dp)
+                        .size(30.dp),
+                    tint = IconColor
                 )
             }
 
             if (showEmailIcon) {
-
                 IconButton(onClick = {
                     NavigationController.navController.navigate(Screen.ChatHome.route)
                 }) {
