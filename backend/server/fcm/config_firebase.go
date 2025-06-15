@@ -1,4 +1,4 @@
-package config
+package fcm
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 )
 
 func InitFirebase() *firebase.App {
-	opt := option.WithCredentialsFile("resell-3afcc-firebase-adminsdk-fbsvc-a0b6d3db87")
+	opt := option.WithCredentialsFile("resell-3afcc-firebase-adminsdk-fbsvc-5d0b6bc88b.json")
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
 		log.Fatalf("error initializing Firebase app: %v", err)
