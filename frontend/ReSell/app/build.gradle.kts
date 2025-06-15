@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.security.crypto.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -80,6 +81,8 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.converter.moshi)
 
-    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
-    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation(libs.accompanist.permissions)
+    implementation(libs.play.services.location)
+
+    implementation(libs.androidx.security.crypto)
 }
