@@ -22,6 +22,9 @@ func main() {
 	config.RunMigrations()
 	config.InitRedis()
 
+	//Firebase
+	//fb_app := config.InitFirebase()
+
 	r := gin.Default()
 	allowOrigin := os.Getenv("FRONTEND_URL")
 	if allowOrigin == "" {
