@@ -1,7 +1,7 @@
 package route
 
 import (
-	"github.com/VoAnKhoi2005/ReSell/config"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
 	"github.com/gin-gonic/gin"
 )
 

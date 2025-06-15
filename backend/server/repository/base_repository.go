@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/VoAnKhoi2005/ReSell/util"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"gorm.io/gorm"
 )
 

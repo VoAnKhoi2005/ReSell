@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/VoAnKhoi2005/ReSell/model"
-	"github.com/VoAnKhoi2005/ReSell/util"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"gorm.io/gorm"
 )
 

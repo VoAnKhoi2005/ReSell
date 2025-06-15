@@ -2,8 +2,8 @@ package service
 
 import (
 	"errors"
-	"github.com/VoAnKhoi2005/ReSell/model"
-	"github.com/VoAnKhoi2005/ReSell/repository"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 )
 
 type OrderService interface {
