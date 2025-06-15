@@ -11,6 +11,7 @@ import com.example.resell.ui.screen.chat.chathomescreen.ChatHomeScreen
 import com.example.resell.ui.screen.chat.chatscreen.ChatScreen
 import com.example.resell.ui.screen.UiOperate.MainLayout
 import com.example.resell.ui.screen.login.LoginScreen
+import com.example.resell.ui.screen.profile.ProfileDetailScreen.ProfileDetailScreen
 import com.example.resell.ui.screen.register.RegisterScreen
 import com.example.resell.ui.screen.search.SearchScreen
 
@@ -57,6 +58,9 @@ fun SetupNavGraph(
         }
         composable(Screen.Search.route) {
             SearchScreen(navController) // màn hình tìm kiếm của bạn
+        }
+        composable(Screen.ProfileDetail.route) {
+            ProfileDetailScreen()
         }
     }
 }

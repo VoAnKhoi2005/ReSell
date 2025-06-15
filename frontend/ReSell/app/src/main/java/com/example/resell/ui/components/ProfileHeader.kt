@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import com.example.resell.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -267,6 +268,7 @@ fun ProfileSimpleHeaderSection(
         Box(
             modifier = Modifier
                 .size(100.dp)
+                .clickable { onChangeAvatarClick?.invoke() } // click toàn vùng
         ) {
             AsyncImage(
                 model = avatarUrl,
@@ -278,29 +280,24 @@ fun ProfileSimpleHeaderSection(
                     .border(2.dp, Color.White, CircleShape)
             )
 
-            IconButton(
-                onClick = { onChangeAvatarClick?.invoke() },
+
+            Box(
                 modifier = Modifier
                     .size(28.dp)
                     .align(Alignment.BottomEnd)
                     .offset(x = 1.dp, y = 1.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .border(1.dp, Color.Gray, CircleShape)
             ) {
-                Box(
+                Image(
+                    painter = painterResource(id = R.drawable.editprofileicon),
+                    contentDescription = "Change avatar",
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(CircleShape)
-                        .background(Color.White)
-                        .border(1.dp, Color.Gray, CircleShape)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.editprofileicon),
-                        contentDescription = "Change avatar",
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(2.dp),
-                        contentScale = ContentScale.Crop
-                    )
-                }
+                        .padding(2.dp),
+                    contentScale = ContentScale.Crop
+                )
             }
         }
 

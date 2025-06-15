@@ -20,6 +20,8 @@ import com.example.resell.R
 import com.example.resell.ui.components.IconButtonHorizontal
 import com.example.resell.ui.components.ProfileHeaderSection
 import com.example.resell.ui.components.ProfileSimpleHeaderSection
+import com.example.resell.ui.navigation.NavigationController
+import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
 
@@ -35,7 +37,10 @@ fun ProfileScreen()
             rating = "Chưa có đánh giá",
             userId = "08366333080",
             followerCount = 0,
-            followingCount = 0
+            followingCount = 0,
+            onChangeAvatarClick = {
+                NavigationController.navController.navigate(Screen.ProfileDetail.route)
+            }
         )
         Column(modifier = Modifier.fillMaxSize()) {
             Box(
