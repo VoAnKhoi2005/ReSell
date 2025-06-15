@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"github.com/VoAnKhoi2005/ReSell/model"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"

@@ -3,9 +3,9 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/VoAnKhoi2005/ReSell/model"
-	"github.com/VoAnKhoi2005/ReSell/repository"
-	request "github.com/VoAnKhoi2005/ReSell/transaction"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
+	request "github.com/VoAnKhoi2005/ReSell/backend/server/transaction"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"strings"

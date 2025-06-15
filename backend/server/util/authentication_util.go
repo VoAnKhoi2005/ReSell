@@ -2,7 +2,7 @@ package util
 
 import (
 	"errors"
-	"github.com/VoAnKhoi2005/ReSell/middleware"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/middleware"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

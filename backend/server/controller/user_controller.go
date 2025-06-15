@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"github.com/VoAnKhoi2005/ReSell/service"
-	"github.com/VoAnKhoi2005/ReSell/transaction"
-	"github.com/VoAnKhoi2005/ReSell/util"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/transaction"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
