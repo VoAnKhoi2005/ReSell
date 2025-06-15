@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/VoAnKhoi2005/ReSell/model"
-	"github.com/VoAnKhoi2005/ReSell/service"
-	"github.com/VoAnKhoi2005/ReSell/util"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
