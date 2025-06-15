@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/transaction"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -20,14 +21,8 @@ func NewMessageController(messageService service.MessageService) *MessageControl
 	}
 }
 
-type CreateConversationRequest struct {
-	BuyerID  string `json:"buyer_id" binding:"required"`
-	SellerID string `json:"seller_id" binding:"required"`
-	PostID   string `json:"post_id" binding:"required"`
-}
-
 func (mc *MessageController) CreateConversation(c *gin.Context) {
-	var request CreateConversationRequest
+	var request transaction.CreateConversationRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -54,14 +49,62 @@ func (mc *MessageController) CreateConversation(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"conversation": createdConversation})
 }
 
-type CreateMessageRequest struct {
-	Content        string `json:"content" binding:"required"`
-	ConversationId string `json:"conversationId" binding:"required"`
-	SenderId       string `json:"senderId" binding:"required"`
+func (mc *MessageController) GetConversationByID(c *gin.Context) {
+	conversationID := c.Param("id")
+	if conversationID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "conversation id is required"})
+		return
+	}
+
+	conversation, err := mc.messageService.GetConversationByID(conversationID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"conversation": conversation})
+}
+
+func (mc *MessageController) GetConversationByPostID(c *gin.Context) {
+	postID := c.Param("post_id")
+	if postID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "post id is required"})
+		return
+	}
+
+	conversation, err := mc.messageService.GetConversationsByPostID(postID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"conversation": conversation})
+}
+
+func (mc *MessageController) DeleteConversation(c *gin.Context) {
+	conversationID := c.Param("id")
+	if conversationID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "conversation id is required"})
+		return
+	}
+
+	userID, err := util.GetUserID(c)
+	if err != nil || userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	err = mc.messageService.DeleteConversation(userID, conversationID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
 func (mc *MessageController) CreateMessage(c *gin.Context) {
-	var request CreateMessageRequest
+	var request transaction.CreateMessageRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

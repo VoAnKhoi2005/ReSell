@@ -21,5 +21,5 @@ func RegisterCartRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	cart.GET("", cartController.GetCartItems)          // Get all items in the cart
 	cart.POST("", cartController.CreateCartItem)       // Add an item to the cart
-	cart.DELETE("/:id", cartController.DeleteCartItem) // Remove an item from the carts
+	cart.DELETE("/:id", cartController.DeleteCartItem) // RemoveSession an item from the carts
 }
