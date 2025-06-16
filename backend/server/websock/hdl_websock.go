@@ -106,6 +106,7 @@ func (h *WSHandler) readLoop(sess *model.Session) {
 				log.Printf("ws: invalid send payload from user %s: %v", sess.UserID, err)
 				continue
 			}
+			sess.LastAction = time.Now().Unix()
 			go h.handleSendMessage(sess, &payload)
 
 		case model.TypingIndicator:
@@ -114,6 +115,7 @@ func (h *WSHandler) readLoop(sess *model.Session) {
 				log.Printf("ws: invalid typing payload from user %s: %v", sess.UserID, err)
 				continue
 			}
+			sess.LastAction = time.Now().Unix()
 			go h.handleTyping(sess, payload)
 
 		default:

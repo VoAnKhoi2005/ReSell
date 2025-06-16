@@ -87,7 +87,11 @@ func (r *userRepository) GetUsersByBatch(batchSize int, page int) ([]*model.User
 	totalBatches := int((totalCount + int64(batchSize) - 1) / int64(batchSize))
 	offset := (page - 1) * batchSize
 
-	if page > totalBatches && totalBatches != 0 {
+	if totalBatches == 0 {
+		totalBatches = 1
+	}
+
+	if page > totalBatches {
 		return nil, totalBatches, fmt.Errorf("page %d out of range: total pages %d", page, totalBatches)
 	}
 

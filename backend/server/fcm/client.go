@@ -2,19 +2,24 @@ package fcm
 
 import (
 	"context"
-	"fmt"
+	"firebase.google.com/go/messaging"
 	"log"
 
 	firebase "firebase.google.com/go"
 	"google.golang.org/api/option"
 )
 
-func InitFirebase() *firebase.App {
+var fcmClient *messaging.Client
+
+func InitFirebase() {
 	opt := option.WithCredentialsFile("resell-3afcc-firebase-adminsdk-fbsvc-5d0b6bc88b.json")
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
 		log.Fatalf("error initializing Firebase app: %v", err)
 	}
-	fmt.Println("Firebase app initialized successfully")
-	return app
+
+	fcmClient, err = app.Messaging(context.Background())
+	if err != nil {
+		log.Fatalf("error initializing Messaging client: %v", err)
+	}
 }
