@@ -23,7 +23,7 @@ type User struct {
 	Email      string     `json:"email"`
 	Phone      string     `json:"phone"`
 	Password   string     `json:"password"`
-	Fullname   string     `json:"fullname"`
+	Fullname   string     `json:"full_name"`
 	CitizenId  string     `json:"citizen_id"`
 	Status     UserStatus `json:"status"`
 	Reputation int        `json:"reputation"`
@@ -39,15 +39,4 @@ type Follow struct {
 
 	Seller *User `json:"seller,omitempty"`
 	Buyer  *User `json:"buyer,omitempty"`
-}
-
-type Notification struct {
-	ID          string    `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
-	UserID      *string   `gorm:"type:uuid" json:"user_id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	IsRead      bool      `json:"is_read"`
-	CreatedAt   time.Time `json:"created_at"`
-
-	User *User `json:"user,omitempty"`
 }

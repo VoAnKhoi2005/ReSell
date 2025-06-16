@@ -84,5 +84,5 @@ dependencies {
     implementation(libs.accompanist.permissions)
     implementation(libs.play.services.location)
 
-    implementation(libs.androidx.security.crypto)
+    implementation("androidx.security:security-crypto-ktx:1.1.0-alpha06")
 }
