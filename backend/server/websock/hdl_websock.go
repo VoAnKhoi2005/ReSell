@@ -100,13 +100,13 @@ func (h *WSHandler) readLoop(sess *model.Session) {
 		}
 
 		switch incoming.Type {
-		case model.MessageSend:
-			var payload *model.SendMessagePayload
-			if err := json.Unmarshal(incoming.Data, payload); err != nil {
+		case model.NewMessage:
+			var payload model.SendMessagePayload
+			if err := json.Unmarshal(incoming.Data, &payload); err != nil {
 				log.Printf("ws: invalid send payload from user %s: %v", sess.UserID, err)
 				continue
 			}
-			go h.handleSendMessage(sess, payload)
+			go h.handleSendMessage(sess, &payload)
 
 		case model.TypingIndicator:
 			var payload *model.TypingPayload

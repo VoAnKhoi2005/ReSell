@@ -52,7 +52,7 @@ func (m *messageRepository) GetConversationByID(conversationId string) (*model.C
 	defer cancel()
 
 	var conversation *model.Conversation = nil
-	err := m.db.WithContext(ctx).First(&conversation, conversationId).Error
+	err := m.db.WithContext(ctx).First(&conversation, "id = ?", conversationId).Error
 	return conversation, err
 }
 

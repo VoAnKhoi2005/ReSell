@@ -82,7 +82,7 @@ func (m *messageService) CreateMessage(message *model.Message) (*model.Message, 
 		return nil, err
 	}
 
-	if conversation.BuyerId != message.SenderId && conversation.SellerId != message.SenderId {
+	if *conversation.BuyerId != *message.SenderId && *conversation.SellerId != *message.SenderId {
 		return nil, errors.New("not authorized")
 	}
 
