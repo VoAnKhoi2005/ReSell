@@ -9,8 +9,7 @@ import (
 )
 
 type NotificationRepository interface {
-	GetAll() ([]*model.Notification, error)
-	Create(notification *model.Notification) error
+	Create(notification *model.Notification) (*model.Notification, error)
 	Update(notification *model.Notification) error
 	Delete(notification *model.Notification) error
 
@@ -22,11 +21,33 @@ type NotificationRepository interface {
 }
 
 type notificationRepository struct {
-	*BaseRepository[model.Notification]
+	db *gorm.DB
 }
 
 func NewNotificationRepository(db *gorm.DB) NotificationRepository {
-	return &notificationRepository{BaseRepository: NewBaseRepository[model.Notification](db)}
+	return &notificationRepository{db}
+}
+
+func (n *notificationRepository) Create(notification *model.Notification) (*model.Notification, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	err := n.db.WithContext(ctx).Create(&notification).Error
+	return notification, err
+}
+
+func (n *notificationRepository) Update(notification *model.Notification) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return n.db.WithContext(ctx).Save(&notification).Error
+}
+
+func (n *notificationRepository) Delete(notification *model.Notification) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return n.db.WithContext(ctx).Delete(&notification).Error
 }
 
 func (n *notificationRepository) GetByID(notificationID string) (*model.Notification, error) {

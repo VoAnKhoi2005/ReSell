@@ -81,6 +81,9 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.converter.moshi)
 
+    //Firebase
+    implementation(libs.firebase.messaging)
+
     implementation(libs.accompanist.permissions)
     implementation(libs.play.services.location)
 

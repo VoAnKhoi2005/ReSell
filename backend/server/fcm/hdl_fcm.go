@@ -70,7 +70,7 @@ func (h *FCMHandler) SendNotification(userID string, title string, description s
 		IsSent:      false,
 	}
 
-	err := h.notificationService.CreateNotification(notification)
+	notification, err := h.notificationService.CreateNotification(notification)
 	if err != nil {
 		return err
 	}
@@ -103,10 +103,16 @@ func (h *FCMHandler) SendMessageToToken(token string, notification *model.Notifi
 		Token: token,
 		Notification: &messaging.Notification{
 			Title: notification.Title,
-			Body:  *notification.Description,
+			Body: func() string {
+				if notification.Description != nil {
+					return *notification.Description
+				}
+				return ""
+			}(),
 		},
 		Data: map[string]string{
-			"type": string(notification.Type),
+			"notification_id": notification.ID,
+			"type":            string(notification.Type),
 		},
 	}
 

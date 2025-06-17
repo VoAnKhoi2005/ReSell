@@ -3,7 +3,6 @@ package com.example.resell.ui.network
 import com.squareup.moshi.Moshi
 import model.Message
 import model.IncomingSocketMessage
-import model.SendMessagePayload
 import model.SocketMessage
 import model.TypingPayload
 import okhttp3.OkHttpClient
@@ -18,13 +17,13 @@ import com.squareup.moshi.Types
 import model.MessageStatus
 import model.PendingMessage
 import model.SocketMessageType
-import store.TokenManager
+import store.AuthTokenManager
 
 @Singleton
 class WebSocketManager @Inject constructor(
     private val client: OkHttpClient,
     private val moshi: Moshi,
-    private val tokenManager: TokenManager
+    private val tokenManager: AuthTokenManager
 ){
     private var webSocket: WebSocket? = null
     private var listener: ((Any) -> Unit)? = null
