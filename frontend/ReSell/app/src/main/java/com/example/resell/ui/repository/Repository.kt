@@ -38,7 +38,6 @@ interface CategoryRepository{
 }
 
 interface PostRepository {
-    suspend fun getAllPosts(): Either<NetworkError, List<Post>>
     suspend fun getPostByID(postID: String): Either<NetworkError, Post>
     suspend fun createPost(title: String, description: String,
                            categoryID: String, addressID: String,

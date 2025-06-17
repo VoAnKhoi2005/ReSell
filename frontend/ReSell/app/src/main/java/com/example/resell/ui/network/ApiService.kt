@@ -108,9 +108,6 @@ interface ApiService {
     //endregion
 
     //region Post
-    @GET("api/posts")
-    suspend fun getAllPosts(): List<Post>
-
     @GET("api/posts/{post_id}")
     suspend fun getPostByID(@Path("post_id") postID: String): Post
 
@@ -238,5 +235,5 @@ interface ApiService {
 
     @DELETE("api/notification/FCM")
     suspend fun deleteFCMToken(): Boolean
-    //end region
+    //endregion
 }
