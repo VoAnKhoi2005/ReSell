@@ -18,6 +18,7 @@ type NotificationRepository interface {
 	GetNotificationsByBatch(userID string, batchSize int, page int) ([]*model.Notification, int, error)
 	GetNotificationsByDate(userID string, date time.Time) ([]*model.Notification, error)
 	GetNotificationsByType(userID string, notificationType model.NotificationType) ([]*model.Notification, error)
+	GetUnsentNotifications(userID string) ([]*model.Notification, error)
 }
 
 type notificationRepository struct {
@@ -99,5 +100,14 @@ func (n *notificationRepository) GetNotificationsByType(userID string, notificat
 		Order("created_at DESC").
 		Find(&notifications).Error
 
+	return notifications, err
+}
+
+func (n *notificationRepository) GetUnsentNotifications(userID string) ([]*model.Notification, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var notifications []*model.Notification
+	err := n.db.WithContext(ctx).Find(&notifications, "user_id = ? AND is_sent = ?", userID, false).Error
 	return notifications, err
 }

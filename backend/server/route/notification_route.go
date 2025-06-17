@@ -2,6 +2,7 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/controller"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/fcm"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/middleware"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
@@ -14,9 +15,14 @@ func RegisterNotificationRote(rg *gin.RouterGroup, db *gorm.DB) {
 	notificationService := service.NewNotificationService(notificationRepo)
 	notificationController := controller.NewNotificationController(notificationService)
 
+	fcmHandler := fcm.NewFCMHandler(notificationService)
+
 	notificationRoute := rg.Group("/notification")
 	notificationRoute.Use(middleware.AuthMiddleware())
 	notificationRoute.GET("/batch/:batch_size/:page", notificationController.GetNotificationsByBatch)
 	notificationRoute.GET("/date/:date", notificationController.GetNotificationsByDate)
 	notificationRoute.GET("/type/:type", notificationController.GetNotificationsByType)
+
+	notificationRoute.POST("/FCM", fcmHandler.SaveFCMToken)
+	notificationRoute.DELETE("/FCM", fcmHandler.DeleteFCMToken)
 }
