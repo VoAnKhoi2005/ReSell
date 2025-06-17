@@ -12,12 +12,6 @@ import javax.inject.Singleton
 class PostRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ): PostRepository {
-    override suspend fun getAllPosts(): Either<NetworkError, List<Post>> {
-        return Either.catch {
-            apiService.getAllPosts()
-        }.mapLeft { it.toNetworkError() }
-    }
-
     override suspend fun getPostByID(postID: String): Either<NetworkError, Post> {
         return Either.catch {
             apiService.getPostByID(postID)
