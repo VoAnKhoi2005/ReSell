@@ -9,12 +9,14 @@ import (
 
 type NotificationService interface {
 	CreateNotification(notification *model.Notification) error
+	UpdateNotification(notification *model.Notification) error
 	DeleteNotification(notification string) error
 
 	GetByID(notificationID string) (*model.Notification, error)
 	GetNotificationsByBatch(userID string, batchSize int, page int) ([]*model.Notification, int, error)
 	GetNotificationsByDate(userID string, date time.Time) ([]*model.Notification, error)
 	GetNotificationsByType(userID string, notificationType model.NotificationType) ([]*model.Notification, error)
+	GetUnsentNotifications(userID string) ([]*model.Notification, error)
 }
 
 type notificationService struct {
@@ -27,6 +29,10 @@ func NewNotificationService(notificationRepo repository.NotificationRepository) 
 
 func (n *notificationService) CreateNotification(notification *model.Notification) error {
 	return n.notificationRepository.Create(notification)
+}
+
+func (n *notificationService) UpdateNotification(notification *model.Notification) error {
+	return n.notificationRepository.Update(notification)
 }
 
 func (n *notificationService) DeleteNotification(notificationID string) error {
@@ -60,4 +66,8 @@ func (n *notificationService) GetNotificationsByDate(userID string, date time.Ti
 
 func (n *notificationService) GetNotificationsByType(userID string, notificationType model.NotificationType) ([]*model.Notification, error) {
 	return n.notificationRepository.GetNotificationsByType(userID, notificationType)
+}
+
+func (n *notificationService) GetUnsentNotifications(userID string) ([]*model.Notification, error) {
+	return n.notificationRepository.GetUnsentNotifications(userID)
 }
