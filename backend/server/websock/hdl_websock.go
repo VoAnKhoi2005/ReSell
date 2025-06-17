@@ -24,14 +24,14 @@ const (
 
 type WSHandler struct {
 	messageService service.MessageService
-	sessions       map[string]*model.Session
+	sessions       map[string]*Session
 	mu             sync.RWMutex
 }
 
 func NewWSHandler(messageService service.MessageService) *WSHandler {
 	return &WSHandler{
 		messageService: messageService,
-		sessions:       make(map[string]*model.Session),
+		sessions:       make(map[string]*Session),
 	}
 }
 
@@ -57,7 +57,7 @@ func (h *WSHandler) Handler(c *gin.Context) {
 		return
 	}
 
-	session := &model.Session{
+	session := &Session{
 		UserID:     userID,
 		WS:         conn,
 		LastAction: time.Now().Unix(),
@@ -71,7 +71,7 @@ func (h *WSHandler) Handler(c *gin.Context) {
 	go h.writeLoop(session)
 }
 
-func (h *WSHandler) readLoop(sess *model.Session) {
+func (h *WSHandler) readLoop(sess *Session) {
 	defer func() {
 		h.removeSession(sess.UserID)
 		_ = sess.WS.Close()
@@ -124,7 +124,7 @@ func (h *WSHandler) readLoop(sess *model.Session) {
 	}
 }
 
-func (h *WSHandler) handleSendMessage(sess *model.Session, msg *model.SendMessagePayload) {
+func (h *WSHandler) handleSendMessage(sess *Session, msg *model.SendMessagePayload) {
 	message := model.Message{
 		ConversationId: &msg.ConversationId,
 		Content:        msg.Content,
@@ -173,7 +173,7 @@ func (h *WSHandler) handleSendMessage(sess *model.Session, msg *model.SendMessag
 	}
 }
 
-func (h *WSHandler) handleTyping(sess *model.Session, payload *model.TypingPayload) {
+func (h *WSHandler) handleTyping(sess *Session, payload *model.TypingPayload) {
 	conversation, err := h.messageService.GetConversationByID(payload.ConversationId)
 	if err != nil {
 		log.Printf("Typing error: cannot find conversation %s", payload.ConversationId)
@@ -201,14 +201,14 @@ func (h *WSHandler) handleTyping(sess *model.Session, payload *model.TypingPaylo
 	}
 }
 
-func (h *WSHandler) sendError(sess *model.Session, errMsg string) {
+func (h *WSHandler) sendError(sess *Session, errMsg string) {
 	h.sendToSession(sess, map[string]interface{}{
 		"type":  model.ErrorMessage,
 		"error": errMsg,
 	})
 }
 
-func (h *WSHandler) writeLoop(sess *model.Session) {
+func (h *WSHandler) writeLoop(sess *Session) {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
@@ -237,7 +237,7 @@ func (h *WSHandler) writeLoop(sess *model.Session) {
 	}
 }
 
-func (h *WSHandler) addSession(userID string, session *model.Session) {
+func (h *WSHandler) addSession(userID string, session *Session) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
@@ -274,7 +274,7 @@ func (h *WSHandler) broadcastToUsers(userIDs []string, message interface{}) {
 	}
 }
 
-func (h *WSHandler) sendToSession(sess *model.Session, msg interface{}) {
+func (h *WSHandler) sendToSession(sess *Session, msg interface{}) {
 	select {
 	case sess.Send <- msg:
 	default:

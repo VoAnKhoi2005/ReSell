@@ -3,6 +3,8 @@ package com.example.resell.ui.repository
 import model.*
 import arrow.core.Either
 import com.example.resell.ui.domain.NetworkError
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 interface UserRepository{
     suspend fun registerUser(username: String, email: String, phone: String, password: String): Either<NetworkError, Boolean>
@@ -74,4 +76,10 @@ interface MessageRepository{
     suspend fun getLatestMessage(conversationID: String, amount: Int): Either<NetworkError,List<Message>>
     suspend fun getMessageInRange(conversationID: String, start: Int, end: Int): Either<NetworkError,List<Message>>
     suspend fun sendWSMessage(conversationID: String, content: String): String
+}
+
+interface NotificationRepository{
+    suspend fun getNotificationsByBatch(batchSize: Int, page: Int): Either<NetworkError, List<Notification>>
+    suspend fun getNotificationsByDate(date: LocalDate): Either<NetworkError, List<Notification>>
+    suspend fun getNotificationsByType(type: NotificationType): Either<NetworkError, List<Notification>>
 }

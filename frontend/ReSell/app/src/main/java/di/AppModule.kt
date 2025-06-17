@@ -16,7 +16,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import store.TokenManager
+import store.AuthTokenManager
 import util.AuthInterceptor
 import util.LocalDateTimeAdapter
 import util.TokenAuthenticator
@@ -39,14 +39,14 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthInterceptor(tokenManager: TokenManager): AuthInterceptor {
+    fun provideAuthInterceptor(tokenManager: AuthTokenManager): AuthInterceptor {
         return AuthInterceptor(tokenManager)
     }
 
     @Provides
     @Singleton
     fun provideTokenAuthenticator(
-        tokenManager: TokenManager,
+        tokenManager: AuthTokenManager,
         refreshApiService: RefreshApiService
     ): TokenAuthenticator {
         return TokenAuthenticator(tokenManager, refreshApiService)
@@ -90,7 +90,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    @Named("refresh")
+    @Named("refreshRetrofit")
     fun provideRefreshRetrofit(
         moshi: Moshi,
         @Named("refreshOkHttp") refreshClient: OkHttpClient
@@ -104,7 +104,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRefreshApiService(@Named("refresh") refreshRetrofit: Retrofit): RefreshApiService {
+    @Named("refreshApiService")
+    fun provideRefreshApiService(@Named("refreshRetrofit") refreshRetrofit: Retrofit): RefreshApiService {
         return refreshRetrofit.create(RefreshApiService::class.java)
     }
     //endregion

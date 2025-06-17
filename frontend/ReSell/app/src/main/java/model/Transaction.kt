@@ -175,3 +175,9 @@ enum class MessageStatus {
     PENDING
 }
 //endregion
+
+//region Notification
+data class SaveFCMTokenRequest(
+    val token: String,
+)
+//endregion

@@ -8,7 +8,7 @@ import (
 )
 
 type NotificationService interface {
-	CreateNotification(notification *model.Notification) error
+	CreateNotification(notification *model.Notification) (*model.Notification, error)
 	UpdateNotification(notification *model.Notification) error
 	DeleteNotification(notification string) error
 
@@ -27,7 +27,7 @@ func NewNotificationService(notificationRepo repository.NotificationRepository) 
 	return &notificationService{notificationRepository: notificationRepo}
 }
 
-func (n *notificationService) CreateNotification(notification *model.Notification) error {
+func (n *notificationService) CreateNotification(notification *model.Notification) (*model.Notification, error) {
 	return n.notificationRepository.Create(notification)
 }
 
