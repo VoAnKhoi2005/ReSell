@@ -21,6 +21,7 @@ import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.screen.home.HomeScreen
 import com.example.resell.ui.screen.market.MarketScreen
 import com.example.resell.ui.screen.postmanagement.PostMangamentScreen
+import com.example.resell.ui.screen.productdetail.ProductDetailScreen
 import com.example.resell.ui.screen.profile.ProfileScreen.ProfileScreen
 
 
@@ -86,13 +87,18 @@ fun MainLayout(modifier: Modifier = Modifier) {
 @Composable
 fun DashboardScreen(modifier: Modifier, navController: NavHostController)
 {
+
+
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route,
         modifier = modifier
     ) {
         composable(Screen.Home.route) { HomeScreen() }
-        composable(Screen.Market.route) { MarketScreen() }
+        composable(Screen.Market.route) {
+            MarketScreen()
+        }
+
         composable(Screen.Profile.route) { ProfileScreen() }
         composable(Screen.Manage.route) { PostMangamentScreen() }
     }

@@ -51,6 +51,7 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import android.Manifest
 import android.content.Intent
+
 import android.net.Uri
 import android.os.Looper
 
@@ -335,9 +336,37 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
                     }
                 }
         ) {
-            var text = message.content;
-            if(message.content.contains("dab64614f35cbb2e3d8819ef6c1769e4")) text = "📍 Vị trí hiện tại của tôi"
-            Text(text =text, color = IconColor)
+            if (isLocationMessage) {
+                val urlStartIndex = message.content.indexOf("https://maps.google.com")
+                val mapUrl = message.content.substring(urlStartIndex)
+                val latLon = mapUrl.substringAfter("?q=")
+                val staticMapUrl =
+                    "https://maps.googleapis.com/maps/api/staticmap?center=$latLon&zoom=15&size=300x150&markers=color:red%7C$latLon&key=AIzaSyCAloQ8Dt3Fl3TDCJZYALQbWHMg-IvJCwg"//API cần để hiện googlemap
+
+                Column {
+                    Image(
+                        painter = rememberAsyncImagePainter(staticMapUrl),
+                        contentDescription = "Location Thumbnail",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp)
+                            .clip(RoundedCornerShape(6.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "📍 Vị trí hiện tại của tôi",
+                        color = IconColor,
+                        fontSize = 13.sp
+                    )
+                }
+            } else {
+                Text(
+                    text = message.content,
+                    color = IconColor
+                )
+            }
+
         }
     }
 }
