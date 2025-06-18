@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
-	"github.com/VoAnKhoi2005/ReSell/backend/server/fcm"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/route"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -24,7 +24,7 @@ func main() {
 	config.InitRedis()
 
 	//Firebase
-	fcm.InitFirebase()
+	fb.InitFirebase()
 
 	r := gin.Default()
 	allowOrigin := os.Getenv("FRONTEND_URL")

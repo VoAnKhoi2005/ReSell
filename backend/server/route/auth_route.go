@@ -23,6 +23,8 @@ func RegisterAuthRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	auth.POST("/login", authController.Login)
 	auth.POST("/refresh", authController.RefreshToken)
 
+	auth.POST("/register/firebase", authController.FirebaseAuth)
+
 	admin := rg.Group("/admin/auth")
 	admin.POST("/login", authController.LoginAdmin)
 	admin.POST("/refresh", authController.RefreshAdminToken)
