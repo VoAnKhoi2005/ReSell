@@ -9,6 +9,11 @@ type RegisterRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type FirebaseAuthRequest struct {
+	FirebaseIDToken string `json:"firebase_id_token" binding:"required"`
+	Username        string `json:"username" binding:"required"`
+}
+
 type LoginRequest struct {
 	Identifier string `json:"identifier" binding:"required"`
 	Password   string `json:"password" binding:"required"`
