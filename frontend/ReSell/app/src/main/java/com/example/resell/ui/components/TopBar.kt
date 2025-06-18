@@ -16,8 +16,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,6 +28,8 @@ import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.theme.IconColor
 import com.example.resell.ui.theme.SoftBlue
+import com.example.resell.ui.theme.White2
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
@@ -58,8 +62,8 @@ fun TopBar(
                         text = titleText,
                         style = MaterialTheme.typography.labelMedium.copy(
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
+                            fontWeight = FontWeight.Medium,
+                            color = White2
                         )
                     )
                 }
@@ -71,7 +75,7 @@ fun TopBar(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = IconColor
+                        tint = White2
                     )
                 }
             }
@@ -92,13 +96,13 @@ fun TopBar(
                 IconButton(onClick = {
                     NavigationController.navController.navigate(Screen.ChatHome.route)
                 }) {
-                    Image(
-                        painter = painterResource(id = R.drawable.messageicon),
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.messages),
                         contentDescription = "Chat",
                         modifier = Modifier
                             .padding(start = 8.dp, end = 8.dp)
-                            .size(40.dp),
-                        contentScale = ContentScale.Fit
+                            .size(30.dp),
+                        tint = IconColor
                     )
                 }
             }

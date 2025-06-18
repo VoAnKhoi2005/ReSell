@@ -56,7 +56,7 @@ fun MainLayout(modifier: Modifier = Modifier) {
                     showEmailIcon = true
                 )
                 Screen.Profile.route -> TopBar(titleText = "Thêm")
-                Screen.Add.route -> TopBar(titleText = "Đăng tin")
+                Screen.Add.route -> TopBar(titleText = "Đăng tin", showBackButton = true)
                 else -> {}
             }
         }

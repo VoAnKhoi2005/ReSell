@@ -33,12 +33,11 @@ import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.LoginButton
+import com.example.resell.ui.theme.MainButton
 
 @Composable
 fun CategorySelectionScreen(
     modifier: Modifier = Modifier,
-    onCancelClick: () -> Unit = {},
-    onContinueClick: () -> Unit = {}
 ) {
     val categories = listOf(
         "Xe cộ" to R.drawable.car_category,
@@ -90,7 +89,7 @@ fun CategorySelectionScreen(
                         iconResId = iconRes,
                         hasBorder = true,
                         contentAlignment = Alignment.Start,
-                        textColor = GrayFont,
+                        textColor = LoginButton,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
@@ -103,35 +102,7 @@ fun CategorySelectionScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Nút Hủy và Tiếp tục
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Button(
-                onClick = onCancelClick,
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = LightGray,
-                    contentColor = Color.Black
-                )
-            ) {
-                Text("Hủy")
-            }
 
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Button(
-                onClick = onContinueClick,
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = DarkBlue,
-                    contentColor = Color.White
-                )
-            ) {
-                Text("Tiếp tục")
-            }
-        }
     }
 
 }
