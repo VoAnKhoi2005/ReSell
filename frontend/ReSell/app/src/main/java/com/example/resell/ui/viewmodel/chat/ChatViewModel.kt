@@ -112,7 +112,7 @@ class ChatViewModel @Inject constructor(
                     id = "msg_9",
                     conversationId = conversationId,
                     senderId = "buyer_1",
-                    content = "Perfect! Thank you.",
+                    content = "dab64614f35cbb2e3d8819ef6c1769e4 https://maps.google.com/?q=37.4219983,-122.084",
                     createdAt = LocalDateTime.now().minusMinutes(2),
                 ),
                 Message(

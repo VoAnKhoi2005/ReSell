@@ -24,8 +24,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.resell.R
 import com.example.resell.ui.components.ProductPostItem
+import com.example.resell.ui.navigation.NavigationController
+import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.viewmodel.home.postList
 
 @Composable
@@ -99,7 +102,9 @@ fun HomeContent(modifier: Modifier = Modifier) {
                 category = post.category,
                 address = post.address,
                 modifier = Modifier.fillMaxWidth()
-            )
+            ){
+                NavigationController.navController.navigate(Screen.ProductDetail.route)
+            }
         }
     }
 }

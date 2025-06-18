@@ -160,22 +160,18 @@ func (s *userService) UpdateUser(userID string, request *request.UpdateUserReque
 	if err != nil {
 		return err
 	}
-
-	isChange := false
-
+	
 	if request.Username != nil && *request.Username != "" {
 		user.Username = *request.Username
-		isChange = true
+
 	}
 
 	if request.Email != nil && *request.Email != "" {
 		user.Email = *request.Email
-		isChange = true
 	}
 
 	if request.Phone != nil && *request.Phone != "" {
 		user.Phone = *request.Phone
-		isChange = true
 	}
 
 	if request.FullName != nil && *request.FullName != "" {

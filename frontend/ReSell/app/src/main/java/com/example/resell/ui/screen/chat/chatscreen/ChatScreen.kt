@@ -48,6 +48,7 @@ import java.time.LocalDateTime
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import android.Manifest
 import android.content.Intent
+
 import android.net.Uri
 import android.os.Looper
 
@@ -195,8 +196,7 @@ fun ChatInputBar(viewModel: ChatViewModel,
                             val lat = location.latitude
                             val lon = location.longitude
                             val mapUrl = "https://maps.google.com/?q=$lat,$lon"
-                            onSendMessage("dab64614f35cbb2e3d8819ef6c1769e4 $mapUrl")
-
+                            onSendMessage("${DataStore.locationMessageKey} $mapUrl")
                             fusedLocationClient.removeLocationUpdates(this)
                         } else {
                             Toast.makeText(context, "Không thể lấy vị trí", Toast.LENGTH_SHORT).show()
@@ -214,7 +214,7 @@ fun ChatInputBar(viewModel: ChatViewModel,
             }
         }) {
             Image(
-                painter = painterResource(id = R.drawable.baseline_add_circle_24),
+                painter = painterResource(id = R.drawable.send_location),
                 contentDescription = "Send",
                 modifier = Modifier.size(32.dp),
                 colorFilter = ColorFilter.tint(DarkBlue)
@@ -230,14 +230,7 @@ fun ChatInputBar(viewModel: ChatViewModel,
             )
         }
 
-        IconButton(onClick = {}) {
-            Image(
-                painter = painterResource(id = R.drawable.baseline_ondemand_video_24),
-                contentDescription = "SendVideo",
-                modifier = Modifier.size(32.dp),
-                colorFilter = ColorFilter.tint(DarkBlue)
-            )
-        }
+
 
         TextField(
             value = msg.value,
@@ -297,8 +290,8 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
     val isCurrentUser = message.senderId == DataStore.user?.id
     val alignment = if (isCurrentUser) Arrangement.End else Arrangement.Start
     val bubbleColor = if (isCurrentUser) SoftBlue else BuyerMessage
-    val isLocationMessage = message.content.contains("dab64614f35cbb2e3d8819ef6c1769e4")
-    val context = LocalContext.current
+    val isLocationMessage = message.content.contains(DataStore.locationMessageKey)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -319,24 +312,107 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
             )
             Spacer(modifier = Modifier.width(6.dp))
         }
+        if (isLocationMessage) {
+            val urlStartIndex = message.content.indexOf("https://maps.google.com")
+            val mapUrl = message.content.substring(urlStartIndex)
+            LocaltionBubble(mapUrl)
+        }
+        else {
+            Box(
+                modifier = Modifier
+                    .background(color = bubbleColor, shape = RoundedCornerShape(8.dp))
+                    .padding(8.dp)
+                    .widthIn(max = 250.dp)
 
-        Box(
-            modifier = Modifier
-                .background(color = bubbleColor, shape = RoundedCornerShape(8.dp))
-                .padding(8.dp)
-                .widthIn(max = 250.dp)
-                .clickable(enabled = isLocationMessage) {
-                    if (isLocationMessage) {
-                        val urlStartIndex = message.content.indexOf("https://maps.google.com")
-                        val url = message.content.substring(urlStartIndex)
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                        context.startActivity(intent)
-                    }
-                }
+            ) {
+
+                Text(
+                    text = message.content,
+                    color = IconColor
+                )
+            }
+
+        }
+
+
+    }
+}
+@Composable
+fun LocaltionBubble(locationUrl: String) {
+    val context = LocalContext.current
+//    val latLon = mapUrl.substringAfter("?q=")
+//    val staticMapUrl =
+//        "https://maps.googleapis.com/maps/api/staticmap?center=$latLon&zoom=15&size=300x150&markers=color:red%7C$latLon&key=AIzaSyCAloQ8Dt3Fl3TDCJZYALQbWHMg-IvJCwg"//API cần để hiện googlemap
+
+//    Column {
+////        Image(
+////            painter = rememberAsyncImagePainter(staticMapUrl),
+////            contentDescription = "Location Thumbnail",
+////            modifier = Modifier
+////                .fillMaxWidth()
+////                .height(150.dp)
+////                .clip(RoundedCornerShape(6.dp)),
+////            contentScale = ContentScale.Crop
+////        )
+////        Spacer(modifier = Modifier.height(4.dp))
+//
+//}
+    Column(
+        modifier = Modifier
+            .background(color = BuyerMessage, shape = RoundedCornerShape(8.dp))
+            .padding(12.dp)
+            .widthIn(max = 250.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            var text = message.content;
-            if(message.content.contains("dab64614f35cbb2e3d8819ef6c1769e4")) text = "📍 Vị trí hiện tại của tôi"
-            Text(text =text, color = IconColor)
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(DarkBlue),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_location), // thay bằng icon của bạn
+                    contentDescription = "Location",
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column {
+                Text(
+                    text = "Chia sẻ vị trí",
+                    fontWeight = FontWeight.Bold,
+                    color = IconColor,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "Đây là vị trí của tôi",
+                    color = IconColor,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+            onClick = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(locationUrl))
+                context.startActivity(intent)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = DarkBlue,
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(6.dp)
+        ) {
+            Text(text = "Xem vị trí", style = MaterialTheme.typography.labelMedium)
         }
     }
 }

@@ -15,9 +15,10 @@ func RegisterAdminRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	adminController := controller.NewAdminController(adminService)
 
 	adminRouter := router.Group("/admin")
-	adminRouter.Use(middleware.AdminAuthMiddleware())
 	adminRouter.POST("/register", adminController.RegisterAdmin)
 	adminRouter.GET("/id/:admin_id", adminController.GetAdminByID)
+
+	adminRouter.Use(middleware.AdminAuthMiddleware())
 	adminRouter.GET("/username/:username", adminController.GetAdminByUsername)
 	adminRouter.PUT("/change_password", adminController.ChangePassword)
 	adminRouter.PUT("/change_email/:new_email", adminController.ChangeEmail)
