@@ -8,7 +8,6 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/transaction"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"time"
 )
@@ -25,6 +24,7 @@ func NewAuthController(userService service.UserService, adminService service.Adm
 	}
 }
 
+/*
 func (h *AuthController) Register(c *gin.Context) {
 	var req transaction.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -43,17 +43,19 @@ func (h *AuthController) Register(c *gin.Context) {
 	encryptedPasswordStr := string(encryptedPassword)
 
 	user := model.User{
-		Username:     req.Username,
-		Email:        req.Email,
-		Phone:        req.Phone,
-		PasswordHash: &encryptedPasswordStr,
-		AuthProvider: model.LocalAuth,
-		Reputation:   100,
-		Status:       model.ActiveStatus,
-		BanStart:     nil,
-		BanEnd:       nil,
-		CreatedAt:    time.Now(),
-		UpdatedAt:    nil,
+		Username:        req.Username,
+		Email:           req.Email,
+		IsEmailVerified: false,
+		Phone:           req.Phone,
+		IsPhoneVerified: false,
+		Password:        encryptedPasswordStr,
+		AuthProvider:    model.LocalAuth,
+		Reputation:      100,
+		Status:          model.ActiveStatus,
+		BanStart:        nil,
+		BanEnd:          nil,
+		CreatedAt:       time.Now(),
+		UpdatedAt:       nil,
 	}
 
 	err = h.userService.Register(&user)
@@ -63,6 +65,7 @@ func (h *AuthController) Register(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
+*/
 
 func (h *AuthController) FirebaseAuth(c *gin.Context) {
 	var request transaction.FirebaseAuthRequest

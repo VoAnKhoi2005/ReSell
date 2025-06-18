@@ -88,7 +88,7 @@ func (s *userService) Login(identifier string, password string, loginType string
 		return nil, err
 	}
 
-	if bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(password)) != nil {
+	if bcrypt.CompareHashAndPassword([]byte(*user.Password), []byte(password)) != nil {
 		return nil, errors.New("invalid credentials")
 	}
 
@@ -101,15 +101,15 @@ func (s *userService) ChangePassword(userID string, oldPassword string, newPassw
 		return err
 	}
 
-	if user.AuthProvider != model.LocalAuth {
-		return errors.New("cannot change password for non-local auth user")
+	if user.AuthProvider != model.PhoneAuth {
+		return errors.New("cannot change password for google auth user")
 	}
 
-	if newPassword == *user.PasswordHash {
+	if newPassword == *user.Password {
 		return errors.New("new password cannot be the same as old password")
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(oldPassword))
+	err = bcrypt.CompareHashAndPassword([]byte(*user.Password), []byte(oldPassword))
 	if err != nil {
 		return err
 	}
@@ -118,8 +118,8 @@ func (s *userService) ChangePassword(userID string, oldPassword string, newPassw
 	if err != nil {
 		return err
 	}
-
-	*user.PasswordHash = string(encryptedPassword)
+	encryptedPasswordStr := string(encryptedPassword)
+	user.Password = &encryptedPasswordStr
 	return s.userRepository.Update(user)
 }
 
@@ -183,16 +183,8 @@ func (s *userService) UpdateUser(userID string, request *request.UpdateUserReque
 		isChange = true
 	}
 
-	if request.CitizenId != nil && *request.CitizenId != "" {
-		user.CitizenId = *request.CitizenId
-		isChange = true
-	}
-
 	if !isChange {
 		return errors.New("no change")
-	} else {
-		now := time.Now()
-		user.UpdatedAt = &now
 	}
 
 	return s.userRepository.Update(user)

@@ -15,7 +15,8 @@ var firebaseAuthClient *auth.Client
 
 func InitFirebase() {
 	opt := option.WithCredentialsFile("resell-3afcc-firebase-adminsdk-fbsvc-5d0b6bc88b.json")
-	app, err := firebase.NewApp(context.Background(), nil, opt)
+	conf := &firebase.Config{ProjectID: "resell-3afcc"}
+	app, err := firebase.NewApp(context.Background(), conf, opt)
 	if err != nil {
 		log.Fatalf("error initializing Firebase app: %v", err)
 		return
