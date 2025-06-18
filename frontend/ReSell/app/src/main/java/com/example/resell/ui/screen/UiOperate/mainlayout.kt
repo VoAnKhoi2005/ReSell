@@ -56,7 +56,6 @@ fun MainLayout(modifier: Modifier = Modifier) {
                     showEmailIcon = true
                 )
                 Screen.Profile.route -> TopBar(titleText = "Thêm")
-                Screen.Add.route -> TopBar(titleText = "Đăng tin", showBackButton = true)
                 else -> {}
             }
         }
@@ -65,6 +64,7 @@ fun MainLayout(modifier: Modifier = Modifier) {
             BottomBar(
                 items = bottomNavItems,
                 selectedItem = selectedItem,
+                onAddClick = { NavigationController.navController.navigate(Screen.Add.route)},
                 onItemClick = {
                     selectedItem = it
                     bottomNavController.navigate(it.screen.route) {
@@ -103,7 +103,6 @@ fun DashboardScreen(modifier: Modifier, navController: NavHostController)
 
         composable(Screen.Profile.route) { ProfileScreen() }
         composable(Screen.Manage.route) { PostMangamentScreen() }
-        composable(Screen.Add.route) { AddScreen() }
     }
 }
 
