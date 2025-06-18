@@ -141,39 +141,22 @@ func (s *userService) UpdateUser(userID string, request *request.UpdateUserReque
 	if err != nil {
 		return err
 	}
-
-	isChange := false
-
+	
 	if request.Username != nil && *request.Username != "" {
 		user.Username = *request.Username
-		isChange = true
+
 	}
 
 	if request.Email != nil && *request.Email != "" {
 		user.Email = *request.Email
-		isChange = true
 	}
 
 	if request.Phone != nil && *request.Phone != "" {
 		user.Phone = *request.Phone
-		isChange = true
 	}
 
 	if request.FullName != nil && *request.FullName != "" {
 		user.Fullname = *request.FullName
-		isChange = true
-	}
-
-	if request.CitizenId != nil && *request.CitizenId != "" {
-		user.CitizenId = *request.CitizenId
-		isChange = true
-	}
-
-	if !isChange {
-		return errors.New("no change")
-	} else {
-		now := time.Now()
-		user.UpdatedAt = &now
 	}
 
 	return s.userRepo.Update(user)

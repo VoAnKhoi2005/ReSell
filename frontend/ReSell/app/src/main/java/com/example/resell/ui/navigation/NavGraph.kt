@@ -10,8 +10,12 @@ import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.screen.chat.chathomescreen.ChatHomeScreen
 import com.example.resell.ui.screen.chat.chatscreen.ChatScreen
 import com.example.resell.ui.screen.UiOperate.MainLayout
+
 import com.example.resell.ui.screen.auth.login.LoginScreen
 import com.example.resell.ui.screen.auth.phoneAuth.PhoneAuthScreen
+
+import com.example.resell.ui.screen.add.AddScreen
+
 import com.example.resell.ui.screen.productdetail.ProductDetailScreen
 import com.example.resell.ui.screen.productdetail.sampleAddress
 import com.example.resell.ui.screen.productdetail.sampleAvatar
@@ -73,7 +77,7 @@ fun SetupNavGraph(
             MainLayout()
         }
         composable(Screen.Search.route) {
-            SearchScreen(navController) // màn hình tìm kiếm của bạn
+            SearchScreen(navController) // màn hình tì  m kiếm của bạn
         }
         composable(Screen.ProfileDetail.route) {
             ProfileDetailScreen()
@@ -100,6 +104,7 @@ fun SetupNavGraph(
         composable(Screen.PhoneAuth.route) {
             PhoneAuthScreen()
         }
+
 
     }
 }
