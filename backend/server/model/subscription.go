@@ -19,6 +19,6 @@ type UserSubscription struct {
 	IsActive             bool      `json:"is_active"`
 	StripeSubscriptionID string    `json:"stripe_subscription_id"`
 
-	User *User             `json:"user"`
-	Plan *SubscriptionPlan `json:"plan"`
+	User *User             `json:"user, omitempty"`
+	Plan *SubscriptionPlan `json:"plan, omitempty"`
 }
