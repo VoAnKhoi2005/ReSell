@@ -1,4 +1,4 @@
-package com.example.resell.ui.screen.login
+package com.example.resell.ui.screen.auth.login
 
 
 import Roboto

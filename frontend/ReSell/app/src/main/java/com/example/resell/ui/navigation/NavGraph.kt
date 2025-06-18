@@ -10,8 +10,12 @@ import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.screen.chat.chathomescreen.ChatHomeScreen
 import com.example.resell.ui.screen.chat.chatscreen.ChatScreen
 import com.example.resell.ui.screen.UiOperate.MainLayout
+
+import com.example.resell.ui.screen.auth.login.LoginScreen
+import com.example.resell.ui.screen.auth.phoneAuth.PhoneAuthScreen
+
 import com.example.resell.ui.screen.add.AddScreen
-import com.example.resell.ui.screen.login.LoginScreen
+
 import com.example.resell.ui.screen.productdetail.ProductDetailScreen
 import com.example.resell.ui.screen.productdetail.sampleAddress
 import com.example.resell.ui.screen.productdetail.sampleAvatar
@@ -27,8 +31,9 @@ import com.example.resell.ui.screen.productdetail.sampleTime
 import com.example.resell.ui.screen.productdetail.sampleTitle
 import com.example.resell.ui.screen.productdetail.sampleUserId
 import com.example.resell.ui.screen.profile.ProfileDetailScreen.ProfileDetailScreen
-import com.example.resell.ui.screen.register.RegisterScreen
+import com.example.resell.ui.screen.auth.register.RegisterScreen
 import com.example.resell.ui.screen.search.SearchScreen
+import com.google.firebase.auth.PhoneAuthOptions
 
 @Composable
 fun SetupNavGraph(
@@ -95,6 +100,9 @@ fun SetupNavGraph(
                 onContactClick = { /* TODO */ },
                 onBuyClick = { /* TODO */ }
             )
+        }
+        composable(Screen.PhoneAuth.route) {
+            PhoneAuthScreen()
         }
 
 
