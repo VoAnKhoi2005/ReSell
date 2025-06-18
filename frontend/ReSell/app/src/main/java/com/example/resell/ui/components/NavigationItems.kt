@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
+import model.Category
 
 @Composable
 fun IconButtonVertical(//nút dưới bottombar
@@ -64,19 +65,30 @@ fun IconButtonVertical(//nút dưới bottombar
 fun IconButtonHorizontal(
     text: String,
     iconResId: Int,
+    modifier: Modifier = Modifier,
+    hasBorder: Boolean = true,
+    backgroundColor: Color = Color.Transparent,
+    contentAlignment: Alignment.Horizontal = Alignment.Start,
+    textColor: Color = GrayFont,
     onClick: () -> Unit
 ) {
     OutlinedButton(
         onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = modifier,
         shape = RoundedCornerShape(4.dp),
-        border = BorderStroke(1.dp, LightGray),
+        border = if (hasBorder) BorderStroke(1.dp, LightGray) else null,
         contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp), // padding nhẹ cho dễ nhìn
+            horizontalArrangement = when (contentAlignment) {
+                Alignment.CenterHorizontally -> Arrangement.Center
+                Alignment.End -> Arrangement.End
+                else -> Arrangement.Start
+            }
         ) {
             Icon(
                 painter = painterResource(id = iconResId),
@@ -85,7 +97,8 @@ fun IconButtonHorizontal(
                 tint = Color.Unspecified
             )
             Spacer(modifier = Modifier.run { width(4.dp) })
-            Text(text, color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, fontSize = 16.sp))
+            Text(text, color = textColor, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, fontSize = 16.sp))
         }
     }
 }
+

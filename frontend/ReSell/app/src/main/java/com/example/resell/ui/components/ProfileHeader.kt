@@ -41,7 +41,7 @@ import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
 
 @Composable
-fun ProfileHeaderSection(
+fun ProfileHeaderSection(//bên detailpropfile
     avatarUrl: String?,
     coverUrl: String?,
     name: String?,
@@ -250,7 +250,7 @@ fun ProfileHeaderSection(
     }
 }
 @Composable
-fun ProfileSimpleHeaderSection(
+fun ProfileSimpleHeaderSection(//bên profile
     avatarUrl: String?,
     name: String?,
     rating: String?,              // "Chưa có đánh giá"
@@ -355,6 +355,70 @@ fun ProfileSimpleHeaderSection(
     }
 }
 
+@Composable
+fun ProfileSimpleHeader(//còn lại
+    avatarUrl: String?,
+    name: String?,
+    rating: String?,
+    soldCount: Int?, // 🆕 Thêm tham số này
+    onChangeAvatarClick: (() -> Unit)? = null,
+) {
+    Row(
+        modifier = Modifier
+            .padding(6.dp)
+    ) {
+        // Avatar
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .clickable { onChangeAvatarClick?.invoke() }
+        ) {
+            AsyncImage(
+                model = avatarUrl,
+                contentDescription = "Avatar",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(CircleShape)
+                    .border(2.dp, Color.White, CircleShape)
+            )
+
+
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(
+            modifier = Modifier.align(Alignment.CenterVertically)
+        ) {
+            name?.let {
+                Text(
+                    it,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            rating?.let {
+                Text(it, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            soldCount?.let {
+                Text(
+                    "Đã bán $it sản phẩm",
+                    style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp),
+                    color = GrayFont
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun ChatResponeRate(
@@ -398,4 +462,7 @@ fun Address(
         Text("Địa chỉ: $address", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp))
     }
 }
+
+
+
 

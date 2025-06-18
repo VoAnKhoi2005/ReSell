@@ -27,7 +27,7 @@ data class BottomNavItem(
 val bottomNavItems = listOf(
     BottomNavItem(Icons.Default.Home, "Trang chủ", "Trang chủ", Screen.Home),
     BottomNavItem(Icons.Default.Create, "Quản lý tin", "Quản lý tin", Screen.Manage),
-    BottomNavItem(Icons.Default.AddCircle, "Đăng tin", "Đăng tin", Screen.Post),
+    BottomNavItem(Icons.Default.AddCircle, "Đăng tin", "Đăng tin", Screen.Add),
     BottomNavItem(Icons.Default.ShoppingCart, "Dạo chợ", "Dạo chợ", Screen.Market),
     BottomNavItem(Icons.Default.AccountCircle, "Tài khoản", "Tài khoản", Screen.Profile)
 )

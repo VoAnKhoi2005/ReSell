@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
-	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/route"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -20,11 +19,10 @@ func main() {
 	}
 
 	config.ConnectDatabase()
-	config.RunMigrations()
 	config.InitRedis()
 
 	//Firebase
-	fb.InitFirebase()
+	//fcm.InitFirebase()
 
 	r := gin.Default()
 	allowOrigin := os.Getenv("FRONTEND_URL")

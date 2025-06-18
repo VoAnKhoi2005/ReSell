@@ -10,10 +10,30 @@ import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.screen.chat.chathomescreen.ChatHomeScreen
 import com.example.resell.ui.screen.chat.chatscreen.ChatScreen
 import com.example.resell.ui.screen.UiOperate.MainLayout
-import com.example.resell.ui.screen.login.LoginScreen
+
+import com.example.resell.ui.screen.auth.login.LoginScreen
+import com.example.resell.ui.screen.auth.phoneAuth.PhoneAuthScreen
+
+import com.example.resell.ui.screen.add.AddScreen
+
+import com.example.resell.ui.screen.productdetail.ProductDetailScreen
+import com.example.resell.ui.screen.productdetail.sampleAddress
+import com.example.resell.ui.screen.productdetail.sampleAvatar
+import com.example.resell.ui.screen.productdetail.sampleCategory
+import com.example.resell.ui.screen.productdetail.sampleDescription
+import com.example.resell.ui.screen.productdetail.sampleFollowerCount
+import com.example.resell.ui.screen.productdetail.sampleFollowingCount
+import com.example.resell.ui.screen.productdetail.sampleImages
+import com.example.resell.ui.screen.productdetail.sampleName
+import com.example.resell.ui.screen.productdetail.samplePrice
+import com.example.resell.ui.screen.productdetail.sampleRating
+import com.example.resell.ui.screen.productdetail.sampleTime
+import com.example.resell.ui.screen.productdetail.sampleTitle
+import com.example.resell.ui.screen.productdetail.sampleUserId
 import com.example.resell.ui.screen.profile.ProfileDetailScreen.ProfileDetailScreen
-import com.example.resell.ui.screen.register.RegisterScreen
+import com.example.resell.ui.screen.auth.register.RegisterScreen
 import com.example.resell.ui.screen.search.SearchScreen
+import com.google.firebase.auth.PhoneAuthOptions
 
 @Composable
 fun SetupNavGraph(
@@ -57,11 +77,35 @@ fun SetupNavGraph(
             MainLayout()
         }
         composable(Screen.Search.route) {
-            SearchScreen(navController) // màn hình tìm kiếm của bạn
+            SearchScreen(navController) // màn hình tì  m kiếm của bạn
         }
         composable(Screen.ProfileDetail.route) {
             ProfileDetailScreen()
         }
+        composable(Screen.ProductDetail.route) {
+            ProductDetailScreen(
+                images = sampleImages,
+                title = sampleTitle,
+                price = samplePrice,
+                category = sampleCategory,
+                time = sampleTime,
+                address = sampleAddress,
+                description = sampleDescription,
+                avatarUrl = sampleAvatar,
+                sellerName = sampleName,
+                sellerRating = sampleRating,
+                sellerId = sampleUserId,
+                followerCount = sampleFollowerCount,
+                followingCount = sampleFollowingCount,
+                onContactClick = { /* TODO */ },
+                onBuyClick = { /* TODO */ }
+            )
+        }
+        composable(Screen.PhoneAuth.route) {
+            PhoneAuthScreen()
+        }
+
+
     }
 }
 
