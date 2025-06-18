@@ -1,42 +1,30 @@
 package com.example.resell.ui.screen.market
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import arrow.core.left
 import com.example.resell.R
 import com.example.resell.ui.components.IconButtonHorizontal
 import com.example.resell.ui.components.ProfileSimpleHeader
 
 import com.example.resell.ui.components.TimeInfor
 import com.example.resell.ui.screen.productdetail.ImageCarousel
-import com.example.resell.ui.theme.DarkBlue
-import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
-import com.example.resell.ui.theme.followButton
-import model.Follow
+import com.example.resell.ui.theme.FollowButton
 
 data class PostData(
     val avatar: String?,
@@ -154,7 +142,7 @@ fun PostItemView(
                 modifier = Modifier.height(40.dp).width(130.dp).padding(end = 10.dp, bottom = 10.dp),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = followButton,
+                    containerColor = FollowButton,
                     contentColor = Color.White
                 ),
                 contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp)

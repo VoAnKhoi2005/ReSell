@@ -510,7 +510,7 @@ fun OfferView( avatarUrl: String,
 
                     onClick = {},
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = greenButton,
+                        containerColor = GreenButton,
                         contentColor = Color.White
                     ),
                     shape = RoundedCornerShape(size = 4.dp)
