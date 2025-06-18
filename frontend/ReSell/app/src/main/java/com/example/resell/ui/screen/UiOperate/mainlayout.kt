@@ -18,6 +18,7 @@ import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.components.bottomNavItems
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
+import com.example.resell.ui.screen.add.AddScreen
 import com.example.resell.ui.screen.home.HomeScreen
 import com.example.resell.ui.screen.market.MarketScreen
 import com.example.resell.ui.screen.postmanagement.PostMangamentScreen
@@ -55,6 +56,7 @@ fun MainLayout(modifier: Modifier = Modifier) {
                     showEmailIcon = true
                 )
                 Screen.Profile.route -> TopBar(titleText = "Thêm")
+                Screen.Add.route -> TopBar(titleText = "Đăng tin")
                 else -> {}
             }
         }
@@ -101,6 +103,7 @@ fun DashboardScreen(modifier: Modifier, navController: NavHostController)
 
         composable(Screen.Profile.route) { ProfileScreen() }
         composable(Screen.Manage.route) { PostMangamentScreen() }
+        composable(Screen.Add.route) { AddScreen() }
     }
 }
 

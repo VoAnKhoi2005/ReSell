@@ -7,11 +7,10 @@ import java.util.UUID
 
 //region User
 @JsonClass(generateAdapter = true)
-data class RegisterRequest(
-    val username: String,
-    val email: String,
-    val phone: String,
-    val password: String
+data class FirebaseAuthRequest(
+    val firebaseIDToken: String,
+    val username: String? = null,
+    val password: String? = null,
 )
 
 enum class LoginType{

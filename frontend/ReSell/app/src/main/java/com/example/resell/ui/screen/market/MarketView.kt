@@ -77,7 +77,7 @@ enum class MarketTab(
         text ="GẦN BẠN"
     ),
     Explore(
-        text ="Explore"
+        text ="KHÁM PHÁ"
     )
 
 }

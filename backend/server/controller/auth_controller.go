@@ -1,13 +1,13 @@
 package controller
 
 import (
+	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/middleware"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/transaction"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"time"
 )
@@ -24,6 +24,7 @@ func NewAuthController(userService service.UserService, adminService service.Adm
 	}
 }
 
+/*
 func (h *AuthController) Register(c *gin.Context) {
 	var req transaction.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -39,24 +40,116 @@ func (h *AuthController) Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	encryptedPasswordStr := string(encryptedPassword)
 
 	user := model.User{
-		Username:   req.Username,
-		Email:      req.Email,
-		Phone:      req.Phone,
-		Password:   string(encryptedPassword),
-		Reputation: 100,
-		Status:     model.ActiveStatus,
-		BanStart:   nil,
-		BanEnd:     nil,
-		CreatedAt:  time.Now(),
+		Username:        req.Username,
+		Email:           req.Email,
+		IsEmailVerified: false,
+		Phone:           req.Phone,
+		IsPhoneVerified: false,
+		Password:        encryptedPasswordStr,
+		AuthProvider:    model.LocalAuth,
+		Reputation:      100,
+		Status:          model.ActiveStatus,
+		BanStart:        nil,
+		BanEnd:          nil,
+		CreatedAt:       time.Now(),
 	}
+
 	err = h.userService.Register(&user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+*/
+
+func (h *AuthController) FirebaseAuth(c *gin.Context) {
+	var request transaction.FirebaseAuthRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	token, err := fb.VerifyFirebaseIDToken(request.FirebaseIDToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Firebase token"})
+		return
+	}
+
+	uid := token.UID
+	email, _ := token.Claims["email"].(string)
+	phone, _ := token.Claims["phone_number"].(string)
+
+	var provider model.AuthProviderType
+	if email != "" {
+		provider = model.GoogleAuth
+	} else if phone != "" {
+		provider = model.PhoneAuth
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid auth provider token"})
+		return
+	}
+
+	user, err := h.userService.GetUserByFirebaseUID(uid)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if user == nil {
+		if request.Username == nil || *request.Username == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "username cannot be null or empty"})
+			return
+		}
+
+		if request.Password == nil || *request.Password == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "password cannot be null or empty"})
+			return
+		}
+
+		user = &model.User{
+			FirebaseUID:  &uid,
+			Email:        email,
+			Phone:        phone,
+			Username:     *request.Username,
+			Password:     *request.Password,
+			AuthProvider: provider,
+			Reputation:   100,
+			Status:       model.ActiveStatus,
+			CreatedAt:    time.Now(),
+		}
+
+		err = h.userService.Register(user)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register"})
+			return
+		}
+
+		user, err = h.userService.GetUserByFirebaseUID(uid)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	}
+
+	accessToken, refreshToken, err := util.GenerateToken(user.ID, "user")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	loginResponse := transaction.LoginResponse{
+		User: user,
+		Token: transaction.TokenResponse{
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+		},
+	}
+
+	c.JSON(http.StatusOK, loginResponse)
 }
 
 func (h *AuthController) Login(c *gin.Context) {
