@@ -21,6 +21,8 @@ CREATE TABLE users
     username   VARCHAR     NOT NULL,
     email      VARCHAR     NOT NULL,
     phone      VARCHAR     NOT NULL,
+    is_phone_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    is_email_verified BOOLEAN NOT NULL  DEFAULT FALSE,
     password_hash   VARCHAR     NOT NULL,
     firebase_uid VARCHAR,
     auth_provider VARCHAR,

@@ -20,7 +20,6 @@ func main() {
 	}
 
 	config.ConnectDatabase()
-	config.RunMigrations()
 	config.InitRedis()
 
 	//Firebase
