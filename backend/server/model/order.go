@@ -40,9 +40,10 @@ type ShopOrder struct {
 	CompletedAt     *time.Time
 	CanceledAt      *time.Time
 
-	User    *User    `json:"user,omitempty"`
-	Post    *Post    `json:"post,omitempty"`
-	Address *Address `json:"address,omitempty"`
+	User          *User          `json:"user,omitempty"`
+	Post          *Post          `json:"post,omitempty"`
+	Address       *Address       `json:"address,omitempty"`
+	PaymentMethod *PaymentMethod `json:"payment_method,omitempty"`
 }
 
 type UserReview struct {
