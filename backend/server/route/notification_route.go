@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/controller"
-	"github.com/VoAnKhoi2005/ReSell/backend/server/fcm"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/middleware"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
@@ -15,7 +15,7 @@ func RegisterNotificationRote(rg *gin.RouterGroup, db *gorm.DB) {
 	notificationService := service.NewNotificationService(notificationRepo)
 	notificationController := controller.NewNotificationController(notificationService)
 
-	fcmHandler := fcm.NewFCMHandler(notificationService)
+	fcmHandler := fb.NewFCMHandler(notificationService)
 
 	notificationRoute := rg.Group("/notification")
 	notificationRoute.Use(middleware.AuthMiddleware())

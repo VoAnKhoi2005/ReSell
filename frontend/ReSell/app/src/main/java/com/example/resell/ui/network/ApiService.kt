@@ -18,10 +18,10 @@ import java.time.LocalDateTime
 interface ApiService {
 
     //region User
-    @POST("api/auth/register")
-    suspend fun register(
-        @Body request: RegisterRequest
-    ): Boolean
+    @POST("api/auth/firebase")
+    suspend fun firebaseAuth(
+        @Body request: FirebaseAuthRequest
+    ): LoginResponse
 
     @POST("api/auth/login")
     suspend fun login(
