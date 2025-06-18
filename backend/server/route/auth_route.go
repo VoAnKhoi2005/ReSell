@@ -19,7 +19,7 @@ func RegisterAuthRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	//CreateMessage auth group -> /api/auth/...
 	auth := rg.Group("/auth")
-	auth.POST("/register", authController.Register)
+	//auth.POST("/register", authController.Register)
 	auth.POST("/login", authController.Login)
 	auth.POST("/refresh", authController.RefreshToken)
 
