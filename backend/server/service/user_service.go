@@ -19,6 +19,9 @@ type UserService interface {
 
 	GetUserByID(id string) (*model.User, error)
 	GetUserByUsername(username string) (*model.User, error)
+	GetUserByEmail(email string) (*model.User, error)
+	GetUserByPhone(phone string) (*model.User, error)
+	GetUserByFirebaseUID(firebaseUID string) (*model.User, error)
 	GetUserByBatch(batchSize int, page int) ([]*model.User, int, error)
 	UpdateUser(userID string, request *request.UpdateUserRequest) error
 	DeleteUser(user *model.User) error
@@ -33,25 +36,25 @@ type UserService interface {
 }
 
 type userService struct {
-	userRepo repository.UserRepository
+	userRepository repository.UserRepository
 }
 
 func NewUserService(repo repository.UserRepository) UserService {
-	return &userService{userRepo: repo}
+	return &userService{userRepository: repo}
 }
 
 func (s *userService) Register(user *model.User) error {
 	var validationErrors []string
 
-	if _, err := s.userRepo.GetByEmail(user.Email); err == nil {
+	if _, err := s.userRepository.GetByEmail(user.Email); err == nil {
 		validationErrors = append(validationErrors, "email: email already taken")
 	}
 
-	if _, err := s.userRepo.GetByPhone(user.Phone); err == nil {
+	if _, err := s.userRepository.GetByPhone(user.Phone); err == nil {
 		validationErrors = append(validationErrors, "phone: phone number already taken")
 	}
 
-	if _, err := s.userRepo.GetByUsername(user.Username); err == nil {
+	if _, err := s.userRepository.GetByUsername(user.Username); err == nil {
 		validationErrors = append(validationErrors, "username: username already taken")
 	}
 
@@ -59,7 +62,7 @@ func (s *userService) Register(user *model.User) error {
 		return fmt.Errorf(strings.Join(validationErrors, ", "))
 	}
 
-	err := s.userRepo.Create(user)
+	err := s.userRepository.Create(user)
 	if err != nil {
 		return err
 	}
@@ -72,11 +75,11 @@ func (s *userService) Login(identifier string, password string, loginType string
 	var err error
 	switch loginType {
 	case "email":
-		user, err = s.userRepo.GetByEmail(identifier)
+		user, err = s.userRepository.GetByEmail(identifier)
 	case "phone":
-		user, err = s.userRepo.GetByPhone(identifier)
+		user, err = s.userRepository.GetByPhone(identifier)
 	case "username":
-		user, err = s.userRepo.GetByUsername(identifier)
+		user, err = s.userRepository.GetByUsername(identifier)
 	default:
 		return nil, errors.New("invalid credentials")
 	}
@@ -85,7 +88,7 @@ func (s *userService) Login(identifier string, password string, loginType string
 		return nil, err
 	}
 
-	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
+	if bcrypt.CompareHashAndPassword([]byte(*user.Password), []byte(password)) != nil {
 		return nil, errors.New("invalid credentials")
 	}
 
@@ -93,16 +96,20 @@ func (s *userService) Login(identifier string, password string, loginType string
 }
 
 func (s *userService) ChangePassword(userID string, oldPassword string, newPassword string) error {
-	user, err := s.userRepo.GetByID(userID)
+	user, err := s.userRepository.GetByID(userID)
 	if err != nil {
 		return err
 	}
 
-	if newPassword == user.Password {
+	if user.AuthProvider != model.PhoneAuth {
+		return errors.New("cannot change password for google auth user")
+	}
+
+	if newPassword == *user.Password {
 		return errors.New("new password cannot be the same as old password")
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword))
+	err = bcrypt.CompareHashAndPassword([]byte(*user.Password), []byte(oldPassword))
 	if err != nil {
 		return err
 	}
@@ -111,17 +118,29 @@ func (s *userService) ChangePassword(userID string, oldPassword string, newPassw
 	if err != nil {
 		return err
 	}
-
-	user.Password = string(encryptedPassword)
-	return s.userRepo.Update(user)
+	encryptedPasswordStr := string(encryptedPassword)
+	user.Password = &encryptedPasswordStr
+	return s.userRepository.Update(user)
 }
 
 func (s *userService) GetUserByID(id string) (*model.User, error) {
-	return s.userRepo.GetByID(id)
+	return s.userRepository.GetByID(id)
 }
 
 func (s *userService) GetUserByUsername(username string) (*model.User, error) {
-	return s.userRepo.GetByUsername(username)
+	return s.userRepository.GetByUsername(username)
+}
+
+func (s *userService) GetUserByEmail(email string) (*model.User, error) {
+	return s.userRepository.GetByEmail(email)
+}
+
+func (s *userService) GetUserByPhone(phone string) (*model.User, error) {
+	return s.userRepository.GetByPhone(phone)
+}
+
+func (s *userService) GetUserByFirebaseUID(firebaseUID string) (*model.User, error) {
+	return s.userRepository.GetByFirebaseUID(firebaseUID)
 }
 
 func (s *userService) GetUserByBatch(batchSize int, page int) ([]*model.User, int, error) {
@@ -133,11 +152,11 @@ func (s *userService) GetUserByBatch(batchSize int, page int) ([]*model.User, in
 		return nil, 0, errors.New("page must be greater than zero")
 	}
 
-	return s.userRepo.GetUsersByBatch(batchSize, page)
+	return s.userRepository.GetUsersByBatch(batchSize, page)
 }
 
 func (s *userService) UpdateUser(userID string, request *request.UpdateUserRequest) error {
-	user, err := s.userRepo.GetByID(userID)
+	user, err := s.userRepository.GetByID(userID)
 	if err != nil {
 		return err
 	}
@@ -157,36 +176,41 @@ func (s *userService) UpdateUser(userID string, request *request.UpdateUserReque
 
 	if request.FullName != nil && *request.FullName != "" {
 		user.Fullname = *request.FullName
+		isChange = true
 	}
 
-	return s.userRepo.Update(user)
+	if !isChange {
+		return errors.New("no change")
+	}
+
+	return s.userRepository.Update(user)
 }
 
 func (s *userService) DeleteUser(user *model.User) error {
-	return s.userRepo.Delete(user)
+	return s.userRepository.Delete(user)
 }
 
 func (s *userService) DeleteUserByID(ID string) error {
-	return s.userRepo.DeleteByID(ID)
+	return s.userRepository.DeleteByID(ID)
 }
 
 func (s *userService) FollowUser(followerID string, followeeID string) error {
-	_, err := s.userRepo.GetByID(followeeID)
+	_, err := s.userRepository.GetByID(followeeID)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return errors.New("user to follow not found")
 	} else if err != nil {
 		return err
 	}
 
-	return s.userRepo.FollowUser(&followerID, &followeeID)
+	return s.userRepository.FollowUser(&followerID, &followeeID)
 }
 
 func (s *userService) GetAllFollowees(followerID string) ([]*model.User, error) {
-	return s.userRepo.GetAllFollowUser(&followerID)
+	return s.userRepository.GetAllFollowUser(&followerID)
 }
 
 func (s *userService) UnFollowUser(followerID string, followeeID string) error {
-	return s.userRepo.UnFollowUser(&followerID, &followeeID)
+	return s.userRepository.UnFollowUser(&followerID, &followeeID)
 }
 
 func (s *userService) BanUserForDay(userID string, length uint) error {
@@ -194,7 +218,7 @@ func (s *userService) BanUserForDay(userID string, length uint) error {
 		return errors.New("invalid length")
 	}
 
-	user, err := s.userRepo.GetByID(userID)
+	user, err := s.userRepository.GetByID(userID)
 	if err != nil {
 		return err
 	}
@@ -206,11 +230,11 @@ func (s *userService) BanUserForDay(userID string, length uint) error {
 	user.BanEnd = &banEnd
 	user.Status = model.BannedStatus
 
-	return s.userRepo.Update(user)
+	return s.userRepository.Update(user)
 }
 
 func (s *userService) UnBanUser(userID string) error {
-	user, err := s.userRepo.GetByID(userID)
+	user, err := s.userRepository.GetByID(userID)
 	if err != nil {
 		return err
 	}
@@ -219,5 +243,5 @@ func (s *userService) UnBanUser(userID string) error {
 	user.BanEnd = nil
 	user.Status = model.ActiveStatus
 
-	return s.userRepo.Update(user)
+	return s.userRepository.Update(user)
 }

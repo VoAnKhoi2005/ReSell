@@ -6,10 +6,10 @@ import com.example.resell.ui.network.RefreshApiService
 import com.example.resell.ui.domain.NetworkError
 import com.example.resell.ui.mapper.toNetworkError
 import model.ChangePasswordRequest
+import model.FirebaseAuthRequest
 import model.LoginRequest
 import model.LoginResponse
 import model.LoginType
-import model.RegisterRequest
 import model.UpdateProfileRequest
 import model.User
 import store.AuthTokenManager
@@ -19,24 +19,23 @@ import javax.inject.Singleton
 @Singleton
 class UserRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
-    private val refreshApiService: RefreshApiService,
     private val tokenManager: AuthTokenManager
 ): UserRepository {
-    override suspend fun registerUser(
-        username: String,
-        email: String,
-        phone: String,
-        password: String
-    ): Either<NetworkError, Boolean> {
+    override suspend fun firebaseAuth(
+        firebaseIDToken: String,
+        username: String?,
+        password: String?
+    ): Either<NetworkError, LoginResponse> {
         return Either.catch {
-            val request = RegisterRequest(
+            val request = FirebaseAuthRequest(
+                firebaseIDToken = firebaseIDToken,
                 username = username,
-                email = email,
-                phone = phone,
-                password = password
+                password = password,
             )
-            apiService.register(request)
-            true
+
+            val response = apiService.firebaseAuth(request)
+            tokenManager.saveToken(response.token)
+            response
         }.mapLeft { it.toNetworkError() }
     }
 

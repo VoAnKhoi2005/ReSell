@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "911397186038",
+    "project_id": "resell-3afcc",
+    "storage_bucket": "resell-3afcc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:911397186038:android:1263607754b80e1f50ffd7",
+        "android_client_info": {
+          "package_name": "com.example.resell"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "911397186038-pf7e3nug31rs24cecbk5e0vr4bg8gpbe.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.resell",
+            "certificate_hash": "52e71e1887beda08a82891f6bb517ad2f4a1351a"
+          }
+        },
+        {
+          "client_id": "911397186038-15gs3pvg29jpjj8i972aeumrv3u0gfo8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXY-eZNtEvAM2RY3cKNLXFJT2-6b_-BjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "911397186038-15gs3pvg29jpjj8i972aeumrv3u0gfo8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

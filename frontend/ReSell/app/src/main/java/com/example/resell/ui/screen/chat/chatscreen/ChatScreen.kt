@@ -28,7 +28,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,14 +40,12 @@ import com.example.resell.ui.components.LoadingDialog
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.theme.*
 import com.example.resell.ui.viewmodel.chat.ChatViewModel
-import com.example.resell.ui.viewmodel.chat.ChatViewState
 import model.Message
 import model.User
 import store.DataStore
 import java.time.LocalDate
 import java.time.LocalDateTime
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.google.accompanist.permissions.rememberPermissionState
 import android.Manifest
 import android.content.Intent
 
@@ -57,7 +54,6 @@ import android.os.Looper
 
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -83,8 +79,11 @@ fun ChatScreen(conversationId: String) {
         id = "seller_1",
         username = "seller_one",
         email = "seller1@example.com",
+        isEmailVerified = false,
         phone = "0123456789",
+        isPhoneVerified = false,
         password = "password123",
+        authProvider = "local",
         fullName = "Nguyễn Văn A",
         citizenId = "123456789012",
         birthday = LocalDate.of(1990, 1, 1),

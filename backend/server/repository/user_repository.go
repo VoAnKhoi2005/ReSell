@@ -19,6 +19,7 @@ type UserRepository interface {
 	GetByUsername(username string) (*model.User, error)
 	GetByEmail(email string) (*model.User, error)
 	GetByPhone(phone string) (*model.User, error)
+	GetByFirebaseUID(firebaseUID string) (*model.User, error)
 	GetUsersByBatch(batchSize int, page int) ([]*model.User, int, error)
 
 	DeleteByID(id string) error
@@ -71,6 +72,15 @@ func (r *userRepository) GetByPhone(phone string) (*model.User, error) {
 
 	var user *model.User = nil
 	err := r.db.WithContext(ctx).First(&user, "phone = ?", phone).Error
+	return user, err
+}
+
+func (r *userRepository) GetByFirebaseUID(firebaseUID string) (*model.User, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var user *model.User = nil
+	err := r.db.WithContext(ctx).First(&user, "firebase_uid = ?", firebaseUID).Error
 	return user, err
 }
 
