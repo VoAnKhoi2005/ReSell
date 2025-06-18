@@ -104,6 +104,7 @@ fun SetupNavGraph(
         composable(Screen.PhoneAuth.route) {
             PhoneAuthScreen()
         }
+        composable(Screen.Add.route) { AddScreen() }
 
 
     }

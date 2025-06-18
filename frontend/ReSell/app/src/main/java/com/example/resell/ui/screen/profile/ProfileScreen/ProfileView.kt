@@ -27,6 +27,7 @@ import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
+import com.example.resell.ui.theme.LoginButton
 
 @Composable
 fun ProfileScreen() {
@@ -51,23 +52,23 @@ fun ProfileScreen() {
             // --- Quản lý đơn hàng ---
             SectionTitle(text = "Quản lý đơn hàng")
         }
-        item { IconButtonHorizontal("Đơn mua", R.drawable.bag_duotone, modifier = Modifier.padding(vertical = 0.dp)) { } }
-        item { IconButtonHorizontal("Đơn bán", R.drawable.desk_duotone,modifier = Modifier.padding(vertical = 0.dp)) { } }
+        item { IconButtonHorizontal("Đơn mua", R.drawable.bag_duotone, modifier = Modifier.padding(vertical = 0.dp), textColor = LoginButton) { } }
+        item { IconButtonHorizontal("Đơn bán", R.drawable.desk_duotone,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { } }
 
         item {
             // --- Tiện ích ---
             SectionTitle(text = "Tiện ích")
         }
-        item { IconButtonHorizontal("Tin đăng đã lưu", R.drawable.favouriteicon,modifier = Modifier.padding(vertical = 0.dp)) { } }
-        item { IconButtonHorizontal("Đánh giá từ tôi", R.drawable.rateicon,modifier = Modifier.padding(vertical = 0.dp)) { } }
+        item { IconButtonHorizontal("Tin đăng đã lưu", R.drawable.favouriteicon,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { } }
+        item { IconButtonHorizontal("Đánh giá từ tôi", R.drawable.rateicon,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { } }
 
         item {
             // --- Khác ---
             SectionTitle(text = "Khác")
         }
-        item { IconButtonHorizontal("Cài đặt tài khoản", R.drawable.setting_line_duotone,modifier = Modifier.padding(vertical = 0.dp)) { } }
-        item { IconButtonHorizontal("Thiết lập vị trí", R.drawable.pin_duotone,modifier = Modifier.padding(vertical = 0.dp)) { } }
-        item { IconButtonHorizontal("Đăng xuất", R.drawable.signouticon,modifier = Modifier.padding(vertical = 0.dp)) { } }
+        item { IconButtonHorizontal("Cài đặt tài khoản", R.drawable.setting_line_duotone,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { } }
+        item { IconButtonHorizontal("Thiết lập vị trí", R.drawable.pin_duotone,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { } }
+        item { IconButtonHorizontal("Đăng xuất", R.drawable.signouticon,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { } }
         item { Spacer(Modifier.height(32.dp)) }
     }
 }

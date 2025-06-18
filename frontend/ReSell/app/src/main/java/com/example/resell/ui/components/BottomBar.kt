@@ -55,6 +55,7 @@ val bottomNavItems = listOf(
 fun BottomBar(
     items: List<BottomNavItem>,
     onItemClick: (BottomNavItem) -> Unit,
+    onAddClick: () -> Unit,
     selectedItem: BottomNavItem
 ) {
     val centerIndex = items.indexOfFirst { it.label == "Đăng tin" }
@@ -105,7 +106,7 @@ fun BottomBar(
         }
 
         FloatingActionButton(
-            onClick = { onItemClick(items[centerIndex]) },
+            onClick = { onAddClick() },
             containerColor = DarkBlue,
             modifier = Modifier
                 .align(Alignment.TopCenter)

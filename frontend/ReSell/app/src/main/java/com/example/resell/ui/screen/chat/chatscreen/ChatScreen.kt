@@ -54,6 +54,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import android.net.Uri
 import android.os.Looper
 
+
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -106,11 +107,18 @@ fun ChatScreen(conversationId: String) {
             )
         },
         bottomBar = {
-            Column {
-                ChatInputBar(viewModel,onSendMessage = { text -> viewModel.sendMessage(text) })
-
+            Column(
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+            ) {
+                ChatInputBar(
+                    viewModel = viewModel,
+                    onSendMessage = { text -> viewModel.sendMessage(text) }
+                )
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
+
 
     ) { innerPadding ->
         ChatMessages(
@@ -178,8 +186,7 @@ fun ChatInputBar(viewModel: ChatViewModel,
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .navigationBarsWithImePadding() // 👈 Tự xử lý padding với cả bàn phím và nav bar
-            .padding(horizontal = 12.dp, vertical = 8.dp), // 👈 Padding giữa mép trái/phải/dưới
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     )
     {
@@ -243,8 +250,8 @@ fun ChatInputBar(viewModel: ChatViewModel,
             maxLines = 3,
             onValueChange = { msg.value = it },
             modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(24.dp)),
+                .weight(0.5f)
+                .clip(RoundedCornerShape(20.dp)),
             placeholder = {
                 Text(text = "Type a message...", style = MaterialTheme.typography.bodyMedium)
             },
