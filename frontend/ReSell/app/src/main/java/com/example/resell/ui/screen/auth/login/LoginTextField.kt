@@ -1,4 +1,4 @@
-package com.example.resell.ui.screen.login
+package com.example.resell.ui.screen.auth.login
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

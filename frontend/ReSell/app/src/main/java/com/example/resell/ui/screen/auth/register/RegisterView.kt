@@ -1,4 +1,4 @@
-package com.example.resell.ui.screen.register
+package com.example.resell.ui.screen.auth.register
 import Roboto
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -32,7 +32,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.resell.R
-import com.example.resell.ui.screen.login.LoginTextField
+import com.example.resell.ui.screen.auth.login.LoginTextField
 import com.example.resell.ui.theme.LoginButton
 import com.example.resell.ui.theme.LoginTitle
 
