@@ -22,6 +22,7 @@ type AuthProviderType string
 const (
 	GoogleAuth AuthProviderType = "google"
 	PhoneAuth  AuthProviderType = "phone"
+	LocalAuth  AuthProviderType = "local"
 )
 
 type User struct {

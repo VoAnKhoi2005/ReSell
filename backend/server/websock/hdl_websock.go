@@ -53,7 +53,8 @@ func (h *WSHandler) Handler(c *gin.Context) {
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "WebSocket upgrade failed"})
+		log.Println("Upgrade error:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "WebSocket upgrade failed"})
 		return
 	}
 

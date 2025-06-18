@@ -8,6 +8,7 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/transaction"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"time"
 )
@@ -24,7 +25,6 @@ func NewAuthController(userService service.UserService, adminService service.Adm
 	}
 }
 
-/*
 func (h *AuthController) Register(c *gin.Context) {
 	var req transaction.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -64,7 +64,6 @@ func (h *AuthController) Register(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
-*/
 
 func (h *AuthController) FirebaseAuth(c *gin.Context) {
 	var request transaction.FirebaseAuthRequest
