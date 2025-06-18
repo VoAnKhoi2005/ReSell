@@ -24,13 +24,11 @@ type User struct {
 	Phone      string     `json:"phone"`
 	Password   string     `json:"password"`
 	Fullname   string     `json:"full_name"`
-	CitizenId  string     `json:"citizen_id"`
 	Status     UserStatus `json:"status"`
 	Reputation int        `json:"reputation"`
 	BanStart   *time.Time `json:"ban_start,omitempty"`
 	BanEnd     *time.Time `json:"ban_end,omitempty"`
 	CreatedAt  time.Time  `json:"created_at"`
-	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
 }
 
 type Follow struct {
