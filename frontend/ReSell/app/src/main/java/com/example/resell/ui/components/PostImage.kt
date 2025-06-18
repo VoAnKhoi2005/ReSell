@@ -1,6 +1,7 @@
 package com.example.resell.ui.components
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,12 +41,14 @@ fun ProductPostItem(
     modifier: Modifier = Modifier,
     price: Int,
     category: String,
-    address: String
+    address: String,
+    onClick: () -> Unit
 ) {
     Card (
         modifier = modifier
             .fillMaxWidth()
             .padding(8.dp)
+            .clickable { onClick() }
             .border(
                 width = 1.dp,
                 color = LightGray
@@ -82,6 +85,7 @@ fun ProductPostItem(
                 text = category,
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                 maxLines = 1,
+                color = GrayFont,
                 overflow = TextOverflow.Ellipsis
             )
 

@@ -2,11 +2,11 @@ package util
 
 import okhttp3.Interceptor
 import okhttp3.Response
-import store.TokenManager
+import store.AuthTokenManager
 import javax.inject.Inject
 
 class AuthInterceptor @Inject constructor(
-    private val tokenManager: TokenManager
+    private val tokenManager: AuthTokenManager
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = tokenManager.getAccessToken()
