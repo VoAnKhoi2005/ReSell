@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
+import model.Category
 
 @Composable
 fun IconButtonVertical(//nút dưới bottombar
@@ -68,6 +69,7 @@ fun IconButtonHorizontal(
     hasBorder: Boolean = true,
     backgroundColor: Color = Color.Transparent,
     contentAlignment: Alignment.Horizontal = Alignment.Start,
+    textColor: Color = GrayFont,
     onClick: () -> Unit
 ) {
     OutlinedButton(
@@ -95,7 +97,8 @@ fun IconButtonHorizontal(
                 tint = Color.Unspecified
             )
             Spacer(modifier = Modifier.run { width(4.dp) })
-            Text(text, color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, fontSize = 16.sp))
+            Text(text, color = textColor, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, fontSize = 16.sp))
         }
     }
 }
+
