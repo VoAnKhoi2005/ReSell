@@ -46,13 +46,27 @@ func GenerateSeedData() {
 	districtIDs := seedDistrict(provinceIDs)
 	wardsIDs := seedWard(districtIDs)
 	addressIDs := seedAddress(userIDs, wardsIDs)
-	seedPost(userIDs, categoryIDs, addressIDs)
+	postIDs := seedPost(userIDs, categoryIDs, addressIDs)
+	paymentMethodIDs := seedPaymentMethod()
+	orderIDs := seedOrder(userIDs, addressIDs, postIDs, paymentMethodIDs)
+	seedReview(orderIDs)
+	seedReportPost(userIDs, postIDs)
+	seedReportUser(userIDs)
 
-	log.Println("Generated seed data successfully")
+	log.Println("Generated seed data successfully!")
 }
 
 func randomStringIn(arr []string) string {
 	return arr[rand.Intn(len(arr))]
+}
+
+func shuffleStrings(arr []string) []string {
+	out := make([]string, len(arr))
+	copy(out, arr)
+	rand.Shuffle(len(out), func(i, j int) {
+		out[i], out[j] = out[j], out[i]
+	})
+	return out
 }
 
 func randomStatus[T any](statusList []T) T {

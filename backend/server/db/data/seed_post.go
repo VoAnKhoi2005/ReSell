@@ -36,7 +36,7 @@ func seedPost(userIDs, categoryIDs, addressIDs []string) []string {
 	postStatusList := []model.PostStatus{
 		model.PostStatusApproved,
 		model.PostStatusPending,
-		model.PostStatusApproved,
+		model.PostStatusSold,
 		model.PostStatusRejected,
 	}
 
@@ -53,7 +53,7 @@ func seedPost(userIDs, categoryIDs, addressIDs []string) []string {
 				UserID:      &userID,
 				CategoryID:  &categoryID,
 				AddressID:   &addressIDs[i], //thu tu cua address trung voi thu tu cua user
-				Title:       fmt.Sprintf("Post %d", i+1),
+				Title:       fmt.Sprintf("Post %02d - %02d", i+1, j),
 				Description: lorem.Paragraph(2, 4),
 				Status:      status,
 				Price:       uint(rand.Intn(900000) + 100000), // 100k–1tr
