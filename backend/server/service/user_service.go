@@ -88,7 +88,7 @@ func (s *userService) Login(identifier string, password string, loginType string
 		return nil, err
 	}
 
-	if bcrypt.CompareHashAndPassword([]byte(*user.Password), []byte(password)) != nil {
+	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
 		return nil, errors.New("invalid credentials")
 	}
 
@@ -105,11 +105,11 @@ func (s *userService) ChangePassword(userID string, oldPassword string, newPassw
 		return errors.New("cannot change password for google auth user")
 	}
 
-	if newPassword == *user.Password {
+	if newPassword == user.Password {
 		return errors.New("new password cannot be the same as old password")
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(*user.Password), []byte(oldPassword))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword))
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func (s *userService) ChangePassword(userID string, oldPassword string, newPassw
 		return err
 	}
 	encryptedPasswordStr := string(encryptedPassword)
-	user.Password = &encryptedPasswordStr
+	user.Password = encryptedPasswordStr
 	return s.userRepository.Update(user)
 }
 
@@ -160,7 +160,7 @@ func (s *userService) UpdateUser(userID string, request *request.UpdateUserReque
 	if err != nil {
 		return err
 	}
-	
+
 	if request.Username != nil && *request.Username != "" {
 		user.Username = *request.Username
 
@@ -176,11 +176,6 @@ func (s *userService) UpdateUser(userID string, request *request.UpdateUserReque
 
 	if request.FullName != nil && *request.FullName != "" {
 		user.Fullname = *request.FullName
-		isChange = true
-	}
-
-	if !isChange {
-		return errors.New("no change")
 	}
 
 	return s.userRepository.Update(user)

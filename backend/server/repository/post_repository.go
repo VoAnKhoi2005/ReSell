@@ -22,7 +22,7 @@ type PostRepository interface {
 	GetByID(id string) (*model.Post, error)
 	GetDeletedByID(id string) (*model.Post, error)
 	GetAllDeleted() ([]*model.Post, error)
-	Search(query string) ([]*model.Post, error)
+	//Search(query string) ([]*dto.PostListUserDTO, error)
 	CreatePostImage(postImage *model.PostImage) error
 	DeletePostImage(postImage *model.PostImage) error
 	GetPostImage(postID, url string) (*model.PostImage, error)
@@ -157,7 +157,9 @@ func (r *postRepository) GetUserPostsByFilter(filters map[string]string, page, l
 	if userID, ok := filters["user_id"]; ok {
 		query = query.Where("posts.user_id = ?", userID)
 	}
-
+	if q, ok := filters["q"]; ok {
+		query = query.Where("posts.title ILIKE ? OR posts.description ILIKE ?", "%"+q+"%", "%"+q+"%")
+	}
 	// ========== COUNT ==========
 	countQuery := query.Session(&gorm.Session{})
 	if err := countQuery.Count(&total).Error; err != nil {
@@ -177,65 +179,41 @@ func (r *postRepository) GetUserPostsByFilter(filters map[string]string, page, l
 	return result, total, nil
 }
 
-//func (r *postRepository) GetPostIDsByFilter(filters map[string]string, page, limit int) ([]string, int64, error) {
+//func (r *postRepository) Search(queryStr string) ([]*dto.PostListUserDTO, error) {
 //	ctx, cancel := util.NewDBContext()
 //	defer cancel()
 //
-//	var postIDs []string
-//	var total int64
+//	var posts []*dto.PostListUserDTO
 //
-//	query := r.db.WithContext(ctx).
+//	subQuery := r.db.
+//		Table("post_images").
+//		Select("DISTINCT ON (post_id) post_id, image_url").
+//		Order("post_id, image_order")
+//
+//	err := r.db.WithContext(ctx).
 //		Model(&model.Post{}).
+//		Select(`
+//		posts.id,
+//		posts.title,
+//		posts.status,
+//		categories.name AS category,
+//		users.username AS owner,
+//		posts.price,
+//		provinces.name AS province,
+//		imgs.image_url AS thumbnail
+//	`).
+//		Joins("JOIN users ON users.id = posts.user_id").
+//		Joins("JOIN categories ON categories.id = posts.category_id").
 //		Joins("JOIN addresses ON addresses.id = posts.address_id").
 //		Joins("JOIN wards ON wards.id = addresses.ward_id").
 //		Joins("JOIN districts ON districts.id = wards.district_id").
-//		Joins("JOIN provinces ON provinces.id = districts.province_id")
+//		Joins("JOIN provinces ON provinces.id = districts.province_id").
+//		Joins("LEFT JOIN (?) AS imgs ON imgs.post_id = posts.id", subQuery).
+//		Where("posts.title ILIKE ? OR posts.description ILIKE ?", "%"+queryStr+"%", "%"+queryStr+"%").
+//		Preload("Address.Ward.District.Province").
+//		Find(&posts).Error
 //
-//	// ========== FILTERS ==========
-//	if status, ok := filters["status"]; ok {
-//		query = query.Where("posts.status = ?", status)
-//	}
-//	if minPrice, ok := filters["min_price"]; ok {
-//		query = query.Where("posts.price >= ?", minPrice)
-//	}
-//	if maxPrice, ok := filters["max_price"]; ok {
-//		query = query.Where("posts.price <= ?", maxPrice)
-//	}
-//	if provinceID, ok := filters["province_id"]; ok {
-//		query = query.Where("provinces.id = ?", provinceID)
-//	}
-//	if districtID, ok := filters["district_id"]; ok {
-//		query = query.Where("districts.id = ?", districtID)
-//	}
-//	if wardID, ok := filters["ward_id"]; ok {
-//		query = query.Where("wards.id = ?", wardID)
-//	}
-//	if categoryID, ok := filters["category_id"]; ok {
-//		query = query.Where("posts.category_id = ?", categoryID)
-//	}
-//	if userID, ok := filters["user_id"]; ok {
-//		query = query.Where("posts.user_id = ?", userID)
-//	}
-//
-//	// ========== COUNT ==========
-//	countQuery := query.Session(&gorm.Session{})
-//
-//	if err := countQuery.Count(&total).Error; err != nil {
-//		return nil, 0, err
-//	}
-//
-//	// ========== PAGINATION ==========
-//	err := query.
-//		Select("posts.id").
-//		Offset((page-1)*limit).
-//		Limit(limit).
-//		Order("posts.created_at DESC").
-//		Pluck("posts.id", &postIDs).Error
-//	if err != nil {
-//		return nil, 0, err
-//	}
-//
-//	return postIDs, total, nil
+//	return posts, err
 //}
 
 func (r *postRepository) GetByID(id string) (*model.Post, error) {
@@ -275,21 +253,6 @@ func (r *postRepository) GetAllDeleted() ([]*model.Post, error) {
 
 	var posts []*model.Post
 	err := r.db.WithContext(ctx).Unscoped().Where("deleted_at IS NOT NULL").Find(&posts).Error
-	return posts, err
-}
-
-func (r *postRepository) Search(queryStr string) ([]*model.Post, error) {
-	ctx, cancel := util.NewDBContext()
-	defer cancel()
-
-	var posts []*model.Post
-
-	err := r.db.WithContext(ctx).
-		Model(&model.Post{}).
-		Where("posts.title ILIKE ? OR posts.description ILIKE ?", "%"+queryStr+"%", "%"+queryStr+"%").
-		Preload("Address.Ward.District.Province").
-		Find(&posts).Error
-
 	return posts, err
 }
 
