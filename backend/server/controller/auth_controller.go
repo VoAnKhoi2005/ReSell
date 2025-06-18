@@ -50,7 +50,6 @@ func (h *AuthController) Register(c *gin.Context) {
 		BanStart:   nil,
 		BanEnd:     nil,
 		CreatedAt:  time.Now(),
-		UpdatedAt:  nil,
 	}
 	err = h.userService.Register(&user)
 	if err != nil {

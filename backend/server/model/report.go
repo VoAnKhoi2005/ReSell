@@ -6,8 +6,8 @@ type ReportUser struct {
 	ReportedID  string `gorm:"type:uuid" json:"reported_id"`
 	Description string `gorm:"type:text" json:"description"`
 
-	Reporter *User `json:"reporter"`
-	Reported *User `json:"reported"`
+	Reporter *User `json:"reporter, omitempty"`
+	Reported *User `json:"reported, omitempty"`
 }
 
 type ReportPost struct {
@@ -16,6 +16,6 @@ type ReportPost struct {
 	ReportedID  string `gorm:"type:uuid" json:"reported_id"`
 	Description string `gorm:"type:text" json:"description"`
 
-	Reporter *User `json:"reporter"`
-	Reported *User `json:"reported"`
+	Reporter *User `json:"reporter, omitempty"`
+	Reported *User `json:"reported,omitempty"`
 }

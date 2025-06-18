@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -30,26 +29,26 @@ func ConnectDatabase() {
 	log.Println("Connected to PostgresSQL successfully!")
 }
 
-func RunMigrations() {
-	err := DB.AutoMigrate(
-		&model.User{},
-		&model.Admin{},
-		&model.Post{},
-		&model.PostImage{},
-		&model.Category{},
-		&model.Province{},
-		&model.District{},
-		&model.Ward{},
-		&model.Address{},
-		&model.CartItem{},
-		&model.ShopOrder{},
-		&model.UserReview{},
-		&model.Conversation{},
-		&model.Message{},
-		&model.Follow{},
-		&model.Notification{},
-	)
-	if err != nil {
-		panic("Failed to migrate database: " + err.Error())
-	}
-}
+//func RunMigrations() {
+//	err := DB.AutoMigrate(
+//		&model.User{},
+//		&model.Admin{},
+//		&model.Post{},
+//		&model.PostImage{},
+//		&model.Category{},
+//		&model.Province{},
+//		&model.District{},
+//		&model.Ward{},
+//		&model.Address{},
+//		&model.FavoritePosts{},
+//		&model.ShopOrder{},
+//		&model.UserReview{},
+//		&model.Conversation{},
+//		&model.Message{},
+//		&model.Follow{},
+//		&model.Notification{},
+//	)
+//	if err != nil {
+//		panic("Failed to migrate database: " + err.Error())
+//	}
+//}

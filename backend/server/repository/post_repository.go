@@ -107,15 +107,30 @@ func (r *postRepository) GetUserPostsByFilter(filters map[string]string, page, l
 	var result []*dto.PostListUserDTO
 	var total int64
 
+	subQuery := r.db.
+		Table("post_images").
+		Select("DISTINCT ON (post_id) post_id, image_url").
+		Order("post_id, image_order")
+
 	query := r.db.WithContext(ctx).
 		Model(&model.Post{}).
-		Select("posts.id, posts.title, posts.status, categories.name AS category, users.username AS owner").
+		Select(`
+		posts.id,
+		posts.title,
+		posts.status,
+		categories.name AS category,
+		users.username AS owner,
+		posts.price,
+		provinces.name AS province,
+		imgs.image_url AS thumbnail
+	`).
 		Joins("JOIN users ON users.id = posts.user_id").
 		Joins("JOIN categories ON categories.id = posts.category_id").
 		Joins("JOIN addresses ON addresses.id = posts.address_id").
 		Joins("JOIN wards ON wards.id = addresses.ward_id").
 		Joins("JOIN districts ON districts.id = wards.district_id").
-		Joins("JOIN provinces ON provinces.id = districts.province_id")
+		Joins("JOIN provinces ON provinces.id = districts.province_id").
+		Joins("LEFT JOIN (?) AS imgs ON imgs.post_id = posts.id", subQuery)
 
 	// ========== FILTER ==========
 	if status, ok := filters["status"]; ok {

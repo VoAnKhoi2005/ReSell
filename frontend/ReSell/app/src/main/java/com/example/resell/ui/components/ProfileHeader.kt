@@ -41,7 +41,7 @@ import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
 
 @Composable
-fun ProfileHeaderSection(
+fun ProfileHeaderSection(//bên detailpropfile
     avatarUrl: String?,
     coverUrl: String?,
     name: String?,
@@ -250,7 +250,7 @@ fun ProfileHeaderSection(
     }
 }
 @Composable
-fun ProfileSimpleHeaderSection(
+fun ProfileSimpleHeaderSection(//bên profile
     avatarUrl: String?,
     name: String?,
     rating: String?,              // "Chưa có đánh giá"
@@ -355,60 +355,16 @@ fun ProfileSimpleHeaderSection(
     }
 }
 
-
 @Composable
-fun ChatResponeRate(
-    rate: String
-){
-    Row {
-        Image(
-            painter = painterResource( id = R.drawable.chatrateicon),
-            contentDescription = "ChatRate Icon",
-            modifier = Modifier.size(16.dp)
-        )
-        Spacer(modifier = Modifier.width(2.dp))
-        Text("Tỷ lệ phản hồi chat: $rate", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp))
-    }
-}
-@Composable
-fun CreatedAt(
-    time: String
-){
-    Row {
-        Image(
-            painter = painterResource( id = R.drawable.calendar_add_duotone),
-            contentDescription = "CreatedAt",
-            modifier = Modifier.size(16.dp)
-        )
-        Spacer(modifier = Modifier.width(2.dp))
-        Text("Đã tham gia: $time", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp))
-    }
-}
-@Composable
-fun Address(
-    address: String
-){
-    Row {
-        Image(
-            painter = painterResource( id = R.drawable.pin_duotone),
-            contentDescription = "ChatRate Icon",
-            modifier = Modifier.size(16.dp)
-        )
-        Spacer(modifier = Modifier.width(2.dp))
-        Text("Địa chỉ: $address", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp))
-    }
-}
-@Composable
-fun ProfileSimpleHeader(
+fun ProfileSimpleHeader(//còn lại
     avatarUrl: String?,
     name: String?,
     rating: String?,
     soldCount: Int?, // 🆕 Thêm tham số này
-    onChangeAvatarClick: (() -> Unit)? = null
+    onChangeAvatarClick: (() -> Unit)? = null,
 ) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
             .padding(6.dp)
     ) {
         // Avatar
@@ -463,6 +419,50 @@ fun ProfileSimpleHeader(
         }
     }
 }
+
+@Composable
+fun ChatResponeRate(
+    rate: String
+){
+    Row {
+        Image(
+            painter = painterResource( id = R.drawable.chatrateicon),
+            contentDescription = "ChatRate Icon",
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(modifier = Modifier.width(2.dp))
+        Text("Tỷ lệ phản hồi chat: $rate", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp))
+    }
+}
+@Composable
+fun CreatedAt(
+    time: String
+){
+    Row {
+        Image(
+            painter = painterResource( id = R.drawable.calendar_add_duotone),
+            contentDescription = "CreatedAt",
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(modifier = Modifier.width(2.dp))
+        Text("Đã tham gia: $time", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp))
+    }
+}
+@Composable
+fun Address(
+    address: String
+){
+    Row {
+        Image(
+            painter = painterResource( id = R.drawable.pin_duotone),
+            contentDescription = "ChatRate Icon",
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(modifier = Modifier.width(2.dp))
+        Text("Địa chỉ: $address", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp))
+    }
+}
+
 
 
 
