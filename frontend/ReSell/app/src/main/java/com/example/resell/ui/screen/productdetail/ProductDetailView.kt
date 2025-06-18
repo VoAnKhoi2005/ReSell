@@ -49,7 +49,7 @@ val sampleDescription = """
     - Tặng kèm ốp lưng và dán màn hình.
 """.trimIndent()
 
-val sampleAvatar = "https://randomuser.me/api/portraits/men/75.jpg"
+val sampleAvatar = "https://i.pinimg.com/736x/de/5b/8d/de5b8da13f9a4e5d462499d70ef3114d.jpg"
 val sampleName = "Nguyễn Văn A"
 val sampleRating = "⭐ 4.8 (120 đánh giá)"
 val sampleUserId = "user12345"

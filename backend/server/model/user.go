@@ -17,18 +17,29 @@ const (
 	BannedStatus UserStatus = "banned"
 )
 
+type AuthProviderType string
+
+const (
+	GoogleAuth AuthProviderType = "google"
+	PhoneAuth  AuthProviderType = "phone"
+)
+
 type User struct {
-	ID         string     `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
-	Username   string     `json:"username"`
-	Email      string     `json:"email"`
-	Phone      string     `json:"phone"`
-	Password   string     `json:"password"`
-	Fullname   string     `json:"full_name"`
-	Status     UserStatus `json:"status"`
-	Reputation int        `json:"reputation"`
-	BanStart   *time.Time `json:"ban_start,omitempty"`
-	BanEnd     *time.Time `json:"ban_end,omitempty"`
-	CreatedAt  time.Time  `json:"created_at"`
+	ID              string           `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
+	Username        string           `json:"username"`
+	Email           string           `json:"email"`
+	IsEmailVerified bool             `json:"is_email_verified"`
+	Phone           string           `json:"phone"`
+	IsPhoneVerified bool             `json:"is_phone_verified"`
+	Password        string           `json:"password"`
+	FirebaseUID     *string          `json:"firebase_uid"`
+	AuthProvider    AuthProviderType `json:"auth_provider"`
+	Fullname        string           `json:"full_name"`
+	Status          UserStatus       `json:"status"`
+	Reputation      int              `json:"reputation"`
+	BanStart        *time.Time       `json:"ban_start,omitempty"`
+	BanEnd          *time.Time       `json:"ban_end,omitempty"`
+	CreatedAt       time.Time        `json:"created_at"`
 }
 
 type Follow struct {

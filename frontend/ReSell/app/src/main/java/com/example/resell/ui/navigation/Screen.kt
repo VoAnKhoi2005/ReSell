@@ -13,5 +13,7 @@ sealed class Screen(val route: String){
     object Search: Screen("search_screen")
     object ProfileDetail: Screen("profiledetail_screen")
     object ProductDetail: Screen("productdetail_screen")
+    object PhoneAuth: Screen("phoneAuth_screen")
+    object Add: Screen("add_screen")
 
 }

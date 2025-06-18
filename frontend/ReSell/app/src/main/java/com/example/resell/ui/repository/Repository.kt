@@ -7,7 +7,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface UserRepository{
-    suspend fun registerUser(username: String, email: String, phone: String, password: String): Either<NetworkError, Boolean>
+    suspend fun firebaseAuth(firebaseIDToken: String, username: String? = null, password: String? = null): Either<NetworkError, LoginResponse>
     suspend fun loginUser(identifier: String, password: String, loginType: LoginType): Either<NetworkError, LoginResponse>
     suspend fun updateInfo(request: UpdateProfileRequest): Either<NetworkError, Boolean>
     suspend fun changePassword(oldPassword: String, newPassword: String): Either<NetworkError, Boolean>

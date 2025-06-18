@@ -24,6 +24,7 @@ val LoginTitle = Color(0xFF1E293B)
 val priceColor = Color(0xFFF44336)
 val BuyerMessage = Color(0xFFEFEFEF)
 val greenButton = Color(0xFF66BB6A)
+val followButton = Color(0xFF0D49A2)
 val ColorScheme.focusedTextFieldText
 @Composable
 get() = Color.Black
