@@ -101,11 +101,22 @@ func (h *AuthController) FirebaseAuth(c *gin.Context) {
 	}
 
 	if user == nil {
+		if request.Username == nil || *request.Username == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "username cannot be null or empty"})
+			return
+		}
+
+		if request.Password == nil || *request.Password == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "password cannot be null or empty"})
+			return
+		}
+
 		user = &model.User{
 			FirebaseUID:  &uid,
 			Email:        email,
 			Phone:        phone,
-			Username:     request.Username,
+			Username:     *request.Username,
+			Password:     *request.Password,
 			AuthProvider: provider,
 			Reputation:   100,
 			Status:       model.ActiveStatus,

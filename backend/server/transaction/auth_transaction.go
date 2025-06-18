@@ -3,9 +3,9 @@ package transaction
 import "github.com/VoAnKhoi2005/ReSell/backend/server/model"
 
 type FirebaseAuthRequest struct {
-	FirebaseIDToken string `json:"firebase_id_token" binding:"required"`
-	Username        string `json:"username" binding:"required"`
-	Password        string `json:"password" binding:"required"`
+	FirebaseIDToken string  `json:"firebase_id_token" binding:"required"`
+	Username        *string `json:"username" binding:"required"`
+	Password        *string `json:"password" binding:"required"`
 }
 
 type LoginRequest struct {
