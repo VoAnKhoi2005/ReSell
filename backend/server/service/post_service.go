@@ -25,7 +25,7 @@ type PostService interface {
 	DeletePost(id string) error
 	GetAllDeletedPosts() ([]*model.Post, error)
 	GetDeletedPostByID(id string) (*model.Post, error)
-	SearchPosts(query string) ([]*model.Post, error)
+	//SearchPosts(query string) ([]*dto.PostListUserDTO, error)
 	CreatePostImage(postID, url string) (*model.PostImage, error)
 	DeletePostImage(postID, url string) error
 
@@ -268,9 +268,9 @@ func NewPostService(repo repository.PostRepository) PostService {
 	return &postService{repo: repo}
 }
 
-func (s *postService) SearchPosts(query string) ([]*model.Post, error) {
-	return s.repo.Search(query)
-}
+//func (s *postService) SearchPosts(query string) ([]*dto.PostListUserDTO, error) {
+//	return s.repo.Search(query)
+//}
 
 func (s *postService) CreatePostImage(postID, url string) (*model.PostImage, error) {
 	var maxOrder uint
