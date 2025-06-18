@@ -45,6 +45,7 @@ android {
 }
 
 dependencies {
+    implementation ("androidx.compose.foundation:foundation:1.6.1")
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

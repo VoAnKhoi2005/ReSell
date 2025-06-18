@@ -196,7 +196,7 @@ fun ProfileHeaderSection(//bên detailpropfile
             Text(
                 it,
                 style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     fontSize = 20.sp
                 )
             )
@@ -312,7 +312,7 @@ fun ProfileSimpleHeaderSection(//bên profile
                 Text(
                     it,
                     style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 20.sp
                     )
                 )
@@ -395,7 +395,7 @@ fun ProfileSimpleHeader(//còn lại
                 Text(
                     it,
                     style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 20.sp
                     )
                 )

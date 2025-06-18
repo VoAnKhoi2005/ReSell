@@ -41,9 +41,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.theme.SoftBlue
+import com.example.resell.ui.theme.White2
 
 @Composable
 internal fun ChatHomeScreen(){
@@ -140,7 +142,9 @@ fun ChatHomeTopBar() {
         title = {
             Text(
                 text = "Tin Nhắn",
-                maxLines = 1
+                maxLines = 1,
+                style = MaterialTheme.typography.labelMedium.copy(fontSize = 20.sp),
+
             )
         },
         navigationIcon = {
@@ -155,8 +159,8 @@ fun ChatHomeTopBar() {
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = SoftBlue, // Màu nền của TopBar
-            titleContentColor = Color.Black, // Màu chữ của tiêu đề
-            navigationIconContentColor = Color.Black // Màu của nút back
+            titleContentColor = White2, // Màu chữ của tiêu đề
+            navigationIconContentColor = White2 // Màu của nút back
         )
     )}
 

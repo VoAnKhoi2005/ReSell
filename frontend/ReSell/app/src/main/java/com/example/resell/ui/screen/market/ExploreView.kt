@@ -23,8 +23,10 @@ import com.example.resell.ui.components.ProfileSimpleHeader
 
 import com.example.resell.ui.components.TimeInfor
 import com.example.resell.ui.screen.productdetail.ImageCarousel
+import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.FollowButton
+import com.example.resell.ui.theme.White2
 
 data class PostData(
     val avatar: String?,
@@ -142,8 +144,8 @@ fun PostItemView(
                 modifier = Modifier.height(40.dp).width(130.dp).padding(end = 10.dp, bottom = 10.dp),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = FollowButton,
-                    contentColor = Color.White
+                    containerColor = DarkBlue,
+                    contentColor = White2
                 ),
                 contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp)
             ) {

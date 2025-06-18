@@ -24,18 +24,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.resell.R
 import com.example.resell.ui.components.ProductPostItem
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
+import com.example.resell.ui.theme.DarkBlue
+import com.example.resell.ui.theme.White
+import com.example.resell.ui.theme.White1
 import com.example.resell.ui.viewmodel.home.postList
 
 @Composable
 fun HomeScreen() {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.White
+        color = White
     ) { HomeContent() }
 
 }
@@ -47,10 +51,10 @@ fun HomeContent(modifier: Modifier = Modifier) {
         columns = GridCells.Fixed(2), // 2 cột
         modifier = modifier
             .fillMaxSize()
-            .padding(8.dp),
-        contentPadding = PaddingValues(2.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-        horizontalArrangement = Arrangement.spacedBy(2.dp)
+            .padding(4.dp),
+        contentPadding = PaddingValues(0.dp),
+        verticalArrangement = Arrangement.spacedBy(0.dp),
+        horizontalArrangement = Arrangement.spacedBy(0.dp)
     ) {
         item(span = { GridItemSpan(2) }) {
             Row(
@@ -73,23 +77,25 @@ fun HomeContent(modifier: Modifier = Modifier) {
 
                 Text(
                     text = "Tin đăng dành cho bạn",
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
+                    style = MaterialTheme.typography.labelMedium.copy(fontSize = 18.sp),
                     modifier = Modifier
                         .padding(start = 4.dp)
-                        .alignByBaseline()
+                        .alignByBaseline(),
+
 
                 )
                 Spacer(modifier = Modifier.padding(2.dp))
-                Image(
-                    painter = painterResource(id = R.drawable.tuychinhdanhmucbtn),
+                Icon(
+                    painter = painterResource(id = R.drawable.filter_horizontal),
                     contentDescription = "Gợi ý",
                     modifier = Modifier
-                        .size(32.dp)
+                        .size(40.dp)
                         .clickable {
                             // 👉 Xử lý khi click vào icon ở đây
                             println("Icon được click")
                         }
-                        .padding(bottom = 16.dp)
+                        .padding(bottom = 16.dp),
+                    tint = DarkBlue
                 )
             }
         }
