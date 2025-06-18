@@ -198,7 +198,6 @@ fun ChatInputBar(viewModel: ChatViewModel,
                             val lon = location.longitude
                             val mapUrl = "https://maps.google.com/?q=$lat,$lon"
                             onSendMessage("${DataStore.locationMessageKey} $mapUrl")
-
                             fusedLocationClient.removeLocationUpdates(this)
                         } else {
                             Toast.makeText(context, "Không thể lấy vị trí", Toast.LENGTH_SHORT).show()
