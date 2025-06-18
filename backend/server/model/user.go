@@ -31,7 +31,7 @@ type User struct {
 	IsEmailVerified bool             `json:"is_email_verified"`
 	Phone           string           `json:"phone"`
 	IsPhoneVerified bool             `json:"is_phone_verified"`
-	Password        *string          `json:"password"`
+	Password        string           `json:"password"`
 	FirebaseUID     *string          `json:"firebase_uid"`
 	AuthProvider    AuthProviderType `json:"auth_provider"`
 	Fullname        string           `json:"full_name"`
