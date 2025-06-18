@@ -12,7 +12,7 @@ import model.LoginType
 import model.RegisterRequest
 import model.UpdateProfileRequest
 import model.User
-import store.TokenManager
+import store.AuthTokenManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,7 +20,7 @@ import javax.inject.Singleton
 class UserRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     private val refreshApiService: RefreshApiService,
-    private val tokenManager: TokenManager
+    private val tokenManager: AuthTokenManager
 ): UserRepository {
     override suspend fun registerUser(
         username: String,

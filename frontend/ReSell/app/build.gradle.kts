@@ -13,7 +13,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.myapplication"
+        applicationId = "com.example.resell"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -80,6 +80,10 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.moshi.kotlin)
     implementation(libs.converter.moshi)
+
+    //Firebase
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.auth.ktx)
 
     implementation(libs.accompanist.permissions)
     implementation(libs.play.services.location)

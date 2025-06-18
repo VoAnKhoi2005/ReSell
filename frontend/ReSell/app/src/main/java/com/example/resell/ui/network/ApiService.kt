@@ -13,6 +13,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.time.LocalDateTime
 
 interface ApiService {
 
@@ -107,9 +108,6 @@ interface ApiService {
     //endregion
 
     //region Post
-    @GET("api/posts")
-    suspend fun getAllPosts(): List<Post>
-
     @GET("api/posts/{post_id}")
     suspend fun getPostByID(@Path("post_id") postID: String): Post
 
@@ -215,5 +213,27 @@ interface ApiService {
         @Query("start") start: Int,
         @Query("end") end: Int
     ): List<Message>
+    //endregion
+
+    //region Notification
+    @GET("api/notification/batch/{batch_size}/{page}")
+    suspend fun getNotificationsByBatch(
+        @Path("batch_size") batchSize: Int,
+        @Path("page") page: Int,
+    ): List<Notification>
+
+    @GET("api/notification/date/{date}")
+    suspend fun getNotificationsByDate(@Path("date") date: String): List<Notification>
+
+    @GET("api/notification/type/{type}")
+    suspend fun getNotificationsByType(@Path("type") type: NotificationType): List<Notification>
+
+    @POST("api/notification/FCM")
+    suspend fun saveFCMToken(
+        @Body request: SaveFCMTokenRequest
+    ): Boolean
+
+    @DELETE("api/notification/FCM")
+    suspend fun deleteFCMToken(): Boolean
     //endregion
 }

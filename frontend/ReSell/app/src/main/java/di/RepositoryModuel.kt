@@ -6,6 +6,8 @@ import com.example.resell.ui.repository.CategoryRepository
 import com.example.resell.ui.repository.CategoryRepositoryImpl
 import com.example.resell.ui.repository.MessageRepository
 import com.example.resell.ui.repository.MessageRepositoryImpl
+import com.example.resell.ui.repository.NotificationRepository
+import com.example.resell.ui.repository.NotificationRepositoryImpl
 import com.example.resell.ui.repository.OrderRepository
 import com.example.resell.ui.repository.OrderRepositoryImpl
 import com.example.resell.ui.repository.PostRepository
@@ -50,4 +52,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindMessageRepository(impl: MessageRepositoryImpl): MessageRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindNotificationRepository(impl: NotificationRepositoryImpl): NotificationRepository
 }

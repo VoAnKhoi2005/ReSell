@@ -1,4 +1,4 @@
-package model
+package websock
 
 import (
 	"github.com/gorilla/websocket"
