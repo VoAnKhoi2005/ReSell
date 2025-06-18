@@ -41,7 +41,7 @@ func RunMigrations() {
 		&model.District{},
 		&model.Ward{},
 		&model.Address{},
-		&model.CartItem{},
+		&model.FavoritePosts{},
 		&model.ShopOrder{},
 		&model.UserReview{},
 		&model.Conversation{},
