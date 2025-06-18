@@ -18,7 +18,7 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	// User & common
 	posts := rg.Group("/posts")
 	posts.Use(middleware.AuthMiddleware())
-	//posts.GET("", postController.GetPosts)
+	posts.GET("", postController.GetUserPosts)
 	posts.GET("/:id", postController.GetPostByID)
 	posts.GET("/trash", postController.GetAllDeletedPosts) // Get all deleted posts
 	//posts.GET("/trash/:id", postController.GetDeletedPostByID) // Get a specific deleted post
