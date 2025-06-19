@@ -50,7 +50,7 @@ fun SearchScreen(navController: NavHostController) {
             onActiveChange = { active = it },
             placeholder = {
                 Text(
-                    text = "Tìm kiếm trên chợ tốt",
+                    text = "Tìm kiếm trên Resell",
                     style = MaterialTheme.typography.labelMedium.copy(fontSize = 16.sp),
                     color = GrayFont
                 )

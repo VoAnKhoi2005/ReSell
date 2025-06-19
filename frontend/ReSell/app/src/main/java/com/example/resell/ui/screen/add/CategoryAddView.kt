@@ -29,16 +29,17 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.font.FontWeight
+import com.example.resell.ui.components.TopBar
+import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.LoginButton
+import com.example.resell.ui.theme.MainButton
 
 @Composable
 fun CategorySelectionScreen(
-    modifier: Modifier = Modifier,
-    onCancelClick: () -> Unit = {},
-    onContinueClick: () -> Unit = {}
+    modifier: Modifier = Modifier
 ) {
     val categories = listOf(
         "Xe cộ" to R.drawable.car_category,
@@ -55,83 +56,46 @@ fun CategorySelectionScreen(
     )
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
+        modifier = modifier.fillMaxSize()
     ) {
-        // 🔹 Label ở trên danh sách
-        Text(
-            text = "Chọn danh mục",
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-            color = Color.Black,
-            modifier = Modifier
-                .padding(bottom = 8.dp)
+        TopBar(
+            titleText = "Đăng tin",
+            showBackButton = true,
+            onBackClick = { NavigationController.navController.popBackStack() }
         )
 
-        // Danh sách danh mục
-        Card(
+        LazyColumn(
             modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = LightGray.copy(alpha = 0.2f) // nền nhạt
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp) // nếu muốn không đổ bóng
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp) // padding bên trong Card
-            ) {
-                items(categories) { (title, iconRes) ->
-                    IconButtonHorizontal(
-                        text = title,
-                        iconResId = iconRes,
-                        hasBorder = true,
-                        contentAlignment = Alignment.Start,
-                        textColor = GrayFont,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                    ) {
-                        // Click logic
-                    }
+            item {
+                Text(
+                    text = "Chọn danh mục",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = Color.Black,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
+            items(categories) { (title, iconRes) ->
+                IconButtonHorizontal(
+                    text = title,
+                    iconResId = iconRes,
+                    hasBorder = true,
+                    contentAlignment = Alignment.Start,
+                    textColor = LoginButton,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                ) {
+                    // TODO: handle click
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Nút Hủy và Tiếp tục
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Button(
-                onClick = onCancelClick,
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = LightGray,
-                    contentColor = Color.Black
-                )
-            ) {
-                Text("Hủy")
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Button(
-                onClick = onContinueClick,
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = DarkBlue,
-                    contentColor = Color.White
-                )
-            ) {
-                Text("Tiếp tục")
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
-
 }

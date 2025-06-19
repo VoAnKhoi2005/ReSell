@@ -48,9 +48,12 @@ import java.time.LocalDateTime
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import android.Manifest
 import android.content.Intent
-
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.asPaddingValues
 import android.net.Uri
 import android.os.Looper
+
 
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
@@ -104,11 +107,18 @@ fun ChatScreen(conversationId: String) {
             )
         },
         bottomBar = {
-            Column {
-                ChatInputBar(viewModel,onSendMessage = { text -> viewModel.sendMessage(text) })
-                Spacer(modifier = Modifier.height(32.dp)) // đẩy lên 8dp
+            Column(
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+            ) {
+                ChatInputBar(
+                    viewModel = viewModel,
+                    onSendMessage = { text -> viewModel.sendMessage(text) }
+                )
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
+
 
     ) { innerPadding ->
         ChatMessages(
@@ -116,6 +126,8 @@ fun ChatScreen(conversationId: String) {
             messages = state.messages,
             receiverAvatarUrl
         )
+
+
     }
 }
 @Composable
@@ -174,9 +186,10 @@ fun ChatInputBar(viewModel: ChatViewModel,
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
-    ) {
+    )
+    {
         IconButton(onClick = {
             locationPermissions.launchMultiplePermissionRequest()
             if (locationPermissions.allPermissionsGranted) {
@@ -237,26 +250,26 @@ fun ChatInputBar(viewModel: ChatViewModel,
             maxLines = 3,
             onValueChange = { msg.value = it },
             modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(24.dp)),
+                .weight(0.5f)
+                .clip(RoundedCornerShape(20.dp)),
             placeholder = {
                 Text(text = "Type a message...", style = MaterialTheme.typography.bodyMedium)
             },
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = BuyerMessage,
-                unfocusedContainerColor = BuyerMessage,
-                disabledContainerColor = BuyerMessage,
-                errorContainerColor = BuyerMessage,
+                focusedContainerColor = texting,
+                unfocusedContainerColor = texting,
+                disabledContainerColor = texting,
+                errorContainerColor = texting,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
                 errorIndicatorColor = Color.Transparent
             ),
             textStyle = TextStyle(
-                color = IconColor,
+                color = Color.Black,
                 fontSize = 14.sp,
                 fontFamily = Roboto,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Normal
             ),
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = {
@@ -328,7 +341,7 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
 
                 Text(
                     text = message.content,
-                    color = IconColor
+                    color = if (isCurrentUser) White2 else Color.Black
                 )
             }
 
@@ -370,7 +383,7 @@ fun LocaltionBubble(locationUrl: String) {
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(DarkBlue),
+                    .background(TindangTitle),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -387,12 +400,12 @@ fun LocaltionBubble(locationUrl: String) {
                 Text(
                     text = "Chia sẻ vị trí",
                     fontWeight = FontWeight.Bold,
-                    color = IconColor,
+                    color = LoginButton,
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
                     text = "Đây là vị trí của tôi",
-                    color = IconColor,
+                    color = LoginButton,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -407,8 +420,8 @@ fun LocaltionBubble(locationUrl: String) {
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                containerColor = DarkBlue,
-                contentColor = Color.White
+                containerColor = TindangTitle,
+                contentColor = White2
             ),
             shape = RoundedCornerShape(6.dp)
         ) {
@@ -510,7 +523,7 @@ fun OfferView( avatarUrl: String,
 
                     onClick = {},
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = greenButton,
+                        containerColor = GreenButton,
                         contentColor = Color.White
                     ),
                     shape = RoundedCornerShape(size = 4.dp)

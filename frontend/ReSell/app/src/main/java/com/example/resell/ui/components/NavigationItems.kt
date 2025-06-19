@@ -32,19 +32,20 @@ import com.example.resell.ui.theme.LightGray
 import model.Category
 
 @Composable
-fun IconButtonVertical(//nút dưới bottombar
+fun IconButtonVertical(
     modifier: Modifier = Modifier,
     icon: ImageVector,
     contentDescription: String?,
     label: String,
-    iconSize: Dp = 32.dp,
-    fontSize: TextUnit = 14.sp,
-    iconTint: Color
-
+    iconSize: Dp = 30.dp, // nên nhỏ hơn một chút cho đẹp
+    fontSize: TextUnit = 12.sp,
+    iconTint: Color,
+    labelColor: Color = Color.Gray // Thêm màu chữ để bạn dễ tùy biến
 ) {
     Column(
         modifier = modifier
-            .padding(4.dp),
+            .padding(vertical = 6.dp)
+            .height(56.dp), // Chiều cao cố định cho đồng đều
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -54,13 +55,19 @@ fun IconButtonVertical(//nút dưới bottombar
             modifier = Modifier.size(iconSize),
             tint = iconTint
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = label,
-            style = MaterialTheme.typography.labelMedium.copy(fontWeight= FontWeight.Light, fontSize = fontSize)
+            color = labelColor,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontSize = fontSize,
+                fontWeight = FontWeight.Normal
+            ),
+            maxLines = 1
         )
     }
 }
+
 @Composable
 fun IconButtonHorizontal(
     text: String,
@@ -76,7 +83,7 @@ fun IconButtonHorizontal(
         onClick = onClick,
         modifier = modifier,
         shape = RoundedCornerShape(4.dp),
-        border = if (hasBorder) BorderStroke(1.dp, LightGray) else null,
+        border = if (hasBorder) BorderStroke(0.5.dp, LightGray) else null,
         contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp)
     ) {
         Row(
@@ -97,7 +104,7 @@ fun IconButtonHorizontal(
                 tint = Color.Unspecified
             )
             Spacer(modifier = Modifier.run { width(4.dp) })
-            Text(text, color = textColor, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, fontSize = 16.sp))
+            Text(text, color = textColor, style = MaterialTheme.typography.labelMedium.copy( fontSize = 16.sp))
         }
     }
 }

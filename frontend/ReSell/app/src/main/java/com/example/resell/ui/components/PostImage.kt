@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
+import com.example.resell.ui.theme.White
+import com.example.resell.ui.theme.White1
 import com.example.resell.ui.theme.priceColor
 
 @Composable
@@ -47,18 +49,18 @@ fun ProductPostItem(
     Card (
         modifier = modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(2.dp)
             .clickable { onClick() }
             .border(
-                width = 1.dp,
-                color = LightGray
+                width = 0.5.dp,
+                color = White1
             ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+
         shape = RoundedCornerShape(4.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
 
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(4.dp)) {
             // Hình ảnh đầu tiên (thumbnail)
             AsyncImage( // từ coil-compose
                 model = imageUrl,
@@ -149,14 +151,12 @@ fun ProductPostItemHorizontalImage(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .border(1.dp, LightGray),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            .border(0.5.dp, White1),
         shape = RoundedCornerShape(4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor =White)
     ) {
         Row(
-            modifier = Modifier.padding(12.dp)
+            modifier = Modifier.padding(4.dp)
         ) {
             // Ảnh nằm ngang bên trái
             AsyncImage(

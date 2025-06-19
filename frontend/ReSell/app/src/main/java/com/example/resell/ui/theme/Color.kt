@@ -3,28 +3,32 @@ package com.example.resell.ui.theme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import model.Category
 
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)
-
+val White = Color(0xFFFFFFFF)
+val White1= Color(0xFFEBEFEE)
+val White2 = Color(0XFFF4FCFB)
 val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
-
 val LightGray = Color(0xFFD1D5DB)
-val SoftBlue = Color(0xFFBFDBFE)
-val DarkBlue = Color(0xFF0253C6)
-val IconColor = Color(0xFF1C1C1E)
+val SoftBlue = Color(0xFF5289AD)
+val TindangTitle = Color(0xFFACBCBF)
+val DarkBlue = Color(0xFF042464)
+val IconColor = Color(0xFFF4FCFB)
 val GrayFont = Color(0xFF8A8A8A)
 val LoginButton = Color(0xFF000113)
 val MainButton = Color(0xFF94A3B8)
 val Red = Color(0xFFFF453A)
 val LoginTitle = Color(0xFF1E293B)
 val priceColor = Color(0xFFF44336)
-val BuyerMessage = Color(0xFFEFEFEF)
-val greenButton = Color(0xFF66BB6A)
-val followButton = Color(0xFF0D49A2)
+val BuyerMessage = Color(0xFFEAFBFF)
+val GreenButton = Color(0xFF66BB6A)
+val FollowButton = Color(0xFF0D49A2)
+val texting = Color(0xFFD1D5DB)
 val ColorScheme.focusedTextFieldText
 @Composable
 get() = Color.Black

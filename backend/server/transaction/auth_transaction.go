@@ -2,6 +2,13 @@ package transaction
 
 import "github.com/VoAnKhoi2005/ReSell/backend/server/model"
 
+type RegisterRequest struct {
+	Username string `json:"username" binding:"required"`
+	Email    string `json:"email" binding:"required"`
+	Phone    string `json:"phone" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 type FirebaseAuthRequest struct {
 	FirebaseIDToken string  `json:"firebase_id_token" binding:"required"`
 	Username        *string `json:"username" binding:"required"`

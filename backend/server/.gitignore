@@ -35,3 +35,6 @@ go.work.sum
 # OS-specific files
 .DS_Store
 Thumbs.db
+
+#Firebase
+resell-3afcc-firebase-adminsdk-fbsvc-5d0b6bc88b.json
