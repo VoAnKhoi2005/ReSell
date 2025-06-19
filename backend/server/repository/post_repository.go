@@ -9,7 +9,6 @@ import (
 
 type PostRepository interface {
 	//Imherit from base repo
-	GetAll() ([]*model.Post, error)
 	Create(post *model.Post) error
 	Update(post *model.Post) error
 	Delete(post *model.Post) error

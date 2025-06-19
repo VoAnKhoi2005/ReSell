@@ -12,6 +12,7 @@ import (
 
 type TransactionService interface {
 	CreateTransaction(req request.CreateTransactionRequest) (string, string, error)
+	GetTransactions(page, limit int) ([]*model.Transaction, int64, error)
 	MarkTransactionSuccess(paymentIntentID string) error
 	MarkTransactionFailed(paymentIntentID string, reason string) error
 }
@@ -26,6 +27,10 @@ func NewTransactionService(tx repository.TransactionRepository, ord repository.O
 		txRepo:    tx,
 		orderRepo: ord,
 	}
+}
+
+func (s *transactionService) GetTransactions(page, limit int) ([]*model.Transaction, int64, error) {
+	return s.txRepo.GetPaginated(page, limit)
 }
 
 func (s *transactionService) CreateTransaction(req request.CreateTransactionRequest) (string, string, error) {
