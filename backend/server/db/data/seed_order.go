@@ -20,7 +20,7 @@ func seedOrder(userIDs, addressIDs, postIDs, paymentMethodIDs []string) []string
 		model.OrderStatusPending,
 		model.OrderStatusProcessing,
 		model.OrderStatusShipping,
-		model.OrderStatusSold,
+		model.OrderStatusCompleted,
 	}
 
 	shuffledPostIDs := shuffleStrings(postIDs)
@@ -85,7 +85,7 @@ func seedReview(orderIDs []string) {
 		var order model.ShopOrder
 		config.DB.Where("id = ?", orderID).First(&order)
 
-		if order.Status != model.OrderStatusSold {
+		if order.Status != model.OrderStatusCompleted {
 			continue
 		}
 

@@ -36,7 +36,7 @@ func (r *reviewService) CreateReview(review *model.UserReview) error {
 		return errors.New("unauthorized to review order")
 	}
 
-	if order.Status != model.OrderStatusSold {
+	if order.Status != model.OrderStatusCompleted {
 		return errors.New("order status is invalid for creating review")
 	}
 	return r.reviewRepository.CreateReview(review)

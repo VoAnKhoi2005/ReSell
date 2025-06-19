@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/route"
@@ -12,7 +13,7 @@ import (
 
 func main() {
 	config.LoadEnv()
-
+	fmt.Println(os.Getenv("STRIPE_WEBHOOK_SECRET"))
 	port := os.Getenv("PORT")
 
 	if port == "" {
@@ -21,6 +22,7 @@ func main() {
 
 	config.ConnectDatabase()
 	config.InitRedis()
+	config.InitStripe()
 
 	//Firebase
 	fb.InitFirebase()
