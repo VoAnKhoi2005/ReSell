@@ -27,6 +27,6 @@ type Transaction struct {
 	CreatedAt             time.Time `json:"created_at"`
 
 	Order         *ShopOrder     `json:"order,omitempty"`
-	User          *User          `json:"user, omitempty"`
-	PaymentMethod *PaymentMethod `json:"payment_method, omitempty"`
+	User          *User          `json:"user,omitempty"`
+	PaymentMethod *PaymentMethod `json:"payment_method,omitempty"`
 }
