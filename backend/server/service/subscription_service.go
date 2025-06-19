@@ -1,13 +1,18 @@
 package service
 
 import (
-	"fmt"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
-	"github.com/stripe/stripe-go/v78"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/transaction"
+	"github.com/google/uuid"
 )
 
-type SubscriptionService inteface {
-	CreateCheckoutSession(userID, planID string) (string, error)
+type SubscriptionService interface {
+	GetAllPlans() ([]*model.SubscriptionPlan, error)
+	GetPlanByID(id string) (*model.SubscriptionPlan, error)
+	CreatePlan(req *transaction.CreateSubscriptionPlanRequest) (*model.SubscriptionPlan, error)
+	UpdatePlan(id string, req *transaction.UpdateSubscriptionPlanRequest) (*model.SubscriptionPlan, error)
+	DeletePlan(id string) error
 }
 
 type subscriptionService struct {
@@ -18,34 +23,45 @@ func NewSubscriptionService(repo repository.SubscriptionRepository) Subscription
 	return &subscriptionService{repo: repo}
 }
 
-func (s *subscriptionService) CreateCheckoutSession(userID string, planID string) (string, error) {
-	plan, err := s.repo.GetPlanByID(planID)
+func (s *subscriptionService) GetAllPlans() ([]*model.SubscriptionPlan, error) {
+	return s.repo.GetAll()
+}
+
+func (s *subscriptionService) GetPlanByID(id string) (*model.SubscriptionPlan, error) {
+	return s.repo.GetByID(id)
+}
+
+func (s *subscriptionService) CreatePlan(req *transaction.CreateSubscriptionPlanRequest) (*model.SubscriptionPlan, error) {
+	plan := &model.SubscriptionPlan{
+		ID:            uuid.New().String(),
+		Name:          req.Name,
+		Description:   req.Description,
+		Duration:      req.Duration,
+		StripePriceID: req.StripePriceID,
+	}
+	err := s.repo.Create(plan)
+	return plan, err
+}
+
+func (s *subscriptionService) UpdatePlan(id string, req *transaction.UpdateSubscriptionPlanRequest) (*model.SubscriptionPlan, error) {
+	plan, err := s.repo.GetByID(id)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	user, err := s.repo.GetUserByID(userID)
+	plan.Name = req.Name
+	plan.Description = req.Description
+	plan.Duration = req.Duration
+	plan.StripePriceID = req.StripePriceID
+
+	err = s.repo.Update(plan)
+	return plan, err
+}
+
+func (s *subscriptionService) DeletePlan(id string) error {
+	plan, err := s.repo.GetByID(id)
 	if err != nil {
-		return "", err
+		return err
 	}
-
-	params := &stripe.CheckoutSessionParams{
-		SuccessURL: stripe.String("https://your-frontend.com/success"),
-		CancelURL:  stripe.String("https://your-frontend.com/cancel"),
-		Mode:       stripe.String(string(stripe.CheckoutSessionModeSubscription)),
-		LineItems: []*stripe.CheckoutSessionLineItemParams{
-			{
-				Price:    stripe.String(plan.StripePriceID),
-				Quantity: stripe.Int64(1),
-			},
-		},
-		CustomerEmail: stripe.String(user.Email),
-	}
-
-	session, err := checkoutsession.New(params)
-	if err != nil {
-		return "", fmt.Errorf("stripe error: %v", err)
-	}
-
-	return session.URL, nil
+	return s.repo.Delete(plan)
 }

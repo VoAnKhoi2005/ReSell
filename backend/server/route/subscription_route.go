@@ -14,7 +14,15 @@ func RegisterSubscriptionRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	subscriptionService := service.NewSubscriptionService(subscriptionRepo)
 	subscriptionController := controller.NewSubscriptionController(subscriptionService)
 
-	subscriptions := rg.Group("/subscriptions")
-	subscriptions.Use(middleware.AuthMiddleware())
-	subscriptions.POST("/checkout", subscriptionController.CreateSubscriptionSession)
+	plan := rg.Group("/subscriptions/plans")
+	plan.Use(middleware.AuthMiddleware())
+	plan.GET("/", subscriptionController.GetAllPlans)
+	plan.GET("/:id", subscriptionController.GetPlanByID)
+
+	admin := rg.Group("/admin/subscriptions/plans")
+	admin.Use(middleware.AdminAuthMiddleware()) // hoặc AdminMiddleware nếu phân quyền
+	admin.POST("/", subscriptionController.CreatePlan)
+	admin.PUT("/:id", subscriptionController.UpdatePlan)
+	admin.DELETE("/:id", subscriptionController.DeletePlan)
+
 }

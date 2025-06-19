@@ -2,31 +2,33 @@ package repository
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"gorm.io/gorm"
 )
 
 type SubscriptionRepository interface {
-	Create(subscription *model.UserSubscription) error
+	GetAll() ([]*model.SubscriptionPlan, error)
+	GetByID(id string) (*model.SubscriptionPlan, error)
+	Create(plan *model.SubscriptionPlan) error
+	Update(plan *model.SubscriptionPlan) error
+	Delete(plan *model.SubscriptionPlan) error
 }
 
 type subscriptionRepository struct {
-	*BaseRepository[model.UserSubscription]
+	*BaseRepository[model.SubscriptionPlan]
 }
 
 func NewSubscriptionRepository(db *gorm.DB) SubscriptionRepository {
 	return &subscriptionRepository{
-		NewBaseRepository(db),
+		BaseRepository: NewBaseRepository[model.SubscriptionPlan](db),
 	}
 }
 
-func (r *subscriptionRepository) GetPlanByID(id string) (*model.SubscriptionPlan, error) {
-	var plan model.SubscriptionPlan
-	err := r.db.First(&plan, "id = ?", id).Error
-	return &plan, err
-}
+func (r *subscriptionRepository) GetByID(id string) (*model.SubscriptionPlan, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
 
-func (r *subscriptionRepository) GetUserByID(id string) (*model.User, error) {
-	var user model.User
-	err := r.db.First(&user, "id = ?", id).Error
-	return &user, err
+	var plan model.SubscriptionPlan
+	err := r.db.WithContext(ctx).First(&plan, "id = ?", id).Error
+	return &plan, err
 }
