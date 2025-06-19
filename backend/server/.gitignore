@@ -1,3 +1,4 @@
+resell-3afcc-firebase-adminsdk-fbsvc-5d0b6bc88b.json
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -5,6 +6,7 @@
 *.so
 *.dylib
 *.test
+
 
 # Output of the go build command
 /build/
