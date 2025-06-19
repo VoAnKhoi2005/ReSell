@@ -3,6 +3,7 @@ package com.example.resell.ui.screen.UiOperate
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +34,11 @@ fun MainLayout(modifier: Modifier = Modifier) {
     // LẤY THÔNG TIN VỀ ROUTE HIỆN TẠI
     val currentBackStackEntry by bottomNavController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
+    LaunchedEffect(currentRoute) {
+        bottomNavItems.find { it.screen.route == currentRoute }?.let {
+            selectedItem = it
+        }
+    }
     Scaffold(
         topBar = {
             when (currentRoute) {
@@ -70,9 +76,7 @@ fun MainLayout(modifier: Modifier = Modifier) {
                     bottomNavController.navigate(it.screen.route) {
                         launchSingleTop = true
                         restoreState = true
-                        popUpTo(bottomNavController.graph.startDestinationId) {
-                            saveState = true
-                        }
+
                     }
                 }
             )
