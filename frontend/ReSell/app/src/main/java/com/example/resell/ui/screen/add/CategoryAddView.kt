@@ -61,7 +61,8 @@ fun CategorySelectionScreen(
         TopBar(
             titleText = "Đăng tin",
             showBackButton = true,
-            onBackClick = { NavigationController.navController.popBackStack() }
+            onBackClick = { NavigationController.navController.popBackStack() },
+
         )
 
         LazyColumn(

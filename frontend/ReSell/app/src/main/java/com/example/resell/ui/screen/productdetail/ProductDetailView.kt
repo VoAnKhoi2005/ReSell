@@ -85,7 +85,7 @@ fun ProductDetailScreen(
             }
         )
 
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
             item {
                 ImageCarousel(images = images)
             }

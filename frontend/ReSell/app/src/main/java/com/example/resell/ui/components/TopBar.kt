@@ -23,6 +23,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.resell.R
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
@@ -40,7 +41,7 @@ fun TopBar(
     showEmailIcon: Boolean = false,
     onSearchNavigate: (() -> Unit)? = null,
     showBackButton: Boolean = false, // ✅ Cho phép hiển thị nút back
-    onBackClick: (() -> Unit)? = null // ✅ Callback cho nút back
+    onBackClick: (() -> Unit)? = null,// ✅ Callback cho nút back,
 ) {
     TopAppBar(
         modifier = modifier,
