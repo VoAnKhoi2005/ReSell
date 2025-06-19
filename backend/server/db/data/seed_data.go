@@ -52,6 +52,7 @@ func GenerateSeedData() {
 	seedReview(orderIDs)
 	seedReportPost(userIDs, postIDs)
 	seedReportUser(userIDs)
+	seedFavoritePost(userIDs, postIDs)
 
 	log.Println("Generated seed data successfully!")
 }

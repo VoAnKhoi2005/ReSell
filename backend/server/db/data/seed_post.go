@@ -66,3 +66,35 @@ func seedPost(userIDs, categoryIDs, addressIDs []string) []string {
 	config.DB.Create(&posts)
 	return postIDs
 }
+
+func seedFavoritePost(userIDs, postIDs []string) {
+	var favoritePosts []model.FavoritePost
+
+	for _, userID := range userIDs {
+		postCounts := rand.Intn(4)
+
+		for j := 1; j <= postCounts; j++ {
+
+			var postID string
+			for {
+				postID = randomStringIn(postIDs)
+
+				var postOwnerID string
+				config.DB.Where("id = ?", postID).Pluck("user_id", &postOwnerID)
+
+				if userID == postOwnerID {
+					continue
+				}
+				break
+			}
+
+			favoritePost := model.FavoritePost{
+				UserID: &userID,
+				PostID: &postID,
+			}
+
+			favoritePosts = append(favoritePosts, favoritePost)
+		}
+	}
+	config.DB.Create(&favoritePosts)
+}

@@ -25,6 +25,7 @@ func seedReportUser(userIDs []string) {
 	config.DB.Create(&reports)
 }
 
+// voi cach nay thi 1 user chi report 1 post va 1 post chi bi report boi 1 user
 func seedReportPost(userIDs, postIDs []string) {
 	shuffledUserIDs := shuffleStrings(userIDs)
 	shuffledPostIDs := shuffleStrings(postIDs)

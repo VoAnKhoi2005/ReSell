@@ -6,9 +6,9 @@ import (
 )
 
 type CartService interface {
-	AddItemToCart(userID string, postID string) (*model.FavoritePosts, error)
+	AddItemToCart(userID string, postID string) (*model.FavoritePost, error)
 	RemoveItemFromCart(userID string, postID string) error
-	GetCartItems(userID string) ([]*model.FavoritePosts, error)
+	GetCartItems(userID string) ([]*model.FavoritePost, error)
 }
 
 type cartService struct {
@@ -21,8 +21,8 @@ func NewCartService(repo repository.CartItemRepository) CartService {
 	}
 }
 
-func (s *cartService) AddItemToCart(userID string, postID string) (*model.FavoritePosts, error) {
-	cartItem := &model.FavoritePosts{
+func (s *cartService) AddItemToCart(userID string, postID string) (*model.FavoritePost, error) {
+	cartItem := &model.FavoritePost{
 		UserID: &userID,
 		PostID: &postID,
 	}
@@ -40,6 +40,6 @@ func (s *cartService) RemoveItemFromCart(userID string, postID string) error {
 	return s.repo.Delete(cartItem)
 }
 
-func (s *cartService) GetCartItems(userID string) ([]*model.FavoritePosts, error) {
+func (s *cartService) GetCartItems(userID string) ([]*model.FavoritePost, error) {
 	return s.repo.GetByUserID(userID)
 }
