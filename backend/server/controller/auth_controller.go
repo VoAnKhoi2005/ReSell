@@ -57,11 +57,12 @@ func (h *AuthController) Register(c *gin.Context) {
 		CreatedAt:       time.Now(),
 	}
 
-	err = h.userService.Register(&user)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	errors := h.userService.Register(&user)
+	if len(errors) > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"errors": errors})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
@@ -121,9 +122,9 @@ func (h *AuthController) FirebaseAuth(c *gin.Context) {
 			CreatedAt:    time.Now(),
 		}
 
-		err = h.userService.Register(user)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register"})
+		errors := h.userService.Register(user)
+		if len(errors) > 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"errors": errors})
 			return
 		}
 

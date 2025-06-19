@@ -2,18 +2,16 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 	request "github.com/VoAnKhoi2005/ReSell/backend/server/transaction"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"strings"
 	"time"
 )
 
 type UserService interface {
-	Register(user *model.User) error
+	Register(user *model.User) map[string]string
 	Login(identifier string, password string, loginType string) (*model.User, error)
 	ChangePassword(userID string, oldPassword string, newPassword string) error
 
@@ -23,6 +21,11 @@ type UserService interface {
 	GetUserByPhone(phone string) (*model.User, error)
 	GetUserByFirebaseUID(firebaseUID string) (*model.User, error)
 	GetUserByBatch(batchSize int, page int) ([]*model.User, int, error)
+
+	IsUsernameExist(username string) (bool, error)
+	IsEmailExist(email string) (bool, error)
+	IsPhoneExist(phone string) (bool, error)
+
 	UpdateUser(userID string, request *request.UpdateUserRequest) error
 	DeleteUser(user *model.User) error
 	DeleteUserByID(userID string) error
@@ -43,28 +46,30 @@ func NewUserService(repo repository.UserRepository) UserService {
 	return &userService{userRepository: repo}
 }
 
-func (s *userService) Register(user *model.User) error {
-	var validationErrors []string
+func (s *userService) Register(user *model.User) map[string]string {
+	var validationErrors map[string]string
+	validationErrors = make(map[string]string)
 
 	if _, err := s.userRepository.GetByEmail(user.Email); err == nil {
-		validationErrors = append(validationErrors, "email: email already taken")
+		validationErrors["email"] = "email already taken"
 	}
 
 	if _, err := s.userRepository.GetByPhone(user.Phone); err == nil {
-		validationErrors = append(validationErrors, "phone: phone number already taken")
+		validationErrors["phone"] = "phone number already taken"
 	}
 
 	if _, err := s.userRepository.GetByUsername(user.Username); err == nil {
-		validationErrors = append(validationErrors, "username: username already taken")
+		validationErrors["username"] = "username already taken"
 	}
 
 	if len(validationErrors) > 0 {
-		return fmt.Errorf(strings.Join(validationErrors, ", "))
+		return validationErrors
 	}
 
 	err := s.userRepository.Create(user)
 	if err != nil {
-		return err
+		validationErrors["system"] = "internal server error: " + err.Error()
+		return validationErrors
 	}
 
 	return nil
@@ -153,6 +158,21 @@ func (s *userService) GetUserByBatch(batchSize int, page int) ([]*model.User, in
 	}
 
 	return s.userRepository.GetUsersByBatch(batchSize, page)
+}
+
+func (s *userService) IsUsernameExist(username string) (bool, error) {
+	user, err := s.userRepository.GetByUsername(username)
+	return user != nil, err
+}
+
+func (s *userService) IsEmailExist(email string) (bool, error) {
+	user, err := s.userRepository.GetByEmail(email)
+	return user != nil, err
+}
+
+func (s *userService) IsPhoneExist(phone string) (bool, error) {
+	user, err := s.userRepository.GetByPhone(phone)
+	return user != nil, err
 }
 
 func (s *userService) UpdateUser(userID string, request *request.UpdateUserRequest) error {
