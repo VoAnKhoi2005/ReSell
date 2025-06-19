@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
+import com.example.resell.ui.theme.LoginButton
 
 @Composable
 fun ProfileHeaderSection(//bên detailpropfile
@@ -46,6 +47,7 @@ fun ProfileHeaderSection(//bên detailpropfile
     coverUrl: String?,
     name: String?,
     rating: String?,              // "Chưa có đánh giá"
+    reviewCount: Int =0,
     userId: String?,
     followerCount: Int?,
     followingCount: Int?,
@@ -204,11 +206,16 @@ fun ProfileHeaderSection(//bên detailpropfile
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Row {
-            rating?.let {
-                Text(it, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
-            }
-            Spacer(modifier = Modifier.width(40.dp))
+            Row {//đánh giá
+                StarRating(
+                    rating = rating?.toFloatOrNull() ?: 0f,
+                    starSize = 18,
+                    reviewCount = reviewCount,
+                    showText = true
+                )
+
+
+                Spacer(modifier = Modifier.width(40.dp))
             userId?.let {
                 Text("ID: $it", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
             }
@@ -254,6 +261,7 @@ fun ProfileSimpleHeaderSection(//bên profile
     avatarUrl: String?,
     name: String?,
     rating: String?,              // "Chưa có đánh giá"
+    reviewCount: Int=0,
     userId: String?,
     followerCount: Int?,
     followingCount: Int?,
@@ -320,11 +328,14 @@ fun ProfileSimpleHeaderSection(//bên profile
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            Row {
-                rating?.let {
-                    Text(it, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
-                }
-                Spacer(modifier = Modifier.width(24.dp))
+            Column {
+                StarRating(
+                    rating = rating?.toFloatOrNull() ?: 0f,
+                    starSize = 18,
+                    reviewCount = reviewCount,
+                    showText = true
+                )
+                Spacer(modifier = Modifier.height(4.dp))
                 userId?.let {
                     Text(
                         "ID: $it",

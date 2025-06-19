@@ -38,7 +38,8 @@ fun ProfileScreen() {
             ProfileSimpleHeaderSection(
                 avatarUrl = "https://i.pinimg.com/736x/b0/d3/8c/b0d38ce8049048d15c70da852021fa82.jpg",
                 name = "Phạm Thành Long",
-                rating = "Chưa có đánh giá",
+                rating = "3.5",
+                reviewCount = 120,
                 userId = "08366333080",
                 followerCount = 0,
                 followingCount = 0,
