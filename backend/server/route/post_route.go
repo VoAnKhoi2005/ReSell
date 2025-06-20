@@ -21,13 +21,9 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	posts.GET("", postController.GetUserPosts)
 	posts.GET("/:id", postController.GetPostByID)
 	posts.GET("/trash", postController.GetAllDeletedPosts) // Get all deleted posts
-	//posts.GET("/trash/:id", postController.GetDeletedPostByID) // Get a specific deleted post
-	//posts.GET("/search", postController.SearchPosts) // Search posts by query
 	posts.POST("", postController.CreatePost)
 	posts.PUT("/:id", postController.UpdatePost)
 	posts.PUT("/:id/restore", postController.RestoreDeletedPost)
-	//posts.PUT("/:id/sold", postController.MarkPostAsSold)
-	//posts.PUT("/:id/revert-sold", postController.RevertSoldStatus)
 	posts.DELETE("/:id/soft-delete", postController.MarkPostAsDeleted) // soft delete
 	posts.DELETE("/:id", postController.DeletePost)                    // hard delete
 
@@ -37,8 +33,6 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	admin.GET("", postController.GetAdminPosts) // Get all posts for admin
 	admin.PUT("/:id/approve", postController.ApprovePost)
 	admin.PUT("/:id/reject", postController.RejectPost)
-	admin.PUT("/:id/hide", postController.HidePost)
-	admin.PUT("/:id/unhide", postController.UnhidePost)
 
 	//images
 	images := rg.Group("/posts/:id/images")

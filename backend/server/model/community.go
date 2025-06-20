@@ -7,8 +7,8 @@ type CommunityType string
 type CommunityRole string
 
 const (
-	CommunityStatusActive CommunityStatus = "active"
-	CommunityStatusBanned CommunityStatus = "banned"
+	CommunityStatusApproved CommunityStatus = "approved"
+	CommunityStatusRejected CommunityStatus = "rejected"
 )
 
 const (
