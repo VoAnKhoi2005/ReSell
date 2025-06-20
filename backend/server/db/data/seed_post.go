@@ -1,11 +1,14 @@
 package data
 
 import (
+	"errors"
 	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/drhodes/golorem"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
+	"log"
 	"math/rand"
 )
 
@@ -75,6 +78,7 @@ func seedFavoritePost(userIDs, postIDs []string) {
 
 		for j := 1; j <= postCounts; j++ {
 
+			//Check truong hop user thich bai cua chinh minh
 			var postID string
 			for {
 				postID = randomStringIn(postIDs)
@@ -86,6 +90,18 @@ func seedFavoritePost(userIDs, postIDs []string) {
 					continue
 				}
 				break
+			}
+
+			//Check xem user co thich bai nay chua, tranh trung
+			var existingFavoritePost model.FavoritePost
+			err := config.DB.Where("post_id = ? AND user_id = ?", postID, userID).First(&existingFavoritePost).Error
+
+			if err == nil {
+				continue // đã có bản ghi
+			}
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				log.Printf("DB error: %v", err)
+				continue
 			}
 
 			favoritePost := model.FavoritePost{

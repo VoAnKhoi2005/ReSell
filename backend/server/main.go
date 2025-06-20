@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/db/data"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/route"
 	"github.com/gin-contrib/cors"
@@ -13,7 +13,6 @@ import (
 
 func main() {
 	config.LoadEnv()
-	fmt.Println(os.Getenv("STRIPE_WEBHOOK_SECRET"))
 	port := os.Getenv("PORT")
 
 	if port == "" {
@@ -48,6 +47,8 @@ func main() {
 	})
 
 	route.SetupRoutes(r)
+
+	data.GenerateSeedData()
 
 	log.Printf("Server is running at http://localhost:%s\n", port)
 	err := r.Run(":" + port)

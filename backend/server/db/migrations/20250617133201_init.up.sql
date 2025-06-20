@@ -1,5 +1,4 @@
--- tao schem public
-CREATE SCHEMA IF NOT EXISTS public;
+
 
 -- Kích hoạt extension để tạo UUID tự động
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

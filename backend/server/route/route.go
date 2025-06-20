@@ -30,4 +30,6 @@ func SetupRoutes(router *gin.Engine) {
 	RegisterTransactionRoutes(api, db)
 	RegisterSubscriptionRoutes(api, db)
 	RegisterPaymentMethodRoutes(api, db)
+	RegisterCommunityRoutes(api, db)
+	RegisterParticipantRoutes(api, db)
 }

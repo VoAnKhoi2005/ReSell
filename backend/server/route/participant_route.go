@@ -17,8 +17,8 @@ func RegisterParticipantRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	participants := rg.Group("/communities")
 	participants.Use(middleware.AuthMiddleware())
 	participants.POST("/:id/join", participantController.JoinCommunity)
-	participants.DELETE(":id/leave", participantController.LeaveCommunity)
-	participants.PUT(":id/approve", participantController.ApproveParticipant)
-	participants.PUT(":/id/reject", participantController.RejectParticipant)
-	participants.GET(":/id/participants", participantController.GetParticipants)
+	participants.DELETE("/:id/leave", participantController.LeaveCommunity)
+	participants.PUT("/:id/approve", participantController.ApproveParticipant)
+	participants.PUT("/:id/reject", participantController.RejectParticipant)
+	participants.GET("/:id/participants", participantController.GetParticipants)
 }
