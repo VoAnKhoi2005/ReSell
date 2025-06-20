@@ -314,10 +314,6 @@ func (h *PostController) CreatePost(c *gin.Context) {
 
 	userID, _ := util.GetUserID(c)
 
-	if !util.IsUserOwner(c, userID) {
-		return
-	}
-
 	post, err := h.service.CreatePost(&req, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -334,12 +330,6 @@ func (h *PostController) UpdatePost(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	userID, _ := util.GetUserID(c)
-
-	if !util.IsUserOwner(c, userID) {
 		return
 	}
 
