@@ -1,3 +1,6 @@
+-- tao schem public
+CREATE SCHEMA IF NOT EXISTS public;
+
 -- Kích hoạt extension để tạo UUID tự động
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -63,12 +66,13 @@ CREATE TABLE communities
 -- TABLE: community_participants
 CREATE TABLE community_participants
 (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id      UUID           NOT NULL,
     community_id UUID           NOT NULL,
     role         community_role NOT NULL,
     created_at   TIMESTAMP      NOT NULL,
 
-    PRIMARY KEY (user_id, community_id),
+    UNIQUE (user_id, community_id),
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (community_id) REFERENCES communities (id)
 );

@@ -4,11 +4,13 @@ import "time"
 
 type CommunityStatus string
 type CommunityType string
-type CommunityRole string
+type ParticipantRole string
+
+type ParticipantStatus string
 
 const (
-	CommunityStatusApproved CommunityStatus = "approved"
-	CommunityStatusRejected CommunityStatus = "rejected"
+	CommunityStatusActive CommunityStatus = "active"
+	CommunityStatusBanned CommunityStatus = "banned"
 )
 
 const (
@@ -17,8 +19,14 @@ const (
 )
 
 const (
-	CommunityRoleOwner       CommunityRole = "owner"
-	CommunityRoleParticipant CommunityRole = "participant"
+	ParticipantRoleOwner       ParticipantRole = "owner"
+	ParticipantRoleParticipant ParticipantRole = "participant"
+)
+
+const (
+	ParticipantStatusApproved ParticipantStatus = "approved"
+	ParticipantStatusRejected ParticipantStatus = "rejected"
+	ParticipantStatusPending  ParticipantStatus = "pending"
 )
 
 type Community struct {
@@ -31,10 +39,12 @@ type Community struct {
 }
 
 type CommunityParticipant struct {
-	UserID      string        `gorm:"type:uuid;primaryKey" json:"user_id"`
-	CommunityID string        `gorm:"type:uuid;primaryKey" json:"community_id"`
-	Role        CommunityRole `json:"role"`
-	CreatedAt   time.Time     `json:"created_at"`
+	ID          string            `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
+	UserID      string            `gorm:"type:uuid;primaryKey" json:"user_id"`
+	CommunityID string            `gorm:"type:uuid;primaryKey" json:"community_id"`
+	Role        ParticipantRole   `json:"role"`
+	Status      ParticipantStatus `json:"status"`
+	CreatedAt   time.Time         `json:"created_at"`
 
 	User      *User      `json:"user"`
 	Community *Community `json:"community"`

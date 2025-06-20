@@ -25,7 +25,7 @@ func RegisterCommunityRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	admin := rg.Group("/admin/communities")
 	admin.Use(middleware.AdminAuthMiddleware())
-	admin.PUT("/:id/approve", communityController.ApproveCommunity)
-	admin.PUT("/:id/reject", communityController.RejectCommunity)
+	admin.PUT("/:id/ban", communityController.ApproveCommunity)
+	admin.PUT("/:id/unban", communityController.RejectCommunity)
 
 }

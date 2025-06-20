@@ -13,8 +13,8 @@ type CommunityService interface {
 	CreateCommunity(req *transaction.CreateCommunityRequest) (*model.Community, error)
 	UpdateCommunity(id string, req *transaction.UpdateCommunityRequest) (*model.Community, error)
 	DeleteCommunity(id string) error
-	ApproveCommunity(id string) (*model.Community, error)
-	RejectCommunity(id string) (*model.Community, error)
+	UnbanCommunity(id string) (*model.Community, error)
+	BanCommunity(id string) (*model.Community, error)
 }
 
 type communityService struct {
@@ -39,6 +39,7 @@ func (s *communityService) CreateCommunity(req *transaction.CreateCommunityReque
 		Name:        req.Name,
 		Description: req.Description,
 		Type:        req.Type,
+		Status:      model.CommunityStatusActive,
 	}
 	err := s.repo.Create(community)
 	return community, err
@@ -77,10 +78,10 @@ func (s *communityService) updateCommunityStatus(id string, status model.Communi
 	return community, err
 }
 
-func (s *communityService) ApproveCommunity(id string) (*model.Community, error) {
-	return s.updateCommunityStatus(id, model.CommunityStatusApproved)
+func (s *communityService) UnbanCommunity(id string) (*model.Community, error) {
+	return s.updateCommunityStatus(id, model.CommunityStatusActive)
 }
 
-func (s *communityService) RejectCommunity(id string) (*model.Community, error) {
-	return s.updateCommunityStatus(id, model.CommunityStatusRejected)
+func (s *communityService) BanCommunity(id string) (*model.Community, error) {
+	return s.updateCommunityStatus(id, model.CommunityStatusBanned)
 }

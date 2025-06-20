@@ -101,7 +101,7 @@ func (h *CommunityController) DeleteCommunity(c *gin.Context) {
 
 func (h *CommunityController) ApproveCommunity(c *gin.Context) {
 	id := c.Param("id")
-	post, err := h.service.ApproveCommunity(id)
+	post, err := h.service.UnbanCommunity(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -111,7 +111,7 @@ func (h *CommunityController) ApproveCommunity(c *gin.Context) {
 
 func (h *CommunityController) RejectCommunity(c *gin.Context) {
 	id := c.Param("id")
-	post, err := h.service.RejectCommunity(id)
+	post, err := h.service.BanCommunity(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
