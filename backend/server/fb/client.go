@@ -4,6 +4,9 @@ import (
 	"context"
 	"firebase.google.com/go/auth"
 	"firebase.google.com/go/messaging"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
 	"log"
 
 	firebase "firebase.google.com/go"
@@ -12,6 +15,7 @@ import (
 
 var fcmClient *messaging.Client
 var firebaseAuthClient *auth.Client
+var FcmHandler *FCMHandler
 
 func InitFirebase() {
 	opt := option.WithCredentialsFile("resell-3afcc-firebase-adminsdk-fbsvc-5d0b6bc88b.json")
@@ -33,6 +37,12 @@ func InitFirebase() {
 		log.Fatalf("error initializing Auth client: %v", err)
 		return
 	}
+}
+
+func InitFCMHandler() {
+	notificationRepo := repository.NewNotificationRepository(config.DB)
+	notificationService := service.NewNotificationService(notificationRepo)
+	FcmHandler = NewFCMHandler(notificationService)
 }
 
 func VerifyFirebaseIDToken(idToken string) (*auth.Token, error) {

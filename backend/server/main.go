@@ -24,6 +24,7 @@ func main() {
 
 	//Firebase
 	fb.InitFirebase()
+	fb.InitFCMHandler()
 
 	r := gin.Default()
 	allowOrigin := os.Getenv("FRONTEND_URL")

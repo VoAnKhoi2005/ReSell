@@ -80,7 +80,19 @@ func (h *FCMHandler) SendNotification(userID string, title string, description s
 		return fmt.Errorf("failed to send notification: FCM token not found")
 	}
 
-	return h.SendMessageToToken(token, notification)
+	err = h.SendMessageToToken(token, notification)
+	if err != nil {
+		return fmt.Errorf("failed to send notification: %v", err)
+	}
+
+	notification.IsSent = true
+	now := time.Now()
+	notification.SentAt = &now
+	if err = h.notificationService.UpdateNotification(notification); err != nil {
+		return fmt.Errorf("sent but failed to store: %w", err)
+	}
+
+	return nil
 }
 
 func (h *FCMHandler) HandleUnsentNotification(userID string, token string) error {
@@ -120,13 +132,6 @@ func (h *FCMHandler) SendMessageToToken(token string, notification *model.Notifi
 	_, err := fcmClient.Send(context.Background(), message)
 	if err != nil {
 		return fmt.Errorf("failed to send FCM: %w", err)
-	}
-
-	notification.IsSent = true
-	now := time.Now()
-	notification.SentAt = &now
-	if err := h.notificationService.UpdateNotification(notification); err != nil {
-		return fmt.Errorf("sent but failed to store: %w", err)
 	}
 
 	return nil

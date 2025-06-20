@@ -34,6 +34,7 @@ const (
 	MessageSend     SocketMessageType = "message_send"
 	NewMessage      SocketMessageType = "new_message"
 	TypingIndicator SocketMessageType = "typing"
+	InChatIndicator SocketMessageType = "in_chat"
 	ErrorMessage    SocketMessageType = "error"
 )
 
@@ -50,4 +51,9 @@ type SendMessagePayload struct {
 type TypingPayload struct {
 	ConversationId string `json:"conversation_id"`
 	IsTyping       bool   `json:"is_typing"`
+}
+
+type InChatPayload struct {
+	ConversationId string `json:"conversation_id"`
+	IsInChat       bool   `json:"is_in_chat"`
 }

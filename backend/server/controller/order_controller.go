@@ -1,11 +1,13 @@
 package controller
 
 import (
+	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/transaction"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"time"
 )
@@ -47,7 +49,7 @@ func (oc *OrderController) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"success": true})
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
 func (oc *OrderController) DeleteOrder(c *gin.Context) {
@@ -165,6 +167,21 @@ func (oc *OrderController) UpdateStatus(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	//Handle notification
+	var title, description string
+	if newStatus == model.OrderStatusShipping {
+		title, description = model.DefaultNotificationContent(model.OrderNotification)
+		err = fb.FcmHandler.SendNotification(userID, title, description, false, model.OrderNotification)
+		log.Printf("error sending notification %v", err)
+	}
+
+	if newStatus == model.OrderStatusProcessing {
+		title = "Order Processing"
+		description = "Your order has been create successfully and is being processed"
+		err = fb.FcmHandler.SendNotification(userID, title, description, false, model.OrderNotification)
+		log.Printf("error sending notification %v", err)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true})

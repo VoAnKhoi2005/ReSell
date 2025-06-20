@@ -2,6 +2,7 @@ package websock
 
 import (
 	"encoding/json"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"log"
 	"net/http"
 	"sync"
@@ -26,12 +27,14 @@ type WSHandler struct {
 	messageService service.MessageService
 	sessions       map[string]*Session
 	mu             sync.RWMutex
+	inChatStatus   sync.Map
 }
 
 func NewWSHandler(messageService service.MessageService) *WSHandler {
 	return &WSHandler{
 		messageService: messageService,
 		sessions:       make(map[string]*Session),
+		inChatStatus:   sync.Map{},
 	}
 }
 
@@ -96,6 +99,7 @@ func (h *WSHandler) readLoop(sess *Session) {
 
 		var incoming model.IncomingSocketMessage
 		if err := json.Unmarshal(raw, &incoming); err != nil {
+			log.Printf("ws: failed to unmarshal incoming message: %v", err)
 			h.sendError(sess, "Malformed socket message")
 			continue
 		}
@@ -105,19 +109,31 @@ func (h *WSHandler) readLoop(sess *Session) {
 			var payload model.SendMessagePayload
 			if err := json.Unmarshal(incoming.Data, &payload); err != nil {
 				log.Printf("ws: invalid send payload from user %s: %v", sess.UserID, err)
+				h.sendError(sess, "Invalid send payload")
 				continue
 			}
 			sess.LastAction = time.Now().Unix()
 			go h.handleSendMessage(sess, &payload)
 
 		case model.TypingIndicator:
-			var payload *model.TypingPayload
-			if err := json.Unmarshal(incoming.Data, payload); err != nil {
+			var payload model.TypingPayload
+			if err := json.Unmarshal(incoming.Data, &payload); err != nil {
 				log.Printf("ws: invalid typing payload from user %s: %v", sess.UserID, err)
+				h.sendError(sess, "Malformed typing payload")
 				continue
 			}
 			sess.LastAction = time.Now().Unix()
-			go h.handleTyping(sess, payload)
+			go h.handleTyping(sess, &payload)
+
+		case model.InChatIndicator:
+			var payload model.InChatPayload
+			if err := json.Unmarshal(incoming.Data, &payload); err != nil {
+				log.Printf("ws: invalid incoming payload from user %s: %v", sess.UserID, err)
+				h.sendError(sess, "Malformed incoming payload")
+				continue
+			}
+			sess.LastAction = time.Now().Unix()
+			go h.handleInChatStatus(sess, &payload)
 
 		default:
 			h.sendError(sess, "Unknown message type: "+string(incoming.Type))
@@ -126,10 +142,11 @@ func (h *WSHandler) readLoop(sess *Session) {
 }
 
 func (h *WSHandler) handleSendMessage(sess *Session, msg *model.SendMessagePayload) {
+	senderID := &sess.UserID
 	message := model.Message{
 		ConversationId: &msg.ConversationId,
 		Content:        msg.Content,
-		SenderId:       &sess.UserID,
+		SenderId:       senderID,
 		CreatedAt:      time.Now(),
 	}
 
@@ -144,6 +161,7 @@ func (h *WSHandler) handleSendMessage(sess *Session, msg *model.SendMessagePaylo
 	conversation, err := h.messageService.GetConversationByID(*savedMsg.ConversationId)
 	if err != nil {
 		log.Printf("Error loading conversation %s: %v", *savedMsg.ConversationId, err)
+		h.sendError(sess, "Failed to load message")
 		return
 	}
 
@@ -172,12 +190,24 @@ func (h *WSHandler) handleSendMessage(sess *Session, msg *model.SendMessagePaylo
 		log.Printf("No recipient found for conversation %s", *savedMsg.ConversationId)
 		return
 	}
+
+	//Handle notification
+	_, isInChat := h.inChatStatus.Load(recipientID)
+	title, desc := model.DefaultNotificationContent(model.MessageNotification)
+	if !isInChat {
+		err = fb.FcmHandler.SendNotification(recipientID, title, desc, false, model.MessageNotification)
+		if err != nil {
+			log.Printf("Error sending notification to user %s: %v", sess.UserID, err)
+			return
+		}
+	}
 }
 
 func (h *WSHandler) handleTyping(sess *Session, payload *model.TypingPayload) {
 	conversation, err := h.messageService.GetConversationByID(payload.ConversationId)
 	if err != nil {
 		log.Printf("Typing error: cannot find conversation %s", payload.ConversationId)
+		h.sendError(sess, "Failed to find conversation")
 		return
 	}
 
@@ -199,6 +229,29 @@ func (h *WSHandler) handleTyping(sess *Session, payload *model.TypingPayload) {
 
 	if recipientID != "" {
 		h.broadcastToUsers([]string{recipientID}, response)
+	}
+}
+
+func (h *WSHandler) handleInChatStatus(sess *Session, payload *model.InChatPayload) {
+	conversation, err := h.messageService.GetConversationByID(payload.ConversationId)
+	if err != nil {
+		log.Printf("Error loading conversation %s: %v", payload.ConversationId, err)
+		h.sendError(sess, "Failed to load conversation")
+		return
+	}
+
+	senderID := sess.UserID
+	var recipientID string
+	if *conversation.BuyerId != sess.UserID {
+		recipientID = *conversation.BuyerId
+	} else {
+		recipientID = *conversation.SellerId
+	}
+
+	if payload.IsInChat {
+		h.inChatStatus.Store(senderID, recipientID)
+	} else {
+		h.inChatStatus.Delete(senderID)
 	}
 }
 
