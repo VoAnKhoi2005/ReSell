@@ -16,6 +16,8 @@ type OrderService interface {
 	GetBySellerID(sellerID string) ([]*model.ShopOrder, error)
 
 	UpdateStatus(orderID string, userID string, status model.OrderStatus) error
+
+	GetBuyerID(orderID string) (string, error)
 }
 
 type OderService struct {
@@ -98,6 +100,19 @@ func (o *OderService) UpdateStatus(orderID string, userID string, status model.O
 		return errors.New("unauthorized to change status of the order")
 	}
 
+	if order.Status == model.OrderStatusCancelled {
+		return errors.New("the order has been cancelled and cannot be updated")
+	}
+
 	order.Status = status
 	return o.orderRepository.Update(order)
+}
+
+func (o *OderService) GetBuyerID(orderID string) (string, error) {
+	order, err := o.orderRepository.GetByID(orderID)
+	if err != nil {
+		return "", err
+	}
+
+	return *order.UserId, nil
 }

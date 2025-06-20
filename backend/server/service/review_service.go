@@ -12,6 +12,8 @@ type ReviewService interface {
 	GetReviewByOrderID(sellerID string) (*model.UserReview, error)
 	GetReviewByPostID(postID string) (*model.UserReview, error)
 	DeleteReviewByOrderID(userID string, orderID string) error
+
+	GetSellerID(orderID string) (string, error)
 }
 
 type reviewService struct {
@@ -89,4 +91,8 @@ func (r *reviewService) DeleteReviewByOrderID(userID string, orderID string) err
 	}
 
 	return r.reviewRepository.DeleteReview(review)
+}
+
+func (r *reviewService) GetSellerID(orderID string) (string, error) {
+	return r.orderRepository.GetSellerID(orderID)
 }

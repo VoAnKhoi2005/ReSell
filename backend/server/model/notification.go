@@ -9,6 +9,7 @@ const (
 	AlertNotification   NotificationType = "alert"
 	SystemNotification  NotificationType = "system"
 	OrderNotification   NotificationType = "order"
+	DefaultNotification NotificationType = "default"
 )
 
 func DefaultNotificationContent(nType NotificationType) (title string, description string) {
