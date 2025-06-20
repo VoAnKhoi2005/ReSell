@@ -26,6 +26,7 @@ import com.example.resell.ui.screen.productdetail.ImageCarousel
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.FollowButton
+import com.example.resell.ui.theme.UserMessage
 import com.example.resell.ui.theme.White2
 
 data class PostData(
@@ -144,7 +145,7 @@ fun PostItemView(
                 modifier = Modifier.height(40.dp).width(130.dp).padding(end = 10.dp, bottom = 10.dp),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = DarkBlue,
+                    containerColor = UserMessage,
                     contentColor = White2
                 ),
                 contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp)
@@ -194,21 +195,13 @@ fun PostItemView(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            IconButtonHorizontal(
-                text = "Lưu tin",
-                iconResId = R.drawable.favorite,
-                hasBorder = false,
-                contentAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.weight(1f),
-                onClick = onSaveClick
-            )
 
             IconButtonHorizontal(
                 text = "Chat",
                 iconResId = R.drawable.chat_duotone,
                 hasBorder = false,
                 contentAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).fillMaxWidth(),
                 onClick = onChatClick
             )
         }

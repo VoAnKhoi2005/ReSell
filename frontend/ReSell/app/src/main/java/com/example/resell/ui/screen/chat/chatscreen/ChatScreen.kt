@@ -302,7 +302,7 @@ fun ChatInputBar(viewModel: ChatViewModel,
 fun ChatBubble(message: Message, receiverAvatarUrl : String) {
     val isCurrentUser = message.senderId == DataStore.user?.id
     val alignment = if (isCurrentUser) Arrangement.End else Arrangement.Start
-    val bubbleColor = if (isCurrentUser) SoftBlue else BuyerMessage
+    val bubbleColor = if (isCurrentUser) UserMessage else BuyerMessage
     val isLocationMessage = message.content.contains(DataStore.locationMessageKey)
 
     Row(
@@ -453,8 +453,8 @@ fun ChatTopBar(
                 Text(
                     text = receiverName,
                     maxLines = 1,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.Black
+                    style = MaterialTheme.typography.labelMedium,
+                    color = White2
                 )
             }
         },
@@ -464,7 +464,8 @@ fun ChatTopBar(
             }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back"
+                    contentDescription = "Back",
+                    tint = White2
                 )
             }
         },
