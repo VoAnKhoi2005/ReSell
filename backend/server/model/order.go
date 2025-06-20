@@ -11,7 +11,7 @@ const (
 	OrderStatusPending    OrderStatus = "pending"
 	OrderStatusProcessing OrderStatus = "processing"
 	OrderStatusShipping   OrderStatus = "shipping"
-	OrderStatusSold       OrderStatus = "completed"
+	OrderStatusCompleted  OrderStatus = "completed"
 	OrderStatusCancelled  OrderStatus = "cancelled"
 )
 
@@ -20,7 +20,7 @@ func ParseOrderStatus(s string) (OrderStatus, error) {
 	case string(OrderStatusPending),
 		string(OrderStatusProcessing),
 		string(OrderStatusShipping),
-		string(OrderStatusSold),
+		string(OrderStatusCompleted),
 		string(OrderStatusCancelled):
 		return OrderStatus(s), nil
 	default:
