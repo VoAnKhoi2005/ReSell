@@ -27,4 +27,9 @@ func SetupRoutes(router *gin.Engine) {
 	RegisterPostRoutes(api, db)
 	RegisterCartRoutes(api, db)
 	RegisterNotificationRote(api, db)
+	RegisterTransactionRoutes(api, db)
+	RegisterSubscriptionRoutes(api, db)
+	RegisterPaymentMethodRoutes(api, db)
+	RegisterCommunityRoutes(api, db)
+	RegisterParticipantRoutes(api, db)
 }

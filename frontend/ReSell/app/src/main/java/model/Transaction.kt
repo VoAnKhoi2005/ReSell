@@ -180,3 +180,8 @@ data class SaveFCMTokenRequest(
     val token: String,
 )
 //endregion
+
+data class ErrorResponse(
+    val error: String? = null,
+    val errors: Map<String, String>? = null
+)

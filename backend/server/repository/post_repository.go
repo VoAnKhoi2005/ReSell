@@ -9,7 +9,6 @@ import (
 
 type PostRepository interface {
 	//Imherit from base repo
-	GetAll() ([]*model.Post, error)
 	Create(post *model.Post) error
 	Update(post *model.Post) error
 	Delete(post *model.Post) error
@@ -178,43 +177,6 @@ func (r *postRepository) GetUserPostsByFilter(filters map[string]string, page, l
 
 	return result, total, nil
 }
-
-//func (r *postRepository) Search(queryStr string) ([]*dto.PostListUserDTO, error) {
-//	ctx, cancel := util.NewDBContext()
-//	defer cancel()
-//
-//	var posts []*dto.PostListUserDTO
-//
-//	subQuery := r.db.
-//		Table("post_images").
-//		Select("DISTINCT ON (post_id) post_id, image_url").
-//		Order("post_id, image_order")
-//
-//	err := r.db.WithContext(ctx).
-//		Model(&model.Post{}).
-//		Select(`
-//		posts.id,
-//		posts.title,
-//		posts.status,
-//		categories.name AS category,
-//		users.username AS owner,
-//		posts.price,
-//		provinces.name AS province,
-//		imgs.image_url AS thumbnail
-//	`).
-//		Joins("JOIN users ON users.id = posts.user_id").
-//		Joins("JOIN categories ON categories.id = posts.category_id").
-//		Joins("JOIN addresses ON addresses.id = posts.address_id").
-//		Joins("JOIN wards ON wards.id = addresses.ward_id").
-//		Joins("JOIN districts ON districts.id = wards.district_id").
-//		Joins("JOIN provinces ON provinces.id = districts.province_id").
-//		Joins("LEFT JOIN (?) AS imgs ON imgs.post_id = posts.id", subQuery).
-//		Where("posts.title ILIKE ? OR posts.description ILIKE ?", "%"+queryStr+"%", "%"+queryStr+"%").
-//		Preload("Address.Ward.District.Province").
-//		Find(&posts).Error
-//
-//	return posts, err
-//}
 
 func (r *postRepository) GetByID(id string) (*model.Post, error) {
 	ctx, cancel := util.NewDBContext()

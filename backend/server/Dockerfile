@@ -20,6 +20,8 @@ COPY --from=builder /app/main .
 
 COPY .env .env
 
+COPY resell-3afcc-firebase-adminsdk-fbsvc-5d0b6bc88b.json resell-3afcc-firebase-adminsdk-fbsvc-5d0b6bc88b.json
+
 EXPOSE 8080
 
 CMD ["./main"]

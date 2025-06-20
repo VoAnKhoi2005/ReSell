@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/transaction"
@@ -43,6 +44,16 @@ func (rc *ReviewController) CreateReview(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	//Handle notification
+	sellerID, err := rc.reviewService.GetSellerID(request.OrderID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	title := "You Got a New Review!"
+	description := "A buyer just left feedback on your post."
+	err = fb.FcmHandler.SendNotification(sellerID, title, description, false, model.DefaultNotification)
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }

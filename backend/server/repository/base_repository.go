@@ -22,6 +22,24 @@ func (r *BaseRepository[T]) GetAll() ([]*T, error) {
 	return results, err
 }
 
+func (r *BaseRepository[T]) GetPaginated(page, limit int) ([]*T, int64, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var results []*T
+	var count int64
+
+	db := r.db.WithContext(ctx)
+	if err := db.Count(&count).Error; err != nil {
+		return nil, 0, err
+	}
+
+	err := db.Limit(limit).Offset((page - 1) * limit).Find(&results).Error
+
+	return results, count, err
+
+}
+
 func (r *BaseRepository[T]) Create(data *T) error {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()

@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/db/data"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/route"
 	"github.com/gin-contrib/cors"
@@ -12,7 +13,6 @@ import (
 
 func main() {
 	config.LoadEnv()
-
 	port := os.Getenv("PORT")
 
 	if port == "" {
@@ -21,9 +21,11 @@ func main() {
 
 	config.ConnectDatabase()
 	config.InitRedis()
+	config.InitStripe()
 
 	//Firebase
 	fb.InitFirebase()
+	fb.InitFCMHandler()
 
 	r := gin.Default()
 	allowOrigin := os.Getenv("FRONTEND_URL")
@@ -46,6 +48,8 @@ func main() {
 	})
 
 	route.SetupRoutes(r)
+
+	data.GenerateSeedData()
 
 	log.Printf("Server is running at http://localhost:%s\n", port)
 	err := r.Run(":" + port)

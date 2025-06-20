@@ -15,14 +15,12 @@ func RegisterNotificationRote(rg *gin.RouterGroup, db *gorm.DB) {
 	notificationService := service.NewNotificationService(notificationRepo)
 	notificationController := controller.NewNotificationController(notificationService)
 
-	fcmHandler := fb.NewFCMHandler(notificationService)
-
 	notificationRoute := rg.Group("/notification")
 	notificationRoute.Use(middleware.AuthMiddleware())
 	notificationRoute.GET("/batch/:batch_size/:page", notificationController.GetNotificationsByBatch)
 	notificationRoute.GET("/date/:date", notificationController.GetNotificationsByDate)
 	notificationRoute.GET("/type/:type", notificationController.GetNotificationsByType)
 
-	notificationRoute.POST("/FCM", fcmHandler.SaveFCMToken)
-	notificationRoute.DELETE("/FCM", fcmHandler.DeleteFCMToken)
+	notificationRoute.POST("/FCM", fb.FcmHandler.SaveFCMToken)
+	notificationRoute.DELETE("/FCM", fb.FcmHandler.DeleteFCMToken)
 }

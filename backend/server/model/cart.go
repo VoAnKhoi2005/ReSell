@@ -1,6 +1,6 @@
 package model
 
-type FavoritePosts struct {
+type FavoritePost struct {
 	UserID *string `gorm:"type:uuid;primaryKey" json:"cart_id"`
 	PostID *string `gorm:"type:uuid;primaryKey" json:"post_id"`
 
