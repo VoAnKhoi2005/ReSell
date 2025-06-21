@@ -95,4 +95,5 @@ dependencies {
     implementation(libs.play.services.location)
 
     implementation("androidx.security:security-crypto-ktx:1.1.0-alpha06")
+    implementation (libs.play.services.auth)
 }

@@ -19,6 +19,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.resell.R
 import com.example.resell.ui.screen.auth.login.LoginTextField
+import com.example.resell.ui.screen.auth.login.NumberPhoneTextField
 import com.example.resell.ui.theme.LoginButton
 import com.example.resell.ui.theme.LoginTitle
 
@@ -96,8 +101,10 @@ private fun LoginSection() {
 
 @Composable
 private fun RegisterForm() {
+    var password by remember { mutableStateOf("") }
+    var numberPhone by remember { mutableStateOf("") }
     LoginTextField(
-        lable = "Email",
+        lable = "",
         trailing = "",
         modifier = Modifier.fillMaxWidth()
     )
