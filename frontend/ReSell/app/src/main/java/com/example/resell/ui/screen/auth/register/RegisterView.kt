@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,6 +45,8 @@ import com.example.resell.ui.screen.auth.login.NumberPhoneTextField
 import com.example.resell.ui.screen.auth.login.PasswordTextField
 import com.example.resell.ui.theme.LoginButton
 import com.example.resell.ui.theme.LoginTitle
+import com.example.resell.ui.theme.SoftBlue
+import com.example.resell.ui.theme.White2
 
 @Composable
 fun RegisterScreen(){
@@ -113,7 +116,7 @@ private fun RegisterForm() {
     ) {
         Text(
             text = "Đăng ký",
-            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
         )
     }
     Spacer(modifier = Modifier.height(30.dp))
@@ -136,7 +139,9 @@ private fun TopSection() {
                 .fillMaxHeight(0.46f),
             painter = painterResource(id = R.drawable.subtract),
             contentDescription = null,
-            contentScale = ContentScale.FillBounds
+            contentScale = ContentScale.FillBounds,
+            colorFilter = ColorFilter.tint(SoftBlue)
+
         )
         Row(
             modifier = Modifier.padding(top = 80.dp),
@@ -145,9 +150,11 @@ private fun TopSection() {
         ) {
             Image(
                 painter = painterResource(id = R.drawable.logo),
+                colorFilter = ColorFilter.tint(White2),
                 contentDescription = stringResource(
                     id = R.string.app_logo
-                )
+                ),
+
 
             )
             Spacer(modifier = Modifier.width(15.dp))
@@ -155,12 +162,12 @@ private fun TopSection() {
                 Text(
                     text = stringResource(id = R.string.the_resell),
                     style = MaterialTheme.typography.headlineMedium,
-                    color = LoginButton
+                    color = White2
                 )
                 Text(
                     text = stringResource(id = R.string.the_slogan),
                     style = MaterialTheme.typography.titleMedium,
-                    color = LoginButton
+                    color = White2
                 )
             }
 

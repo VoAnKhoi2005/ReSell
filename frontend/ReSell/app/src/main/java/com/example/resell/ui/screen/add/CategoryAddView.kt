@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.font.FontWeight
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
+import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
@@ -90,8 +91,9 @@ fun CategorySelectionScreen(
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
                 ) {
-                    // TODO: handle click
+                    NavigationController.navController.navigate(Screen.AddPost.route)
                 }
+
             }
 
             item {
