@@ -1,6 +1,10 @@
+
 services:
   redis:
     image: redis
+    networks:
+      - resell_net
+
   backend:
     build: .
     ports:
@@ -10,3 +14,22 @@ services:
       REDIS_ADDR: redis:6379
     depends_on:
       - redis
+    networks:
+      - resell_net
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    command: "start --authtoken $NGROK_AUTH_TOKEN --config /etc/ngrok.yml --all --log stdout"
+    env_file:
+      - .env
+    volumes:
+      - ./ngrok.yml:/etc/ngrok.yml
+    depends_on:
+      - backend
+    networks:
+      - resell_net
+
+
+
+networks:
+  resell_net:
