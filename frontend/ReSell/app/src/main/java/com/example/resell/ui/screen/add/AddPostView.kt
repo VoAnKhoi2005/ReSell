@@ -19,7 +19,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.resell.R
+import com.example.resell.ui.components.AddressBox
 import com.example.resell.ui.components.IconButtonHorizontal
+import com.example.resell.ui.navigation.NavigationController
+import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
@@ -39,10 +42,10 @@ fun AddPostScreen(
 
     val addressOptions = listOf("TP. Hồ Chí Minh", "Hà Nội", "Đà Nẵng")
 
-    // Toàn bộ nội dung có thể scroll
     Column(
         modifier = modifier
             .fillMaxSize()
+            .systemBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
@@ -53,7 +56,7 @@ fun AddPostScreen(
             iconResId = R.drawable.car_category,
             hasBorder = true,
             contentAlignment = Alignment.Start,
-            textColor = LightGray,
+            textColor = DarkBlue,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
@@ -82,12 +85,8 @@ fun AddPostScreen(
         // Các ô nhập liệu
         LabeledTextField(label = "Tiêu đề", value = title, onValueChange = { title = it })
         LabeledTextField(label = "Mô tả", value = description, onValueChange = { description = it }, singleLine = false)
-        LabeledDropdown(
-            label = "Địa chỉ",
-            options = addressOptions,
-            selectedOption = selectedAddress,
-            onOptionSelected = { selectedAddress = it }
-        )
+        AddressBox("Phạm Thành Long","0836633080","Bình Dương, Dĩ An, Đ.Thống Nhất Bconplaza"){
+            NavigationController.navController.navigate(Screen.AddressSetup.route) }
         LabeledTextField(label = "Giá", value = price, onValueChange = { price = it })
 
         Spacer(Modifier.height(16.dp))

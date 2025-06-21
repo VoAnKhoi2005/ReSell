@@ -61,6 +61,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
 import com.example.resell.store.DataStore
+import com.example.resell.ui.theme.White2
 import com.example.resell.ui.viewmodel.auth.login.LoginViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
@@ -202,6 +203,7 @@ private fun TopSection() {
         ) {
             Image(
                 painter = painterResource(id = R.drawable.logo),
+                colorFilter = ColorFilter.tint(White2),
                 contentDescription = stringResource(
                     id = R.string.app_logo
                 )
@@ -212,12 +214,12 @@ private fun TopSection() {
                 Text(
                     text = stringResource(id = R.string.the_resell),
                     style = MaterialTheme.typography.headlineMedium,
-                    color = LoginButton
+                    color = White2
                 )
                 Text(
                     text = stringResource(id = R.string.the_slogan),
                     style = MaterialTheme.typography.titleMedium,
-                    color = LoginButton
+                    color = White2
                 )
             }
 
