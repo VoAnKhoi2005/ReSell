@@ -18,11 +18,29 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 @Composable
 fun LoginTextField(
+    value: String,
     modifier: Modifier = Modifier,
     lable: String,
-    trailing: String
+    onTextChange: (String) -> Unit
 ){
+    TextField(
+        modifier = modifier,
+        value = value,
+        onValueChange = onTextChange,
+        label = {
+            Text(
+                text = lable,
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.Black
+            )
+        },
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
 
+        )
+
+    )
 }
 @Composable
 fun NumberPhoneTextField(
@@ -53,7 +71,8 @@ fun NumberPhoneTextField(
 fun PasswordTextField(
     password: String,
     onPasswordChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    lable :String = "Mật khẩu"
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -62,7 +81,7 @@ fun PasswordTextField(
         onValueChange = onPasswordChange,
         label = {
             Text(
-                text = "Mật khẩu",
+                text = lable,
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.Black
             )

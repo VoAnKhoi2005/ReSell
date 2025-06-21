@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -36,8 +37,11 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.resell.R
+import com.example.resell.ui.navigation.NavigationController
+import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.screen.auth.login.LoginTextField
 import com.example.resell.ui.screen.auth.login.NumberPhoneTextField
+import com.example.resell.ui.screen.auth.login.PasswordTextField
 import com.example.resell.ui.theme.LoginButton
 import com.example.resell.ui.theme.LoginTitle
 
@@ -51,7 +55,6 @@ fun RegisterScreen(){
                 modifier = Modifier.fillMaxSize().padding(horizontal = 30.dp)
             ) {
                 RegisterForm()
-                LoginSection()
 
 
             }
@@ -61,72 +64,50 @@ fun RegisterScreen(){
     }
 }
 
-@Composable
-private fun LoginSection() {
-    Box(
-        modifier = Modifier
-            .fillMaxHeight(fraction = 0.8f)
-            .fillMaxWidth(),
-        contentAlignment = Alignment.BottomCenter
 
-    ) {
-        Text(
-            text = buildAnnotatedString {
-                withStyle(
-                    style = SpanStyle(
-                        color = Color(0xFF828282),
-                        fontSize = 14.sp,
-                        fontFamily = Roboto,
-                        fontWeight = FontWeight.Normal
-                    )
-                ) {
-                    append("Đã có tài khoản?")
-                }
-                withStyle(
-                    style = SpanStyle(
-                        color = LoginButton,
-                        fontSize = 14.sp,
-                        fontFamily = Roboto,
-                        fontWeight = FontWeight.Medium
-                    )
-                ) {
-                    append(" ")
-                    append("Đăng nhập")
-                }
-            }
-        )
-
-    }
-}
 
 @Composable
 private fun RegisterForm() {
     var password by remember { mutableStateOf("") }
     var numberPhone by remember { mutableStateOf("") }
+    var userName by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     LoginTextField(
-        lable = "",
-        trailing = "",
+        value = userName,
+        onTextChange = {
+            userName = it
+        },
+        lable = "Tên người dùng",
         modifier = Modifier.fillMaxWidth()
     )
     Spacer(modifier = Modifier.height(15.dp))
     LoginTextField(
-        lable = "Tên đăng nhập",
-        trailing = "",
-        modifier = Modifier.fillMaxWidth()
-    )
-    Spacer(modifier = Modifier.height(15.dp))
-    LoginTextField(
+        value = numberPhone,
+        onTextChange = {
+            numberPhone = it
+        },
         lable = "Số điện thoại",
-        trailing = "",
         modifier = Modifier.fillMaxWidth()
     )
     Spacer(modifier = Modifier.height(15.dp))
-    LoginTextField(
-        lable = "Password",
-        trailing = "",
+    PasswordTextField(
+        password = password,
+        onPasswordChange = {
+            password = it
+        },
         modifier = Modifier.fillMaxWidth()
+    )
+    Spacer(modifier = Modifier.height(15.dp))
+    PasswordTextField(
+        password = confirmPassword,
+        onPasswordChange = {
+            confirmPassword = it
+        },
+        modifier = Modifier.fillMaxWidth(),
+        lable = "Nhập lại mật khẩu"
     )
     Spacer(modifier = Modifier.height(20.dp))
+
     Button(
         modifier = Modifier
             .fillMaxWidth()
@@ -145,6 +126,13 @@ private fun RegisterForm() {
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
         )
     }
+    Spacer(modifier = Modifier.height(12.dp))
+    SigninText(
+        onSigninClick = {
+            // TODO: Navigate sang màn hình đăng ký
+            NavigationController.navController.navigate(Screen.Login.route)
+        }
+    )
 }
 
 @Composable
@@ -198,6 +186,42 @@ private fun TopSection() {
 
 
     }
+}
+
+@Composable
+fun SigninText(
+    onSigninClick: () -> Unit
+) {
+    val annotatedText = buildAnnotatedString {
+        append("Đã có tài khoản? ")
+
+        // Gắn tag cho phần "Đăng ký"
+        pushStringAnnotation(
+            tag = "SIGNIN",
+            annotation = "signin"
+        )
+        withStyle(
+            style = SpanStyle(
+                color = Color.Blue, // màu xanh giống link
+                fontWeight = FontWeight.Bold
+            )
+        ) {
+            append("Đăng nhập ngay")
+        }
+        pop()
+    }
+
+    ClickableText(
+        text = annotatedText,
+        style = MaterialTheme.typography.bodyMedium,
+        onClick = { offset ->
+            annotatedText.getStringAnnotations(tag = "SIGNIN", start = offset, end = offset)
+                .firstOrNull()?.let {
+                    onSigninClick()
+                }
+        },
+        modifier = Modifier.padding(top = 16.dp)
+    )
 }
 
 
