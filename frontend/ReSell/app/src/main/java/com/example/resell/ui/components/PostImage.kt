@@ -146,7 +146,8 @@ fun ProductPostItemHorizontalImage(
     imageUrl: String,
     modifier: Modifier = Modifier,
     price: Int,
-    address: String
+    address: String,
+    showExtraInfo: Boolean = true
 ) {
     Card(
         modifier = modifier
@@ -199,7 +200,10 @@ fun ProductPostItemHorizontalImage(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                TimeInfor(time,address)
+                if (showExtraInfo) {
+                    TimeInfor(time, address)
+                }
+
             }
         }
     }

@@ -35,6 +35,7 @@ val FollowButton = Color(0xFF0D49A2)
 val texting = Color(0xFFD1D5DB)
 val ConfirmButton = Color(0xFF0B735F)
 val CancelButton = Color(0xFFF1F1F1)
+val AdressBox = Color(0xFFACBCBF)
 val ColorScheme.focusedTextFieldText
 @Composable
 get() = Color.Black

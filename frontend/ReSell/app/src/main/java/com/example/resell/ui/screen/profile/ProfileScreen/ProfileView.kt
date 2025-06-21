@@ -70,7 +70,7 @@ fun ProfileScreen() {
             SectionTitle(text = "Khác")
         }
         item { IconButtonHorizontal("Cài đặt tài khoản", R.drawable.setting_line_duotone,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { } }
-        item { IconButtonHorizontal("Thiết lập vị trí", R.drawable.pin_duotone,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { } }
+        item { IconButtonHorizontal("Thiết lập vị trí", R.drawable.pin_duotone,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { NavigationController.navController.navigate(Screen.AddressSetup.route) } }
         item { IconButtonHorizontal("Đăng xuất", R.drawable.signouticon,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { } }
         item { Spacer(Modifier.height(32.dp)) }
     }

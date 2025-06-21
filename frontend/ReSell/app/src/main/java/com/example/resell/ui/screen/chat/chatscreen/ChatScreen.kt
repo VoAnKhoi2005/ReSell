@@ -57,6 +57,7 @@ import android.os.Looper
 
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
+import com.example.resell.ui.navigation.Screen
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -522,7 +523,9 @@ fun OfferView( avatarUrl: String,
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
 
-                    onClick = {},
+                    onClick = {
+                        NavigationController.navController.navigate(Screen.Payment.route)
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = GreenButton,
                         contentColor = Color.White
