@@ -17,5 +17,12 @@ sealed class Screen(val route: String){
     object Add: Screen("add_screen")
     object BuyingOrder: Screen("buying_order")
     object MyOrder: Screen("my_order")
+    object Payment: Screen("payment")
+    object AddressSetup: Screen("address_setup")
+    object AddressAdd: Screen("address_add")
+    object ProvinceSelect: Screen("province_select")
+    object DistrictSelect : Screen("district_select")
+    object WardSelect : Screen("ward_select")
+
 
 }
