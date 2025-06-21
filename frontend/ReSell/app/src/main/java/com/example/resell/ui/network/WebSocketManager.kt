@@ -29,10 +29,11 @@ class WebSocketManager @Inject constructor(
     private var listener: ((Any) -> Unit)? = null
     private val pendingMessages = mutableListOf<PendingMessage>()
     private val queueLock = Any()
+    private val url = "ws://localhost:8080/api/ws"
 
     private val rawAdapter = moshi.adapter(IncomingSocketMessage::class.java)
 
-    fun connect(url: String, onMessage: (Any) -> Unit) {
+    fun connect(onMessage: (Any) -> Unit) {
         val jwt = tokenManager.getAccessToken()
         val request = Request.Builder().url(url).addHeader("Authorization", "Bearer $jwt").build()
         this.listener = onMessage
