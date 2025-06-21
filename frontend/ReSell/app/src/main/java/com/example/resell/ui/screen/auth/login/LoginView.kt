@@ -57,7 +57,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextAlign
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
-import store.DataStore
+import com.example.resell.store.DataStore
 
 @Composable
 fun LoginScreen(){

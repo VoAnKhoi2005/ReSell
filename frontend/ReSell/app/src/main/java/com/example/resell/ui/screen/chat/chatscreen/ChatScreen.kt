@@ -42,7 +42,7 @@ import com.example.resell.ui.theme.*
 import com.example.resell.ui.viewmodel.chat.ChatViewModel
 import model.Message
 import model.User
-import store.DataStore
+import com.example.resell.store.DataStore
 import java.time.LocalDate
 import java.time.LocalDateTime
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -79,7 +79,7 @@ fun ChatScreen(conversationId: String) {
    val receiverAvatarUrl = "https://plus.unsplash.com/premium_photo-1666700698946-fbf7baa0134a"
 
     // Mock user data
-    DataStore.user = User(
+    com.example.resell.store.DataStore.user = User(
         id = "seller_1",
         username = "seller_one",
         email = "seller1@example.com",
@@ -210,7 +210,7 @@ fun ChatInputBar(viewModel: ChatViewModel,
                             val lat = location.latitude
                             val lon = location.longitude
                             val mapUrl = "https://maps.google.com/?q=$lat,$lon"
-                            onSendMessage("${DataStore.locationMessageKey} $mapUrl")
+                            onSendMessage("${com.example.resell.store.DataStore.locationMessageKey} $mapUrl")
                             fusedLocationClient.removeLocationUpdates(this)
                         } else {
                             Toast.makeText(context, "Không thể lấy vị trí", Toast.LENGTH_SHORT).show()
@@ -301,10 +301,10 @@ fun ChatInputBar(viewModel: ChatViewModel,
 
 @Composable
 fun ChatBubble(message: Message, receiverAvatarUrl : String) {
-    val isCurrentUser = message.senderId == DataStore.user?.id
+    val isCurrentUser = message.senderId == com.example.resell.store.DataStore.user?.id
     val alignment = if (isCurrentUser) Arrangement.End else Arrangement.Start
     val bubbleColor = if (isCurrentUser) UserMessage else BuyerMessage
-    val isLocationMessage = message.content.contains(DataStore.locationMessageKey)
+    val isLocationMessage = message.content.contains(com.example.resell.store.DataStore.locationMessageKey)
 
     Row(
         modifier = Modifier

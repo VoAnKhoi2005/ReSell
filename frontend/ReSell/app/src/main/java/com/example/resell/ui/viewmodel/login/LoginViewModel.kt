@@ -1,7 +1,7 @@
 package com.example.resell.ui.viewmodel.login
 
 import androidx.lifecycle.ViewModel
-import com.example.resell.ui.repository.UserRepository
+import com.example.resell.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

@@ -6,14 +6,12 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.resell.ui.components.Address
-import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
-import com.example.resell.ui.screen.Order.BuyingOrder.BuyingOrderScreen
-import com.example.resell.ui.screen.Order.MyOrder.MyOrderScreen
+import com.example.resell.ui.screen.order.BuyingOrder.BuyingOrderScreen
+import com.example.resell.ui.screen.order.MyOrder.MyOrderScreen
 import com.example.resell.ui.screen.chat.chathomescreen.ChatHomeScreen
 import com.example.resell.ui.screen.chat.chatscreen.ChatScreen
-import com.example.resell.ui.screen.UiOperate.MainLayout
+import com.example.resell.ui.screen.ui_operate.MainLayout
 
 import com.example.resell.ui.screen.auth.login.LoginScreen
 import com.example.resell.ui.screen.auth.phoneAuth.PhoneAuthScreen
@@ -21,9 +19,6 @@ import com.example.resell.ui.screen.auth.phoneAuth.PhoneAuthScreen
 import com.example.resell.ui.screen.add.AddScreen
 import com.example.resell.ui.screen.address.AddressAddScreen
 import com.example.resell.ui.screen.address.AddressSetupScreen
-import com.example.resell.ui.screen.address.DistrictSelectScreen
-import com.example.resell.ui.screen.address.ProvinceSelectScreen
-import com.example.resell.ui.screen.address.WardSelectScreen
 
 import com.example.resell.ui.screen.productdetail.ProductDetailScreen
 import com.example.resell.ui.screen.productdetail.sampleAddress

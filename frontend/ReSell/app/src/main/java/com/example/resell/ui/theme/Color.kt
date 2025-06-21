@@ -4,7 +4,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.google.accompanist.permissions.PermissionStatus
-import model.Category
+import com.example.resell.model.Category
 
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
