@@ -5,6 +5,8 @@
   import AddressManager from "../modules/AddressManager.svelte";
   import UserManager from "../modules/UserManager.svelte";
   import PostManager from "../modules/PostManager.svelte";
+  import PaymentManager from "../modules/PaymentManager.svelte";
+  import SubscriptionManager from "../modules/SubscriptionManager.svelte";
 
   let activeModule = "category";
 </script>
@@ -22,6 +24,12 @@
         <UserManager />
       {:else if activeModule === "post"}
         <PostManager />
+      {:else if activeModule === "payment"}
+        <PaymentManager />
+      {:else if activeModule === "subscription"}
+        <SubscriptionManager/>
+      {:else}
+        <div class="alert alert-warning">Vui lòng chọn một module để quản lý.</div>
       {/if}
     </main>
   </div>

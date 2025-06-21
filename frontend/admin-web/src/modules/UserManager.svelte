@@ -4,14 +4,15 @@
   import { fetchUsers, banUser, unbanUser } from "../services/userService";
 
   let users = [];
+  let page = 1;
+  let limit = 10;
+  let total = 0;
   let search = "";
-  let filter = "all"; // all | active | banned
+  let filter = "all";
 
-  // Load users từ server
   async function loadUsers() {
     try {
-      // Lấy 100 user đầu tiên (tùy backend, có thể sửa page/pageSize)
-      const data = await fetchUsers(100, 1);
+      const data = await fetchUsers(limit, page);
       users = (data.users || []).map((u) => ({
         id: u.id,
         username: u.username,
@@ -20,8 +21,9 @@
         fullname: u.fullname || "",
         cccd: u.citizen_id || "",
         reputation: u.reputation || 0,
-        status: u.status === "banned" ? "banned" : "active", // fallback nếu backend trả về rỗng
+        status: u.status === "banned" ? "banned" : "active",
       }));
+      total = (data.total_batch_count || 0) * limit;
     } catch (err) {
       alert("Không thể tải danh sách người dùng!");
       console.error(err);
@@ -29,20 +31,8 @@
   }
 
   onMount(loadUsers);
+  $: if (page || filter || search) loadUsers();
 
-  // Filter user hiển thị
-  $: filteredUsers = users.filter((u) => {
-    const matchesSearch =
-      search.trim() === "" ||
-      u.username?.toLowerCase().includes(search.trim().toLowerCase());
-    const matchesFilter =
-      filter === "all" ||
-      (filter === "active" && u.status === "active") ||
-      (filter === "banned" && u.status === "banned");
-    return matchesSearch && matchesFilter;
-  });
-
-  // Ban/Unban user
   async function handleToggleBan(e) {
     const { id } = e.detail;
     const user = users.find((u) => u.id === id);
@@ -60,6 +50,10 @@
       alert("Lỗi khi cập nhật trạng thái người dùng!");
       console.error(err);
     }
+  }
+
+  function handlePageChange(e) {
+    page = e.detail.page;
   }
 </script>
 
@@ -85,5 +79,14 @@
     </div>
   </div>
 
-  <UserList users={filteredUsers} on:toggleBan={handleToggleBan} />
+  <UserList
+    {users}
+    {page}
+    {limit}
+    {total}
+    {search}
+    {filter}
+    on:toggleBan={handleToggleBan}
+    on:changePage={handlePageChange}
+  />
 </div>
