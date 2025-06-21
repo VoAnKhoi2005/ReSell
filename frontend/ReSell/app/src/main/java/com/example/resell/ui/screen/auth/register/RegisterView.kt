@@ -69,7 +69,6 @@ fun RegisterScreen(){
 @Composable
 private fun RegisterForm() {
     var password by remember { mutableStateOf("") }
-    var numberPhone by remember { mutableStateOf("") }
     var userName by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     LoginTextField(
@@ -78,15 +77,6 @@ private fun RegisterForm() {
             userName = it
         },
         lable = "Tên người dùng",
-        modifier = Modifier.fillMaxWidth()
-    )
-    Spacer(modifier = Modifier.height(15.dp))
-    LoginTextField(
-        value = numberPhone,
-        onTextChange = {
-            numberPhone = it
-        },
-        lable = "Số điện thoại",
         modifier = Modifier.fillMaxWidth()
     )
     Spacer(modifier = Modifier.height(15.dp))
@@ -126,7 +116,7 @@ private fun RegisterForm() {
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
         )
     }
-    Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(30.dp))
     SigninText(
         onSigninClick = {
             // TODO: Navigate sang màn hình đăng ký

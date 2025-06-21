@@ -1,4 +1,4 @@
-package com.example.resell.ui.viewmodel.login
+package com.example.resell.ui.viewmodel.auth.login
 
 
 

@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -53,14 +54,25 @@ import com.example.resell.ui.theme.SoftBlue
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
 import com.example.resell.store.DataStore
+import com.example.resell.ui.viewmodel.auth.login.LoginViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(){
+fun LoginScreen(
+    viewModel : LoginViewModel = hiltViewModel()
+){
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val user by viewModel.user.collectAsState()
   Surface {
         Column(modifier = Modifier.fillMaxSize() ) {
             TopSection()
@@ -68,7 +80,7 @@ fun LoginScreen(){
             Column(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 30.dp)
             ) {
-                LoginForm()
+                LoginForm(viewModel,coroutineScope)
 
 
             }
@@ -81,68 +93,30 @@ fun LoginScreen(){
 
 
 @Composable
-private fun LoginForm() {
+private fun LoginForm(viewModel: LoginViewModel,
+                      coroutineScope: CoroutineScope) {
     val context = LocalContext.current
     val activity = context as Activity
     var password by remember { mutableStateOf("") }
     var numberPhone by remember { mutableStateOf("") }
     val signInClient = remember { Identity.getSignInClient(context) }
 
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartIntentSenderForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            try {
-                val credential = signInClient.getSignInCredentialFromIntent(result.data)
-                val name = credential.displayName
-                val email = credential.id
-                val avatar = credential.profilePictureUri
 
-                Log.d("GoogleSignIn", "Đăng nhập thành công: $email - $name - $avatar")
-                //TODO: Đăng nhập
 
-                //TODO: Lấy được User thì gán cho DataStore
-               // DataStore.user = ...
 
-                NavigationController.navController.navigate(Screen.Main.route)
-            } catch (e: Exception) {
-                Log.e("GoogleSignIn", "Lỗi khi lấy credential: ${e.message}")
-                Toast.makeText(context, "Lỗi khi lấy thông tin", Toast.LENGTH_SHORT).show()
-            }
-
-        }
-        else {
-            Log.d("GoogleSignIn", "Đăng nhập thất bại")
-        }
-
-    }
 
     fun startGoogleLogin() {
-        val request = BeginSignInRequest.builder()
-            .setGoogleIdTokenRequestOptions(
-                BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                    .setSupported(true)
-                    .setServerClientId(context.getString(R.string.web_client_id)) // ← đổi thành Web client ID từ Google Console
-                    .setFilterByAuthorizedAccounts(false)
-                    .build()
-            )
-            .setAutoSelectEnabled(true)
-            .build()
-
-        signInClient.beginSignIn(request)
-            .addOnSuccessListener { result ->
-                try {
-                    launcher.launch(
-                        IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
-                    )
-                } catch (e: IntentSender.SendIntentException) {
-                    Log.e("GoogleSignIn", "Couldn't start sign in UI: ${e.localizedMessage}")
+        coroutineScope.launch {
+            viewModel.launchGoogleSignIn(
+                onSuccess = {
+                    Toast.makeText(context, "Đăng nhập thành công: ${it?.email}", Toast.LENGTH_SHORT).show()
+                    NavigationController.navController.navigate(Screen.Main.route)
+                },
+                onError = {
+                    Toast.makeText(context, it, Toast.LENGTH_LONG).show()
                 }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(context, "Đăng nhập thất bại: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
-                Log.e("Đăng nhập","Đăng nhập thất bại: ${e.localizedMessage}")
-            }
+            )
+        }
     }
     NumberPhoneTextField(
         onNumberPhoneChange = {

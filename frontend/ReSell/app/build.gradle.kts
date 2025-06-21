@@ -96,4 +96,7 @@ dependencies {
 
     implementation("androidx.security:security-crypto-ktx:1.1.0-alpha06")
     implementation (libs.play.services.auth)
+    implementation ("com.google.firebase:firebase-auth-ktx:22.3.0")
+    implementation ("com.google.android.gms:play-services-auth:21.0.0")
+
 }
