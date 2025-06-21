@@ -7,45 +7,79 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import com.example.resell.ui.theme.focusedTextFieldText
-import com.example.resell.ui.theme.textFieldContainer
-import com.example.resell.ui.theme.unfocusedTextFieldText
-
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 @Composable
 fun LoginTextField(
     modifier: Modifier = Modifier,
     lable: String,
     trailing: String
 ){
+
+}
+@Composable
+fun NumberPhoneTextField(
+    numberPhone: String,
+    modifier: Modifier = Modifier,
+    onNumberPhoneChange: (String) -> Unit
+) {
     TextField(
         modifier = modifier,
-        value = "",
-        onValueChange = {},
-        label ={
-            Text(text=lable,
-                style=MaterialTheme.typography.labelMedium,
-                color = Color.Black)
+        value = numberPhone,
+        onValueChange = onNumberPhoneChange,
+        label = {
+            Text(
+                text = "Số điện thoại",
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.Black
+            )
         },
         colors = TextFieldDefaults.colors(
-            unfocusedTextColor = MaterialTheme.colorScheme.unfocusedTextFieldText,
-            focusedTextColor = MaterialTheme.colorScheme.focusedTextFieldText,
-            unfocusedContainerColor = MaterialTheme.colorScheme.textFieldContainer,
-            focusedContainerColor = MaterialTheme.colorScheme.textFieldContainer
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+
+        )
+
+    )
+}
+@Composable
+fun PasswordTextField(
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    TextField(
+        value = password,
+        onValueChange = onPasswordChange,
+        label = {
+            Text(
+                text = "Mật khẩu",
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.Black
+            )
+        },
+        modifier = modifier,
+        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
 
         ),
         trailingIcon = {
-            TextButton(onClick = {}) {
-                Text(text = trailing, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
-                    color = Color.Black)
-
+            val label = if (passwordVisible) "Ẩn" else "Hiện"
+            TextButton(onClick = { passwordVisible = !passwordVisible }) {
+                Text(label, color = Color.Black)
             }
-        }
-
+        },
+        singleLine = true
     )
-
-
-
 }
