@@ -14,7 +14,14 @@ data class FirebaseAuthRequest(
 )
 
 enum class LoginType{
-    email, phone, username
+    @Json(name = "email")
+    EMAIL,
+
+    @Json(name = "phone")
+    PHONE,
+
+    @Json(name = "username")
+    USERNAME
 }
 
 @JsonClass(generateAdapter = true)
@@ -133,14 +140,18 @@ data class CreateConversationRequest(
     val postID: String
 )
 
-@JsonClass(generateAdapter = true)
-data class IncomingSocketMessage(
-    val type: String,
-    val data: Map<String, Any>
-)
-
 enum class SocketMessageType {
-    message_send, new_message, typing, error
+    @Json(name = "send_message")
+    SEND_MESSAGE,
+
+    @Json(name = "new_message")
+    NEW_MESSAGE,
+
+    @Json(name = "typing")
+    TYPING,
+
+    @Json(name = "error")
+    ERROR
 }
 
 @JsonClass(generateAdapter = true)
@@ -151,28 +162,41 @@ data class SocketMessage<T>(
 
 @JsonClass(generateAdapter = true)
 data class SendMessagePayload(
+    val tempMessageID: String?,
+    val message: Message
+)
+
+@JsonClass(generateAdapter = true)
+data class NewMessagePayload(
+    val tempMessageID: String = UUID.randomUUID().toString(),
     val conversationID: String,
     val content: String
 )
 
 @JsonClass(generateAdapter = true)
-data class TypingPayload(
+data class TypingIndicatorPayload(
     val conversationID: String,
-    val isTyping: Boolean
+    val userID: String,
+    val isTyping: Boolean,
 )
 
+@JsonClass(generateAdapter = true)
+data class InChatIndicatorPayload(
+    val conversationID: String,
+    val isInChat: Boolean
+)
+
+@JsonClass(generateAdapter = true)
+data class ErrorPayload(
+    val error: String
+)
+
+@JsonClass(generateAdapter = true)
 data class PendingMessage(
     val id: String = UUID.randomUUID().toString(),
     val json: String,
     val raw: Any,
-    var status: MessageStatus = MessageStatus.FAILED
 )
-
-enum class MessageStatus {
-    FAILED,
-    SENT,
-    PENDING
-}
 //endregion
 
 //region Notification

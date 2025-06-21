@@ -1,10 +1,8 @@
 package com.example.resell.ui.network
 
 import com.squareup.moshi.Moshi
-import model.Message
-import model.IncomingSocketMessage
 import model.SocketMessage
-import model.TypingPayload
+import model.TypingIndicatorPayload
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -14,10 +12,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import android.util.Log
 import com.squareup.moshi.Types
-import model.MessageStatus
+import kotlinx.coroutines.CompletableDeferred
+import model.ErrorPayload
+import model.NewMessagePayload
 import model.PendingMessage
+import model.SendMessagePayload
 import model.SocketMessageType
 import store.AuthTokenManager
+import java.util.UUID
 
 @Singleton
 class WebSocketManager @Inject constructor(
@@ -25,13 +27,14 @@ class WebSocketManager @Inject constructor(
     private val moshi: Moshi,
     private val tokenManager: AuthTokenManager
 ){
+    private val url = "ws://localhost:8080/api/ws"
     private var webSocket: WebSocket? = null
     private var listener: ((Any) -> Unit)? = null
-    private val pendingMessages = mutableListOf<PendingMessage>()
+    private val pendingMessages = mutableMapOf<String, PendingMessage>()
     private val queueLock = Any()
-    private val url = "ws://localhost:8080/api/ws"
 
-    private val rawAdapter = moshi.adapter(IncomingSocketMessage::class.java)
+    val ackWaiters = mutableMapOf<String, CompletableDeferred<SendMessagePayload>>()
+    val ackLock = Any()
 
     fun connect(onMessage: (Any) -> Unit) {
         val jwt = tokenManager.getAccessToken()
@@ -46,27 +49,42 @@ class WebSocketManager @Inject constructor(
             override fun onMessage(webSocket: WebSocket, text: String) {
                 Log.d("WebSocket", "Received: $text")
                 try {
+                    val mapType = Types.newParameterizedType(Map::class.java, String::class.java, Any::class.java)
+                    val socketMessageType = Types.newParameterizedType(SocketMessage::class.java, mapType)
+
+                    val rawAdapter = moshi.adapter<SocketMessage<Map<String, Any>>>(socketMessageType)
                     val raw = rawAdapter.fromJson(text) ?: return
+
                     when (raw.type) {
-                        "new_message" -> {
-                            val adapter = moshi.adapter(Message::class.java)
-                            val json = moshi.adapter(Map::class.java).toJsonValue(raw.data)
-                            val payload = adapter.fromJsonValue(json)
-                            payload?.let { listener?.invoke(it) }
+                        SocketMessageType.NEW_MESSAGE -> {
+                            val data = parseSocketMessageData<NewMessagePayload>(raw.type, raw.data, moshi)
+                            data?.let { listener?.invoke(it) }
                         }
 
-                        "typing" -> {
-                            val adapter = moshi.adapter(TypingPayload::class.java)
-                            val json = moshi.adapter(Map::class.java).toJsonValue(raw.data)
-                            val payload = adapter.fromJsonValue(json)
-                            payload?.let { listener?.invoke(it) }
+                        SocketMessageType.TYPING -> {
+                            val data = parseSocketMessageData<TypingIndicatorPayload>(raw.type, raw.data, moshi)
+                            data?.let { listener?.invoke(it) }
                         }
 
-                        "message_send" -> {
-                            val adapter = moshi.adapter(Message::class.java)
-                            val json = moshi.adapter(Map::class.java).toJsonValue(raw.data)
-                            val payload = adapter.fromJsonValue(json)
-                            payload?.let { listener?.invoke(it) }
+                        SocketMessageType.SEND_MESSAGE -> {
+                            val data = parseSocketMessageData<SendMessagePayload>(raw.type, raw.data, moshi)
+                            val tempId = data?.tempMessageID
+
+                            if (tempId != null) {
+                                synchronized(queueLock) {
+                                    pendingMessages.remove(tempId)
+                                }
+                                synchronized(ackLock) {
+                                    ackWaiters.remove(tempId)?.complete(data)
+                                }
+                            }
+
+                            data?.let { listener?.invoke(it) }
+                        }
+
+                        SocketMessageType.ERROR -> {
+                            val data = parseSocketMessageData<ErrorPayload>(raw.type, raw.data, moshi)
+                            data?.let { listener?.invoke(it) }
                         }
 
                         else -> Log.w("WebSocket", "Unknown type: ${raw.type}")
@@ -86,38 +104,47 @@ class WebSocketManager @Inject constructor(
         })
     }
 
-    fun <T> send(type: SocketMessageType, payload: T, payloadClass: Class<T>, trackFailure: Boolean = true): String {
+    fun <T> send(type: SocketMessageType, payload: T, payloadClass: Class<T>): Boolean {
         val message = SocketMessage(type, payload)
         val typeToken = Types.newParameterizedType(SocketMessage::class.java, payloadClass)
         val adapter = moshi.adapter<SocketMessage<T>>(typeToken)
+
+        if (adapter == null) {
+            println("Failed to create Moshi adapter for type: ${payloadClass.name}")
+            return false
+        }
+
         val json = adapter.toJson(message)
 
-        Log.d("WebSocket", "Sending: $json")
-        val sent = webSocket?.send(json) == true
-        if (sent){
-            Log.d("WebSocket", "Sent: $json")
-            return ""
-        } else {
-            if (trackFailure){
-                val pending = PendingMessage(json = json, raw = payload as Any)
-                synchronized(queueLock) {
-                    pendingMessages.add(pending)
-                }
-                return pending.id
-            } else {
-                return ""
+        val isSent = webSocket?.send(json) == true
+        if (type == SocketMessageType.NEW_MESSAGE) {
+            val tempId = try {
+                val prop = payload!!::class.members.firstOrNull { it.name == "tempMessageID" }
+                prop?.call(payload) as? String
+            } catch (e: Exception) {
+                null
+            } ?: UUID.randomUUID().toString()
+
+            val pending = PendingMessage(id = tempId, json = json, raw = payload as Any)
+            synchronized(queueLock) {
+                pendingMessages[pending.id] = pending
+            }
+
+            synchronized(ackLock) {
+                ackWaiters[tempId] = CompletableDeferred()
             }
         }
+
+        return isSent
     }
 
     fun retryMessage(id: String): Boolean {
         synchronized(queueLock) {
-            val pending = pendingMessages.find { it.id == id } ?: return false
+            val pending = pendingMessages[id] ?: return false
             val sent = webSocket?.send(pending.json) == true
+
             if (sent) {
-                pending.status = MessageStatus.SENT
-                pendingMessages.remove(pending)
-                Log.d("WebSocket", "Retry success for message: $id")
+                pendingMessages.remove(id)
             } else {
                 Log.w("WebSocket", "Retry failed again: $id")
             }
@@ -133,4 +160,20 @@ class WebSocketManager @Inject constructor(
     fun isConnected(): Boolean {
         return webSocket != null
     }
+}
+
+inline fun <reified T> parseSocketMessageData(
+    type: SocketMessageType,
+    data: Map<String, Any>,
+    moshi: Moshi
+): T? {
+    val socketType = Types.newParameterizedType(SocketMessage::class.java, T::class.java)
+    val adapter = moshi.adapter<SocketMessage<T>>(socketType)
+
+    val fullMap = mapOf(
+        "type" to type.name,
+        "data" to data
+    )
+
+    return adapter.fromJsonValue(fullMap)?.data
 }

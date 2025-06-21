@@ -97,8 +97,8 @@ func (h *WSHandler) readLoop(sess *Session) {
 			break
 		}
 
-		var incoming model.IncomingSocketMessage
-		if err := json.Unmarshal(raw, &incoming); err != nil {
+		var incoming model.SocketMessage
+		if err = json.Unmarshal(raw, &incoming); err != nil {
 			log.Printf("ws: failed to unmarshal incoming message: %v", err)
 			h.sendError(sess, "Malformed socket message")
 			continue
@@ -106,18 +106,18 @@ func (h *WSHandler) readLoop(sess *Session) {
 
 		switch incoming.Type {
 		case model.NewMessage:
-			var payload model.SendMessagePayload
-			if err := json.Unmarshal(incoming.Data, &payload); err != nil {
+			var payload model.NewMessagePayload
+			if err = decodePayload(incoming.Data, &payload); err != nil {
 				log.Printf("ws: invalid send payload from user %s: %v", sess.UserID, err)
 				h.sendError(sess, "Invalid send payload")
 				continue
 			}
 			sess.LastAction = time.Now().Unix()
-			go h.handleSendMessage(sess, &payload)
+			go h.handleNewMessage(sess, &payload)
 
 		case model.TypingIndicator:
-			var payload model.TypingPayload
-			if err := json.Unmarshal(incoming.Data, &payload); err != nil {
+			var payload model.TypingIndicatorPayload
+			if err = decodePayload(incoming.Data, &payload); err != nil {
 				log.Printf("ws: invalid typing payload from user %s: %v", sess.UserID, err)
 				h.sendError(sess, "Malformed typing payload")
 				continue
@@ -126,8 +126,8 @@ func (h *WSHandler) readLoop(sess *Session) {
 			go h.handleTyping(sess, &payload)
 
 		case model.InChatIndicator:
-			var payload model.InChatPayload
-			if err := json.Unmarshal(incoming.Data, &payload); err != nil {
+			var payload model.InChatIndicatorPayload
+			if err = decodePayload(incoming.Data, &payload); err != nil {
 				log.Printf("ws: invalid incoming payload from user %s: %v", sess.UserID, err)
 				h.sendError(sess, "Malformed incoming payload")
 				continue
@@ -141,8 +141,18 @@ func (h *WSHandler) readLoop(sess *Session) {
 	}
 }
 
-func (h *WSHandler) handleSendMessage(sess *Session, msg *model.SendMessagePayload) {
+func decodePayload[T any](data interface{}, out *T) error {
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(bytes, out)
+}
+
+func (h *WSHandler) handleNewMessage(sess *Session, msg *model.NewMessagePayload) {
 	senderID := &sess.UserID
+	tempMessageID := msg.TempMessageID
+
 	message := model.Message{
 		ConversationId: &msg.ConversationId,
 		Content:        msg.Content,
@@ -166,15 +176,18 @@ func (h *WSHandler) handleSendMessage(sess *Session, msg *model.SendMessagePaylo
 	}
 
 	// Send confirmation to sender
-	h.sendToSession(sess, map[string]interface{}{
-		"type": model.MessageSend,
-		"data": savedMsg,
+	h.sendToSession(sess, model.SocketMessage{
+		Type: model.MessageSend,
+		Data: model.SendMessagePayload{
+			TempMessageID: &tempMessageID,
+			Message:       *savedMsg,
+		},
 	})
 
 	// Broadcast to other participant
-	response := map[string]interface{}{
-		"type": model.NewMessage,
-		"data": savedMsg,
+	response := model.SocketMessage{
+		Type: model.NewMessage,
+		Data: model.SendMessagePayload{Message: *savedMsg},
 	}
 
 	var recipientID string
@@ -203,7 +216,7 @@ func (h *WSHandler) handleSendMessage(sess *Session, msg *model.SendMessagePaylo
 	}
 }
 
-func (h *WSHandler) handleTyping(sess *Session, payload *model.TypingPayload) {
+func (h *WSHandler) handleTyping(sess *Session, payload *model.TypingIndicatorPayload) {
 	conversation, err := h.messageService.GetConversationByID(payload.ConversationId)
 	if err != nil {
 		log.Printf("Typing error: cannot find conversation %s", payload.ConversationId)
@@ -211,12 +224,12 @@ func (h *WSHandler) handleTyping(sess *Session, payload *model.TypingPayload) {
 		return
 	}
 
-	response := map[string]interface{}{
-		"type": model.TypingIndicator,
-		"data": map[string]interface{}{
-			"user_id":         sess.UserID,
-			"conversation_id": payload.ConversationId,
-			"is_typing":       payload.IsTyping,
+	response := model.SocketMessage{
+		Type: model.TypingIndicator,
+		Data: model.TypingIndicatorPayload{
+			ConversationId: payload.ConversationId,
+			UserId:         sess.UserID,
+			IsTyping:       payload.IsTyping,
 		},
 	}
 
@@ -232,7 +245,7 @@ func (h *WSHandler) handleTyping(sess *Session, payload *model.TypingPayload) {
 	}
 }
 
-func (h *WSHandler) handleInChatStatus(sess *Session, payload *model.InChatPayload) {
+func (h *WSHandler) handleInChatStatus(sess *Session, payload *model.InChatIndicatorPayload) {
 	conversation, err := h.messageService.GetConversationByID(payload.ConversationId)
 	if err != nil {
 		log.Printf("Error loading conversation %s: %v", payload.ConversationId, err)
@@ -253,13 +266,6 @@ func (h *WSHandler) handleInChatStatus(sess *Session, payload *model.InChatPaylo
 	} else {
 		h.inChatStatus.Delete(senderID)
 	}
-}
-
-func (h *WSHandler) sendError(sess *Session, errMsg string) {
-	h.sendToSession(sess, map[string]interface{}{
-		"type":  model.ErrorMessage,
-		"error": errMsg,
-	})
 }
 
 func (h *WSHandler) writeLoop(sess *Session) {
@@ -291,6 +297,40 @@ func (h *WSHandler) writeLoop(sess *Session) {
 	}
 }
 
+func (h *WSHandler) writeMessage(ws *websocket.Conn, msg interface{}) error {
+	var payload []byte
+	switch v := msg.(type) {
+	case []byte:
+		payload = v
+	case string:
+		payload = []byte(v)
+	default:
+		var err error
+		payload, err = json.Marshal(msg)
+		if err != nil {
+			return err
+		}
+	}
+	_ = ws.SetWriteDeadline(time.Now().Add(writeWait))
+	return ws.WriteMessage(websocket.TextMessage, payload)
+}
+
+func (h *WSHandler) sendError(sess *Session, errMsg string) {
+	var msg = model.SocketMessage{
+		Type: model.ErrorMessage,
+		Data: model.ErrorPayload{Error: errMsg},
+	}
+	h.sendToSession(sess, msg)
+}
+
+func (h *WSHandler) sendToSession(sess *Session, msg model.SocketMessage) {
+	select {
+	case sess.Send <- msg:
+	default:
+		log.Printf("Could not send to user %s - channel full", sess.UserID)
+	}
+}
+
 func (h *WSHandler) addSession(userID string, session *Session) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -313,7 +353,7 @@ func (h *WSHandler) removeSession(userID string) {
 	}
 }
 
-func (h *WSHandler) broadcastToUsers(userIDs []string, message interface{}) {
+func (h *WSHandler) broadcastToUsers(userIDs []string, message model.SocketMessage) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
@@ -326,30 +366,4 @@ func (h *WSHandler) broadcastToUsers(userIDs []string, message interface{}) {
 			}
 		}
 	}
-}
-
-func (h *WSHandler) sendToSession(sess *Session, msg interface{}) {
-	select {
-	case sess.Send <- msg:
-	default:
-		log.Printf("Could not send to user %s - channel full", sess.UserID)
-	}
-}
-
-func (h *WSHandler) writeMessage(ws *websocket.Conn, msg interface{}) error {
-	var payload []byte
-	switch v := msg.(type) {
-	case []byte:
-		payload = v
-	case string:
-		payload = []byte(v)
-	default:
-		var err error
-		payload, err = json.Marshal(msg)
-		if err != nil {
-			return err
-		}
-	}
-	_ = ws.SetWriteDeadline(time.Now().Add(writeWait))
-	return ws.WriteMessage(websocket.TextMessage, payload)
 }

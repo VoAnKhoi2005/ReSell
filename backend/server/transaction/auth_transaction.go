@@ -38,7 +38,7 @@ type LoginAdminRequest struct {
 }
 
 type LoginAdminResponse struct {
-	Admin *model.Admin  `json:"user"`
+	Admin *model.Admin  `json:"admin"`
 	Token TokenResponse `json:"token"`
 }
 

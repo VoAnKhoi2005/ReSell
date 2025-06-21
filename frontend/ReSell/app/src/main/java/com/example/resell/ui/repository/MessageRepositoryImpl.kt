@@ -6,9 +6,12 @@ import com.example.resell.ui.network.ApiService
 import com.example.resell.ui.domain.NetworkError
 import com.example.resell.ui.mapper.toNetworkError
 import com.example.resell.ui.network.WebSocketManager
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
 import model.Conversation
 import model.CreateConversationRequest
 import model.Message
+import model.NewMessagePayload
 import model.SendMessagePayload
 import model.SocketMessageType
 import javax.inject.Inject
@@ -73,17 +76,38 @@ class MessageRepositoryImpl @Inject constructor(
     }
 
     //Return temp message id before get update from server
-    override suspend fun sendWSMessage(conversationID: String, content: String): String {
+    override suspend fun sendNewMessage(conversationID: String, content: String): Message? {
         if (!wsManager.isConnected()) {
             Log.d("WebSocket", "Fail to send: not connected")
-            return ""
+            return null
         }
 
-        val payload = SendMessagePayload(
+        val payload = NewMessagePayload(
             conversationID = conversationID,
             content = content
         )
 
-        return wsManager.send(SocketMessageType.new_message, payload, SendMessagePayload::class.java)
+        val sent = wsManager.send(SocketMessageType.NEW_MESSAGE, payload, NewMessagePayload::class.java)
+        if (!sent)
+            return null
+
+        val tempId = payload.tempMessageID
+        val ackDeferred = synchronized(wsManager.ackLock) {
+            wsManager.ackWaiters[tempId]
+        } ?: return null
+
+        return try{
+            withTimeout(5000L){
+                val ack = ackDeferred.await()
+                ack.message
+            }
+        } catch (e: TimeoutCancellationException) {
+            Log.d("WebSocket", "ACK timed out for tempMessageID=$tempId")
+            synchronized(wsManager.ackLock) {
+                wsManager.ackWaiters.remove(tempId)
+            }
+            null
+        }
+
     }
 }

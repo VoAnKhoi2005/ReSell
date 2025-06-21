@@ -1,10 +1,24 @@
 package model
 
+import com.squareup.moshi.Json
 import java.time.LocalDateTime
 import com.squareup.moshi.JsonClass
 
-enum class NotificationType{
-    message, alert, system, reminder
+enum class NotificationType {
+    @Json(name = "message")
+    MESSAGE,
+
+    @Json(name = "alert")
+    ALERT,
+
+    @Json(name = "system")
+    SYSTEM,
+
+    @Json(name = "order")
+    ORDER,
+
+    @Json(name = "default")
+    DEFAULT,
 }
 
 @JsonClass(generateAdapter = true)

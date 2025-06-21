@@ -1,7 +1,6 @@
 package model
 
 import (
-	"encoding/json"
 	"time"
 )
 
@@ -38,22 +37,33 @@ const (
 	ErrorMessage    SocketMessageType = "error"
 )
 
-type IncomingSocketMessage struct {
+type SocketMessage struct {
 	Type SocketMessageType `json:"type"`
-	Data json.RawMessage   `json:"data"`
+	Data interface{}       `json:"data"`
 }
 
-type SendMessagePayload struct {
+type NewMessagePayload struct {
+	TempMessageID  string `json:"temp_message_id"`
 	ConversationId string `json:"conversation_id"`
 	Content        string `json:"content"`
 }
 
-type TypingPayload struct {
+type SendMessagePayload struct {
+	TempMessageID *string `json:"temp_message_id"`
+	Message       Message `json:"message"`
+}
+
+type TypingIndicatorPayload struct {
 	ConversationId string `json:"conversation_id"`
+	UserId         string `json:"user_id"`
 	IsTyping       bool   `json:"is_typing"`
 }
 
-type InChatPayload struct {
+type InChatIndicatorPayload struct {
 	ConversationId string `json:"conversation_id"`
 	IsInChat       bool   `json:"is_in_chat"`
+}
+
+type ErrorPayload struct {
+	Error string `json:"error"`
 }
