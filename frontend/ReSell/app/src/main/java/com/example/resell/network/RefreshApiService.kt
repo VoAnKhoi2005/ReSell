@@ -1,7 +1,7 @@
 package com.example.resell.network
 
-import model.AuthToken
-import model.RefreshRequest
+import com.example.resell.model.RefreshRequest
+import com.example.resell.model.AuthToken
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST

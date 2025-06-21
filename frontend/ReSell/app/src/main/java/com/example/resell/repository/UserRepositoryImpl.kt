@@ -4,14 +4,8 @@ import arrow.core.Either
 import com.example.resell.network.ApiService
 import com.example.resell.network.NetworkError
 import com.example.resell.network.toNetworkError
-import model.ChangePasswordRequest
-import model.FirebaseAuthRequest
-import model.LoginRequest
-import model.LoginResponse
-import model.LoginType
-import model.UpdateProfileRequest
-import model.User
-import store.AuthTokenManager
+import com.example.resell.model.*
+import com.example.resell.store.AuthTokenManager
 import javax.inject.Inject
 import javax.inject.Singleton
 

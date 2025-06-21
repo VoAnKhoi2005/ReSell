@@ -1,9 +1,9 @@
 package com.example.resell.network
 
 
+import com.example.resell.model.ErrorResponse
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
-import model.ErrorResponse
 import retrofit2.HttpException
 import java.io.IOException
 

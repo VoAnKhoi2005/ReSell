@@ -6,6 +6,10 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.example.resell.network.ApiService
 import com.example.resell.network.RefreshApiService
+import com.example.resell.store.AuthTokenManager
+import com.example.resell.util.AuthInterceptor
+import com.example.resell.util.LocalDateTimeAdapter
+import com.example.resell.util.TokenAuthenticator
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -16,10 +20,6 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import store.AuthTokenManager
-import util.AuthInterceptor
-import util.LocalDateTimeAdapter
-import util.TokenAuthenticator
 import javax.inject.Named
 import javax.inject.Singleton
 

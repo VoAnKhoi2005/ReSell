@@ -1,8 +1,8 @@
 package com.example.resell.network
 
 import com.squareup.moshi.Moshi
-import model.SocketMessage
-import model.TypingIndicatorPayload
+import com.example.resell.model.SocketMessage
+import com.example.resell.model.TypingIndicatorPayload
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -13,12 +13,12 @@ import javax.inject.Singleton
 import android.util.Log
 import com.squareup.moshi.Types
 import kotlinx.coroutines.CompletableDeferred
-import model.ErrorPayload
-import model.NewMessagePayload
-import model.PendingMessage
-import model.SendMessagePayload
-import model.SocketMessageType
-import store.AuthTokenManager
+import com.example.resell.model.ErrorPayload
+import com.example.resell.model.NewMessagePayload
+import com.example.resell.model.PendingMessage
+import com.example.resell.model.SendMessagePayload
+import com.example.resell.model.SocketMessageType
+import com.example.resell.store.AuthTokenManager
 import java.util.UUID
 
 @Singleton

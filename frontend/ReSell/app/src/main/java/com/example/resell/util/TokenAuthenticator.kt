@@ -1,13 +1,13 @@
 package com.example.resell.util
 
 import com.example.resell.network.RefreshApiService
-import model.AuthToken
-import model.RefreshRequest
+import com.example.resell.store.AuthTokenManager
+import com.example.resell.model.AuthToken
+import com.example.resell.model.RefreshRequest
 import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
-import store.AuthTokenManager
 import javax.inject.Inject
 
 class TokenAuthenticator @Inject constructor(

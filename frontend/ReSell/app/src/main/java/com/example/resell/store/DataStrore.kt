@@ -3,7 +3,7 @@ package com.example.resell.store
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import model.User
+import com.example.resell.model.User
 
 object DataStore {
     var user by mutableStateOf<User?>(null)

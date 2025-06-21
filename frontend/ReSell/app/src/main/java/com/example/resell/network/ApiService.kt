@@ -1,9 +1,34 @@
 package com.example.resell.network
 
 
-import model.*
+import com.example.resell.model.Address
+import com.example.resell.model.ChangePasswordRequest
+import com.example.resell.model.Conversation
+import com.example.resell.model.CreateAddressRequest
+import com.example.resell.model.CreateCategoryRequest
+import com.example.resell.model.CreateConversationRequest
+import com.example.resell.model.CreateOrderRequest
+import com.example.resell.model.CreatePostRequest
+import com.example.resell.model.CreateReviewRequest
+import com.example.resell.model.District
+import com.example.resell.model.FirebaseAuthRequest
+import com.example.resell.model.ImageUploadResponse
+import com.example.resell.model.LoginRequest
+import com.example.resell.model.LoginResponse
+import com.example.resell.model.Message
+import com.example.resell.model.Notification
+import com.example.resell.model.NotificationType
+import com.example.resell.model.OrderStatus
+import com.example.resell.model.Post
+import com.example.resell.model.Review
+import com.example.resell.model.SaveFCMTokenRequest
+import com.example.resell.model.ShopOrder
+import com.example.resell.model.UpdateAddressRequest
+import com.example.resell.model.UpdateCategoryRequest
+import com.example.resell.model.UpdatePostRequest
+import com.example.resell.model.UpdateProfileRequest
+import com.example.resell.model.User
 import okhttp3.MultipartBody
-import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET

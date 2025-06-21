@@ -4,11 +4,11 @@ import arrow.core.Either
 import com.example.resell.network.ApiService
 import com.example.resell.network.NetworkError
 import com.example.resell.network.toNetworkError
-import model.Address
-import model.CreateAddressRequest
-import model.District
+import com.example.resell.model.Address
+import com.example.resell.model.CreateAddressRequest
+import com.example.resell.model.District
 import com.example.resell.model.Province
-import model.UpdateAddressRequest
+import com.example.resell.model.UpdateAddressRequest
 import com.example.resell.model.Ward
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -45,7 +45,7 @@ class AddressRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
-    override suspend fun getAllProvinces(): Either<NetworkError, List<com.example.resell.model.Province>> {
+    override suspend fun getAllProvinces(): Either<NetworkError, List<Province>> {
         return Either.catch {
             apiService.getAllProvinces()
         }.mapLeft { it.toNetworkError() }
@@ -57,7 +57,7 @@ class AddressRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
-    override suspend fun getWards(districtID: String): Either<NetworkError, List<com.example.resell.model.Ward>> {
+    override suspend fun getWards(districtID: String): Either<NetworkError, List<Ward>> {
         return Either.catch {
             apiService.getWards(districtID)
         }.mapLeft { it.toNetworkError() }

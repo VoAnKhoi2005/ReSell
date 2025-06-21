@@ -1,6 +1,6 @@
 package com.example.resell.repository
 
-import model.*
+import com.example.resell.model.*
 import arrow.core.Either
 import com.example.resell.network.NetworkError
 import java.time.LocalDate

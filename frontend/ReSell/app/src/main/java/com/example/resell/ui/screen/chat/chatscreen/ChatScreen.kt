@@ -40,8 +40,8 @@ import com.example.resell.ui.components.LoadingDialog
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.theme.*
 import com.example.resell.ui.viewmodel.chat.ChatViewModel
-import model.Message
-import model.User
+import com.example.resell.model.Message
+import com.example.resell.model.User
 import com.example.resell.store.DataStore
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -194,7 +194,7 @@ fun ChatInputBar(viewModel: ChatViewModel,
         IconButton(onClick = {
             locationPermissions.launchMultiplePermissionRequest()
             if (locationPermissions.allPermissionsGranted) {
-                    viewModel.showLoaading()
+                    viewModel.showLoading()
                 val locationRequest = LocationRequest.create().apply {
                     priority = Priority.PRIORITY_HIGH_ACCURACY
                     interval = 1000

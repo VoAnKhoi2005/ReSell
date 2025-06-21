@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import javax.inject.Inject
 import javax.inject.Singleton
 import androidx.core.content.edit
-import model.AuthToken
+import com.example.resell.model.AuthToken
 
 @Singleton
 class AuthTokenManager @Inject constructor(

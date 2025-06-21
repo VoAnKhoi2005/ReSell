@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import model.Conversation
-import model.Message
+import com.example.resell.model.Conversation
+import com.example.resell.model.Message
 import java.time.LocalDateTime
 import javax.inject.Inject
 

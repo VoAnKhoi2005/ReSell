@@ -27,7 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.viewmodel.chat.ChatHomeViewModel
-import model.Conversation
+import com.example.resell.model.Conversation
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -135,6 +135,7 @@ fun ConversationCard(avtUrl :String,name: String,productImg:String, productName:
 
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatHomeTopBar() {

@@ -8,11 +8,11 @@ import com.example.resell.network.toNetworkError
 import com.example.resell.network.WebSocketManager
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
-import model.Conversation
-import model.CreateConversationRequest
-import model.Message
-import model.NewMessagePayload
-import model.SocketMessageType
+import com.example.resell.model.Conversation
+import com.example.resell.model.CreateConversationRequest
+import com.example.resell.model.Message
+import com.example.resell.model.NewMessagePayload
+import com.example.resell.model.SocketMessageType
 import javax.inject.Inject
 import javax.inject.Singleton
 

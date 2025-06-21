@@ -4,9 +4,9 @@ import arrow.core.Either
 import com.example.resell.network.ApiService
 import com.example.resell.network.NetworkError
 import com.example.resell.network.toNetworkError
-import model.CreateOrderRequest
-import model.OrderStatus
-import model.ShopOrder
+import com.example.resell.model.CreateOrderRequest
+import com.example.resell.model.OrderStatus
+import com.example.resell.model.ShopOrder
 import javax.inject.Inject
 import javax.inject.Singleton
 

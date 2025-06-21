@@ -122,7 +122,7 @@ private fun LoginForm() {
             .setGoogleIdTokenRequestOptions(
                 BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
                     .setSupported(true)
-                    .setServerClientId(context.getString(R.string.clientID)) // ← đổi thành Web client ID từ Google Console
+                    .setServerClientId(context.getString(R.string.web_client_id)) // ← đổi thành Web client ID từ Google Console
                     .setFilterByAuthorizedAccounts(false)
                     .build()
             )

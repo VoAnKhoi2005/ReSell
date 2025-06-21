@@ -4,8 +4,8 @@ import arrow.core.Either
 import com.example.resell.network.NetworkError
 import com.example.resell.network.toNetworkError
 import com.example.resell.network.ApiService
-import model.Notification
-import model.NotificationType
+import com.example.resell.model.Notification
+import com.example.resell.model.NotificationType
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject

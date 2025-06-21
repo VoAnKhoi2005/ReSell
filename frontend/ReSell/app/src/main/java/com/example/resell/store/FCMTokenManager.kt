@@ -6,7 +6,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import model.SaveFCMTokenRequest
+import com.example.resell.model.SaveFCMTokenRequest
 import javax.inject.Inject
 import javax.inject.Singleton
 

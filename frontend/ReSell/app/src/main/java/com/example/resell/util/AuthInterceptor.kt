@@ -1,8 +1,8 @@
 package com.example.resell.util
 
+import com.example.resell.store.AuthTokenManager
 import okhttp3.Interceptor
 import okhttp3.Response
-import store.AuthTokenManager
 import javax.inject.Inject
 
 class AuthInterceptor @Inject constructor(

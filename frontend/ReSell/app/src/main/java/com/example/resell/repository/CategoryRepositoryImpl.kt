@@ -5,8 +5,8 @@ import com.example.resell.network.ApiService
 import com.example.resell.network.NetworkError
 import com.example.resell.network.toNetworkError
 import com.example.resell.model.Category
-import model.CreateCategoryRequest
-import model.UpdateCategoryRequest
+import com.example.resell.model.CreateCategoryRequest
+import com.example.resell.model.UpdateCategoryRequest
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,13 +14,13 @@ import javax.inject.Singleton
 class CategoryRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ): CategoryRepository {
-    override suspend fun getAllCategory(): Either<NetworkError, List<com.example.resell.model.Category>> {
+    override suspend fun getAllCategory(): Either<NetworkError, List<Category>> {
         return Either.catch {
             apiService.getAllCategory()
         }.mapLeft { it.toNetworkError() }
     }
 
-    override suspend fun getCategoryByID(categoryID: String): Either<NetworkError, com.example.resell.model.Category> {
+    override suspend fun getCategoryByID(categoryID: String): Either<NetworkError, Category> {
         return Either.catch {
             apiService.getCategoryByID(categoryID)
         }.mapLeft { it.toNetworkError() }
@@ -52,7 +52,7 @@ class CategoryRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
-    override suspend fun getChildrenCategories(categoryID: String): Either<NetworkError, List<com.example.resell.model.Category>> {
+    override suspend fun getChildrenCategories(categoryID: String): Either<NetworkError, List<Category>> {
         return Either.catch {
             apiService.getCategoryChildren(categoryID)
         }.mapLeft { it.toNetworkError() }

@@ -4,7 +4,7 @@ import arrow.core.Either
 import com.example.resell.network.ApiService
 import com.example.resell.network.NetworkError
 import com.example.resell.network.toNetworkError
-import model.*
+import com.example.resell.model.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
