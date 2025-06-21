@@ -3,6 +3,7 @@ package com.example.resell.ui.theme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.google.accompanist.permissions.PermissionStatus
 import model.Category
 
 val Purple80 = Color(0xFFD0BCFF)
@@ -32,6 +33,8 @@ val BuyerMessage = Color(0xFFEAFBFF)
 val GreenButton = Color(0xFF66BB6A)
 val FollowButton = Color(0xFF0D49A2)
 val texting = Color(0xFFD1D5DB)
+val ConfirmButton = Color(0xFF0B735F)
+val CancelButton = Color(0xFFF1F1F1)
 val ColorScheme.focusedTextFieldText
 @Composable
 get() = Color.Black

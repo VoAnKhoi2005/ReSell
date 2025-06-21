@@ -7,6 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.resell.ui.navigation.Screen
+import com.example.resell.ui.screen.Order.BuyingOrder.BuyingOrderScreen
+import com.example.resell.ui.screen.Order.MyOrder.MyOrderScreen
 import com.example.resell.ui.screen.chat.chathomescreen.ChatHomeScreen
 import com.example.resell.ui.screen.chat.chatscreen.ChatScreen
 import com.example.resell.ui.screen.UiOperate.MainLayout
@@ -33,7 +35,6 @@ import com.example.resell.ui.screen.productdetail.sampleUserId
 import com.example.resell.ui.screen.profile.ProfileDetailScreen.ProfileDetailScreen
 import com.example.resell.ui.screen.auth.register.RegisterScreen
 import com.example.resell.ui.screen.search.SearchScreen
-import com.google.firebase.auth.PhoneAuthOptions
 
 @Composable
 fun SetupNavGraph(
@@ -105,9 +106,11 @@ fun SetupNavGraph(
             PhoneAuthScreen()
         }
         composable(Screen.Add.route) { AddScreen() }
+        composable (Screen.BuyingOrder.route){ BuyingOrderScreen() }
+        composable (Screen.MyOrder.route){ MyOrderScreen() }
 
 
-    }
+        }
 }
 
 

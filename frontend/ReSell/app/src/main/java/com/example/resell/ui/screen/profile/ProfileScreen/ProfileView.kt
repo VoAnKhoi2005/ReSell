@@ -53,8 +53,10 @@ fun ProfileScreen() {
             // --- Quản lý đơn hàng ---
             SectionTitle(text = "Quản lý đơn hàng")
         }
-        item { IconButtonHorizontal("Đơn mua", R.drawable.bag_duotone, modifier = Modifier.padding(vertical = 0.dp), textColor = LoginButton) { } }
-        item { IconButtonHorizontal("Đơn bán", R.drawable.desk_duotone,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { } }
+        item { IconButtonHorizontal("Đơn mua", R.drawable.bag_duotone, modifier = Modifier.padding(vertical = 0.dp), textColor = LoginButton) { NavigationController.navController.navigate((Screen.BuyingOrder.route)) } }
+        item { IconButtonHorizontal("Đơn bán", R.drawable.desk_duotone,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) {
+            NavigationController.navController.navigate(Screen.MyOrder.route)
+        } }
 
         item {
             // --- Tiện ích ---
