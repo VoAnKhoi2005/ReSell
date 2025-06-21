@@ -1,7 +1,10 @@
 package com.example.resell.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,7 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -19,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
@@ -29,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
+import com.example.resell.ui.theme.White2
 import model.Category
 
 @Composable
@@ -82,6 +89,9 @@ fun IconButtonHorizontal(
     OutlinedButton(
         onClick = onClick,
         modifier = modifier,
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = backgroundColor
+        ),
         shape = RoundedCornerShape(4.dp),
         border = if (hasBorder) BorderStroke(0.5.dp, LightGray) else null,
         contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp)
@@ -108,4 +118,28 @@ fun IconButtonHorizontal(
         }
     }
 }
+@Composable
+fun CircleIconButton(
+    iconResId: Int,
+    contentDescription: String,
+    iconTint: Color = Color.Black,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(28.dp)
+            .clip(CircleShape)
+            .background(White2)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painter = painterResource(id = iconResId),
+            contentDescription = contentDescription,
+            tint = iconTint,
+            modifier = Modifier.size(16.dp)
+        )
+    }
+}
+
 

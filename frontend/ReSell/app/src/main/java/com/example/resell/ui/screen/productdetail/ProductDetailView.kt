@@ -3,6 +3,7 @@ package com.example.resell.ui.screen.productdetail
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
@@ -10,17 +11,26 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.resell.R
+import com.example.resell.ui.components.CircleIconButton
 import com.example.resell.ui.components.IconButtonHorizontal
 import com.example.resell.ui.components.ProfileSimpleHeader
 import com.example.resell.ui.components.TimeInfor
@@ -28,6 +38,8 @@ import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
+import com.example.resell.ui.theme.PhoneBox
+import com.example.resell.ui.theme.White2
 import com.example.resell.ui.theme.priceColor
 
 //test
@@ -161,18 +173,21 @@ fun ActionButtons(onContactClick: () -> Unit, onBuyClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButtonHorizontal(
-            text = "Lưu tin",
-            iconResId = R.drawable.favorite,
-            hasBorder = false,
+            text = "Gọi điện",
+            textColor = White2,
+            iconResId = R.drawable.baseline_phone_24,
+            hasBorder = true,
+            backgroundColor = PhoneBox,
             contentAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.weight(1f) // ✅ chia đều
         ) {
 
         }
+        Spacer(modifier = Modifier.width(12.dp))
 
         IconButtonHorizontal(
             text = "Chat",
-            hasBorder = false,
+            hasBorder = true,
             iconResId = R.drawable.chat_duotone,
             contentAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.weight(1f) // ✅ chia đều
@@ -188,27 +203,55 @@ fun ActionButtons(onContactClick: () -> Unit, onBuyClick: () -> Unit) {
 fun ImageCarousel(images: List<String>) {
     val pagerState = rememberPagerState(
         initialPage = 0,
-        pageCount = { images.size } // <- ✅ phải là lambda
+        pageCount = { images.size }
     )
 
+    var isFavorite by remember { mutableStateOf(false) }
+
     Column {
-        HorizontalPager(
-            state = pagerState,
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(250.dp)
-        ) { page ->
-            AsyncImage(
-                model = images[page],
-                contentDescription = "Product image",
-                contentScale = ContentScale.Crop,
+        ) {
+            HorizontalPager(
+                state = pagerState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(4.dp))
+            ) { page ->
+                AsyncImage(
+                    model = images[page],
+                    contentDescription = "Product image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(4.dp))
+                )
+            }
 
-            )
+            // Icons overlay on top right
+            Row(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(12.dp)
+            ) {
+                CircleIconButton(
+                    iconResId = if (isFavorite) R.drawable.like else R.drawable.unlike,
+                    contentDescription = "Favorite",
+                    iconTint = Color.Red
+                ) { isFavorite = !isFavorite }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                CircleIconButton(
+                    iconResId = R.drawable.baseline_report_problem_24,
+                    contentDescription = "Report"
+                ) { /* TODO: Report */ }
+
+            }
         }
 
+        // Dots indicator(dấu chấm thể hiện đang ở ảnh nào)
         Row(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
@@ -227,4 +270,3 @@ fun ImageCarousel(images: List<String>) {
         }
     }
 }
-
