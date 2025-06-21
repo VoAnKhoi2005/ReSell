@@ -8,6 +8,8 @@
     <a class="nav-link px-4 py-2" class:active={activeModule==='address'} on:click={()=>activeModule='address'}>Địa chỉ</a>
     <a class="nav-link px-4 py-2" class:active={activeModule==='user'} on:click={()=>activeModule='user'}>Người dùng</a>
     <a class="nav-link px-4 py-2" class:active={activeModule==='post'} on:click={()=>activeModule='post'}>Bài đăng</a>
+    <a class="nav-link px-4 py-2" class:active={activeModule==='payment'} on:click={()=>activeModule='payment'}>Phương thức thanh toán</a>
+    <a class="nav-link px-4 py-2" class:active={activeModule==='subscription'} on:click={()=>activeModule='subscription'}>Gói thành viên</a>
   </div>
 </div>
 

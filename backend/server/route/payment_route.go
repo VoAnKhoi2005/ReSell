@@ -10,12 +10,12 @@ import (
 )
 
 func RegisterPaymentMethodRoutes(rg *gin.RouterGroup, db *gorm.DB) {
-	paymentMethods := rg.Group("/payment-methods")
 
 	paymentMethodRepo := repository.NewPaymentMethodRepository(db)
 	paymentMethodService := service.NewPaymentMethodService(paymentMethodRepo)
 	paymentMethodController := controller.NewPaymentMethodController(paymentMethodService)
 
+	paymentMethods := rg.Group("/payment-methods")
 	//Both admin and user can access
 	paymentMethods.Use(middleware.AuthMiddleware())
 	paymentMethods.GET("", paymentMethodController.GetAllPaymentMethods)
