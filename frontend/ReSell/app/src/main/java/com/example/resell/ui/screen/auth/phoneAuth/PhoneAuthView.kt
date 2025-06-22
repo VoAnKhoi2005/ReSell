@@ -44,8 +44,10 @@ import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 
 // Firebase (Nếu bạn vẫn đang dùng PhoneAuthScreen với Firebase, giữ lại)
 // Các thư viện Firebase sau không được dùng trực tiếp trong mã `OtpCodeInput` hoặc `PhoneAuthScreen`
@@ -70,13 +72,27 @@ import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.R // Resource ID (cho R.drawable.image_received)
 import com.example.resell.ui.theme.GreenButton
 import com.example.resell.ui.theme.LightGray
+import com.example.resell.ui.viewmodel.auth.phoneAuth.PhoneAuthViewModel
 
 
 @Composable
-fun PhoneAuthScreen() {
+fun PhoneAuthScreen(viewModel: PhoneAuthViewModel = hiltViewModel(),phoneNumber : String ="") {
+    val timeLeft by viewModel.countdown.collectAsState()
+    val context = LocalContext.current
+
+    val error by viewModel.error.collectAsState()
+    val isCountingDown = timeLeft > 0
+    viewModel.phoneNumber = phoneNumber
+    // Gửi lại mã
+    val onResend = {
+        viewModel.sendOtp(resend = true)
+    }
+    error?.let {
+        LaunchedEffect(it) {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+        }
+    }
     var otpResult by remember { mutableStateOf("") }
-    var timeLeft by remember { mutableStateOf(0) } // Số giây còn lại
-    val isCountingDown by remember { derivedStateOf { timeLeft > 0 } }
     Scaffold(topBar = {TopBar(
         showBackButton = true,
         onBackClick = {
@@ -94,7 +110,7 @@ fun PhoneAuthScreen() {
                 contentDescription = "Mô tả ảnh"
             )
             Text(text = "Xác thực OTP")
-            Text(text = "Nhập mã OTP bạn đã nhận")
+            Text(text = "Nhập mã OTP chúng tôi đã gửi đến ${viewModel.phoneNumber}")
             OtpCodeInput { otp ->
                 otpResult = otp
             }
@@ -112,28 +128,18 @@ fun PhoneAuthScreen() {
                     color = if (isCountingDown) LightGray else GreenButton, // Màu sắc thay đổi
                     modifier = Modifier.clickable(enabled = !isCountingDown) {
                         // TODO: Thực hiện hành động gửi lại mã OTP ở đây
-
-                        timeLeft = 30 // Bắt đầu đếm ngược 30 giây
+                        viewModel.sendOtp(resend = true)
                     }
                 )
             }
 
-            // LaunchedEffect để bắt đầu đếm ngược khi `timeLeft` > 0
-            LaunchedEffect(isCountingDown) {
-                if (isCountingDown) {
-                    while (timeLeft > 0) {
-                        delay(1000L) // Đợi 1 giây
-                        timeLeft-- // Giảm số giây
-                    }
-                }
-            }
+
             Spacer(modifier = Modifier.height(32.dp)) // Khoảng cách cho nút
 
             // Nút Xác nhận
             Button(
                 onClick = {
-
-
+                    viewModel.verifyOtp(otpResult)
                 },
                 // Nút chỉ được kích hoạt khi OTP đã đủ 6 chữ số
                 enabled = otpResult.isNotBlank(),

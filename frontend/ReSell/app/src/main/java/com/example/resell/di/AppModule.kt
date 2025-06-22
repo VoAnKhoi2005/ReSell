@@ -8,6 +8,7 @@ import com.example.resell.network.ApiService
 import com.example.resell.network.RefreshApiService
 import com.example.resell.store.AuthTokenManager
 import com.example.resell.util.AuthInterceptor
+import com.example.resell.util.LocalDateAdapter
 import com.example.resell.util.LocalDateTimeAdapter
 import com.example.resell.util.TokenAuthenticator
 import com.squareup.moshi.Moshi
@@ -18,12 +19,13 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Named
 import javax.inject.Singleton
 
-const val BASE_URL = "https://localhost:8080/"
+const val BASE_URL = "http://10.0.2.2:8080/api/"
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -33,6 +35,7 @@ object AppModule {
     fun provideMoshi(): Moshi {
         return Moshi.Builder()
             .add(LocalDateTimeAdapter())
+            .add(LocalDateAdapter())
             .add(KotlinJsonAdapterFactory())
             .build()
     }
@@ -58,9 +61,14 @@ object AppModule {
         authInterceptor: AuthInterceptor,
         tokenAuthenticator: TokenAuthenticator
     ): OkHttpClient {
+        val logging = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .authenticator(tokenAuthenticator)
+            .addInterceptor(logging)
             .build()
     }
 

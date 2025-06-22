@@ -1,9 +1,8 @@
 package com.example.resell.ui.screen.auth.register
-import Roboto
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,13 +12,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,24 +30,21 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.R
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.screen.auth.login.LoginTextField
 import com.example.resell.ui.screen.auth.login.PasswordTextField
-import com.example.resell.ui.theme.LoginButton
 import com.example.resell.ui.theme.LoginTitle
 import com.example.resell.ui.theme.SoftBlue
 import com.example.resell.ui.theme.White2
+import com.example.resell.ui.viewmodel.auth.register.PhoneRegisterViewModel
 
 @Composable
-fun RegisterScreen(){
+fun PhoneRegisterScreen(){
     Surface {
         Column(modifier = Modifier.fillMaxSize() ) {
             TopSection()
@@ -56,7 +52,7 @@ fun RegisterScreen(){
             Column(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 30.dp)
             ) {
-                RegisterForm()
+                PhoneRegisterForm()
 
 
             }
@@ -66,45 +62,31 @@ fun RegisterScreen(){
     }
 }
 
-
-
 @Composable
-private fun RegisterForm() {
-    var password by remember { mutableStateOf("") }
-    var userName by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+private fun PhoneRegisterForm(viewModel: PhoneRegisterViewModel = hiltViewModel()) {
+    val phone by viewModel.phoneNumber.collectAsState()
+    val error by viewModel.phoneError.collectAsState()
     LoginTextField(
-        value = userName,
-        onTextChange = {
-            userName = it
-        },
-        lable = "Tên người dùng",
+        value = phone,
+        onTextChange = { viewModel.onPhoneChanged(it) },
+        lable = "Số điện thoại",
         modifier = Modifier.fillMaxWidth()
     )
-    Spacer(modifier = Modifier.height(15.dp))
-    PasswordTextField(
-        password = password,
-        onPasswordChange = {
-            password = it
-        },
-        modifier = Modifier.fillMaxWidth()
-    )
-    Spacer(modifier = Modifier.height(15.dp))
-    PasswordTextField(
-        password = confirmPassword,
-        onPasswordChange = {
-            confirmPassword = it
-        },
-        modifier = Modifier.fillMaxWidth(),
-        lable = "Nhập lại mật khẩu"
-    )
+    if (!error.isNullOrBlank()) {
+        Text(
+            text = error!!,
+            color = Color.Red,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+    }
     Spacer(modifier = Modifier.height(20.dp))
 
     Button(
         modifier = Modifier
             .fillMaxWidth()
             .height(40.dp),
-        onClick = {},
+        onClick = {viewModel.onAuthClicked()},
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Black,
             contentColor = Color.White
@@ -114,7 +96,7 @@ private fun RegisterForm() {
 
     ) {
         Text(
-            text = "Đăng ký",
+            text = "Xác minh",
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
         )
     }
@@ -155,7 +137,7 @@ private fun TopSection() {
                 ),
 
 
-            )
+                )
             Spacer(modifier = Modifier.width(15.dp))
             Column {
                 Text(
@@ -183,41 +165,3 @@ private fun TopSection() {
 
     }
 }
-
-@Composable
-fun SigninText(
-    onSigninClick: () -> Unit
-) {
-    val annotatedText = buildAnnotatedString {
-        append("Đã có tài khoản? ")
-
-        // Gắn tag cho phần "Đăng ký"
-        pushStringAnnotation(
-            tag = "SIGNIN",
-            annotation = "signin"
-        )
-        withStyle(
-            style = SpanStyle(
-                color = Color.Blue, // màu xanh giống link
-                fontWeight = FontWeight.Bold
-            )
-        ) {
-            append("Đăng nhập ngay")
-        }
-        pop()
-    }
-
-    ClickableText(
-        text = annotatedText,
-        style = MaterialTheme.typography.bodyMedium,
-        onClick = { offset ->
-            annotatedText.getStringAnnotations(tag = "SIGNIN", start = offset, end = offset)
-                .firstOrNull()?.let {
-                    onSigninClick()
-                }
-        },
-        modifier = Modifier.padding(top = 16.dp)
-    )
-}
-
-

@@ -36,10 +36,21 @@ type UserService interface {
 
 	BanUserForDay(userID string, length uint) error
 	UnBanUser(userID string) error
+	SetAvatar(id string, url string) error
 }
 
 type userService struct {
 	userRepository repository.UserRepository
+}
+
+func (s *userService) SetAvatar(id string, url string) error {
+	user, err := s.userRepository.GetByID(id)
+	if err != nil {
+		return err
+	}
+	user.AvatarURL = &url
+	return s.userRepository.Update(user)
+
 }
 
 func NewUserService(repo repository.UserRepository) UserService {

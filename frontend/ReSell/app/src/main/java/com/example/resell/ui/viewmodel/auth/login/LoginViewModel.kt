@@ -2,6 +2,7 @@ package com.example.resell.ui.viewmodel.auth.login
 
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -23,7 +24,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import com.example.resell.R // Đảm bảo đúng package R của bạn
+import com.example.resell.model.LoginType
+import com.example.resell.model.User
 import com.example.resell.repository.UserRepository // Giữ nguyên repository của bạn
+import com.example.resell.store.DataStore
+import com.example.resell.ui.navigation.NavigationController
+import com.example.resell.ui.navigation.Screen
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -38,7 +44,8 @@ class LoginViewModel @Inject constructor(
     private val credentialManager = CredentialManager.create(context)
     private val _user = MutableStateFlow<FirebaseUser?>(null)
     val user: StateFlow<FirebaseUser?> = _user.asStateFlow() // Đảm bảo sử dụng .asStateFlow()
-
+    private val _loginError = MutableStateFlow<String?>(null)
+    val loginError: StateFlow<String?> = _loginError
     // Khởi tạo Google Sign-In request một lần
     private val googleRequest: GetCredentialRequest = GetCredentialRequest.Builder()
         .addCredentialOption(
@@ -55,7 +62,30 @@ class LoginViewModel @Inject constructor(
      * @param onSuccess Callback khi đăng nhập Firebase thành công, trả về FirebaseUser.
      * @param onError Callback khi có lỗi, trả về thông báo lỗi.
      */
-    suspend fun launchGoogleSignIn(onSuccess: (FirebaseUser?) -> Unit, onError: (String) -> Unit) {
+    fun launchUsernameSignIn(identifier: String, password: String){
+        viewModelScope.launch {
+
+            val result = myRepository.loginUser(identifier, password,LoginType.USERNAME)
+
+            result.fold(
+                { error -> // Left - thất bại
+                   _loginError.value = when(error.code){
+                       400 -> "Sai thông tin đăng nhập"
+                       401 -> "Không có quyền truy cập"
+                       500 -> "Lỗi hệ thống server"
+                       else -> "Đã xảy ra lỗi không xác định (mã ${error.code})"
+                   }
+                    error.errors?.forEach { (field, msg) ->
+                        Log.e("Login", "$field: $msg")
+                    }
+                },
+                { response -> // Right - thành công
+                   onSuccess(response.user)
+                }
+            )
+        }
+    }
+    suspend fun launchGoogleSignIn() {
         viewModelScope.launch { // Sử dụng viewModelScope cho các coroutine trong ViewModel
             try {
                 // Bước 1: Lấy thông tin đăng nhập từ Credential Manager
@@ -73,7 +103,7 @@ class LoginViewModel @Inject constructor(
 
                     if (idToken != null) {
                         // Bước 3: Xác thực ID Token với Firebase
-                        firebaseAuthWithGoogle(idToken, onSuccess, onError)
+                        firebaseAuthWithGoogle(idToken)
                     } else {
                         // Trường hợp này xảy ra nếu Google Play Services không trả về ID Token
                         val errorMessage = "Failed to retrieve Google ID Token (ID Token is null)."
@@ -101,13 +131,10 @@ class LoginViewModel @Inject constructor(
     /**
      * Xác thực ID Token với Firebase Authentication.
      * @param idToken ID Token từ Google.
-     * @param onSuccess Callback khi đăng nhập Firebase thành công, trả về FirebaseUser.
      * @param onError Callback khi có lỗi, trả về thông báo lỗi.
      */
     private fun firebaseAuthWithGoogle(
-        idToken: String,
-        onSuccess: (FirebaseUser?) -> Unit,
-        onError: (String) -> Unit
+        idToken: String
     ) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
@@ -116,8 +143,11 @@ class LoginViewModel @Inject constructor(
                     // Đăng nhập Firebase thành công
                     Log.d(TAG, "Firebase Auth with Google: SUCCESS")
                     val currentUser = auth.currentUser
+
+
                     _user.value = currentUser // Cập nhật StateFlow _user
-                    onSuccess(currentUser) // Gọi callback thành công
+                    //TODO: Lấy user
+                  //  onSuccess(currentUser) // Gọi callback thành công
                 } else {
                     // Đăng nhập Firebase thất bại
                     val errorMessage = "Firebase Authentication failed: ${task.exception?.localizedMessage}"
@@ -125,6 +155,17 @@ class LoginViewModel @Inject constructor(
                     onError(errorMessage) // Gọi callback lỗi
                 }
             }
+    }
+
+    //TODO: Xử lý đăng nhập thành công
+    private fun onSuccess(user : User?){
+
+       DataStore.user = user
+        NavigationController.navController.navigate(Screen.Main.route)
+    }
+    //TODO: Xử lý đăng nhập với firebase thất bại
+    private fun onError(message : String){
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
     /**
