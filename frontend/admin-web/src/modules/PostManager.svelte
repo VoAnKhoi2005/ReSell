@@ -98,6 +98,7 @@
         <option value="pending">Chờ duyệt</option>
         <option value="approved">Đã duyệt</option>
         <option value="rejected">Bị từ chối</option>
+        <option value="sold">Đã bán</option>
       </select>
     </div>
   </div>
@@ -151,6 +152,8 @@
                 <span class="badge bg-success">Đã duyệt</span>
               {:else if selectedPost.status === "rejected"}
                 <span class="badge bg-danger">Bị từ chối</span>
+                {:else if selectedPost.status === "sold"}
+                <span class="badge bg-info">Đã bán</span>
               {:else}
                 <span class="badge bg-secondary">Không xác định</span>
               {/if}

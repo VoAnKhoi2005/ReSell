@@ -41,6 +41,8 @@
             <span class="badge bg-success">Đã duyệt</span>
           {:else if post.status === "rejected"}
             <span class="badge bg-danger">Bị từ chối</span>
+            {:else if post.status === "sold"}
+            <span class="badge bg-info">Đã bán</span>
           {:else}
             <span class="badge bg-secondary">Không xác định</span>
           {/if}
