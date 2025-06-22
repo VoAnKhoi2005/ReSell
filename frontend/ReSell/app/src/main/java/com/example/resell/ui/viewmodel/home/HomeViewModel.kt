@@ -1,91 +1,102 @@
 package com.example.resell.ui.viewmodel.home
-import androidx.compose.runtime.*
+
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.resell.repository.UserRepository
+import androidx.lifecycle.viewModelScope
+import com.example.resell.model.Post
+import com.example.resell.repository.PostRepository
 import com.example.resell.ui.screen.home.ProductPost
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.time.Duration
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val myRepository: UserRepository
-) : ViewModel(){
+    private val postRepository: PostRepository
+) : ViewModel() {
 
-    var searchText by mutableStateOf("")
-        private set
+    private val _postList = MutableStateFlow<List<ProductPost>>(emptyList())
+    val postList: StateFlow<List<ProductPost>> = _postList
 
-    var searchResults by mutableStateOf(listOf<String>())
-        private set
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val allItems = listOf(
-        "Xe máy",
-        "Điện thoại",
-        "Laptop",
-        "Tủ lạnh",
-        "Tivi",
-        "Bàn ghế"
-    )
+    init {
+        getPosts()
+    }
 
-    fun onSearchTextChanged(newText: String) {
-        searchText = newText
-        searchResults = if (newText.isBlank()) {
-            emptyList()
-        } else {
-            allItems.filter { it.contains(newText, ignoreCase = true) }
+    private fun getPosts() {
+        viewModelScope.launch {
+            _isLoading.value = true
+
+            val result = postRepository.getPosts(
+                page = 1,
+                limit = 20,
+                status = null,
+                minPrice = null,
+                maxPrice = null,
+                provinceID = null,
+                districtID = null,
+                wardID = null,
+                userID = null,
+                categoryID = null
+            )
+
+            result.fold(
+                { error ->
+                    Log.e("HomeViewModel", "Lỗi lấy bài đăng: ${error.message}")
+                    _postList.value = emptyList()
+                },
+                { response ->
+                    val posts = response.data ?: emptyList()
+                    Log.d("HomeViewModel", "Tổng số post: ${posts.size}")
+
+                    _postList.value = posts.map { post ->
+                        val createdAt = post.createdAt
+                        val imageUrl = post.images.sortedBy { it.order }.firstOrNull()?.url ?: ""
+                        val timeText = getRelativeTime(createdAt)
+
+                        Log.d(
+                            "HomeViewModel",
+                            "Post: ${post.title}, createdAt=$createdAt, time=$timeText, imageUrl=$imageUrl"
+                        )
+
+                        ProductPost(
+                            title = post.title,
+                            time = timeText,
+                            imageUrl = imageUrl,
+                            price = post.price,
+                            category = post.category,
+                            address = post.address
+                        )
+                    }
+                }
+            )
+
+            _isLoading.value = false
         }
     }
 }
 
+fun getRelativeTime(time: LocalDateTime?): String {
+    if (time == null) return "Không rõ"
 
-val postList = listOf(
-    ProductPost(
-        title = "iPhone 14 Pro Max 256GB",
-        time = "2 giờ trước",
-        imageUrl = "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        price = 25500000,
-        category = "Điện thoại",
-        address = "Quận 1, TP.HCM"
-    ),
-    ProductPost(
-        title = "Xe máy Honda SH 2023",
-        time = "5 giờ trước",
-        imageUrl = "https://images.unsplash.com/photo-1609630875171-b1321377ee65?q=80&w=1960&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        price = 75000000,
-        category = "Phương tiện",
-        address = "Quận 7, TP.HCM"
-    ),
-    ProductPost(
-        title = "MacBook Pro M1 2020",
-        time = "1 ngày trước",
-        imageUrl = "https://plus.unsplash.com/premium_photo-1681702114246-ffe628203982?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        price = 32000000,
-        category = "Laptop",
-        address = "Hà Nội"
-    ),
-    ProductPost(
-        title = "MacBook Pro M1 2020",
-        time = "1 ngày trước",
-        imageUrl = "https://plus.unsplash.com/premium_photo-1681702114246-ffe628203982?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        price = 32000000,
-        category = "Laptop",
-        address = "Hà Nội"
-    ),
-    ProductPost(
-        title = "MacBook Pro M1 2020",
-        time = "1 ngày trước",
-        imageUrl = "https://plus.unsplash.com/premium_photo-1681702114246-ffe628203982?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        price = 32000000,
-        category = "Laptop",
-        address = "Hà Nội"
-    ),
-    ProductPost(
-        title = "MacBook Pro M1 2020",
-        time = "1 ngày trước",
-        imageUrl = "https://plus.unsplash.com/premium_photo-1681702114246-ffe628203982?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        price = 32000000,
-        category = "Laptop",
-        address = "Hà Nội"
-    )
-)
+    val now = LocalDateTime.now()
+    val duration = Duration.between(time, now)
 
-
+    return when {
+        duration.toMinutes() < 1 -> "Vừa xong"
+        duration.toMinutes() < 60 -> "${duration.toMinutes()} phút trước"
+        duration.toHours() < 24 -> "${duration.toHours()} giờ trước"
+        duration.toDays() == 1L -> "Hôm qua"
+        duration.toDays() < 7 -> "${duration.toDays()} ngày trước"
+        duration.toDays() < 30 -> "${duration.toDays() / 7} tuần trước"
+        duration.toDays() < 365 -> "${duration.toDays() / 30} tháng trước"
+        else -> "${duration.toDays() / 365} năm trước"
+    }
+}

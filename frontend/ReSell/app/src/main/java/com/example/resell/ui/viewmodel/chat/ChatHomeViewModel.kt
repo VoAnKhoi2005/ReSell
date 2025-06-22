@@ -14,10 +14,6 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 
 
-
-
-
-
 @HiltViewModel
 class ChatHomeViewModel @Inject constructor(
     private val myRepository: MessageRepository
@@ -28,56 +24,33 @@ class ChatHomeViewModel @Inject constructor(
         getConversations()
     }
 
-    private fun getConversations(){
-    viewModelScope.launch {
-        _state.update { it.copy(isLoading = true) }
-//        val result = myRepository.getConversations()
-//        result.fold(
-//            ifLeft = { error ->
-//                _state.update { it.copy(error = error.error.message) }
-//                sendEvent(Event.Toast(error.error.message))
-//            },
-//            ifRight = { conversations ->
-//                _state.update { it.copy(conversations = conversations) }
-//            }
-//        )
-        val list = mutableListOf<Conversation>()
-        for (i in 1..3) {
-            val conversationId = "conv_$i"
-            val buyerId = "buyer_$i"
-            val sellerId = "seller_$i"
+    private fun getConversations() {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
 
-            val messages = listOf(
-                Message(
-                    id = "msg_${i}_1",
-                    conversationId = conversationId,
-                    senderId = buyerId,
-                    content = "Hello, I'm buyer $i",
-                    createdAt = LocalDateTime.now(),
+            val result = myRepository.getAllConversations()
 
-                ),
-                Message(
-                    id = "msg_${i}_2",
-                    conversationId = conversationId,
-                    senderId = sellerId,
-                    content = "Hi, I'm seller $i",
-                    createdAt = LocalDateTime.now(),
-
-                )
+            result.fold(
+                { error ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            conversations = emptyList(),
+                            error = error.message ?: "Lỗi không xác định"
+                        )
+                    }
+                },
+                { conversations ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            conversations = conversations,
+                            error = null
+                        )
+                    }
+                }
             )
-
-            val conversation = Conversation(
-                id = conversationId,
-                buyerId = buyerId,
-                sellerId = sellerId,
-                postId = "post_$i",
-                createdAt = LocalDateTime.now(),
-                messages = messages
-            )
-
-            list.add(conversation)
         }
-        _state.update { it.copy(isLoading = false,conversations = list) }
-    }
     }
 }
+
