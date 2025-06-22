@@ -3,6 +3,7 @@ package com.example.resell.ui.screen.home
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -25,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.resell.R
 import com.example.resell.ui.components.ProductPostItem
@@ -33,22 +36,35 @@ import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.White
 import com.example.resell.ui.theme.White1
-import com.example.resell.ui.viewmodel.home.postList
+import com.example.resell.ui.viewmodel.home.HomeViewModel
+import androidx.compose.runtime.getValue
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
+    val postList by viewModel.postList.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = White
-    ) { HomeContent() }
-
+    ) {
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        } else {
+            HomeContent(postList)
+        }
+    }
 }
 
 @Composable
-fun HomeContent(modifier: Modifier = Modifier) {
+fun HomeContent(postList: List<ProductPost>, modifier: Modifier = Modifier) {
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(2), // 2 cột
+        columns = GridCells.Fixed(2),
         modifier = modifier
             .fillMaxSize()
             .padding(4.dp),
@@ -108,7 +124,7 @@ fun HomeContent(modifier: Modifier = Modifier) {
                 category = post.category,
                 address = post.address,
                 modifier = Modifier.fillMaxWidth()
-            ){
+            ) {
                 NavigationController.navController.navigate(Screen.ProductDetail.route)
             }
         }
