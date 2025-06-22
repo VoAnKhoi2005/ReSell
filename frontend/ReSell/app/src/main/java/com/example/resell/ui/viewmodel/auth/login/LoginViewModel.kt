@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import com.example.resell.R // Đảm bảo đúng package R của bạn
 import com.example.resell.model.LoginType
+import com.example.resell.model.User
 import com.example.resell.repository.UserRepository // Giữ nguyên repository của bạn
 import com.example.resell.store.DataStore
 import com.example.resell.ui.navigation.NavigationController
@@ -43,7 +44,8 @@ class LoginViewModel @Inject constructor(
     private val credentialManager = CredentialManager.create(context)
     private val _user = MutableStateFlow<FirebaseUser?>(null)
     val user: StateFlow<FirebaseUser?> = _user.asStateFlow() // Đảm bảo sử dụng .asStateFlow()
-
+    private val _loginError = MutableStateFlow<String?>(null)
+    val loginError: StateFlow<String?> = _loginError
     // Khởi tạo Google Sign-In request một lần
     private val googleRequest: GetCredentialRequest = GetCredentialRequest.Builder()
         .addCredentialOption(
@@ -67,14 +69,18 @@ class LoginViewModel @Inject constructor(
 
             result.fold(
                 { error -> // Left - thất bại
-                    Log.e("Login", "❌ Đăng nhập thất bại: ${error.message ?: error.error.defaultMessage}")
+                   _loginError.value = when(error.code){
+                       400 -> "Sai thông tin đăng nhập"
+                       401 -> "Không có quyền truy cập"
+                       500 -> "Lỗi hệ thống server"
+                       else -> "Đã xảy ra lỗi không xác định (mã ${error.code})"
+                   }
                     error.errors?.forEach { (field, msg) ->
                         Log.e("Login", "$field: $msg")
                     }
                 },
                 { response -> // Right - thành công
-                    Log.d("Login", "✅ Đăng nhập thành công: ${response.user}")
-                    Log.d("Login", "Token: ${response.token}")
+                   onSuccess(response.user)
                 }
             )
         }
@@ -125,7 +131,6 @@ class LoginViewModel @Inject constructor(
     /**
      * Xác thực ID Token với Firebase Authentication.
      * @param idToken ID Token từ Google.
-     * @param onSuccess Callback khi đăng nhập Firebase thành công, trả về FirebaseUser.
      * @param onError Callback khi có lỗi, trả về thông báo lỗi.
      */
     private fun firebaseAuthWithGoogle(
@@ -138,8 +143,11 @@ class LoginViewModel @Inject constructor(
                     // Đăng nhập Firebase thành công
                     Log.d(TAG, "Firebase Auth with Google: SUCCESS")
                     val currentUser = auth.currentUser
+
+
                     _user.value = currentUser // Cập nhật StateFlow _user
-                    onSuccess(currentUser) // Gọi callback thành công
+                    //TODO: Lấy user
+                  //  onSuccess(currentUser) // Gọi callback thành công
                 } else {
                     // Đăng nhập Firebase thất bại
                     val errorMessage = "Firebase Authentication failed: ${task.exception?.localizedMessage}"
@@ -149,12 +157,10 @@ class LoginViewModel @Inject constructor(
             }
     }
 
-    //TODO: Xử lý đăng nhập với firebase thành công
-    private fun onSuccess(user : FirebaseUser?){
-        Toast.makeText(context, "Đăng nhập thành công: ${user?.email}", Toast.LENGTH_SHORT).show()
+    //TODO: Xử lý đăng nhập thành công
+    private fun onSuccess(user : User?){
 
-        //TODO: Lấy user bỏ vào Datastore
-       // DataStore.user = ...
+       DataStore.user = user
         NavigationController.navController.navigate(Screen.Main.route)
     }
     //TODO: Xử lý đăng nhập với firebase thất bại

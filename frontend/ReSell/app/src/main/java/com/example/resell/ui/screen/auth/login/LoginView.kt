@@ -101,7 +101,7 @@ private fun LoginForm(viewModel: LoginViewModel,
     var password by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     val signInClient = remember { Identity.getSignInClient(context) }
-
+    val error by viewModel.loginError.collectAsState()
 
 
 
@@ -111,6 +111,15 @@ private fun LoginForm(viewModel: LoginViewModel,
             viewModel.launchGoogleSignIn()
         }
     }
+    if (!error.isNullOrBlank()) {
+        Text(
+            text = error!!,
+            color = Color.Red,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+    }
+    Spacer(modifier = Modifier.height(10.dp))
     LoginTextField(
         onTextChange = {
             //TODO:
