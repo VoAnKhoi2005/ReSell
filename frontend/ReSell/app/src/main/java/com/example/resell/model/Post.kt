@@ -6,19 +6,49 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class Post(
-    @Json(name = "id") val id: String,
-    @Json(name = "user_id") val userId: String,
-    @Json(name = "category_id") var categoryId: String,
-    @Json(name = "title") var title: String,
-    @Json(name = "description") var description: String,
-    @Json(name = "address_id") var addressId: String,
-    @Json(name = "price") var price: Int,
-    @Json(name = "status") var status: String,
-    @Json(name = "created_at") val createdAt: LocalDateTime?,
-    @Json(name = "sold_at") var soldAt: LocalDateTime?,
-    @Json(name = "updated_at") var updatedAt: LocalDateTime?,
-    @Json(name = "deleted_at") var deletedAt: LocalDateTime?,
-    @Json(name = "conversations") val conversations: List<Conversation>,
-    @Json(name = "order") val order: ShopOrder?,
-    @Json(name = "images") val images: List<PostImage>
+    @Json(name = "id")
+    val id: String,
+    @Json(name = "user_id")
+    val userId: String? = null,
+    @Json(name = "category_id")
+    val categoryId: String? = null,
+    @Json(name = "address_id")
+    val addressId: String? = null,
+    @Json(name = "title")
+    val title: String,
+    @Json(name = "description")
+    val description: String,
+    @Json(name = "price")
+    val price: Int,
+    @Json(name = "status")
+    val status: PostStatus,
+    @Json(name = "sold_at")
+    val soldAt: LocalDateTime? = null,
+    @Json(name = "created_at")
+    val createdAt: LocalDateTime,
+    @Json(name = "updated_at")
+    val updatedAt: LocalDateTime,
+    @Json(name = "deleted_at")
+    val deletedAt: LocalDateTime? = null,
 )
+
+@JsonClass(generateAdapter = false)
+enum class PostStatus {
+    @Json(name = "pending")
+    PENDING,
+
+    @Json(name = "approved")
+    APPROVED,
+
+    @Json(name = "rejected")
+    REJECTED,
+
+    @Json(name = "sold")
+    SOLD,
+
+    @Json(name = "hidden")
+    HIDDEN,
+
+    @Json(name = "deleted")
+    DELETED
+}
