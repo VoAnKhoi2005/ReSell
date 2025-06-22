@@ -53,7 +53,6 @@ $: totalPages = Math.ceil(total / limit);
       <th>Email</th>
       <th>SĐT</th>
       <th>Họ tên</th>
-      <th>CCCD</th>
       <th>Điểm uy tín</th>
       <th>Trạng thái</th>
       <th></th>
@@ -65,8 +64,7 @@ $: totalPages = Math.ceil(total / limit);
         <td>{user.username}</td>
         <td>{user.email}</td>
         <td>{user.phone}</td>
-        <td>{user.fullname}</td>
-        <td>{user.cccd}</td>
+        <td>{user.full_name}</td>
         <td>{user.reputation}</td>
         <td>
           {#if user.status === "active"}

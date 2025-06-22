@@ -6,7 +6,7 @@ export async function fetchPosts(query = {}) {
     Object.entries(query).filter(([_, v]) => v !== undefined)
   ).toString();
 
-  const res = await apiFetch(`/api/admin/posts?${queryString}`);
+  const res = await apiFetch(`/api/posts?${queryString}`);
   return res.json();
 }
 

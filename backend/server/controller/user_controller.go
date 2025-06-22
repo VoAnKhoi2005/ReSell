@@ -255,3 +255,35 @@ func (h *UserController) UploadAvatar(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"avatar_url": avatarURL})
 }
+
+func (h *UserController) GetStat(c *gin.Context) {
+	userID := c.Param("id")
+
+	stat, err := h.userService.GetStat(userID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error})
+		return
+	}
+
+	c.JSON(http.StatusOK, stat)
+}
+
+func (h *UserController) UpdateReputation(c *gin.Context) {
+	userID := c.Param("id")
+	reputation, err := strconv.Atoi(c.Param("value"))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = h.userService.UpdateReputation(userID, reputation)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}

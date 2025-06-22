@@ -30,9 +30,11 @@ func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	//admin
 	adminRoute := rg.Group("/admin/user")
 	adminRoute.Use(middleware.AdminAuthMiddleware())
+	adminRoute.GET("/stat/:id", userController.GetStat)
 	adminRoute.GET("/id/:id", userController.GetUserByID)
 	adminRoute.GET("/username/:username", userController.GetUserByUsername)
 	adminRoute.GET("/batch/:batch_size/:page", userController.GetAllUserByBatch)
 	adminRoute.PUT("/ban", userController.BanUser)
 	adminRoute.PUT("/unban/:id", userController.UnBanUser)
+	adminRoute.PUT("/reputation/:id/:value", userController.UpdateReputation)
 }

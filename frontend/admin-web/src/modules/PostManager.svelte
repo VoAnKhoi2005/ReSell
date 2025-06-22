@@ -15,7 +15,7 @@
   let loading = true;
 
   let page = 1;
-  let limit = 10;
+  let limit = 15;
   let total = 0;
 
   async function loadPosts() {
@@ -25,6 +25,10 @@
       if (filterStatus !== "all") {
         params.status = filterStatus;
       }
+      if (search.trim() !== "") {
+        params.q = search.trim();
+      }
+
       const res = await fetchPosts(params);
       posts = res.data || [];
       total = res.total || 0;
@@ -37,7 +41,24 @@
 
   onMount(loadPosts);
 
-  $: if (page || filterStatus) loadPosts();
+  let searchTimeout;
+  function handleSearchInput() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      page = 1;
+      loadPosts();
+    }, 300);
+  }
+
+  function handleFilterChange() {
+    page = 1;
+    loadPosts();
+  }
+
+  function handlePageChange(e) {
+    page = e.detail.page;
+    loadPosts();
+  }
 
   async function handleViewDetail(e) {
     const post = await fetchPostById(e.detail.post.id);
@@ -73,10 +94,6 @@
       alert("Lỗi khi từ chối bài");
     }
   }
-
-  function handlePageChange(e) {
-    page = e.detail.page;
-  }
 </script>
 
 <div class="w-100">
@@ -87,11 +104,13 @@
         class="form-control form-control-sm"
         placeholder="Tìm tiêu đề"
         bind:value={search}
+        on:input={handleSearchInput}
         style="width:200px;"
       />
       <select
         class="form-select form-select-sm"
         bind:value={filterStatus}
+        on:change={handleFilterChange}
         style="width:120px;"
       >
         <option value="all">Tất cả</option>
@@ -126,8 +145,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">{selectedPost.title}</h5>
-            <button type="button" class="btn-close" on:click={handleCloseDetail}
-            ></button>
+            <button type="button" class="btn-close" on:click={handleCloseDetail}></button>
           </div>
           <div class="modal-body">
             {#if selectedPost.post_images?.length}
@@ -152,7 +170,7 @@
                 <span class="badge bg-success">Đã duyệt</span>
               {:else if selectedPost.status === "rejected"}
                 <span class="badge bg-danger">Bị từ chối</span>
-                {:else if selectedPost.status === "sold"}
+              {:else if selectedPost.status === "sold"}
                 <span class="badge bg-info">Đã bán</span>
               {:else}
                 <span class="badge bg-secondary">Không xác định</span>
@@ -161,36 +179,14 @@
           </div>
           <div class="modal-footer">
             {#if selectedPost.status === "pending"}
-              <button
-                class="btn btn-success"
-                on:click={() =>
-                  handleApprove({ detail: { id: selectedPost.id } })}
-                >Duyệt</button
-              >
-              <button
-                class="btn btn-danger"
-                on:click={() =>
-                  handleReject({ detail: { id: selectedPost.id } })}
-                >Từ chối</button
-              >
+              <button class="btn btn-success" on:click={() => handleApprove({ detail: { id: selectedPost.id } })}>Duyệt</button>
+              <button class="btn btn-danger" on:click={() => handleReject({ detail: { id: selectedPost.id } })}>Từ chối</button>
             {:else if selectedPost.status === "approved"}
-              <button
-                class="btn btn-danger"
-                on:click={() =>
-                  handleReject({ detail: { id: selectedPost.id } })}
-                >Từ chối</button
-              >
+              <button class="btn btn-danger" on:click={() => handleReject({ detail: { id: selectedPost.id } })}>Từ chối</button>
             {:else if selectedPost.status === "rejected"}
-              <button
-                class="btn btn-success"
-                on:click={() =>
-                  handleApprove({ detail: { id: selectedPost.id } })}
-                >Duyệt</button
-              >
+              <button class="btn btn-success" on:click={() => handleApprove({ detail: { id: selectedPost.id } })}>Duyệt</button>
             {/if}
-            <button class="btn btn-secondary" on:click={handleCloseDetail}
-              >Đóng</button
-            >
+            <button class="btn btn-secondary" on:click={handleCloseDetail}>Đóng</button>
           </div>
         </div>
       </div>

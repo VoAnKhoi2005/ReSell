@@ -5,7 +5,7 @@
 
   let users = [];
   let page = 1;
-  let limit = 10;
+  let limit = 13;
   let total = 0;
   let search = "";
   let filter = "all";
@@ -18,8 +18,7 @@
         username: u.username,
         email: u.email,
         phone: u.phone,
-        fullname: u.fullname || "",
-        cccd: u.citizen_id || "",
+        full_name: u.full_name || "",
         reputation: u.reputation || 0,
         status: u.status === "banned" ? "banned" : "active",
       }));

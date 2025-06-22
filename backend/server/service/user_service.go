@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/dto"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 	request "github.com/VoAnKhoi2005/ReSell/backend/server/transaction"
@@ -37,6 +38,9 @@ type UserService interface {
 	BanUserForDay(userID string, length uint) error
 	UnBanUser(userID string) error
 	SetAvatar(id string, url string) error
+
+	GetStat(userID string) (*dto.UserStatDTO, error)
+	UpdateReputation(userID string, reputation int) error
 }
 
 type userService struct {
@@ -51,6 +55,16 @@ func (s *userService) SetAvatar(id string, url string) error {
 	user.AvatarURL = &url
 	return s.userRepository.Update(user)
 
+}
+
+func (s *userService) UpdateReputation(userID string, reputation int) error {
+	user, err := s.userRepository.GetByID(userID)
+	if err != nil {
+		return err
+	}
+
+	user.Reputation = reputation
+	return s.userRepository.Update(user)
 }
 
 func NewUserService(repo repository.UserRepository) UserService {
@@ -270,4 +284,8 @@ func (s *userService) UnBanUser(userID string) error {
 	user.Status = model.ActiveStatus
 
 	return s.userRepository.Update(user)
+}
+
+func (s *userService) GetStat(userID string) (*dto.UserStatDTO, error) {
+	return s.userRepository.GetStat(userID)
 }
