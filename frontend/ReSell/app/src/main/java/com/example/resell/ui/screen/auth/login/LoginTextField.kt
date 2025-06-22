@@ -42,31 +42,7 @@ fun LoginTextField(
 
     )
 }
-@Composable
-fun NumberPhoneTextField(
-    numberPhone: String,
-    modifier: Modifier = Modifier,
-    onNumberPhoneChange: (String) -> Unit
-) {
-    TextField(
-        modifier = modifier,
-        value = numberPhone,
-        onValueChange = onNumberPhoneChange,
-        label = {
-            Text(
-                text = "Số điện thoại",
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.Black
-            )
-        },
-        colors = TextFieldDefaults.colors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
 
-        )
-
-    )
-}
 @Composable
 fun PasswordTextField(
     password: String,

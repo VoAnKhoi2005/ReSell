@@ -99,32 +99,34 @@ private fun LoginForm(viewModel: LoginViewModel,
     val context = LocalContext.current
     val activity = context as Activity
     var password by remember { mutableStateOf("") }
-    var numberPhone by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     val signInClient = remember { Identity.getSignInClient(context) }
-
+    val error by viewModel.loginError.collectAsState()
 
 
 
 
     fun startGoogleLogin() {
         coroutineScope.launch {
-            viewModel.launchGoogleSignIn(
-                onSuccess = {
-                    Toast.makeText(context, "Đăng nhập thành công: ${it?.email}", Toast.LENGTH_SHORT).show()
-                    NavigationController.navController.navigate(Screen.Main.route)
-                },
-                onError = {
-                    Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-                }
-            )
+            viewModel.launchGoogleSignIn()
         }
     }
-    NumberPhoneTextField(
-        onNumberPhoneChange = {
-            //TODO: Xử lí định dạng số điện thoại
-            numberPhone = it
+    if (!error.isNullOrBlank()) {
+        Text(
+            text = error!!,
+            color = Color.Red,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+    }
+    Spacer(modifier = Modifier.height(10.dp))
+    LoginTextField(
+        onTextChange = {
+            //TODO:
+            username = it
         },
-        numberPhone = numberPhone,
+        value = username,
+        lable ="Tên người dùng",
         modifier = Modifier.fillMaxWidth()
     )
     Spacer(modifier = Modifier.height(15.dp))
@@ -152,8 +154,9 @@ private fun LoginForm(viewModel: LoginViewModel,
             .fillMaxWidth()
             .height(40.dp),
         onClick = {
-            //TODO nút đăng nhập bằng số điện thoại
-
+            //TODO nút đăng nhập bằng username
+            Log.d("Login", "✅ Đăng nhập: ${username} ${password}")
+            viewModel.launchUsernameSignIn(username,password)
         },
 
         colors = ButtonDefaults.buttonColors(
@@ -175,7 +178,7 @@ private fun LoginForm(viewModel: LoginViewModel,
     SignupText(
         onSignupClick = {
             // TODO: Navigate sang màn hình đăng ký
-            NavigationController.navController.navigate(Screen.Register.route)
+            NavigationController.navController.navigate(Screen.PhoneRegister.route)
         }
     )
 }
