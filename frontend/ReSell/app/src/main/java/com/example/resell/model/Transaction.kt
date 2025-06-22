@@ -2,8 +2,6 @@ package com.example.resell.model
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 // region User
@@ -57,6 +55,11 @@ data class ChangePasswordRequest(
 @JsonClass(generateAdapter = true)
 data class RefreshRequest(
     @Json(name = "refresh_token") val refreshToken: String
+)
+
+@JsonClass(generateAdapter = true)
+data class AvatarUploadResponse(
+    @Json(name = "avatar_url") val avatarURL: String
 )
 
 // endregion
@@ -127,8 +130,8 @@ data class UpdatePostRequest(
 
 @JsonClass(generateAdapter = true)
 data class ImageUploadResponse(
-    @Json(name = "image_urls") val imageUrls: List<String>,
-    val message: String
+    val imageURLs: List<String>,
+    val message: String? = null
 )
 
 // endregion

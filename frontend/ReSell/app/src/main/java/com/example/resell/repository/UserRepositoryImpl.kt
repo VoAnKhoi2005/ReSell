@@ -6,6 +6,10 @@ import com.example.resell.network.NetworkError
 import com.example.resell.network.toNetworkError
 import com.example.resell.model.*
 import com.example.resell.store.AuthTokenManager
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -91,6 +95,15 @@ class UserRepositoryImpl @Inject constructor(
         return Either.catch {
             apiService.unfollowUser(userID)
             true
+        }.mapLeft { it.toNetworkError() }
+    }
+
+    override suspend fun uploadAvatar(avatar: File): Either<NetworkError, AvatarUploadResponse> {
+        return Either.catch {
+            val requestBody = avatar.asRequestBody("image/*".toMediaTypeOrNull())
+            val part = MultipartBody.Part.createFormData("avatar", avatar.name, requestBody)
+
+            apiService.uploadAvatar(part)
         }.mapLeft { it.toNetworkError() }
     }
 }

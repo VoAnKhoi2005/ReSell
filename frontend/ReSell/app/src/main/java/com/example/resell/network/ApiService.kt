@@ -28,6 +28,7 @@ import com.example.resell.model.UpdateAddressRequest
 import com.example.resell.model.UpdateCategoryRequest
 import com.example.resell.model.UpdatePostRequest
 import com.example.resell.model.UpdateProfileRequest
+import com.example.resell.model.AvatarUploadResponse
 import com.example.resell.model.User
 import okhttp3.MultipartBody
 import retrofit2.http.Body
@@ -39,7 +40,6 @@ import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
-import java.time.LocalDateTime
 
 interface ApiService {
 
@@ -75,6 +75,12 @@ interface ApiService {
 
     @DELETE("user/unfollow/{user_id}")
     suspend fun unfollowUser(@Path("user_id") userID: String): Boolean
+
+    @Multipart
+    @POST("user/upload-avatar")
+    suspend fun uploadAvatar(
+        @Part image: MultipartBody.Part
+    ): AvatarUploadResponse
     //endregion
 
     //region Address
