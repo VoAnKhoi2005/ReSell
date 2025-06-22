@@ -312,7 +312,7 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
         if (isLocationMessage) {
             val urlStartIndex = message.content.indexOf("https://maps.google.com")
             val mapUrl = message.content.substring(urlStartIndex)
-            LocaltionBubble(mapUrl,bubbleColor)
+            LocaltionBubble(mapUrl)
         }
         else {
             Box(
@@ -335,12 +335,12 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
     }
 }
 @Composable
-fun LocaltionBubble(locationUrl: String,bubbleColor: Color) {
+fun LocaltionBubble(locationUrl: String) {
     val context = LocalContext.current
 
     Column(
         modifier = Modifier
-            .background(color = bubbleColor, shape = RoundedCornerShape(8.dp))
+            .background(color = BuyerMessage, shape = RoundedCornerShape(8.dp))
             .padding(12.dp)
             .widthIn(max = 250.dp)
     ) {
