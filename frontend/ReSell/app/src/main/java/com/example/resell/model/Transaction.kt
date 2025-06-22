@@ -107,6 +107,16 @@ data class CreatePostRequest(
 )
 
 @JsonClass(generateAdapter = true)
+data class GetPostsResponse(
+    val data: List<Post>? = null,
+    @Json(name = "has_more")
+    val hasMore: Boolean,
+    val limit: Int,
+    val page: Int,
+    val total: Int,
+)
+
+@JsonClass(generateAdapter = true)
 data class UpdatePostRequest(
     @Json(name = "category_id") val categoryID: String? = null,
     @Json(name = "address_id") val addressID: String? = null,
@@ -224,7 +234,7 @@ sealed class AckResult {
 
 // endregion
 
-// region com.example.resell.model.Notification
+// region Notification
 
 @JsonClass(generateAdapter = true)
 data class SaveFCMTokenRequest(

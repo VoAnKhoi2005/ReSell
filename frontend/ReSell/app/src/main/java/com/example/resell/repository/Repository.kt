@@ -6,7 +6,11 @@ import com.example.resell.network.NetworkError
 import java.time.LocalDate
 
 interface UserRepository{
-    suspend fun firebaseAuth(firebaseIDToken: String, username: String? = null, password: String? = null): Either<NetworkError, LoginResponse>
+    suspend fun firebaseAuth(
+        firebaseIDToken: String,
+        username: String? = null,
+        password: String? = null
+    ): Either<NetworkError, LoginResponse>
     suspend fun loginUser(identifier: String, password: String, loginType: LoginType): Either<NetworkError, LoginResponse>
     suspend fun updateInfo(request: UpdateProfileRequest): Either<NetworkError, Boolean>
     suspend fun changePassword(oldPassword: String, newPassword: String): Either<NetworkError, Boolean>
@@ -20,27 +24,36 @@ interface AddressRepository{
     suspend fun createAddress(wardID: String, detail: String, isDefault: Boolean): Either<NetworkError, Boolean>
     suspend fun getAddressByID(addressID: String): Either<NetworkError, Address>
     suspend fun getAddressByUserID(userID: String): Either<NetworkError, List<Address>>
-    suspend fun getAllProvinces(): Either<NetworkError, List<com.example.resell.model.Province>>
+    suspend fun getAllProvinces(): Either<NetworkError, List<Province>>
     suspend fun getDistricts(provinceID: String): Either<NetworkError, List<District>>
-    suspend fun getWards(districtID: String): Either<NetworkError, List<com.example.resell.model.Ward>>
+    suspend fun getWards(districtID: String): Either<NetworkError, List<Ward>>
     suspend fun updateAddress(addressID: String, request: UpdateAddressRequest): Either<NetworkError, Boolean>
     suspend fun deleteAddress(addressID: String): Either<NetworkError, Boolean>
 }
 
 interface CategoryRepository{
-    suspend fun getAllCategory(): Either<NetworkError, List<com.example.resell.model.Category>>
-    suspend fun getCategoryByID(categoryID: String): Either<NetworkError, com.example.resell.model.Category>
+    suspend fun getAllCategory(): Either<NetworkError, List<Category>>
+    suspend fun getCategoryByID(categoryID: String): Either<NetworkError, Category>
     suspend fun createCategory(name: String, parentCategoryID: String): Either<NetworkError, Boolean>
     suspend fun updateCategory(categoryID: String, request: UpdateCategoryRequest): Either<NetworkError, Boolean>
     suspend fun deleteCategory(categoryID: String): Either<NetworkError, Boolean>
-    suspend fun getChildrenCategories(categoryID: String): Either<NetworkError, List<com.example.resell.model.Category>>
+    suspend fun getChildrenCategories(categoryID: String): Either<NetworkError, List<Category>>
 }
 
 interface PostRepository {
+    suspend fun getPosts(
+        page: Int, limit: Int,
+        status: String? = null,
+        minPrice: Int? = null, maxPrice: Int? = null,
+        provinceID: String? = null, districtID: String? = null, wardID: String? = null,
+        userID: String? = null,
+        categoryID: String? = null
+    ): Either<NetworkError, GetPostsResponse>
     suspend fun getPostByID(postID: String): Either<NetworkError, Post>
     suspend fun createPost(title: String, description: String,
                            categoryID: String, addressID: String,
-                           price: Double): Either<NetworkError, Boolean>
+                           price: Double
+    ): Either<NetworkError, Boolean>
     suspend fun updatePost(postID: String, request: UpdatePostRequest): Either<NetworkError, Boolean>
     suspend fun hardDeletePost(postID: String): Either<NetworkError, Boolean>
     suspend fun softDeletePost(postID: String): Either<NetworkError, Boolean>

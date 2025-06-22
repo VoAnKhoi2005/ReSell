@@ -7,11 +7,25 @@ import com.example.resell.network.toNetworkError
 import com.example.resell.model.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.min
 
 @Singleton
 class PostRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ): PostRepository {
+    override suspend fun getPosts(
+        page: Int, limit: Int,
+        status: String?,
+        minPrice: Int?, maxPrice: Int?,
+        provinceID: String?, districtID: String?, wardID: String?,
+        userID: String?,
+        categoryID: String?
+    ): Either<NetworkError, GetPostsResponse> {
+        return Either.catch {
+            apiService.getPosts(page, limit, status, minPrice, maxPrice, provinceID, districtID, wardID, userID, categoryID)
+        }.mapLeft { it.toNetworkError() }
+    }
+
     override suspend fun getPostByID(postID: String): Either<NetworkError, Post> {
         return Either.catch {
             apiService.getPostByID(postID)
