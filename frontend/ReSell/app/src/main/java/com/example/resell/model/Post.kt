@@ -10,6 +10,7 @@ data class Post(
     @Json(name = "owner") val userId: String,
     @Json(name = "category") val category: String,
     @Json(name = "title") val title: String,
+    @Json(name = "thumbnail") val thumbnail: String? = null,
     @Json(name = "description") val description: String? = null,
     @Json(name = "province") val address: String,
     @Json(name = "price") val price: Int,

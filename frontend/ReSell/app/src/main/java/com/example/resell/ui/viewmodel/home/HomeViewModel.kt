@@ -58,18 +58,17 @@ class HomeViewModel @Inject constructor(
 
                     _postList.value = posts.map { post ->
                         val createdAt = post.createdAt
-                        val imageUrl = post.images.sortedBy { it.order }.firstOrNull()?.url ?: ""
                         val timeText = getRelativeTime(createdAt)
 
                         Log.d(
                             "HomeViewModel",
-                            "Post: ${post.title}, createdAt=$createdAt, time=$timeText, imageUrl=$imageUrl"
+                            "Post: ${post.title}, createdAt=$createdAt, time=$timeText, imageUrl=${post.thumbnail}"
                         )
 
                         ProductPost(
                             title = post.title,
                             time = timeText,
-                            imageUrl = imageUrl,
+                            imageUrl = post.thumbnail ?: "",
                             price = post.price,
                             category = post.category,
                             address = post.address
