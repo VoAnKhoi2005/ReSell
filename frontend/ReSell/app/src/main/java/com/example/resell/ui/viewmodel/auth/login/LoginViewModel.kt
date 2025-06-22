@@ -2,6 +2,7 @@ package com.example.resell.ui.viewmodel.auth.login
 
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
@@ -23,7 +24,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import com.example.resell.R // Đảm bảo đúng package R của bạn
+import com.example.resell.model.LoginType
 import com.example.resell.repository.UserRepository // Giữ nguyên repository của bạn
+import com.example.resell.store.DataStore
+import com.example.resell.ui.navigation.NavigationController
+import com.example.resell.ui.navigation.Screen
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -55,7 +60,26 @@ class LoginViewModel @Inject constructor(
      * @param onSuccess Callback khi đăng nhập Firebase thành công, trả về FirebaseUser.
      * @param onError Callback khi có lỗi, trả về thông báo lỗi.
      */
-    suspend fun launchGoogleSignIn(onSuccess: (FirebaseUser?) -> Unit, onError: (String) -> Unit) {
+    fun launchUsernameSignIn(identifier: String, password: String){
+        viewModelScope.launch {
+
+            val result = myRepository.loginUser(identifier, password,LoginType.USERNAME)
+
+            result.fold(
+                { error -> // Left - thất bại
+                    Log.e("Login", "❌ Đăng nhập thất bại: ${error.message ?: error.error.defaultMessage}")
+                    error.errors?.forEach { (field, msg) ->
+                        Log.e("Login", "$field: $msg")
+                    }
+                },
+                { response -> // Right - thành công
+                    Log.d("Login", "✅ Đăng nhập thành công: ${response.user}")
+                    Log.d("Login", "Token: ${response.token}")
+                }
+            )
+        }
+    }
+    suspend fun launchGoogleSignIn() {
         viewModelScope.launch { // Sử dụng viewModelScope cho các coroutine trong ViewModel
             try {
                 // Bước 1: Lấy thông tin đăng nhập từ Credential Manager
@@ -73,7 +97,7 @@ class LoginViewModel @Inject constructor(
 
                     if (idToken != null) {
                         // Bước 3: Xác thực ID Token với Firebase
-                        firebaseAuthWithGoogle(idToken, onSuccess, onError)
+                        firebaseAuthWithGoogle(idToken)
                     } else {
                         // Trường hợp này xảy ra nếu Google Play Services không trả về ID Token
                         val errorMessage = "Failed to retrieve Google ID Token (ID Token is null)."
@@ -105,9 +129,7 @@ class LoginViewModel @Inject constructor(
      * @param onError Callback khi có lỗi, trả về thông báo lỗi.
      */
     private fun firebaseAuthWithGoogle(
-        idToken: String,
-        onSuccess: (FirebaseUser?) -> Unit,
-        onError: (String) -> Unit
+        idToken: String
     ) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
@@ -125,6 +147,19 @@ class LoginViewModel @Inject constructor(
                     onError(errorMessage) // Gọi callback lỗi
                 }
             }
+    }
+
+    //TODO: Xử lý đăng nhập với firebase thành công
+    private fun onSuccess(user : FirebaseUser?){
+        Toast.makeText(context, "Đăng nhập thành công: ${user?.email}", Toast.LENGTH_SHORT).show()
+
+        //TODO: Lấy user bỏ vào Datastore
+       // DataStore.user = ...
+        NavigationController.navController.navigate(Screen.Main.route)
+    }
+    //TODO: Xử lý đăng nhập với firebase thất bại
+    private fun onError(message : String){
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
     /**

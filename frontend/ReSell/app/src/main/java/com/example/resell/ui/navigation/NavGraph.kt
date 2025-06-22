@@ -21,6 +21,7 @@ import com.example.resell.ui.screen.add.AddScreen
 import com.example.resell.ui.screen.add.CategorySelectionScreen
 import com.example.resell.ui.screen.address.AddressAddScreen
 import com.example.resell.ui.screen.address.AddressSetupScreen
+import com.example.resell.ui.screen.auth.register.PhoneRegisterScreen
 
 import com.example.resell.ui.screen.productdetail.ProductDetailScreen
 import com.example.resell.ui.screen.productdetail.sampleAddress
@@ -109,15 +110,21 @@ fun SetupNavGraph(
                 onBuyClick = { /* TODO */ }
             )
         }
-        composable(Screen.PhoneAuth.route) {
-            PhoneAuthScreen()
+        composable(
+            route = Screen.PhoneAuth.route + "/{phoneNumber}",
+            arguments = listOf(navArgument("phoneNumber") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val phoneNumber = backStackEntry.arguments?.getString("phoneNumber") ?: ""
+            PhoneAuthScreen(phoneNumber=phoneNumber)
         }
+
         composable(Screen.Add.route) { AddScreen() }
         composable (Screen.BuyingOrder.route){ BuyingOrderScreen() }
         composable (Screen.MyOrder.route){ MyOrderScreen() }
         composable (Screen.Payment.route){ PaymentScreen()}
         composable (Screen.AddressSetup.route){ AddressSetupScreen() }
         composable (Screen.AddressAdd.route){ AddressAddScreen()}
+        composable (Screen.PhoneRegister.route){ PhoneRegisterScreen() }
         /*composable(Screen.ProvinceSelect.route) {
             ProvinceSelectScreen { selectedProvince ->
                 NavigationController.navController.previousBackStackEntry
