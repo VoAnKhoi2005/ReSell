@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.sp
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.White2
-import model.Category
+import com.example.resell.model.Category
 
 @Composable
 fun IconButtonVertical(

@@ -23,8 +23,8 @@ import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.theme.MyApplicationTheme
 
 import dagger.hilt.android.AndroidEntryPoint
-import util.Event
-import util.EventBus
+import com.example.resell.util.Event
+import com.example.resell.util.EventBus
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

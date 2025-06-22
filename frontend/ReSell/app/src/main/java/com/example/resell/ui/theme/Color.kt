@@ -4,7 +4,8 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.google.accompanist.permissions.PermissionStatus
-import model.Category
+import com.example.resell.model.Category
+import com.example.resell.ui.navigation.Screen
 
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
@@ -26,7 +27,7 @@ val IconColor = Color(0xFFF4FCFB)
 val GrayFont = Color(0xFF8A8A8A)
 val LoginButton = Color(0xFF000113)
 val MainButton = Color(0xFF94A3B8)
-val Red = Color(0xFFFF453A)
+val Red = Color(0xFFF61C24)
 val LoginTitle = Color(0xFF1E293B)
 val priceColor = Color(0xFFF44336)
 val BuyerMessage = Color(0xFFEAFBFF)

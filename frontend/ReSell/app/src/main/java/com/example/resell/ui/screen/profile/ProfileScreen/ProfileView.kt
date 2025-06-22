@@ -62,8 +62,12 @@ fun ProfileScreen() {
             // --- Tiện ích ---
             SectionTitle(text = "Tiện ích")
         }
-        item { IconButtonHorizontal("Tin đăng đã lưu", R.drawable.favouriteicon,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { } }
-        item { IconButtonHorizontal("Đánh giá từ tôi", R.drawable.rateicon,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { } }
+        item { IconButtonHorizontal("Tin đăng đã lưu", R.drawable.favouriteicon,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) {
+            NavigationController.navController.navigate(Screen.Favorite.route)
+        } }
+        item { IconButtonHorizontal("Đánh giá từ tôi", R.drawable.rateicon,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) {
+            NavigationController.navController.navigate(Screen.Rating.route)
+        } }
 
         item {
             // --- Khác ---

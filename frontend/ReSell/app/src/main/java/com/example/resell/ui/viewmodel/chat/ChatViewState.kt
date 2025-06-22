@@ -1,6 +1,6 @@
 package com.example.resell.ui.viewmodel.chat
 
-import model.Message
+import com.example.resell.model.Message
 
 data class ChatViewState(
     val isLoading: Boolean = false,
