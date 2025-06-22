@@ -2,17 +2,21 @@ package com.example.resell.repository
 
 import android.util.Log
 import arrow.core.Either
+import com.example.resell.model.AckResult
 import com.example.resell.network.ApiService
 import com.example.resell.network.NetworkError
 import com.example.resell.network.toNetworkError
-import com.example.resell.network.WebSocketManager
+import com.example.resell.store.WebSocketManager
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 import com.example.resell.model.Conversation
 import com.example.resell.model.CreateConversationRequest
+import com.example.resell.model.ErrorPayload
+import com.example.resell.model.InChatIndicatorPayload
 import com.example.resell.model.Message
 import com.example.resell.model.NewMessagePayload
 import com.example.resell.model.SocketMessageType
+import com.example.resell.model.TypingIndicatorPayload
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -74,11 +78,10 @@ class MessageRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
-    //Return temp message id before get update from server
-    override suspend fun sendNewMessage(conversationID: String, content: String): Message? {
+    override suspend fun sendNewMessage(conversationID: String, content: String): Either<ErrorPayload, Message> {
         if (!wsManager.isConnected()) {
-            Log.d("WebSocket", "Fail to send: not connected")
-            return null
+            Log.d("WebSocket", "Fail to send message: not connected")
+            return Either.Left(ErrorPayload(error = "WebSocket not connected"))
         }
 
         val payload = NewMessagePayload(
@@ -87,26 +90,93 @@ class MessageRepositoryImpl @Inject constructor(
         )
 
         val sent = wsManager.send(SocketMessageType.NEW_MESSAGE, payload, NewMessagePayload::class.java)
-        if (!sent)
-            return null
+        if (!sent) {
+            return Either.Left(ErrorPayload(error = "Failed to send message"))
+        }
 
         val tempId = payload.tempMessageID
         val ackDeferred = synchronized(wsManager.ackLock) {
             wsManager.ackWaiters[tempId]
-        } ?: return null
+        } ?: return Either.Left(ErrorPayload(error = "ACK not registered"))
 
-        return try{
-            withTimeout(5000L){
-                val ack = ackDeferred.await()
-                ack.message
+        return try {
+            withTimeout(10000L) {
+                when (val ack = ackDeferred.await()) {
+                    is AckResult.Success -> Either.Right(ack.payload.message)
+                    is AckResult.Error -> Either.Left(ack.error)
+                }
             }
         } catch (e: TimeoutCancellationException) {
             Log.d("WebSocket", "ACK timed out for tempMessageID=$tempId")
             synchronized(wsManager.ackLock) {
                 wsManager.ackWaiters.remove(tempId)
             }
-            null
+            Either.Left(ErrorPayload(error = "ACK timeout", tempMessageID = tempId))
+        } catch (e: Exception) {
+            Log.d("WebSocket", "Unexpected error: ${e.message}")
+            Either.Left(ErrorPayload(error = e.message ?: "Unknown error", tempMessageID = tempId))
+        }
+    }
+
+    override suspend fun sendInChatIndicator(
+        conversationID: String,
+        isInChat: Boolean
+    ): Boolean {
+        if (!wsManager.isConnected()) {
+            Log.d("WebSocket", "Fail to send in chat indicator: not connected")
+            return false
         }
 
+        val payload = InChatIndicatorPayload(
+            conversationID = conversationID,
+            isInChat = isInChat,
+        )
+
+        val sent = wsManager.send(SocketMessageType.IN_CHAT, payload, InChatIndicatorPayload::class.java)
+        if (!sent) {
+            Log.d("WebSocket", "Failed to send in chat indicator")
+            return false
+        }
+
+        val tempId = payload.tempMessageID
+        val ackDeferred = synchronized(wsManager.ackLock) {
+            wsManager.ackWaiters[tempId]
+        } ?: return false
+
+        return try{
+            withTimeout(5000L) {
+                when (val ack = ackDeferred.await()) {
+                    is AckResult.Error -> {
+                        Log.d("WebSocket", "Received error ACK for in-chat: ${ack.error.error}")
+                        false
+                    }
+                    else -> true
+                }
+            }
+        } catch (e: TimeoutCancellationException) {
+            synchronized(wsManager.ackLock) {
+                wsManager.ackWaiters.remove(tempId)
+            }
+            return true
+        }
+    }
+
+    override suspend fun sendTypingIndicator(conversationID: String, userID: String, isTyping: Boolean) {
+        if (!wsManager.isConnected()) {
+            Log.d("WebSocket", "Fail to send in chat indicator: not connected")
+            return
+        }
+
+        val payload = TypingIndicatorPayload(
+            conversationID = conversationID,
+            userID = userID,
+            isTyping = isTyping,
+        )
+
+        val sent = wsManager.send(SocketMessageType.TYPING, payload, TypingIndicatorPayload::class.java)
+        if (!sent) {
+            Log.d("WebSocket", "Failed to send typing indicator")
+            return
+        }
     }
 }

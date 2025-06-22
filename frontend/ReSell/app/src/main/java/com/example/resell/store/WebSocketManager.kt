@@ -1,4 +1,4 @@
-package com.example.resell.network
+package com.example.resell.store
 
 import com.squareup.moshi.Moshi
 import com.example.resell.model.SocketMessage
@@ -11,6 +11,7 @@ import okhttp3.WebSocketListener
 import javax.inject.Inject
 import javax.inject.Singleton
 import android.util.Log
+import com.example.resell.model.AckResult
 import com.squareup.moshi.Types
 import kotlinx.coroutines.CompletableDeferred
 import com.example.resell.model.ErrorPayload
@@ -18,7 +19,6 @@ import com.example.resell.model.NewMessagePayload
 import com.example.resell.model.PendingMessage
 import com.example.resell.model.SendMessagePayload
 import com.example.resell.model.SocketMessageType
-import com.example.resell.store.AuthTokenManager
 import java.util.UUID
 
 @Singleton
@@ -33,7 +33,7 @@ class WebSocketManager @Inject constructor(
     private val pendingMessages = mutableMapOf<String, PendingMessage>()
     private val queueLock = Any()
 
-    val ackWaiters = mutableMapOf<String, CompletableDeferred<SendMessagePayload>>()
+    val ackWaiters = mutableMapOf<String, CompletableDeferred<AckResult>>()
     val ackLock = Any()
 
     fun connect(onMessage: (Any) -> Unit) {
@@ -75,7 +75,7 @@ class WebSocketManager @Inject constructor(
                                     pendingMessages.remove(tempId)
                                 }
                                 synchronized(ackLock) {
-                                    ackWaiters.remove(tempId)?.complete(data)
+                                    ackWaiters.remove(tempId)?.complete(AckResult.Success(data))
                                 }
                             }
 
@@ -84,6 +84,14 @@ class WebSocketManager @Inject constructor(
 
                         SocketMessageType.ERROR -> {
                             val data = parseSocketMessageData<ErrorPayload>(raw.type, raw.data, moshi)
+                            val tempId = data?.tempMessageID
+
+                            if (tempId != null) {
+                                synchronized(ackLock) {
+                                    ackWaiters.remove(tempId)?.complete(AckResult.Error(data))
+                                }
+                            }
+
                             data?.let { listener?.invoke(it) }
                         }
 

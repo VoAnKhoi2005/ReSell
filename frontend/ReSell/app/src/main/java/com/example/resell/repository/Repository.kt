@@ -73,7 +73,9 @@ interface MessageRepository{
     suspend fun getConversationsByPostID(postID: String): Either<NetworkError, List<Conversation>>
     suspend fun getLatestMessage(conversationID: String, amount: Int): Either<NetworkError,List<Message>>
     suspend fun getMessageInRange(conversationID: String, start: Int, end: Int): Either<NetworkError,List<Message>>
-    suspend fun sendNewMessage(conversationID: String, content: String): Message?
+    suspend fun sendNewMessage(conversationID: String, content: String): Either<ErrorPayload, Message>
+    suspend fun sendInChatIndicator(conversationID: String, isInChat: Boolean): Boolean
+    suspend fun sendTypingIndicator(conversationID: String, userID: String, isTyping: Boolean)
 }
 
 interface NotificationRepository{

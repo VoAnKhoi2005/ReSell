@@ -165,7 +165,10 @@ enum class SocketMessageType {
     TYPING,
 
     @Json(name = "error")
-    ERROR
+    ERROR,
+
+    @Json(name = "in_chat")
+    IN_CHAT
 }
 
 @JsonClass(generateAdapter = true)
@@ -176,15 +179,15 @@ data class SocketMessage<T>(
 
 @JsonClass(generateAdapter = true)
 data class SendMessagePayload(
-    @Json(name = "temp_message_id") val tempMessageID: String?,
-    val message: Message
+    @Json(name = "temp_message_id") val tempMessageID: String,
+    @Json(name = "message") val message: Message
 )
 
 @JsonClass(generateAdapter = true)
 data class NewMessagePayload(
     @Json(name = "temp_message_id") val tempMessageID: String = UUID.randomUUID().toString(),
     @Json(name = "conversation_id") val conversationID: String,
-    val content: String
+    @Json(name = "content") val content: String
 )
 
 @JsonClass(generateAdapter = true)
@@ -196,13 +199,15 @@ data class TypingIndicatorPayload(
 
 @JsonClass(generateAdapter = true)
 data class InChatIndicatorPayload(
+    @Json(name = "temp_message_id") val tempMessageID: String = UUID.randomUUID().toString(),
     @Json(name = "conversation_id") val conversationID: String,
     @Json(name = "is_in_chat") val isInChat: Boolean
 )
 
 @JsonClass(generateAdapter = true)
 data class ErrorPayload(
-    val error: String
+    @Json(name = "temp_message_id") val tempMessageID: String? = null,
+    @Json(name = "error") val error: String
 )
 
 @JsonClass(generateAdapter = true)
@@ -211,6 +216,11 @@ data class PendingMessage(
     val json: String,
     val raw: Any
 )
+
+sealed class AckResult {
+    data class Success(val payload: SendMessagePayload) : AckResult()
+    data class Error(val error: ErrorPayload) : AckResult()
+}
 
 // endregion
 
