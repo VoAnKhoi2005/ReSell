@@ -71,6 +71,12 @@ class MessageRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
+    override suspend fun getAllConversations(): Either<NetworkError, List<Conversation>> {
+        return Either.catch {
+            apiService.getAllConversations()
+        }.mapLeft { it.toNetworkError() }
+    }
+
     override suspend fun getLatestMessage(
         conversationID: String,
         amount: Int

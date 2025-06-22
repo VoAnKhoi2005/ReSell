@@ -29,7 +29,7 @@ class WebSocketManager @Inject constructor(
     private val moshi: Moshi,
     private val tokenManager: AuthTokenManager
 ){
-    private val url = "ws://localhost:8080/api/ws"
+    private val url = "ws://10.0.2.2:8080/api/ws"
     private var webSocket: WebSocket? = null
     private val pendingMessages = mutableMapOf<String, PendingMessage>()
     private val queueLock = Any()
