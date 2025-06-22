@@ -27,14 +27,18 @@ import com.example.resell.R // Đảm bảo đúng package R của bạn
 import com.example.resell.model.LoginType
 import com.example.resell.model.User
 import com.example.resell.repository.UserRepository // Giữ nguyên repository của bạn
-import com.example.resell.store.DataStore
+import com.example.resell.store.FCMTokenManager
+import com.example.resell.store.ReactiveStore
+import com.example.resell.store.WebSocketManager
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     application: Application,
-    private val myRepository: UserRepository // Giữ nguyên repository của bạn
+    private val myRepository: UserRepository,
+    private val fcmTokenManager: FCMTokenManager,
+    private val webSocketManager: WebSocketManager// Giữ nguyên repository của bạn
 ) : AndroidViewModel(application) {
 
     private val context = application.applicationContext
@@ -52,8 +56,7 @@ class LoginViewModel @Inject constructor(
             GetGoogleIdOption.Builder()
                 // Sử dụng R.string.web_client_id của bạn (Server Client ID từ Google Cloud Console)
                 .setServerClientId(context.getString(R.string.web_client_id))
-                // Chỉ hiển thị các tài khoản đã từng đăng nhập
-                .setFilterByAuthorizedAccounts(true)
+                .setFilterByAuthorizedAccounts(false)
                 .build()
         ).build()
 
@@ -85,7 +88,7 @@ class LoginViewModel @Inject constructor(
             )
         }
     }
-    suspend fun launchGoogleSignIn() {
+    fun launchGoogleSignIn() {
         viewModelScope.launch { // Sử dụng viewModelScope cho các coroutine trong ViewModel
             try {
                 // Bước 1: Lấy thông tin đăng nhập từ Credential Manager
@@ -158,9 +161,10 @@ class LoginViewModel @Inject constructor(
     }
 
     //TODO: Xử lý đăng nhập thành công
-    private fun onSuccess(user : User?){
-
-       DataStore.user = user
+    private suspend fun onSuccess(user : User?){
+        webSocketManager.connect()
+        fcmTokenManager.fetchAndSendToken()
+        ReactiveStore<User>().set(user);
         NavigationController.navController.navigate(Screen.Main.route)
     }
     //TODO: Xử lý đăng nhập với firebase thất bại

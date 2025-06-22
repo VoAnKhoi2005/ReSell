@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.resell.R
+import com.example.resell.model.User
+import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.components.IconButtonHorizontal
 import com.example.resell.ui.components.ProfileHeaderSection
 import com.example.resell.ui.components.ProfileSimpleHeaderSection
@@ -28,16 +31,20 @@ import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.LoginButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun ProfileScreen() {
+    val user by ReactiveStore<User>().item.collectAsState()
+
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
         item {
             ProfileSimpleHeaderSection(
                 avatarUrl = "https://i.pinimg.com/736x/b0/d3/8c/b0d38ce8049048d15c70da852021fa82.jpg",
-                name = "Phạm Thành Long",
+                name = user?.username,
                 rating = "3.5",
                 reviewCount = 120,
                 userId = "08366333080",

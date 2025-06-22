@@ -63,7 +63,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
-import com.example.resell.store.DataStore
 import com.example.resell.ui.theme.White2
 import com.example.resell.ui.viewmodel.auth.login.LoginViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -103,8 +102,8 @@ private fun LoginForm(viewModel: LoginViewModel,
                       coroutineScope: CoroutineScope) {
     val context = LocalContext.current
     val activity = context as Activity
-    var password by remember { mutableStateOf("") }
-    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("123456789") }
+    var username by remember { mutableStateOf("user4") }
     val signInClient = remember { Identity.getSignInClient(context) }
     val error by viewModel.loginError.collectAsState()
 

@@ -42,7 +42,6 @@ import com.example.resell.ui.theme.*
 import com.example.resell.ui.viewmodel.chat.ChatViewModel
 import com.example.resell.model.Message
 import com.example.resell.model.User
-import com.example.resell.store.DataStore
 import java.time.LocalDate
 import java.time.LocalDateTime
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -57,6 +56,8 @@ import android.os.Looper
 
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.navigation.Screen
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.location.LocationCallback
@@ -78,23 +79,7 @@ fun ChatScreen(conversationId: String) {
     }
    val receiverAvatarUrl = "https://plus.unsplash.com/premium_photo-1666700698946-fbf7baa0134a"
 
-    // Mock user data
-    com.example.resell.store.DataStore.user = User(
-        id = "seller_1",
-        username = "seller_one",
-        email = "seller1@example.com",
-        isEmailVerified = false,
-        phone = "0123456789",
-        isPhoneVerified = false,
-        password = "password123",
-        authProvider = "local",
-        fullName = "Nguyễn Văn A",
-        status = "active",
-        reputation = 100,
-        banStart = null,
-        banEnd = null,
-        createdAt = LocalDateTime.now()
-    )
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -172,7 +157,7 @@ fun ChatInputBar(viewModel: ChatViewModel,
 ) {
     val msg = remember { mutableStateOf("") }
     val hideKeyboardController = LocalSoftwareKeyboardController.current
-
+    val locationMessageKey : String = stringResource(id = R.string.location_message_key)
     val locationPermissions = rememberMultiplePermissionsState(
         listOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -207,7 +192,7 @@ fun ChatInputBar(viewModel: ChatViewModel,
                             val lat = location.latitude
                             val lon = location.longitude
                             val mapUrl = "https://maps.google.com/?q=$lat,$lon"
-                            onSendMessage("${com.example.resell.store.DataStore.locationMessageKey} $mapUrl")
+                            onSendMessage("${locationMessageKey} $mapUrl")
                             fusedLocationClient.removeLocationUpdates(this)
                         } else {
                             Toast.makeText(context, "Không thể lấy vị trí", Toast.LENGTH_SHORT).show()
@@ -298,10 +283,11 @@ fun ChatInputBar(viewModel: ChatViewModel,
 
 @Composable
 fun ChatBubble(message: Message, receiverAvatarUrl : String) {
-    val isCurrentUser = message.senderId == com.example.resell.store.DataStore.user?.id
+    val isCurrentUser = message.senderId == ReactiveStore<User>().item.value?.id
     val alignment = if (isCurrentUser) Arrangement.End else Arrangement.Start
     val bubbleColor = if (isCurrentUser) UserMessage else BuyerMessage
-    val isLocationMessage = message.content.contains(com.example.resell.store.DataStore.locationMessageKey)
+    val locationMessageKey : String = stringResource(id = R.string.location_message_key)
+    val isLocationMessage = message.content.contains(locationMessageKey)
 
     Row(
         modifier = Modifier
@@ -326,7 +312,7 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
         if (isLocationMessage) {
             val urlStartIndex = message.content.indexOf("https://maps.google.com")
             val mapUrl = message.content.substring(urlStartIndex)
-            LocaltionBubble(mapUrl)
+            LocaltionBubble(mapUrl,bubbleColor)
         }
         else {
             Box(
@@ -349,28 +335,12 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
     }
 }
 @Composable
-fun LocaltionBubble(locationUrl: String) {
+fun LocaltionBubble(locationUrl: String,bubbleColor: Color) {
     val context = LocalContext.current
-//    val latLon = mapUrl.substringAfter("?q=")
-//    val staticMapUrl =
-//        "https://maps.googleapis.com/maps/api/staticmap?center=$latLon&zoom=15&size=300x150&markers=color:red%7C$latLon&key=AIzaSyCAloQ8Dt3Fl3TDCJZYALQbWHMg-IvJCwg"//API cần để hiện googlemap
 
-//    Column {
-////        Image(
-////            painter = rememberAsyncImagePainter(staticMapUrl),
-////            contentDescription = "Location Thumbnail",
-////            modifier = Modifier
-////                .fillMaxWidth()
-////                .height(150.dp)
-////                .clip(RoundedCornerShape(6.dp)),
-////            contentScale = ContentScale.Crop
-////        )
-////        Spacer(modifier = Modifier.height(4.dp))
-//
-//}
     Column(
         modifier = Modifier
-            .background(color = BuyerMessage, shape = RoundedCornerShape(8.dp))
+            .background(color = bubbleColor, shape = RoundedCornerShape(8.dp))
             .padding(12.dp)
             .widthIn(max = 250.dp)
     ) {

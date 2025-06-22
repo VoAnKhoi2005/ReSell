@@ -1,9 +1,15 @@
 package com.example.resell.ui.viewmodel.home
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
+import com.example.resell.repository.UserRepository
 import com.example.resell.ui.screen.home.ProductPost
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class HomeViewModel : ViewModel() {
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val myRepository: UserRepository
+) : ViewModel(){
 
     var searchText by mutableStateOf("")
         private set
