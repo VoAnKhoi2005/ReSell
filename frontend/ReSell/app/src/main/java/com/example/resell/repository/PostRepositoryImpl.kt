@@ -5,6 +5,11 @@ import com.example.resell.network.ApiService
 import com.example.resell.network.NetworkError
 import com.example.resell.network.toNetworkError
 import com.example.resell.model.*
+import com.example.resell.network.ApiError
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.min
@@ -82,7 +87,21 @@ class PostRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
-    override suspend fun uploadPostImage(postID: String): Either<NetworkError, ImageUploadResponse> {
-        TODO("Not yet implemented")
+    override suspend fun uploadPostImage(postID: String, images: List<File>): Either<NetworkError, ImageUploadResponse> {
+        return Either.catch {
+            if (images.isEmpty())
+                return Either.Left(NetworkError(
+                    code = 400,
+                    error = ApiError.UnknownResponse,
+                    message = "Image list is empty"
+                ))
+
+            val parts = images.map { image ->
+                val requestBody = image.asRequestBody("image/*".toMediaTypeOrNull())
+                MultipartBody.Part.createFormData("images", image.name, requestBody)
+            }
+
+            apiService.uploadPostImages(postID, parts)
+        }.mapLeft { it.toNetworkError() }
     }
 }

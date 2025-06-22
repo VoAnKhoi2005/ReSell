@@ -21,4 +21,26 @@ data class Post(
     @Json(name = "conversations") val conversations: List<Conversation> = emptyList(),
     @Json(name = "order") val order: ShopOrder? = null,
     @Json(name = "images") val images: List<PostImage> = emptyList()
+
 )
+
+@JsonClass(generateAdapter = false)
+enum class PostStatus {
+    @Json(name = "pending")
+    PENDING,
+
+    @Json(name = "approved")
+    APPROVED,
+
+    @Json(name = "rejected")
+    REJECTED,
+
+    @Json(name = "sold")
+    SOLD,
+
+    @Json(name = "hidden")
+    HIDDEN,
+
+    @Json(name = "deleted")
+    DELETED
+}

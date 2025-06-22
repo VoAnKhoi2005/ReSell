@@ -3,6 +3,7 @@ package com.example.resell.repository
 import com.example.resell.model.*
 import arrow.core.Either
 import com.example.resell.network.NetworkError
+import java.io.File
 import java.time.LocalDate
 
 interface UserRepository{
@@ -18,6 +19,7 @@ interface UserRepository{
     suspend fun followUser(userID: String): Either<NetworkError, Boolean>
     suspend fun getAllFollows(): Either<NetworkError, List<User>>
     suspend fun unfollowUser(userID: String): Either<NetworkError, Boolean>
+    suspend fun uploadAvatar(avatar: File): Either<NetworkError, AvatarUploadResponse>
 }
 
 interface AddressRepository{
@@ -59,7 +61,7 @@ interface PostRepository {
     suspend fun softDeletePost(postID: String): Either<NetworkError, Boolean>
     suspend fun getDeletedPosts(): Either<NetworkError, List<Post>>
     suspend fun restoreDeletedPost(postID: String): Either<NetworkError, Boolean>
-    suspend fun uploadPostImage(postID: String): Either<NetworkError, ImageUploadResponse>
+    suspend fun uploadPostImage(postID: String, images: List<File>): Either<NetworkError, ImageUploadResponse>
 }
 
 interface OrderRepository{
