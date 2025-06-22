@@ -19,6 +19,8 @@ import com.example.resell.model.NewMessagePayload
 import com.example.resell.model.PendingMessage
 import com.example.resell.model.SendMessagePayload
 import com.example.resell.model.SocketMessageType
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import java.util.UUID
 
 @Singleton
@@ -29,21 +31,24 @@ class WebSocketManager @Inject constructor(
 ){
     private val url = "ws://localhost:8080/api/ws"
     private var webSocket: WebSocket? = null
-    private var listener: ((Any) -> Unit)? = null
     private val pendingMessages = mutableMapOf<String, PendingMessage>()
     private val queueLock = Any()
 
     val ackWaiters = mutableMapOf<String, CompletableDeferred<AckResult>>()
     val ackLock = Any()
 
-    fun connect(onMessage: (Any) -> Unit) {
+    private val _typingEvents = MutableSharedFlow<TypingIndicatorPayload>()
+    val typingEvents: SharedFlow<TypingIndicatorPayload> = _typingEvents
+
+    suspend fun connect(): Boolean {
         val jwt = tokenManager.getAccessToken()
         val request = Request.Builder().url(url).addHeader("Authorization", "Bearer $jwt").build()
-        this.listener = onMessage
+        val connectionResult = CompletableDeferred<Boolean>()
 
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 Log.d("WebSocket", "Connected to $url")
+                connectionResult.complete(true)
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
@@ -56,14 +61,9 @@ class WebSocketManager @Inject constructor(
                     val raw = rawAdapter.fromJson(text) ?: return
 
                     when (raw.type) {
-                        SocketMessageType.NEW_MESSAGE -> {
-                            val data = parseSocketMessageData<NewMessagePayload>(raw.type, raw.data, moshi)
-                            data?.let { listener?.invoke(it) }
-                        }
-
                         SocketMessageType.TYPING -> {
                             val data = parseSocketMessageData<TypingIndicatorPayload>(raw.type, raw.data, moshi)
-                            data?.let { listener?.invoke(it) }
+                            data?.let { _typingEvents.tryEmit(it) }
                         }
 
                         SocketMessageType.SEND_MESSAGE -> {
@@ -78,8 +78,6 @@ class WebSocketManager @Inject constructor(
                                     ackWaiters.remove(tempId)?.complete(AckResult.Success(data))
                                 }
                             }
-
-                            data?.let { listener?.invoke(it) }
                         }
 
                         SocketMessageType.ERROR -> {
@@ -91,8 +89,6 @@ class WebSocketManager @Inject constructor(
                                     ackWaiters.remove(tempId)?.complete(AckResult.Error(data))
                                 }
                             }
-
-                            data?.let { listener?.invoke(it) }
                         }
 
                         else -> Log.w("WebSocket", "Unknown type: ${raw.type}")
@@ -104,12 +100,15 @@ class WebSocketManager @Inject constructor(
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 Log.e("WebSocket", "Failure: ${t.message}", t)
+                connectionResult.complete(false)
             }
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 Log.d("WebSocket", "Closed: $reason")
             }
         })
+
+        return connectionResult.await()
     }
 
     fun <T> send(type: SocketMessageType, payload: T, payloadClass: Class<T>): Boolean {

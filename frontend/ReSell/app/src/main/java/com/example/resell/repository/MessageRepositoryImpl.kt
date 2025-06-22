@@ -17,6 +17,14 @@ import com.example.resell.model.Message
 import com.example.resell.model.NewMessagePayload
 import com.example.resell.model.SocketMessageType
 import com.example.resell.model.TypingIndicatorPayload
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,6 +33,10 @@ class MessageRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     private val wsManager: WebSocketManager
 ): MessageRepository {
+    init {
+        observeTypingEvents()
+    }
+
     override suspend fun createConversation(
         buyerID: String,
         sellerID: String,
@@ -179,4 +191,33 @@ class MessageRepositoryImpl @Inject constructor(
             return
         }
     }
+
+    private val _isTyping = MutableStateFlow(false)
+    val isTyping: StateFlow<Boolean> = _isTyping
+
+    private var typingJob: Job? = null
+
+    private fun observeTypingEvents() {
+        CoroutineScope(Dispatchers.Default).launch {
+            wsManager.typingEvents.collect { payload ->
+                onTypingIndicator(payload)
+            }
+        }
+    }
+
+    private fun onTypingIndicator(payload: TypingIndicatorPayload) {
+        if (payload.isTyping) {
+            _isTyping.value = true
+
+            typingJob?.cancel()
+            typingJob = CoroutineScope(Dispatchers.Default).launch {
+                delay(5000)
+                _isTyping.value = false
+            }
+        } else {
+            typingJob?.cancel()
+            _isTyping.value = false
+        }
+    }
+
 }
