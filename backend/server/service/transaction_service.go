@@ -13,8 +13,6 @@ import (
 type TransactionService interface {
 	CreateTransaction(req request.CreateTransactionRequest) (string, string, error)
 	GetTransactions(page, limit int) ([]*model.Transaction, int64, error)
-	MarkTransactionSuccess(paymentIntentID string) error
-	MarkTransactionFailed(paymentIntentID string, reason string) error
 }
 
 type transactionService struct {
@@ -65,12 +63,4 @@ func (s *transactionService) CreateTransaction(req request.CreateTransactionRequ
 	}
 
 	return pi.ClientSecret, tx.ID, nil
-}
-
-func (s *transactionService) MarkTransactionSuccess(paymentIntentID string) error {
-	return s.txRepo.UpdateStatusByIntentID(paymentIntentID, model.TransactionStatusCompleted)
-}
-
-func (s *transactionService) MarkTransactionFailed(paymentIntentID string, reason string) error {
-	return s.txRepo.UpdateStatusAndErrorByIntentID(paymentIntentID, "failed", reason)
 }

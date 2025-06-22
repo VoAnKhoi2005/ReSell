@@ -32,4 +32,5 @@ func SetupRoutes(router *gin.Engine) {
 	RegisterCommunityRoutes(api, db)
 	RegisterParticipantRoutes(api, db)
 	RegisterSubscriptionRoutes(api, db)
+	RegisterStripeRoutes(api, db)
 }
