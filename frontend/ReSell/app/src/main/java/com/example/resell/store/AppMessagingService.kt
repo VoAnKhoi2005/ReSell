@@ -32,7 +32,7 @@ class AppMessagingService : FirebaseMessagingService() {
 
     private fun showNotification(title: String, message: String, type: String, notificationID: String) {
         //TODO("Tự làm đi nha. Phân loại kèm UI j đó tùy các ông. Loại thì ở dưới đó hoặc tự vô model coi")
-        //enum class NotificationType{
+        //enum class com.example.resell.model.NotificationType{
         //    message, alert, system, reminder
         //}
     }

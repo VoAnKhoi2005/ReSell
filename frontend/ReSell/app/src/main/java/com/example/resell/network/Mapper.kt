@@ -1,6 +1,7 @@
 package com.example.resell.network
 
 
+import android.util.Log
 import com.example.resell.model.ErrorResponse
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
@@ -40,12 +41,13 @@ fun Throwable.toNetworkError(): NetworkError {
         is HttpException -> {
             val code = this.code()
             val errorBody = this.response()?.errorBody()?.string()
+            Log.d("NetworkError", "HTTP $code error body: $errorBody")
             val errorResponse = parseErrorBody(errorBody)
 
             NetworkError(
                 code = code,
                 error = ApiError.UnknownResponse,
-                message = errorResponse?.error,
+                message = errorResponse?.error ?: "Server error (code $code)",
                 errors = errorResponse?.errors,
                 t = this
             )
