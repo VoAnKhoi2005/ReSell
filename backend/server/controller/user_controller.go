@@ -230,3 +230,28 @@ func (h *UserController) UnBanUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
+
+func (h *UserController) UploadAvatar(c *gin.Context) {
+	userID, _ := util.GetUserID(c)
+	file, fileHeader, err := c.Request.FormFile("avatar")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	defer file.Close()
+
+	avatarURL, err := util.UploadToCloudinary(file, fileHeader)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+
+	}
+
+	err = h.userService.SetAvatar(userID, avatarURL)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"avatar_url": avatarURL})
+}
