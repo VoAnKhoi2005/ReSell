@@ -27,7 +27,6 @@ sealed class Screen(val route: String){
     object WardSelect : Screen("ward_select_screen")
     object Favorite: Screen("favorite_screen")
     object Rating: Screen("rating_screen")
+    object AccountSetting: Screen("account_setting_screen")
     object PhoneRegister: Screen("phone_register_screen")
-
-
 }
