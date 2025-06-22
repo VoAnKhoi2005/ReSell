@@ -20,11 +20,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -74,14 +77,16 @@ fun LoginScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val user by viewModel.user.collectAsState()
-  Surface {
-        Column(modifier = Modifier.fillMaxSize() ) {
+  Surface(
+  ) {
+        Column(modifier = Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()) ) {
             TopSection()
             Spacer(modifier = Modifier.height(36.dp))
             Column(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 30.dp)
             ) {
                 LoginForm(viewModel,coroutineScope)
+                Spacer(modifier = Modifier.height(40.dp))
 
 
             }
