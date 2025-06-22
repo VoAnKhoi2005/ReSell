@@ -27,6 +27,9 @@ type UserRepository interface {
 	FollowUser(followerID *string, followedID *string) error
 	GetAllFollowUser(followerID *string) ([]*model.User, error)
 	UnFollowUser(followerID *string, followedID *string) error
+
+	GetStripeAccountID(userID string) (string, error)
+	GetByStripeAccountID(accountID string) (*model.User, error)
 }
 
 type userRepository struct {
@@ -148,4 +151,21 @@ func (r *userRepository) UnFollowUser(followerID *string, followeeID *string) er
 	}
 
 	return r.db.WithContext(ctx).Unscoped().Delete(&follow).Error
+}
+
+func (r *userRepository) GetStripeAccountID(userID string) (string, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var user model.User
+	err := r.db.WithContext(ctx).Select("stripe_account_id").First(&user, "id = ?", userID).Error
+	return user.StripeAccountIDValue(), err
+}
+
+func (r *userRepository) GetByStripeAccountID(accountID string) (*model.User, error) {
+	var user model.User
+	if err := r.db.Where("stripe_account_id = ?", accountID).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }

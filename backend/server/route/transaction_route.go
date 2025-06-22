@@ -2,6 +2,7 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/controller"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/middleware"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
 	"github.com/gin-gonic/gin"
@@ -16,8 +17,6 @@ func RegisterTransactionRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	transactionController := controller.NewTransactionController(transactionService)
 
 	transactions := rg.Group("/transactions")
-	//transactions.Use(middleware.AuthMiddleware())
+	transactions.Use(middleware.AuthMiddleware())
 	transactions.POST("", transactionController.CreateTransaction)
-	transactions.POST("/stripe/webhook", transactionController.HandleStripeWebhook)
-
 }
