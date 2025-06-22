@@ -1,11 +1,12 @@
 package com.example.resell.model
 
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class District(
-    val id: String,
-    val name : String,
-    val provinceId: String,
-    val wards: List<com.example.resell.model.Ward>
+    @Json(name = "id") val id: String,
+    @Json(name = "name") val name: String,
+    @Json(name = "province_id") val provinceId: String,
+    @Json(name = "wards") val wards: List<Ward>
 )
