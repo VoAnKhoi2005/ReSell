@@ -1,4 +1,5 @@
 
+import android.util.Log
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -22,6 +23,7 @@ import com.example.resell.ui.screen.add.AddScreen
 import com.example.resell.ui.screen.add.CategorySelectionScreen
 import com.example.resell.ui.screen.address.AddressAddScreen
 import com.example.resell.ui.screen.address.AddressSetupScreen
+import com.example.resell.ui.screen.address.ProvinceSelectScreen
 import com.example.resell.ui.screen.auth.register.PhoneRegisterScreen
 
 import com.example.resell.ui.screen.productdetail.ProductDetailScreen
@@ -31,6 +33,7 @@ import com.example.resell.ui.screen.auth.register.RegisterScreen
 import com.example.resell.ui.screen.favourite.FavoriteScreen
 import com.example.resell.ui.screen.payment.PaymentScreen
 import com.example.resell.ui.screen.rating.RatingScreen
+
 import com.example.resell.ui.screen.search.SearchScreen
 import com.example.resell.ui.screen.userinfor.AccountSettingScreen
 
@@ -158,6 +161,10 @@ fun SetupNavGraph(
         composable(Screen.AccountSetting.route){
            AccountSettingScreen()
         }
+        composable(Screen.ResultSearchScreen.route){
+            SearchResultScreen()
+        }
+
 
     }
 }
