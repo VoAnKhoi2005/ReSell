@@ -38,7 +38,8 @@ fun LoginTextField(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
 
-        )
+        ),
+        singleLine = true
 
     )
 }
