@@ -88,13 +88,12 @@ fun PhoneAuthScreen(viewModel: PhoneAuthViewModel = hiltViewModel(),phoneNumber 
     val timeLeft by viewModel.countdown.collectAsState()
     val context = LocalContext.current
     val activity = context as Activity
+    val auth = FirebaseAuth.getInstance()
 
     val error by viewModel.error.collectAsState()
     val isCountingDown = timeLeft > 0
 
     fun startPhoneAuth(phoneNumber: String) {
-        val auth = FirebaseAuth.getInstance()
-
         val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                 viewModel.signInWithCredential(credential)
