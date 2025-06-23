@@ -66,6 +66,7 @@ class HomeViewModel @Inject constructor(
                         )
 
                         ProductPost(
+                            id = post.id,
                             title = post.title,
                             time = timeText,
                             imageUrl = post.thumbnail ?: "",

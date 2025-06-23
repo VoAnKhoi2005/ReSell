@@ -94,7 +94,10 @@ fun SetupNavGraph(
         composable(Screen.Search.route) {
             SearchScreen(navController) // màn hình tì  m kiếm của bạn
         }
-        composable(Screen.ProfileDetail.route) {
+        composable(Screen.ProfileDetail.route+"/{id}",
+            arguments = listOf(
+                navArgument("id") {type = NavType.StringType  }
+            )) {
             ProfileDetailScreen()
         }
         composable(Screen.ProductDetail.route) {

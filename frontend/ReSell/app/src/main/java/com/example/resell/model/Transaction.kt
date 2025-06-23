@@ -117,7 +117,7 @@ data class CreatePostRequest(
 
 @JsonClass(generateAdapter = true)
 data class GetPostsResponse(
-    val data: List<Post>? = null,
+    val data: List<PostListItem>? = null,
     @Json(name = "has_more")
     val hasMore: Boolean,
     val limit: Int,
