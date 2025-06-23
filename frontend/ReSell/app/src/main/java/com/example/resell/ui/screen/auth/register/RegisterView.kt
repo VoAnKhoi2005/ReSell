@@ -57,8 +57,6 @@ fun RegisterScreen(){
                 modifier = Modifier.fillMaxSize().padding(horizontal = 30.dp)
             ) {
                 RegisterForm()
-
-
             }
 
         }

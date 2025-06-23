@@ -29,6 +29,7 @@ import com.example.resell.model.UpdateCategoryRequest
 import com.example.resell.model.UpdatePostRequest
 import com.example.resell.model.UpdateProfileRequest
 import com.example.resell.model.AvatarUploadResponse
+import com.example.resell.model.FirebaseAuthResponse
 import com.example.resell.model.User
 import okhttp3.MultipartBody
 import retrofit2.http.Body
@@ -47,7 +48,7 @@ interface ApiService {
     @POST("auth/firebase")
     suspend fun firebaseAuth(
         @Body request: FirebaseAuthRequest
-    ): LoginResponse
+    ): FirebaseAuthResponse
 
     @POST("auth/login")
     suspend fun login(

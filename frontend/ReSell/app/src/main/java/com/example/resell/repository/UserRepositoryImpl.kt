@@ -22,7 +22,7 @@ class UserRepositoryImpl @Inject constructor(
         firebaseIDToken: String,
         username: String?,
         password: String?
-    ): Either<NetworkError, LoginResponse> {
+    ): Either<NetworkError, FirebaseAuthResponse> {
         return Either.catch {
             val request = FirebaseAuthRequest(
                 firebaseIDToken = firebaseIDToken,
@@ -31,7 +31,9 @@ class UserRepositoryImpl @Inject constructor(
             )
 
             val response = apiService.firebaseAuth(request)
-            tokenManager.saveToken(response.token)
+            if (!response.firstTimeLogin) {
+                response.token?.let { tokenManager.saveToken(it) }
+            }
             response
         }.mapLeft { it.toNetworkError() }
     }

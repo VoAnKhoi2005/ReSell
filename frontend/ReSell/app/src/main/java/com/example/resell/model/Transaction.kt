@@ -13,6 +13,13 @@ data class FirebaseAuthRequest(
     val password: String? = null
 )
 
+@JsonClass(generateAdapter = true)
+data class FirebaseAuthResponse(
+    val user: User? = null,
+    val token: AuthToken? = null,
+    @Json(name = "first_time_login") val firstTimeLogin: Boolean
+)
+
 enum class LoginType {
     @Json(name = "email")
     EMAIL,
@@ -43,7 +50,6 @@ data class UpdateProfileRequest(
     val email: String? = null,
     val phone: String? = null,
     @Json(name = "full_name") val fullName: String? = null,
-    @Json(name = "citizen_id") val citizenId: String? = null
 )
 
 @JsonClass(generateAdapter = true)
