@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.screen.add.AddPostScreen
 import com.example.resell.ui.screen.order.BuyingOrder.BuyingOrderScreen
@@ -24,25 +25,14 @@ import com.example.resell.ui.screen.address.AddressSetupScreen
 import com.example.resell.ui.screen.auth.register.PhoneRegisterScreen
 
 import com.example.resell.ui.screen.productdetail.ProductDetailScreen
-import com.example.resell.ui.screen.productdetail.sampleAddress
-import com.example.resell.ui.screen.productdetail.sampleAvatar
-import com.example.resell.ui.screen.productdetail.sampleCategory
-import com.example.resell.ui.screen.productdetail.sampleDescription
-import com.example.resell.ui.screen.productdetail.sampleFollowerCount
-import com.example.resell.ui.screen.productdetail.sampleFollowingCount
-import com.example.resell.ui.screen.productdetail.sampleImages
-import com.example.resell.ui.screen.productdetail.sampleName
-import com.example.resell.ui.screen.productdetail.samplePrice
-import com.example.resell.ui.screen.productdetail.sampleRating
-import com.example.resell.ui.screen.productdetail.sampleTime
-import com.example.resell.ui.screen.productdetail.sampleTitle
-import com.example.resell.ui.screen.productdetail.sampleUserId
+
 import com.example.resell.ui.screen.profile.ProfileDetailScreen.ProfileDetailScreen
 import com.example.resell.ui.screen.auth.register.RegisterScreen
 import com.example.resell.ui.screen.favourite.FavoriteScreen
 import com.example.resell.ui.screen.payment.PaymentScreen
 import com.example.resell.ui.screen.rating.RatingScreen
 import com.example.resell.ui.screen.search.SearchScreen
+import com.example.resell.ui.screen.userinfor.AccountSettingScreen
 
 @Composable
 fun SetupNavGraph(
@@ -58,7 +48,11 @@ fun SetupNavGraph(
             LoginScreen()
         }
         composable(
-            route = Screen.Register.route
+            route = Screen.Register.route+"/{type}/{id}",
+            arguments = listOf(
+                navArgument("type") { type = NavType.StringType },
+                navArgument("id") { type = NavType.StringType }
+            )
         ) {
             RegisterScreen()
         }
@@ -88,24 +82,15 @@ fun SetupNavGraph(
         composable(Screen.Search.route) {
             SearchScreen(navController) // màn hình tì  m kiếm của bạn
         }
-        composable(Screen.ProfileDetail.route) {
+        composable(Screen.ProfileDetail.route+"/{id}",
+            arguments = listOf(
+                navArgument("id") {type = NavType.StringType  }
+            )) {
             ProfileDetailScreen()
         }
         composable(Screen.ProductDetail.route) {
             ProductDetailScreen(
-                images = sampleImages,
-                title = sampleTitle,
-                price = samplePrice,
-                category = sampleCategory,
-                time = sampleTime,
-                address = sampleAddress,
-                description = sampleDescription,
-                avatarUrl = sampleAvatar,
-                sellerName = sampleName,
-                sellerRating = sampleRating,
-                sellerId = sampleUserId,
-                followerCount = sampleFollowerCount,
-                followingCount = sampleFollowingCount,
+
                 onContactClick = { /* TODO */ },
                 onBuyClick = { /* TODO */ }
             )
@@ -113,9 +98,8 @@ fun SetupNavGraph(
         composable(
             route = Screen.PhoneAuth.route + "/{phoneNumber}",
             arguments = listOf(navArgument("phoneNumber") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val phoneNumber = backStackEntry.arguments?.getString("phoneNumber") ?: ""
-            PhoneAuthScreen(phoneNumber=phoneNumber)
+        ) {
+            PhoneAuthScreen()
         }
 
         composable(Screen.Add.route) { AddScreen() }
@@ -169,7 +153,10 @@ fun SetupNavGraph(
             CategorySelectionScreen()
         }
         composable(Screen.AddPost.route){
-            AddPostScreen()
+            AddPostScreen(onCancelClick = {NavigationController.navController.popBackStack()})
+        }
+        composable(Screen.AccountSetting.route){
+           AccountSettingScreen()
         }
 
     }

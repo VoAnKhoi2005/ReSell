@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/middleware"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
@@ -9,6 +10,7 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"net/http"
 	"time"
 )
@@ -57,9 +59,9 @@ func (h *AuthController) Register(c *gin.Context) {
 		CreatedAt:       time.Now(),
 	}
 
-	errors := h.userService.Register(&user)
-	if len(errors) > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"errors": errors})
+	myErrors := h.userService.Register(&user)
+	if len(myErrors) > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"errors": myErrors})
 		return
 	}
 
@@ -95,36 +97,51 @@ func (h *AuthController) FirebaseAuth(c *gin.Context) {
 
 	user, err := h.userService.GetUserByFirebaseUID(uid)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		} else {
+			user = nil
+		}
 	}
 
+	var authResponse transaction.FirebaseAuthResponse
+
 	if user == nil {
-		if request.Username == nil || *request.Username == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "username cannot be null or empty"})
+		if request.Username == nil || *request.Username == "" || request.Password == nil || *request.Password == "" {
+			authResponse = transaction.FirebaseAuthResponse{
+				FirstTimeLogin: true,
+			}
+
+			c.JSON(http.StatusCreated, authResponse)
 			return
 		}
 
-		if request.Password == nil || *request.Password == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "password cannot be null or empty"})
+		encryptedPassword, err := bcrypt.GenerateFromPassword(
+			[]byte(*request.Password),
+			bcrypt.DefaultCost,
+		)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+		encryptedPasswordStr := string(encryptedPassword)
 
 		user = &model.User{
 			FirebaseUID:  &uid,
 			Email:        email,
 			Phone:        phone,
 			Username:     *request.Username,
-			Password:     *request.Password,
+			Password:     encryptedPasswordStr,
 			AuthProvider: provider,
 			Reputation:   100,
 			Status:       model.ActiveStatus,
 			CreatedAt:    time.Now(),
 		}
 
-		errors := h.userService.Register(user)
-		if len(errors) > 0 {
-			c.JSON(http.StatusBadRequest, gin.H{"errors": errors})
+		myErrors := h.userService.Register(user)
+		if len(myErrors) > 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"errors": myErrors})
 			return
 		}
 
@@ -141,15 +158,18 @@ func (h *AuthController) FirebaseAuth(c *gin.Context) {
 		return
 	}
 
-	loginResponse := transaction.LoginResponse{
-		User: user,
-		Token: transaction.TokenResponse{
-			AccessToken:  accessToken,
-			RefreshToken: refreshToken,
-		},
+	authToken := &transaction.TokenResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	}
 
-	c.JSON(http.StatusOK, loginResponse)
+	authResponse = transaction.FirebaseAuthResponse{
+		User:           user,
+		Token:          authToken,
+		FirstTimeLogin: false,
+	}
+
+	c.JSON(http.StatusOK, authResponse)
 }
 
 func (h *AuthController) Login(c *gin.Context) {

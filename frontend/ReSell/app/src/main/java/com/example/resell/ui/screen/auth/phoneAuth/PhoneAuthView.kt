@@ -1,6 +1,8 @@
 package com.example.resell.ui.screen.auth.phoneAuth
 
 // AndroidX Composables & UI
+import android.app.Activity
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -73,25 +75,55 @@ import com.example.resell.R // Resource ID (cho R.drawable.image_received)
 import com.example.resell.ui.theme.GreenButton
 import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.viewmodel.auth.phoneAuth.PhoneAuthViewModel
+import com.google.firebase.FirebaseException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
+import java.util.concurrent.TimeUnit
 
 
 @Composable
-fun PhoneAuthScreen(viewModel: PhoneAuthViewModel = hiltViewModel(),phoneNumber : String ="") {
+fun PhoneAuthScreen(viewModel: PhoneAuthViewModel = hiltViewModel()) {
     val timeLeft by viewModel.countdown.collectAsState()
     val context = LocalContext.current
+    val activity = context as Activity
+    val auth = FirebaseAuth.getInstance()
 
     val error by viewModel.error.collectAsState()
     val isCountingDown = timeLeft > 0
-    viewModel.phoneNumber = phoneNumber
-    // Gửi lại mã
-    val onResend = {
-        viewModel.sendOtp(resend = true)
-    }
-    error?.let {
-        LaunchedEffect(it) {
-            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+
+    fun startPhoneAuth() {
+        val auth = FirebaseAuth.getInstance()
+
+        val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+            override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+                viewModel.signInWithCredential(credential)
+            }
+
+            override fun onVerificationFailed(e: FirebaseException) {
+                viewModel.onVerificationFailed("Verification failed: ${e.localizedMessage}")
+            }
+
+            override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
+                viewModel.onCodeSent(verificationId, token)
+            }
         }
+
+        val options = PhoneAuthOptions.newBuilder(auth)
+            .setPhoneNumber(viewModel.phoneNumber)
+            .setTimeout(60L, TimeUnit.SECONDS)
+            .setActivity(activity)
+            .setCallbacks(callbacks)
+            .build()
+
+        PhoneAuthProvider.verifyPhoneNumber(options)
+        viewModel.startCountdown()
     }
+    LaunchedEffect(Unit) {
+        startPhoneAuth()
+    }
+
     var otpResult by remember { mutableStateOf("") }
     Scaffold(topBar = {TopBar(
         showBackButton = true,
@@ -128,7 +160,7 @@ fun PhoneAuthScreen(viewModel: PhoneAuthViewModel = hiltViewModel(),phoneNumber 
                     color = if (isCountingDown) LightGray else GreenButton, // Màu sắc thay đổi
                     modifier = Modifier.clickable(enabled = !isCountingDown) {
                         // TODO: Thực hiện hành động gửi lại mã OTP ở đây
-                        viewModel.sendOtp(resend = true)
+                      startPhoneAuth()
                     }
                 )
             }

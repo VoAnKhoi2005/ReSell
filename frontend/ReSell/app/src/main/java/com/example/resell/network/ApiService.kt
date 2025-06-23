@@ -12,6 +12,7 @@ import com.example.resell.model.CreatePostRequest
 import com.example.resell.model.CreateReviewRequest
 import com.example.resell.model.District
 import com.example.resell.model.FirebaseAuthRequest
+import com.example.resell.model.GetPostsResponse
 import com.example.resell.model.ImageUploadResponse
 import com.example.resell.model.LoginRequest
 import com.example.resell.model.LoginResponse
@@ -27,6 +28,8 @@ import com.example.resell.model.UpdateAddressRequest
 import com.example.resell.model.UpdateCategoryRequest
 import com.example.resell.model.UpdatePostRequest
 import com.example.resell.model.UpdateProfileRequest
+import com.example.resell.model.AvatarUploadResponse
+import com.example.resell.model.FirebaseAuthResponse
 import com.example.resell.model.User
 import okhttp3.MultipartBody
 import retrofit2.http.Body
@@ -38,7 +41,6 @@ import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
-import java.time.LocalDateTime
 
 interface ApiService {
 
@@ -46,7 +48,7 @@ interface ApiService {
     @POST("auth/firebase")
     suspend fun firebaseAuth(
         @Body request: FirebaseAuthRequest
-    ): LoginResponse
+    ): FirebaseAuthResponse
 
     @POST("auth/login")
     suspend fun login(
@@ -74,6 +76,12 @@ interface ApiService {
 
     @DELETE("user/unfollow/{user_id}")
     suspend fun unfollowUser(@Path("user_id") userID: String): Boolean
+
+    @Multipart
+    @POST("user/upload-avatar")
+    suspend fun uploadAvatar(
+        @Part image: MultipartBody.Part
+    ): AvatarUploadResponse
     //endregion
 
     //region Address
@@ -133,6 +141,20 @@ interface ApiService {
     //endregion
 
     //region Post
+    @GET("posts")
+    suspend fun getPosts(
+        @Query("page") page: Int,
+        @Query("limit") limit: Int,
+        @Query("status") status: String? = null,
+        @Query("min_price") minPrice: Int? = null,
+        @Query("max_price") maxPrice: Int? = null,
+        @Query("province_id") provinceID: String? = null,
+        @Query("district_id") districtID: String? = null,
+        @Query("ward_id") wardID: String? = null,
+        @Query("user_id") userID: String? = null,
+        @Query("category_id") categoryID: String? = null
+    ): GetPostsResponse
+
     @GET("posts/{post_id}")
     suspend fun getPostByID(@Path("post_id") postID: String): Post
 
@@ -223,6 +245,9 @@ interface ApiService {
     @GET("conversation/post/{post_id}")
     suspend fun getConversationByPostID(@Path("post_id") postID: String): List<Conversation>
 
+    @GET("conversation/all")
+    suspend fun getAllConversations(): List<Conversation>
+
     @DELETE("conversation/{conv_id}")
     suspend fun deleteConversation(@Path("conv_id") conversationID: String): Boolean
 
@@ -240,7 +265,7 @@ interface ApiService {
     ): List<Message>
     //endregion
 
-    //region com.example.resell.model.Notification
+    //region Notification
     @GET("notification/batch/{batch_size}/{page}")
     suspend fun getNotificationsByBatch(
         @Path("batch_size") batchSize: Int,

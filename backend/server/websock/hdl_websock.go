@@ -100,7 +100,7 @@ func (h *WSHandler) readLoop(sess *Session) {
 		var incoming model.SocketMessage
 		if err = json.Unmarshal(raw, &incoming); err != nil {
 			log.Printf("ws: failed to unmarshal incoming message: %v", err)
-			h.sendError(sess, "Malformed socket message")
+			h.sendError(sess, "Malformed socket message", nil)
 			continue
 		}
 
@@ -109,7 +109,7 @@ func (h *WSHandler) readLoop(sess *Session) {
 			var payload model.NewMessagePayload
 			if err = decodePayload(incoming.Data, &payload); err != nil {
 				log.Printf("ws: invalid send payload from user %s: %v", sess.UserID, err)
-				h.sendError(sess, "Invalid send payload")
+				h.sendError(sess, "Invalid send payload", nil)
 				continue
 			}
 			sess.LastAction = time.Now().Unix()
@@ -119,7 +119,7 @@ func (h *WSHandler) readLoop(sess *Session) {
 			var payload model.TypingIndicatorPayload
 			if err = decodePayload(incoming.Data, &payload); err != nil {
 				log.Printf("ws: invalid typing payload from user %s: %v", sess.UserID, err)
-				h.sendError(sess, "Malformed typing payload")
+				h.sendError(sess, "Malformed typing payload", nil)
 				continue
 			}
 			sess.LastAction = time.Now().Unix()
@@ -129,14 +129,14 @@ func (h *WSHandler) readLoop(sess *Session) {
 			var payload model.InChatIndicatorPayload
 			if err = decodePayload(incoming.Data, &payload); err != nil {
 				log.Printf("ws: invalid incoming payload from user %s: %v", sess.UserID, err)
-				h.sendError(sess, "Malformed incoming payload")
+				h.sendError(sess, "Malformed incoming payload", nil)
 				continue
 			}
 			sess.LastAction = time.Now().Unix()
 			go h.handleInChatStatus(sess, &payload)
 
 		default:
-			h.sendError(sess, "Unknown message type: "+string(incoming.Type))
+			h.sendError(sess, "Unknown message type: "+string(incoming.Type), nil)
 		}
 	}
 }
@@ -164,14 +164,14 @@ func (h *WSHandler) handleNewMessage(sess *Session, msg *model.NewMessagePayload
 	savedMsg, err := h.messageService.CreateMessage(&message)
 	if err != nil {
 		log.Printf("Error saving message for user %s: %v", sess.UserID, err)
-		h.sendError(sess, "Failed to save message")
+		h.sendError(sess, "Failed to save message", &tempMessageID)
 		return
 	}
 
 	conversation, err := h.messageService.GetConversationByID(*savedMsg.ConversationId)
 	if err != nil {
 		log.Printf("Error loading conversation %s: %v", *savedMsg.ConversationId, err)
-		h.sendError(sess, "Failed to load message")
+		h.sendError(sess, "Failed to load message", &tempMessageID)
 		return
 	}
 
@@ -179,7 +179,7 @@ func (h *WSHandler) handleNewMessage(sess *Session, msg *model.NewMessagePayload
 	h.sendToSession(sess, model.SocketMessage{
 		Type: model.MessageSend,
 		Data: model.SendMessagePayload{
-			TempMessageID: &tempMessageID,
+			TempMessageID: tempMessageID,
 			Message:       *savedMsg,
 		},
 	})
@@ -220,7 +220,7 @@ func (h *WSHandler) handleTyping(sess *Session, payload *model.TypingIndicatorPa
 	conversation, err := h.messageService.GetConversationByID(payload.ConversationId)
 	if err != nil {
 		log.Printf("Typing error: cannot find conversation %s", payload.ConversationId)
-		h.sendError(sess, "Failed to find conversation")
+		h.sendError(sess, "Failed to find conversation", nil)
 		return
 	}
 
@@ -249,7 +249,7 @@ func (h *WSHandler) handleInChatStatus(sess *Session, payload *model.InChatIndic
 	conversation, err := h.messageService.GetConversationByID(payload.ConversationId)
 	if err != nil {
 		log.Printf("Error loading conversation %s: %v", payload.ConversationId, err)
-		h.sendError(sess, "Failed to load conversation")
+		h.sendError(sess, "Failed to load conversation", &payload.TempMessageID)
 		return
 	}
 
@@ -315,10 +315,10 @@ func (h *WSHandler) writeMessage(ws *websocket.Conn, msg interface{}) error {
 	return ws.WriteMessage(websocket.TextMessage, payload)
 }
 
-func (h *WSHandler) sendError(sess *Session, errMsg string) {
+func (h *WSHandler) sendError(sess *Session, errMsg string, tempMessageID *string) {
 	var msg = model.SocketMessage{
 		Type: model.ErrorMessage,
-		Data: model.ErrorPayload{Error: errMsg},
+		Data: model.ErrorPayload{Error: errMsg, TempMessageID: tempMessageID},
 	}
 	h.sendToSession(sess, msg)
 }

@@ -12,9 +12,10 @@ type MessageRepository interface {
 
 	GetConversationByID(conversationId string) (*model.Conversation, error)
 	GetConversationsByPostID(postID string) ([]*model.Conversation, error)
+	GetConversationsByUserID(userId string) ([]*model.Conversation, error)
 
 	CreateMessage(message *model.Message) (*model.Message, error)
-	GetAll(conversationID string) ([]*model.Message, error)
+	GetAllMessage(conversationID string) ([]*model.Message, error)
 	GetMessageByID(messageId string) (*model.Message, error)
 
 	GetMessagesInRange(conversationID string, start uint, end uint) ([]*model.Message, error)
@@ -65,6 +66,15 @@ func (m *messageRepository) GetConversationsByPostID(postID string) ([]*model.Co
 	return conversations, err
 }
 
+func (m *messageRepository) GetConversationsByUserID(userId string) ([]*model.Conversation, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var conversations []*model.Conversation
+	err := m.db.WithContext(ctx).Find(&conversations, "seller_id = ? OR buyer_id = ?", userId, userId).Error
+	return conversations, err
+}
+
 func (m *messageRepository) CreateMessage(message *model.Message) (*model.Message, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
@@ -76,7 +86,7 @@ func (m *messageRepository) CreateMessage(message *model.Message) (*model.Messag
 	return message, nil
 }
 
-func (m *messageRepository) GetAll(conversationID string) ([]*model.Message, error) {
+func (m *messageRepository) GetAllMessage(conversationID string) ([]*model.Message, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 

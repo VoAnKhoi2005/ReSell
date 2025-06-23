@@ -49,7 +49,7 @@ type NewMessagePayload struct {
 }
 
 type SendMessagePayload struct {
-	TempMessageID *string `json:"temp_message_id"`
+	TempMessageID string  `json:"temp_message_id"`
 	Message       Message `json:"message"`
 }
 
@@ -60,10 +60,12 @@ type TypingIndicatorPayload struct {
 }
 
 type InChatIndicatorPayload struct {
+	TempMessageID  string `json:"temp_message_id"`
 	ConversationId string `json:"conversation_id"`
 	IsInChat       bool   `json:"is_in_chat"`
 }
 
 type ErrorPayload struct {
-	Error string `json:"error"`
+	TempMessageID *string `json:"temp_message_id"`
+	Error         string  `json:"error"`
 }

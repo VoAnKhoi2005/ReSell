@@ -72,13 +72,29 @@ func (mc *MessageController) GetConversationByPostID(c *gin.Context) {
 		return
 	}
 
-	conversation, err := mc.messageService.GetConversationsByPostID(postID)
+	conversations, err := mc.messageService.GetConversationsByPostID(postID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"conversation": conversation})
+	c.JSON(http.StatusOK, gin.H{"conversations": conversations})
+}
+
+func (mc *MessageController) GetConversationByUserID(c *gin.Context) {
+	userID, err := util.GetUserID(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	conversations, err := mc.messageService.GetConversationsByUserID(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"conversations": conversations})
 }
 
 func (mc *MessageController) DeleteConversation(c *gin.Context) {

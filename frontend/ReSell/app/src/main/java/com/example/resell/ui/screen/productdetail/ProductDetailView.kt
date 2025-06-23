@@ -28,8 +28,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.resell.R
+import com.example.resell.model.PostImage
 import com.example.resell.ui.components.CircleIconButton
 import com.example.resell.ui.components.IconButtonHorizontal
 import com.example.resell.ui.components.ProfileSimpleHeader
@@ -41,51 +43,18 @@ import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.PhoneBox
 import com.example.resell.ui.theme.White2
 import com.example.resell.ui.theme.priceColor
+import com.example.resell.ui.viewmodel.productDetail.ProductDetailViewModel
 
-//test
-val sampleImages = listOf(
-    "https://picsum.photos/id/1003/800/600",
-    "https://i.pinimg.com/736x/61/f7/ee/61f7ee1641e001a99b484c4f84d07e16.jpg",
-    "https://picsum.photos/id/1018/800/600"
-)
-val sampleTitle = "iPhone 14 Pro Max 128GB - Hàng chính hãng"
-val samplePrice = 27990000
-val sampleCategory = "Điện thoại di động"
-val sampleTime = "Cách đây 2 giờ"
-val sampleAddress = "Quận 1, TP. Hồ Chí Minh"
-val sampleDescription = """
-    - Máy mới 100% nguyên seal.
-    - Bảo hành chính hãng Apple 12 tháng.
-    - Màn hình Super Retina XDR 6.7 inch, Dynamic Island.
-    - Camera 48MP chụp ảnh siêu nét, quay phim 4K.
-    - Tặng kèm ốp lưng và dán màn hình.
-""".trimIndent()
 
-val sampleAvatar = "https://i.pinimg.com/736x/de/5b/8d/de5b8da13f9a4e5d462499d70ef3114d.jpg"
-val sampleName = "Nguyễn Văn A"
-val sampleRating = "⭐ 4.8 (120 đánh giá)"
-val sampleUserId = "user12345"
-val sampleFollowerCount = 340
-val sampleFollowingCount = 120
-//
 @Composable
 fun ProductDetailScreen(
-    images: List<String>,
-    title: String,
-    price: Int,
-    category: String,
-    time: String,
-    address: String,
-    description: String,
-    avatarUrl: String?,
-    sellerName: String?,
-    sellerRating: String?,
-    sellerId: String?,
-    followerCount: Int?,
-    followingCount: Int?,
+    viewModel: ProductDetailViewModel = hiltViewModel(),
     onContactClick: () -> Unit,
     onBuyClick: () -> Unit
 ) {
+    val post = viewModel.postDetail
+    val isLoading = viewModel.isLoading
+    val error = viewModel.errorMessage
     Column(modifier = Modifier.fillMaxSize()) {
 
         // ✅ TopBar thêm vào đầu màn
@@ -99,11 +68,15 @@ fun ProductDetailScreen(
 
         LazyColumn(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
             item {
-                ImageCarousel(images = images)
+                ImageCarousel(images = post?.images?.map { it.url }.orEmpty())
             }
             item {
                 Spacer(modifier = Modifier.height(12.dp))
-                ProductBasicInfo(title, category, price, time, address)
+//                ProductBasicInfo( title = post.title,
+//                    price = post.price,
+//                    category = post.category?.name ?: "",
+//                    time = post.createdAt?.toString() ?: "",
+//                )
             }
             item {
                 Box(
@@ -113,17 +86,17 @@ fun ProductDetailScreen(
                         .border(1.dp, Color.LightGray, shape = RoundedCornerShape(8.dp))
                         .padding(8.dp)
                 ) {
-                    ProfileSimpleHeader(
-                        avatarUrl = avatarUrl,
-                        name = sellerName,
-                        rating = sellerRating,
-                        soldCount = 150
-                    )
+//                    ProfileSimpleHeader(
+//                        avatarUrl = avatarUrl,
+//                        name = sellerName,
+//                        rating = sellerRating,
+//                        soldCount = 150
+//                    )
                 }
             }
             item {
                 Spacer(modifier = Modifier.height(12.dp))
-                ProductDescription(description)
+               // ProductDescription(description)
             }
             item {
                 Divider(modifier = Modifier.padding(vertical = 12.dp))

@@ -4,8 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.resell.model.Conversation
 import com.example.resell.model.Message
+import com.example.resell.model.User
 import com.example.resell.repository.MessageRepository
-import com.example.resell.store.DataStore
+import com.example.resell.store.ReactiveStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class ChatViewModel @Inject constructor(
     private val myRepository: MessageRepository
 ) : ViewModel() {
+    val user = ReactiveStore<User>().item.value
 
     private val _state = MutableStateFlow(ChatViewState())
     val state = _state.asStateFlow()
@@ -28,7 +30,7 @@ class ChatViewModel @Inject constructor(
         val message = Message(
             id = "",
             conversationId = _conversation.id,
-            senderId = DataStore.user?.id ?: "",
+            senderId = user?.id ?: "",
             content = content,
             createdAt = LocalDateTime.now()
         )
@@ -51,7 +53,7 @@ class ChatViewModel @Inject constructor(
                 Message(
                     id = "msg_1",
                     conversationId = conversationId,
-                    senderId = "buyer_1",
+                    senderId = user?.id?:"",
                     content = "Hello, I'm buyer 1",
                     createdAt = LocalDateTime.now().minusMinutes(10)
                 ),

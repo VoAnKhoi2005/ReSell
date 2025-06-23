@@ -5,13 +5,32 @@ import com.example.resell.network.ApiService
 import com.example.resell.network.NetworkError
 import com.example.resell.network.toNetworkError
 import com.example.resell.model.*
+import com.example.resell.network.ApiError
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.min
 
 @Singleton
 class PostRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ): PostRepository {
+    override suspend fun getPosts(
+        page: Int, limit: Int,
+        status: String?,
+        minPrice: Int?, maxPrice: Int?,
+        provinceID: String?, districtID: String?, wardID: String?,
+        userID: String?,
+        categoryID: String?
+    ): Either<NetworkError, GetPostsResponse> {
+        return Either.catch {
+            apiService.getPosts(page, limit, status, minPrice, maxPrice, provinceID, districtID, wardID, userID, categoryID)
+        }.mapLeft { it.toNetworkError() }
+    }
+
     override suspend fun getPostByID(postID: String): Either<NetworkError, Post> {
         return Either.catch {
             apiService.getPostByID(postID)
@@ -68,7 +87,21 @@ class PostRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
-    override suspend fun uploadPostImage(postID: String): Either<NetworkError, ImageUploadResponse> {
-        TODO("Not yet implemented")
+    override suspend fun uploadPostImage(postID: String, images: List<File>): Either<NetworkError, ImageUploadResponse> {
+        return Either.catch {
+            if (images.isEmpty())
+                return Either.Left(NetworkError(
+                    code = 400,
+                    error = ApiError.UnknownResponse,
+                    message = "Image list is empty"
+                ))
+
+            val parts = images.map { image ->
+                val requestBody = image.asRequestBody("image/*".toMediaTypeOrNull())
+                MultipartBody.Part.createFormData("images", image.name, requestBody)
+            }
+
+            apiService.uploadPostImages(postID, parts)
+        }.mapLeft { it.toNetworkError() }
     }
 }

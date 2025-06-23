@@ -37,4 +37,6 @@ func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	adminRoute.PUT("/ban", userController.BanUser)
 	adminRoute.PUT("/unban/:id", userController.UnBanUser)
 	adminRoute.PUT("/reputation/:id/:value", userController.UpdateReputation)
+	adminRoute.DELETE("/delete/:id", userController.DeleteUserAdmin)
+
 }

@@ -2,7 +2,6 @@ package com.example.resell.model
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -13,6 +12,13 @@ data class FirebaseAuthRequest(
     @Json(name = "firebase_id_token") val firebaseIDToken: String,
     val username: String? = null,
     val password: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class FirebaseAuthResponse(
+    val user: User? = null,
+    val token: AuthToken? = null,
+    @Json(name = "first_time_login") val firstTimeLogin: Boolean
 )
 
 enum class LoginType {
@@ -45,7 +51,6 @@ data class UpdateProfileRequest(
     val email: String? = null,
     val phone: String? = null,
     @Json(name = "full_name") val fullName: String? = null,
-    @Json(name = "citizen_id") val citizenId: String? = null
 )
 
 @JsonClass(generateAdapter = true)
@@ -57,6 +62,11 @@ data class ChangePasswordRequest(
 @JsonClass(generateAdapter = true)
 data class RefreshRequest(
     @Json(name = "refresh_token") val refreshToken: String
+)
+
+@JsonClass(generateAdapter = true)
+data class AvatarUploadResponse(
+    @Json(name = "avatar_url") val avatarURL: String
 )
 
 // endregion
@@ -107,6 +117,29 @@ data class CreatePostRequest(
 )
 
 @JsonClass(generateAdapter = true)
+data class GetPostsResponse(
+    val data: List<GetPostsResponseData>? = null,
+    @Json(name = "has_more")
+    val hasMore: Boolean,
+    val limit: Int,
+    val page: Int,
+    val total: Int,
+)
+
+@JsonClass(generateAdapter = true)
+data class GetPostsResponseData(
+    @Json(name = "id") val id: String,
+    @Json(name = "owner") val owner: String,
+    @Json(name = "category") val category: String,
+    @Json(name = "title") val title: String,
+    @Json(name = "thumbnail") val thumbnail: String,
+    @Json(name = "province") val address: String,
+    @Json(name = "price") val price: Int,
+    @Json(name = "status") val status: String,
+    @Json(name = "created_at") val createdAt: LocalDateTime? = null
+)
+
+@JsonClass(generateAdapter = true)
 data class UpdatePostRequest(
     @Json(name = "category_id") val categoryID: String? = null,
     @Json(name = "address_id") val addressID: String? = null,
@@ -117,8 +150,8 @@ data class UpdatePostRequest(
 
 @JsonClass(generateAdapter = true)
 data class ImageUploadResponse(
-    @Json(name = "image_urls") val imageUrls: List<String>,
-    val message: String
+    val imageURLs: List<String>,
+    val message: String? = null
 )
 
 // endregion
@@ -165,7 +198,10 @@ enum class SocketMessageType {
     TYPING,
 
     @Json(name = "error")
-    ERROR
+    ERROR,
+
+    @Json(name = "in_chat")
+    IN_CHAT
 }
 
 @JsonClass(generateAdapter = true)
@@ -176,15 +212,15 @@ data class SocketMessage<T>(
 
 @JsonClass(generateAdapter = true)
 data class SendMessagePayload(
-    @Json(name = "temp_message_id") val tempMessageID: String?,
-    val message: Message
+    @Json(name = "temp_message_id") val tempMessageID: String,
+    @Json(name = "message") val message: Message
 )
 
 @JsonClass(generateAdapter = true)
 data class NewMessagePayload(
     @Json(name = "temp_message_id") val tempMessageID: String = UUID.randomUUID().toString(),
     @Json(name = "conversation_id") val conversationID: String,
-    val content: String
+    @Json(name = "content") val content: String
 )
 
 @JsonClass(generateAdapter = true)
@@ -196,13 +232,15 @@ data class TypingIndicatorPayload(
 
 @JsonClass(generateAdapter = true)
 data class InChatIndicatorPayload(
+    @Json(name = "temp_message_id") val tempMessageID: String = UUID.randomUUID().toString(),
     @Json(name = "conversation_id") val conversationID: String,
     @Json(name = "is_in_chat") val isInChat: Boolean
 )
 
 @JsonClass(generateAdapter = true)
 data class ErrorPayload(
-    val error: String
+    @Json(name = "temp_message_id") val tempMessageID: String? = null,
+    @Json(name = "error") val error: String
 )
 
 @JsonClass(generateAdapter = true)
@@ -212,9 +250,14 @@ data class PendingMessage(
     val raw: Any
 )
 
+sealed class AckResult {
+    data class Success(val payload: SendMessagePayload) : AckResult()
+    data class Error(val error: ErrorPayload) : AckResult()
+}
+
 // endregion
 
-// region com.example.resell.model.Notification
+// region Notification
 
 @JsonClass(generateAdapter = true)
 data class SaveFCMTokenRequest(

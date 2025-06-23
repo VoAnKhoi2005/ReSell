@@ -11,6 +11,7 @@ type MessageService interface {
 	DeleteConversation(userID string, conversationID string) error
 	GetConversationByID(conversationId string) (*model.Conversation, error)
 	GetConversationsByPostID(postID string) ([]*model.Conversation, error)
+	GetConversationsByUserID(userID string) ([]*model.Conversation, error)
 
 	CreateMessage(message *model.Message) (*model.Message, error)
 	GetMessageByID(messageId string) (*model.Message, error)
@@ -49,6 +50,10 @@ func (m *messageService) GetConversationByID(conversationId string) (*model.Conv
 
 func (m *messageService) GetConversationsByPostID(postID string) ([]*model.Conversation, error) {
 	return m.messageRepository.GetConversationsByPostID(postID)
+}
+
+func (m *messageService) GetConversationsByUserID(userID string) ([]*model.Conversation, error) {
+	return m.messageRepository.GetConversationsByUserID(userID)
 }
 
 func (m *messageService) GetMessageByID(messageId string) (*model.Message, error) {

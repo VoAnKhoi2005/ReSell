@@ -1,6 +1,8 @@
 package transaction
 
-import "github.com/VoAnKhoi2005/ReSell/backend/server/model"
+import (
+	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
+)
 
 type RegisterRequest struct {
 	Username string `json:"username" binding:"required"`
@@ -11,8 +13,14 @@ type RegisterRequest struct {
 
 type FirebaseAuthRequest struct {
 	FirebaseIDToken string  `json:"firebase_id_token" binding:"required"`
-	Username        *string `json:"username" binding:"required"`
-	Password        *string `json:"password" binding:"required"`
+	Username        *string `json:"username"`
+	Password        *string `json:"password"`
+}
+
+type FirebaseAuthResponse struct {
+	User           *model.User    `json:"user"`
+	Token          *TokenResponse `json:"token"`
+	FirstTimeLogin bool           `json:"first_time_login"`
 }
 
 type LoginRequest struct {

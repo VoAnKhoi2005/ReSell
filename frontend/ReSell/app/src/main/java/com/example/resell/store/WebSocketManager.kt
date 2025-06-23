@@ -1,4 +1,4 @@
-package com.example.resell.network
+package com.example.resell.store
 
 import com.squareup.moshi.Moshi
 import com.example.resell.model.SocketMessage
@@ -11,6 +11,7 @@ import okhttp3.WebSocketListener
 import javax.inject.Inject
 import javax.inject.Singleton
 import android.util.Log
+import com.example.resell.model.AckResult
 import com.squareup.moshi.Types
 import kotlinx.coroutines.CompletableDeferred
 import com.example.resell.model.ErrorPayload
@@ -18,7 +19,8 @@ import com.example.resell.model.NewMessagePayload
 import com.example.resell.model.PendingMessage
 import com.example.resell.model.SendMessagePayload
 import com.example.resell.model.SocketMessageType
-import com.example.resell.store.AuthTokenManager
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import java.util.UUID
 
 @Singleton
@@ -27,23 +29,26 @@ class WebSocketManager @Inject constructor(
     private val moshi: Moshi,
     private val tokenManager: AuthTokenManager
 ){
-    private val url = "ws://localhost:8080/api/ws"
+    private val url = "ws://10.0.2.2:8080/api/ws"
     private var webSocket: WebSocket? = null
-    private var listener: ((Any) -> Unit)? = null
     private val pendingMessages = mutableMapOf<String, PendingMessage>()
     private val queueLock = Any()
 
-    val ackWaiters = mutableMapOf<String, CompletableDeferred<SendMessagePayload>>()
+    val ackWaiters = mutableMapOf<String, CompletableDeferred<AckResult>>()
     val ackLock = Any()
 
-    fun connect(onMessage: (Any) -> Unit) {
+    private val _typingEvents = MutableSharedFlow<TypingIndicatorPayload>()
+    val typingEvents: SharedFlow<TypingIndicatorPayload> = _typingEvents
+
+    suspend fun connect(): Boolean {
         val jwt = tokenManager.getAccessToken()
         val request = Request.Builder().url(url).addHeader("Authorization", "Bearer $jwt").build()
-        this.listener = onMessage
+        val connectionResult = CompletableDeferred<Boolean>()
 
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 Log.d("WebSocket", "Connected to $url")
+                connectionResult.complete(true)
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
@@ -56,14 +61,9 @@ class WebSocketManager @Inject constructor(
                     val raw = rawAdapter.fromJson(text) ?: return
 
                     when (raw.type) {
-                        SocketMessageType.NEW_MESSAGE -> {
-                            val data = parseSocketMessageData<NewMessagePayload>(raw.type, raw.data, moshi)
-                            data?.let { listener?.invoke(it) }
-                        }
-
                         SocketMessageType.TYPING -> {
                             val data = parseSocketMessageData<TypingIndicatorPayload>(raw.type, raw.data, moshi)
-                            data?.let { listener?.invoke(it) }
+                            data?.let { _typingEvents.tryEmit(it) }
                         }
 
                         SocketMessageType.SEND_MESSAGE -> {
@@ -75,16 +75,20 @@ class WebSocketManager @Inject constructor(
                                     pendingMessages.remove(tempId)
                                 }
                                 synchronized(ackLock) {
-                                    ackWaiters.remove(tempId)?.complete(data)
+                                    ackWaiters.remove(tempId)?.complete(AckResult.Success(data))
                                 }
                             }
-
-                            data?.let { listener?.invoke(it) }
                         }
 
                         SocketMessageType.ERROR -> {
                             val data = parseSocketMessageData<ErrorPayload>(raw.type, raw.data, moshi)
-                            data?.let { listener?.invoke(it) }
+                            val tempId = data?.tempMessageID
+
+                            if (tempId != null) {
+                                synchronized(ackLock) {
+                                    ackWaiters.remove(tempId)?.complete(AckResult.Error(data))
+                                }
+                            }
                         }
 
                         else -> Log.w("WebSocket", "Unknown type: ${raw.type}")
@@ -96,12 +100,15 @@ class WebSocketManager @Inject constructor(
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 Log.e("WebSocket", "Failure: ${t.message}", t)
+                connectionResult.complete(false)
             }
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 Log.d("WebSocket", "Closed: $reason")
             }
         })
+
+        return connectionResult.await()
     }
 
     fun <T> send(type: SocketMessageType, payload: T, payloadClass: Class<T>): Boolean {
