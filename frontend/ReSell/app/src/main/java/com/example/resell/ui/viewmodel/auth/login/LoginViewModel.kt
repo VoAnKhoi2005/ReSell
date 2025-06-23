@@ -26,7 +26,6 @@ import com.example.resell.model.LoginType
 import com.example.resell.model.User
 import com.example.resell.repository.UserRepository
 import com.example.resell.store.FCMTokenManager
-import com.example.resell.store.FirebaseAuthManager
 import com.example.resell.store.ReactiveStore
 import com.example.resell.store.WebSocketManager
 import com.example.resell.ui.navigation.NavigationController
