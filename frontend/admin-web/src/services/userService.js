@@ -31,3 +31,20 @@ export async function unbanUser(userId) {
   if (!res.ok) throw await res.text();
   return await res.json(); // { success: true }
 }
+
+export async function fetchUserStat(userId) {
+  const res = await apiFetch(`/api/admin/user/stat/${userId}`);
+  if (!res.ok) throw await res.text();
+  return await res.json();
+}
+
+export async function updateReputation(userId, newRepu) {
+  const res = await apiFetch(
+    `/api/admin/user/reputation/${userId}/${newRepu}`,
+    {
+      method: "PUT",
+    }
+  );
+  if (!res.ok) throw await res.text();
+  return await res.json();
+}

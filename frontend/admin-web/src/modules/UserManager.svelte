@@ -1,14 +1,18 @@
 <script>
   import { onMount } from "svelte";
   import UserList from "../components/UserList.svelte";
+  import UserDetailModal from "../components/UserDetailModal.svelte";
   import { fetchUsers, banUser, unbanUser } from "../services/userService";
 
   let users = [];
   let page = 1;
-  let limit = 10;
+  let limit = 13;
   let total = 0;
   let search = "";
   let filter = "all";
+
+  let selectedUser = null;
+  let showModal = false;
 
   async function loadUsers() {
     try {
@@ -18,8 +22,7 @@
         username: u.username,
         email: u.email,
         phone: u.phone,
-        fullname: u.fullname || "",
-        cccd: u.citizen_id || "",
+        full_name: u.full_name || "",
         reputation: u.reputation || 0,
         status: u.status === "banned" ? "banned" : "active",
       }));
@@ -55,6 +58,15 @@
   function handlePageChange(e) {
     page = e.detail.page;
   }
+
+  function handleViewUser(e) {
+    selectedUser = e.detail.user;
+    showModal = true;
+  }
+
+  function handleRefreshUser() {
+    loadUsers();
+  }
 </script>
 
 <div class="w-100">
@@ -88,5 +100,18 @@
     {filter}
     on:toggleBan={handleToggleBan}
     on:changePage={handlePageChange}
+    on:viewUser={handleViewUser}
+    on:refreshUser={handleRefreshUser}
   />
+
+  {#if showModal && selectedUser}
+  <UserDetailModal
+  user={selectedUser}
+  onClose={(shouldRefresh) => {
+    showModal = false;
+    if (shouldRefresh) handleRefreshUser();
+  }}
+/>
+
+  {/if}
 </div>

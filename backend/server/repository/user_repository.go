@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/dto"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"gorm.io/gorm"
@@ -30,10 +31,43 @@ type UserRepository interface {
 
 	GetStripeAccountID(userID string) (string, error)
 	GetByStripeAccountID(accountID string) (*model.User, error)
+
+	GetStat(userID string) (*dto.UserStatDTO, error)
 }
 
 type userRepository struct {
 	*BaseRepository[model.User]
+}
+
+func (r *userRepository) GetStat(userID string) (*dto.UserStatDTO, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var stat dto.UserStatDTO
+
+	if err := r.db.WithContext(ctx).Raw(`SELECT COUNT(*) FROM posts WHERE user_id = ?`, userID).Scan(&stat.PostNumber).Error; err != nil {
+		return nil, err
+	}
+
+	if err := r.db.WithContext(ctx).Raw(`SELECT COUNT(*) FROM shop_orders WHERE user_id = ?`, userID).Scan(&stat.BoughtNumber).Error; err != nil {
+		return nil, err
+	}
+
+	row := r.db.WithContext(ctx).Raw(`
+		SELECT COUNT(*), COALESCE(SUM(total), 0) 
+		FROM shop_orders s 
+		JOIN posts p ON s.post_id = p.id 
+		WHERE p.user_id = ? AND s.status = 'completed'
+	`, userID).Row()
+	if err := row.Scan(&stat.SelledNumber, &stat.Revenue); err != nil {
+		return nil, err
+	}
+
+	if err := r.db.WithContext(ctx).Raw(`SELECT COUNT(*) FROM report_users WHERE reported_id = ?`, userID).Scan(&stat.ReportNumber).Error; err != nil {
+		return nil, err
+	}
+
+	return &stat, nil
 }
 
 func NewUserRepository(db *gorm.DB) UserRepository {

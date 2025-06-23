@@ -33,4 +33,5 @@ func SetupRoutes(router *gin.Engine) {
 	RegisterParticipantRoutes(api, db)
 	RegisterSubscriptionRoutes(api, db)
 	RegisterStripeRoutes(api, db)
+	RegisterReportRoutes(api, db)
 }

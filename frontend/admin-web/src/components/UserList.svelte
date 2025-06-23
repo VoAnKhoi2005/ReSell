@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher } from "svelte";
   import { clickOutside } from "../utils/clickOutside.js";
+  import UserDetailModal from "./UserDetailModal.svelte";
 
   export let users = [];
   export let page = 1;
@@ -11,11 +12,11 @@
 
   const dispatch = createEventDispatcher();
   let totalPages = 0;
-$: totalPages = Math.ceil(total / limit);
-
-
+  $: totalPages = Math.ceil(total / limit);
 
   let showMenu = {};
+  let showModal = false;
+  let selectedUser = null;
 
   function toggleMenu(id) {
     showMenu[id] = !showMenu[id];
@@ -24,7 +25,17 @@ $: totalPages = Math.ceil(total / limit);
 
   function handleBan(user) {
     dispatch("toggleBan", { id: user.id });
-    showMenu[user.id] = false;
+    closeMenu(user.id);
+  }
+
+  function viewUser(user) {
+    selectedUser = user;
+    showModal = true;
+    closeMenu(user.id);
+  }
+
+  function closeMenu(id) {
+    showMenu[id] = false;
     showMenu = { ...showMenu };
   }
 
@@ -53,7 +64,6 @@ $: totalPages = Math.ceil(total / limit);
       <th>Email</th>
       <th>SĐT</th>
       <th>Họ tên</th>
-      <th>CCCD</th>
       <th>Điểm uy tín</th>
       <th>Trạng thái</th>
       <th></th>
@@ -65,8 +75,7 @@ $: totalPages = Math.ceil(total / limit);
         <td>{user.username}</td>
         <td>{user.email}</td>
         <td>{user.phone}</td>
-        <td>{user.fullname}</td>
-        <td>{user.cccd}</td>
+        <td>{user.full_name}</td>
         <td>{user.reputation}</td>
         <td>
           {#if user.status === "active"}
@@ -87,25 +96,31 @@ $: totalPages = Math.ceil(total / limit);
             {#if showMenu[user.id]}
               <ul
                 class="dropdown-menu show"
-                use:clickOutside={() => {
-                  showMenu[user.id] = false;
-                  showMenu = { ...showMenu };
-                }}
+                use:clickOutside={() => closeMenu(user.id)}
                 style="position:absolute; right:0; z-index:999;"
               >
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    on:click={() => viewUser(user)}
+                  >Xem</a>
+                </li>
                 {#if user.status === "active"}
                   <li>
                     <a
                       class="dropdown-item text-danger"
                       href="#"
-                      on:click={() => handleBan(user)}>Ban</a>
+                      on:click={() => handleBan(user)}
+                    >Ban</a>
                   </li>
                 {:else}
                   <li>
                     <a
                       class="dropdown-item text-success"
                       href="#"
-                      on:click={() => handleBan(user)}>Unban</a>
+                      on:click={() => handleBan(user)}
+                    >Unban</a>
                   </li>
                 {/if}
               </ul>
@@ -139,6 +154,17 @@ $: totalPages = Math.ceil(total / limit);
       </li>
     </ul>
   </nav>
+{/if}
+
+{#if showModal}
+<UserDetailModal
+user={selectedUser}
+onClose={(e) => {
+  showModal = false;
+  if (e.detail) dispatch("refreshUser");
+}}
+/>
+
 {/if}
 
 <style>

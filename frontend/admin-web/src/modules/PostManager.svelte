@@ -15,29 +15,46 @@
   let loading = true;
 
   let page = 1;
-  let limit = 10;
+  let limit = 15;
   let total = 0;
-
   async function loadPosts() {
-    loading = true;
-    try {
-      const params = { page, limit };
-      if (filterStatus !== "all") {
-        params.status = filterStatus;
-      }
-      const res = await fetchPosts(params);
-      posts = res.data || [];
-      total = res.total || 0;
-    } catch (err) {
-      console.error("Lỗi khi load bài đăng:", err);
-    } finally {
-      loading = false;
+  loading = true;
+  try {
+    const params = { page, limit };
+    if (filterStatus !== "all") {
+      params.status = filterStatus;
     }
+    if (search.trim() !== "") {
+      params.q = search.trim(); // ⬅️ Thêm dòng này
+    }
+
+    const res = await fetchPosts(params);
+    posts = res.data || [];
+    total = res.total || 0;
+
+     console.log(res)
+  } catch (err) {
+    console.error("Lỗi khi load bài đăng:", err);
+  } finally {
+    loading = false;
   }
+}
+
+let searchTimeout;
+
+$: if (search) {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    page = 1;
+    loadPosts();
+  }, 300); // delay 300ms
+}
+
 
   onMount(loadPosts);
 
-  $: if (page || filterStatus) loadPosts();
+  $: if (page || filterStatus || search) loadPosts();
+
 
   async function handleViewDetail(e) {
     const post = await fetchPostById(e.detail.post.id);
@@ -98,6 +115,7 @@
         <option value="pending">Chờ duyệt</option>
         <option value="approved">Đã duyệt</option>
         <option value="rejected">Bị từ chối</option>
+        <option value="sold">Đã bán</option>
       </select>
     </div>
   </div>
@@ -151,6 +169,8 @@
                 <span class="badge bg-success">Đã duyệt</span>
               {:else if selectedPost.status === "rejected"}
                 <span class="badge bg-danger">Bị từ chối</span>
+                {:else if selectedPost.status === "sold"}
+                <span class="badge bg-info">Đã bán</span>
               {:else}
                 <span class="badge bg-secondary">Không xác định</span>
               {/if}
