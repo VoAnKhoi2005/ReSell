@@ -146,8 +146,10 @@ class LoginViewModel @Inject constructor(
             },
             ifRight = { fbAuthResponse ->
                 if (fbAuthResponse.firstTimeLogin) {
-                    //TODO Di chuyển qua trang để lấy username
+                    //TODO Di chuyển qua trang register để lấy username
                     NavigationController.navController.navigate(Screen.Register.route + "/email/${firebaseIdToken}")
+                } else {
+                    onSuccess(fbAuthResponse.user)
                 }
             }
         )
@@ -164,24 +166,6 @@ class LoginViewModel @Inject constructor(
     private fun onError(message : String){
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
-
-    /**
-     * Đăng xuất người dùng khỏi Firebase và xóa trạng thái Credential Manager.
-     */
-//    fun signOut() {
-//        auth.signOut()
-//        _user.value = null
-//
-//        viewModelScope.launch {
-//            try {
-//                val clearRequest = ClearCredentialStateRequest()
-//                credentialManager.clearCredentialState(clearRequest)
-//                Log.d(TAG, "Credential Manager state cleared.")
-//            } catch (e: Exception) {
-//                Log.e(TAG, "Error clearing credential state: ${e.localizedMessage}")
-//            }
-//        }
-//    }
 
     companion object {
         private const val TAG = "LoginViewModel"

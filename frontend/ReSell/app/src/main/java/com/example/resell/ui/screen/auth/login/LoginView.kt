@@ -116,7 +116,6 @@ private fun LoginForm(viewModel: LoginViewModel,
                 val googleIDOption = GetGoogleIdOption.Builder()
                     .setServerClientId(activity.getString(R.string.default_web_client_id))
                     .setFilterByAuthorizedAccounts(false)
-                    .setAutoSelectEnabled(true)
                     .build()
 
                 val request = GetCredentialRequest.Builder()

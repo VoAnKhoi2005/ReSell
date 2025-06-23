@@ -117,12 +117,22 @@ func (h *AuthController) FirebaseAuth(c *gin.Context) {
 			return
 		}
 
+		encryptedPassword, err := bcrypt.GenerateFromPassword(
+			[]byte(*request.Password),
+			bcrypt.DefaultCost,
+		)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		encryptedPasswordStr := string(encryptedPassword)
+
 		user = &model.User{
 			FirebaseUID:  &uid,
 			Email:        email,
 			Phone:        phone,
 			Username:     *request.Username,
-			Password:     *request.Password,
+			Password:     encryptedPasswordStr,
 			AuthProvider: provider,
 			Reputation:   100,
 			Status:       model.ActiveStatus,

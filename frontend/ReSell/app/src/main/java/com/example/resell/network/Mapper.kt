@@ -3,25 +3,20 @@ package com.example.resell.network
 
 import android.util.Log
 import com.example.resell.model.ErrorResponse
+import com.example.resell.util.LocalDateAdapter
+import com.example.resell.util.LocalDateTimeAdapter
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import retrofit2.HttpException
 import java.io.IOException
 
-//fun Throwable.toNetworkError(): NetworkError {
-//    val error = when (this) {
-//        is IOException -> ApiError.NetworkError
-//        is HttpException -> ApiError.UnknownResponse
-//        else -> ApiError.UnknownError
-//    }
-//    return NetworkError(
-//        error = error,
-//        t = this
-//    )
-//}
-
 val moshi: Moshi by lazy {
-    Moshi.Builder().build()
+    Moshi.Builder()
+        .add(LocalDateTimeAdapter())
+        .add(LocalDateAdapter())
+        .add(KotlinJsonAdapterFactory())
+        .build()
 }
 
 val errorAdapter: JsonAdapter<ErrorResponse> by lazy {
@@ -68,6 +63,7 @@ fun parseErrorBody(json: String?): ErrorResponse? {
     return try {
         errorAdapter.fromJson(json)
     } catch (e: Exception) {
+        Log.e("NetworkError", "${e.message}")
         null
     }
 }

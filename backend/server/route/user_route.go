@@ -35,4 +35,5 @@ func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	adminRoute.GET("/batch/:batch_size/:page", userController.GetAllUserByBatch)
 	adminRoute.PUT("/ban", userController.BanUser)
 	adminRoute.PUT("/unban/:id", userController.UnBanUser)
+	adminRoute.DELETE("/delete/:id", userController.DeleteUserAdmin)
 }

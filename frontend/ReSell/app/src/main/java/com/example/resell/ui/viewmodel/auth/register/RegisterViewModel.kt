@@ -41,17 +41,29 @@ class RegisterViewModel @Inject constructor(
     suspend fun onRegisterClick() {
         if (!validateForm()) return
 
-
         Log.d("RegisterViewModel", "type=$type id=$id user=$userName")
         if(type=="email"){
             //TODO: Xử lí đăng ký bằng email ở đây
-            val username = ""
-            val password = ""
-            val responseNum2 = userRepository.firebaseAuth(id, username, password)
-            responseNum2.fold(
-                ifLeft = { error ->
-                    Log.e("Login", "Login failed: ${error.message}")
-                    onError("Đăng nhập thất bại: ${error.message}")
+            val response = userRepository.firebaseAuth(id, userName, password)
+            response.fold(
+                ifLeft = { networkError ->
+                    val errors = networkError.errors
+                    when {
+                        errors?.containsKey("username") == true -> {
+                            userNameError = "Tên người dùng đã được sử dụng"
+                            onError("Đăng ký thất bại")
+                        }
+
+                        !errors.isNullOrEmpty() -> {
+                            Log.e("Login", "Login failed: $errors")
+                            onError("Đăng nhập thất bại: ${networkError.message}")
+                        }
+
+                        else -> {
+                            Log.e("Login", "Login failed: ${networkError.message}")
+                            onError("Đăng nhập thất bại: ${networkError.message}")
+                        }
+                    }
                 },
                 ifRight = { fbAuthResponse ->
                     onSuccess(fbAuthResponse.user)

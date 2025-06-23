@@ -64,9 +64,7 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel()){
             ) {
                 RegisterForm(viewModel)
             }
-
         }
-
     }
 }
 
