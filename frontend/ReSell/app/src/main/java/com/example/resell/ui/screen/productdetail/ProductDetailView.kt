@@ -72,11 +72,11 @@ fun ProductDetailScreen(
             }
             item {
                 Spacer(modifier = Modifier.height(12.dp))
-                ProductBasicInfo( title = post.title,
-                    price = post.price,
-                    category = post.category?.name ?: "",
-                    time = post.createdAt?.toString() ?: "",
-                )
+//                ProductBasicInfo( title = post.title,
+//                    price = post.price,
+//                    category = post.category?.name ?: "",
+//                    time = post.createdAt?.toString() ?: "",
+//                )
             }
             item {
                 Box(
@@ -86,17 +86,17 @@ fun ProductDetailScreen(
                         .border(1.dp, Color.LightGray, shape = RoundedCornerShape(8.dp))
                         .padding(8.dp)
                 ) {
-                    ProfileSimpleHeader(
-                        avatarUrl = avatarUrl,
-                        name = sellerName,
-                        rating = sellerRating,
-                        soldCount = 150
-                    )
+//                    ProfileSimpleHeader(
+//                        avatarUrl = avatarUrl,
+//                        name = sellerName,
+//                        rating = sellerRating,
+//                        soldCount = 150
+//                    )
                 }
             }
             item {
                 Spacer(modifier = Modifier.height(12.dp))
-                ProductDescription(description)
+               // ProductDescription(description)
             }
             item {
                 Divider(modifier = Modifier.padding(vertical = 12.dp))

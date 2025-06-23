@@ -25,19 +25,7 @@ import com.example.resell.ui.screen.address.AddressSetupScreen
 import com.example.resell.ui.screen.auth.register.PhoneRegisterScreen
 
 import com.example.resell.ui.screen.productdetail.ProductDetailScreen
-import com.example.resell.ui.screen.productdetail.sampleAddress
-import com.example.resell.ui.screen.productdetail.sampleAvatar
-import com.example.resell.ui.screen.productdetail.sampleCategory
-import com.example.resell.ui.screen.productdetail.sampleDescription
-import com.example.resell.ui.screen.productdetail.sampleFollowerCount
-import com.example.resell.ui.screen.productdetail.sampleFollowingCount
-import com.example.resell.ui.screen.productdetail.sampleImages
-import com.example.resell.ui.screen.productdetail.sampleName
-import com.example.resell.ui.screen.productdetail.samplePrice
-import com.example.resell.ui.screen.productdetail.sampleRating
-import com.example.resell.ui.screen.productdetail.sampleTime
-import com.example.resell.ui.screen.productdetail.sampleTitle
-import com.example.resell.ui.screen.productdetail.sampleUserId
+
 import com.example.resell.ui.screen.profile.ProfileDetailScreen.ProfileDetailScreen
 import com.example.resell.ui.screen.auth.register.RegisterScreen
 import com.example.resell.ui.screen.favourite.FavoriteScreen
@@ -102,19 +90,7 @@ fun SetupNavGraph(
         }
         composable(Screen.ProductDetail.route) {
             ProductDetailScreen(
-                images = sampleImages,
-                title = sampleTitle,
-                price = samplePrice,
-                category = sampleCategory,
-                time = sampleTime,
-                address = sampleAddress,
-                description = sampleDescription,
-                avatarUrl = sampleAvatar,
-                sellerName = sampleName,
-                sellerRating = sampleRating,
-                sellerId = sampleUserId,
-                followerCount = sampleFollowerCount,
-                followingCount = sampleFollowingCount,
+
                 onContactClick = { /* TODO */ },
                 onBuyClick = { /* TODO */ }
             )
@@ -122,9 +98,8 @@ fun SetupNavGraph(
         composable(
             route = Screen.PhoneAuth.route + "/{phoneNumber}",
             arguments = listOf(navArgument("phoneNumber") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val phoneNumber = backStackEntry.arguments?.getString("phoneNumber") ?: ""
-            PhoneAuthScreen(phoneNumber=phoneNumber)
+        ) {
+            PhoneAuthScreen()
         }
 
         composable(Screen.Add.route) { AddScreen() }

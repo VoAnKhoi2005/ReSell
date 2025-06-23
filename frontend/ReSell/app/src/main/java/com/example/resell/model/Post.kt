@@ -21,7 +21,7 @@ data class Post(
     @Json(name = "user") val user: User? = null,
     @Json(name = "category") val category: Category? = null,
     @Json(name = "address") val address: Address? = null,
-    @Json(name = "post_images") val postImages: List<PostImage>? = null
+    @Json(name = "post_images") val images: List<PostImage>? = null
 )
 @JsonClass(generateAdapter = true)
 data class PostListItem(

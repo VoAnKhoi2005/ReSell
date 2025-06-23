@@ -24,7 +24,7 @@ class PhoneAuthViewModel @Inject constructor(
     private val userRepository: UserRepository,
 ) : ViewModel() {
     private val firebaseAuth = FirebaseAuth.getInstance()
-
+    val phoneNumber: String = savedStateHandle["phoneNumber"] ?: "unknown"
     private val _countdown = MutableStateFlow(0)
     val countdown: StateFlow<Int> = _countdown
 

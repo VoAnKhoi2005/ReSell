@@ -2,6 +2,7 @@ package com.example.resell.model
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import java.time.LocalDateTime
 import java.util.UUID
 
 // region User
@@ -128,13 +129,14 @@ data class GetPostsResponse(
 @JsonClass(generateAdapter = true)
 data class GetPostsResponseData(
     @Json(name = "id") val id: String,
-    @Json(name = "title") val title: String,
-    @Json(name = "status") val status: String,
-    @Json(name = "category") val category: String,
     @Json(name = "owner") val owner: String,
+    @Json(name = "category") val category: String,
+    @Json(name = "title") val title: String,
     @Json(name = "thumbnail") val thumbnail: String,
-    @Json(name = "province") val province: String,
-    @Json(name = "price") val price: Int
+    @Json(name = "province") val address: String,
+    @Json(name = "price") val price: Int,
+    @Json(name = "status") val status: String,
+    @Json(name = "created_at") val createdAt: LocalDateTime? = null
 )
 
 @JsonClass(generateAdapter = true)

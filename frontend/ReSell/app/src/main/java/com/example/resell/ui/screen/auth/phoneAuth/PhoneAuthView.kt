@@ -84,7 +84,7 @@ import java.util.concurrent.TimeUnit
 
 
 @Composable
-fun PhoneAuthScreen(viewModel: PhoneAuthViewModel = hiltViewModel(),phoneNumber : String ="") {
+fun PhoneAuthScreen(viewModel: PhoneAuthViewModel = hiltViewModel()) {
     val timeLeft by viewModel.countdown.collectAsState()
     val context = LocalContext.current
     val activity = context as Activity
@@ -92,7 +92,7 @@ fun PhoneAuthScreen(viewModel: PhoneAuthViewModel = hiltViewModel(),phoneNumber 
     val error by viewModel.error.collectAsState()
     val isCountingDown = timeLeft > 0
 
-    fun startPhoneAuth(phoneNumber: String) {
+    fun startPhoneAuth() {
         val auth = FirebaseAuth.getInstance()
 
         val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
@@ -110,7 +110,7 @@ fun PhoneAuthScreen(viewModel: PhoneAuthViewModel = hiltViewModel(),phoneNumber 
         }
 
         val options = PhoneAuthOptions.newBuilder(auth)
-            .setPhoneNumber(phoneNumber)
+            .setPhoneNumber(viewModel.phoneNumber)
             .setTimeout(60L, TimeUnit.SECONDS)
             .setActivity(activity)
             .setCallbacks(callbacks)
@@ -118,6 +118,9 @@ fun PhoneAuthScreen(viewModel: PhoneAuthViewModel = hiltViewModel(),phoneNumber 
 
         PhoneAuthProvider.verifyPhoneNumber(options)
         viewModel.startCountdown()
+    }
+    LaunchedEffect(Unit) {
+        startPhoneAuth()
     }
 
     var otpResult by remember { mutableStateOf("") }
@@ -156,7 +159,7 @@ fun PhoneAuthScreen(viewModel: PhoneAuthViewModel = hiltViewModel(),phoneNumber 
                     color = if (isCountingDown) LightGray else GreenButton, // Màu sắc thay đổi
                     modifier = Modifier.clickable(enabled = !isCountingDown) {
                         // TODO: Thực hiện hành động gửi lại mã OTP ở đây
-                        viewModel.sendOtp(resend = true)
+                      startPhoneAuth()
                     }
                 )
             }
