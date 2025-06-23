@@ -60,7 +60,11 @@ fun SetupNavGraph(
             LoginScreen()
         }
         composable(
-            route = Screen.Register.route
+            route = Screen.Register.route+"/{type}/{id}",
+            arguments = listOf(
+                navArgument("type") { type = NavType.StringType },
+                navArgument("id") { type = NavType.StringType }
+            )
         ) {
             RegisterScreen()
         }

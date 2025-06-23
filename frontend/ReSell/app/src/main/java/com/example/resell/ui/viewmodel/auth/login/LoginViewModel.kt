@@ -145,23 +145,9 @@ class LoginViewModel @Inject constructor(
                 onError("Đăng nhập thất bại: ${error.message}")
             },
             ifRight = { fbAuthResponse ->
-                if (fbAuthResponse.firstTimeLogin){
+                if (fbAuthResponse.firstTimeLogin) {
                     //TODO Di chuyển qua trang để lấy username
-                    NavigationController.navController.navigate(Screen.Register.route)
-                    val username = ""
-                    val password = ""
-                    val responseNum2 = userRepository.firebaseAuth(firebaseIdToken, username, password)
-                    responseNum2.fold(
-                        ifLeft = { error ->
-                            Log.e("Login", "Login failed: ${error.message}")
-                            onError("Đăng nhập thất bại: ${error.message}")
-                        },
-                        ifRight = { fbAuthResponse ->
-                            onSuccess(fbAuthResponse.user)
-                        }
-                    )
-                } else {
-                    onSuccess(fbAuthResponse.user)
+                    NavigationController.navController.navigate(Screen.Register.route + "/email/${firebaseIdToken}")
                 }
             }
         )

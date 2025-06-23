@@ -1,5 +1,6 @@
 package com.example.resell.ui.screen.auth.register
 import Roboto
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.R
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
@@ -46,9 +49,12 @@ import com.example.resell.ui.theme.LoginButton
 import com.example.resell.ui.theme.LoginTitle
 import com.example.resell.ui.theme.SoftBlue
 import com.example.resell.ui.theme.White2
+import com.example.resell.ui.viewmodel.auth.register.RegisterViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun RegisterScreen(){
+fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel()){
     Surface {
         Column(modifier = Modifier.fillMaxSize() ) {
             TopSection()
@@ -56,7 +62,7 @@ fun RegisterScreen(){
             Column(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 30.dp)
             ) {
-                RegisterForm()
+                RegisterForm(viewModel)
             }
 
         }
@@ -67,42 +73,72 @@ fun RegisterScreen(){
 
 
 @Composable
-private fun RegisterForm() {
-    var password by remember { mutableStateOf("") }
-    var userName by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+private fun RegisterForm(viewModel: RegisterViewModel) {
+    val coroutineScope = rememberCoroutineScope()
+
     LoginTextField(
-        value = userName,
+        value =viewModel.userName,
         onTextChange = {
-            userName = it
+            viewModel.userName = it
         },
         lable = "Tên người dùng",
         modifier = Modifier.fillMaxWidth()
     )
+    if (viewModel.userNameError != null) {
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = viewModel.userNameError ?: "",
+            color = Color.Red,
+            style = MaterialTheme.typography.bodySmall
+        )
+
+    }
     Spacer(modifier = Modifier.height(15.dp))
     PasswordTextField(
-        password = password,
+        password = viewModel.password,
         onPasswordChange = {
-            password = it
+            viewModel.password = it
         },
         modifier = Modifier.fillMaxWidth()
     )
+    if (viewModel.passwordError != null) {
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = viewModel.passwordError ?: "",
+            color = Color.Red,
+            style = MaterialTheme.typography.bodySmall
+        )
+
+    }
     Spacer(modifier = Modifier.height(15.dp))
     PasswordTextField(
-        password = confirmPassword,
+        password = viewModel.confirmPassword,
         onPasswordChange = {
-            confirmPassword = it
+            viewModel.confirmPassword = it
         },
         modifier = Modifier.fillMaxWidth(),
         lable = "Nhập lại mật khẩu"
     )
+    if (viewModel.confirmPasswordError != null) {
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = viewModel.confirmPasswordError ?: "",
+            color = Color.Red,
+            style = MaterialTheme.typography.bodySmall
+        )
+
+    }
     Spacer(modifier = Modifier.height(20.dp))
 
     Button(
         modifier = Modifier
             .fillMaxWidth()
             .height(40.dp),
-        onClick = {},
+        onClick = {
+            coroutineScope.launch {
+                viewModel.onRegisterClick()
+            }
+        },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Black,
             contentColor = Color.White
