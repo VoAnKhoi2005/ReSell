@@ -88,6 +88,7 @@ fun PhoneAuthScreen(viewModel: PhoneAuthViewModel = hiltViewModel()) {
     val timeLeft by viewModel.countdown.collectAsState()
     val context = LocalContext.current
     val activity = context as Activity
+    val auth = FirebaseAuth.getInstance()
 
     val error by viewModel.error.collectAsState()
     val isCountingDown = timeLeft > 0
