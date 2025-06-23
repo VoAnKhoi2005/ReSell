@@ -157,12 +157,13 @@ fun HomeContent(postList: List<ProductPost>, modifier: Modifier = Modifier) {
                 address = post.address,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                NavigationController.navController.navigate(Screen.ProductDetail.route)
+                NavigationController.navController.navigate(Screen.ProductDetail.route+"/${post.id}")
             }
         }
     }
 }
 data class ProductPost(//test
+    val id:String,
     val title: String,
     val time: String,
     val imageUrl: String,
