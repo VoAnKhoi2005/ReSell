@@ -1,5 +1,6 @@
 package com.example.resell.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,22 +34,18 @@ fun MySearchBar(
     modifier: Modifier = Modifier,
     onActivateSearch: (() -> Unit)? = null
 ) {
-    var internalActive by remember { mutableStateOf(false) }
-
     SearchBar(
-        query = "",
-        onQueryChange = {},
-        onSearch = {},
-        active = internalActive,
-        onActiveChange = { isActive ->
-            internalActive = isActive
-            if (isActive) {
-                onActivateSearch?.invoke()
-            }
+        query = "", // Luôn để trống
+        onQueryChange = {}, // Không cho nhập
+        onSearch = {}, // Không làm gì
+        active = false, // Không bật chế độ nhập
+        onActiveChange = {
+            // Luôn điều hướng khi bấm vào
+            onActivateSearch?.invoke()
         },
         placeholder = {
             Text(
-                text = "Tìm kiếm trên Resell",
+                text = "Tìm kiếm...",
                 style = MaterialTheme.typography.labelMedium.copy(
                     fontWeight = FontWeight.Medium,
                     fontSize = 16.sp
@@ -63,16 +60,18 @@ fun MySearchBar(
                 tint = MainButton
             )
         },
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onActivateSearch?.invoke() }, // 👈 Tránh active mặc định
         shape = RoundedCornerShape(8.dp),
         colors = SearchBarDefaults.colors(
-            containerColor = Color.White // 👈 Nền trắng
+            containerColor = Color.White
         )
-
     ) {
-        // Không hiển thị nội dung kết quả
+        // Không hiển thị kết quả nào cả
     }
 }
+
 
 
 
