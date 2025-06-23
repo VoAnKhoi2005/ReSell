@@ -121,7 +121,8 @@ func (r *postRepository) GetUserPostsByFilter(filters map[string]string, page, l
 		users.username AS owner,
 		posts.price,
 		provinces.name AS province,
-		imgs.image_url AS thumbnail
+		imgs.image_url AS thumbnail,
+		posts.created_at
 	`).
 		Joins("JOIN users ON users.id = posts.user_id").
 		Joins("JOIN categories ON categories.id = posts.category_id").
