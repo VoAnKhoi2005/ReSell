@@ -7,22 +7,21 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class Post(
     @Json(name = "id") val id: String,
-    @Json(name = "owner") val userId: String,
-    @Json(name = "category") val category: String,
+    @Json(name = "user_id") val userID: String,
+    @Json(name = "category_id") val categoryID: String,
+    @Json(name = "address_id") val addressID: String,
     @Json(name = "title") val title: String,
-    @Json(name = "thumbnail") val thumbnail: String? = null,
     @Json(name = "description") val description: String? = null,
-    @Json(name = "province") val address: String,
     @Json(name = "price") val price: Int,
-    @Json(name = "status") val status: String,
+    @Json(name = "status") val status: PostStatus,
     @Json(name = "created_at") val createdAt: LocalDateTime? = null,
-    @Json(name = "sold_at") val soldAt: LocalDateTime? = null,
     @Json(name = "updated_at") val updatedAt: LocalDateTime? = null,
     @Json(name = "deleted_at") val deletedAt: LocalDateTime? = null,
-    @Json(name = "conversations") val conversations: List<Conversation> = emptyList(),
-    @Json(name = "order") val order: ShopOrder? = null,
-    @Json(name = "images") val images: List<PostImage> = emptyList()
-
+    @Json(name = "sold_at") val soldAt: LocalDateTime? = null,
+    @Json(name = "user") val user: User? = null,
+    @Json(name = "category") val category: Category? = null,
+    @Json(name = "address") val address: Address? = null,
+    @Json(name = "post_images") val postImages: List<PostImage>? = null
 )
 
 @JsonClass(generateAdapter = false)

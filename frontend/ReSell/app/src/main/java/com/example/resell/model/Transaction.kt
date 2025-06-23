@@ -117,12 +117,24 @@ data class CreatePostRequest(
 
 @JsonClass(generateAdapter = true)
 data class GetPostsResponse(
-    val data: List<Post>? = null,
+    val data: List<GetPostsResponseData>? = null,
     @Json(name = "has_more")
     val hasMore: Boolean,
     val limit: Int,
     val page: Int,
     val total: Int,
+)
+
+@JsonClass(generateAdapter = true)
+data class GetPostsResponseData(
+    @Json(name = "id") val id: String,
+    @Json(name = "title") val title: String,
+    @Json(name = "status") val status: String,
+    @Json(name = "category") val category: String,
+    @Json(name = "owner") val owner: String,
+    @Json(name = "thumbnail") val thumbnail: String,
+    @Json(name = "province") val province: String,
+    @Json(name = "price") val price: Int
 )
 
 @JsonClass(generateAdapter = true)
