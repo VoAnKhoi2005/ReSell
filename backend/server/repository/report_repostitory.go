@@ -49,7 +49,7 @@ func (r reportRepository) GetReportUserPaginated(page, limit int) ([]*model.Repo
 		return nil, 0, err
 	}
 
-	err := db.Limit(limit).Offset((page - 1) * limit).Find(&results).Error
+	err := db.Limit(limit).Offset((page - 1) * limit).Preload("Reported").Preload("Reporter").Find(&results).Error
 
 	return results, count, err
 
@@ -67,7 +67,7 @@ func (r reportRepository) GetReportPostPaginated(page, limit int) ([]*model.Repo
 		return nil, 0, err
 	}
 
-	err := db.Limit(limit).Offset((page - 1) * limit).Find(&results).Error
+	err := db.Limit(limit).Offset((page - 1) * limit).Preload("Reported").Preload("Reporter").Find(&results).Error
 
 	return results, count, err
 
