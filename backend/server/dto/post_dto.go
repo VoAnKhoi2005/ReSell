@@ -19,5 +19,5 @@ type PostListUserDTO struct {
 	Thumbnail string    `json:"thumbnail"`
 	Province  string    `json:"province"`
 	Price     int       `json:"price"`
-	CreateAt  time.Time `json:"create_at"`
+	CreatedAt time.Time `json:"created_at"`
 }
