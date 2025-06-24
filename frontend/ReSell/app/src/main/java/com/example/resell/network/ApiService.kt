@@ -29,6 +29,7 @@ import com.example.resell.model.UpdateCategoryRequest
 import com.example.resell.model.UpdatePostRequest
 import com.example.resell.model.UpdateProfileRequest
 import com.example.resell.model.AvatarUploadResponse
+import com.example.resell.model.ConversationStatDTO
 import com.example.resell.model.FirebaseAuthResponse
 import com.example.resell.model.GetConversationByPostAndUserResponse
 import com.example.resell.model.GetNotificationByBatchResponse
@@ -247,8 +248,8 @@ interface ApiService {
     @GET("conversation/post/{post_id}")
     suspend fun getConversationByPostID(@Path("post_id") postID: String): List<Conversation>
 
-    @GET("conversation/all")
-    suspend fun getAllConversations(): List<Conversation>
+    @GET("conversation/user/all")
+    suspend fun getAllUserConversations(): List<ConversationStatDTO>
 
     @DELETE("conversation/{conv_id}")
     suspend fun deleteConversation(@Path("conv_id") conversationID: String): Boolean

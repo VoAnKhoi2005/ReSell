@@ -181,11 +181,40 @@ data class CreateReviewRequest(
 // region Message
 
 @JsonClass(generateAdapter = true)
+data class ConversationStatDTO(
+    @Json(name = "conversation_id")
+    val conversationId: String,
+    @Json(name = "seller_id")
+    val sellerId: String,
+    @Json(name = "seller_username")
+    val sellerUsername: String,
+    @Json(name = "seller_avatar")
+    val sellerAvatar: String? = null,
+    @Json(name = "buyer_id")
+    val buyerId: String,
+    @Json(name = "buyer_username")
+    val buyerUsername: String,
+    @Json(name = "buyer_avatar")
+    val buyerAvatar: String? = null,
+    @Json(name = "post_id")
+    val postId: String,
+    @Json(name = "post_title")
+    val postTitle: String,
+    @Json(name = "post_thumbnail")
+    val postThumbnail: String,
+    @Json(name = "last_message")
+    val lastMessage: String,
+    @Json(name = "created_at")
+    val createdAt: LocalDateTime,
+    @Json(name = "last_updated_at")
+    val lastUpdatedAt: LocalDateTime
+)
+
+@JsonClass(generateAdapter = true)
 data class GetConversationByPostAndUserResponse(
     @Json(name = "conversation") val conversation: Conversation?=null,
     @Json(name = "is_exist") val isExist: Boolean,
 )
-
 
 @JsonClass(generateAdapter = true)
 data class CreateConversationRequest(

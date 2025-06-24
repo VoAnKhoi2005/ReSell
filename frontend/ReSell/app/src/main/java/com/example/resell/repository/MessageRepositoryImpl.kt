@@ -10,6 +10,7 @@ import com.example.resell.store.WebSocketManager
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 import com.example.resell.model.Conversation
+import com.example.resell.model.ConversationStatDTO
 import com.example.resell.model.CreateConversationRequest
 import com.example.resell.model.ErrorPayload
 import com.example.resell.model.GetConversationByPostAndUserResponse
@@ -28,7 +29,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -83,9 +83,9 @@ class MessageRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
-    override suspend fun getAllConversations(): Either<NetworkError, List<Conversation>> {
+    override suspend fun getAllUserConversations(): Either<NetworkError, List<ConversationStatDTO>> {
         return Either.catch {
-            apiService.getAllConversations()
+            apiService.getAllUserConversations()
         }.mapLeft { it.toNetworkError() }
     }
 
