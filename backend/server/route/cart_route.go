@@ -16,7 +16,7 @@ func RegisterCartRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	cartController := controller.NewCartController(cartService, postService)
 
 	// Create cart group -> /api/cart/...
-	cart := rg.Group("/:post_id/cart")
+	cart := rg.Group("/posts/:post_id/favorite")
 	cart.Use(middleware.AuthMiddleware())
 
 	cart.GET("", cartController.GetCartItems)          // Get all items in the cart
