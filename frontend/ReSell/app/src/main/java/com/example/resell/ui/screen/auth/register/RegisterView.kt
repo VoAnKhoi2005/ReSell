@@ -58,7 +58,6 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel()){
     Surface {
         Column(modifier = Modifier.fillMaxSize() ) {
             TopSection()
-            Spacer(modifier = Modifier.height(36.dp))
             Column(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 30.dp)
             ) {
@@ -167,7 +166,7 @@ private fun TopSection() {
         Image(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.46f),
+                .height(340.dp),
             painter = painterResource(id = R.drawable.subtract),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
