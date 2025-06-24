@@ -15,7 +15,6 @@ import com.example.resell.model.AckResult
 import com.squareup.moshi.Types
 import kotlinx.coroutines.CompletableDeferred
 import com.example.resell.model.ErrorPayload
-import com.example.resell.model.NewMessagePayload
 import com.example.resell.model.PendingMessage
 import com.example.resell.model.SendMessagePayload
 import com.example.resell.model.SocketMessageType
@@ -39,6 +38,9 @@ class WebSocketManager @Inject constructor(
 
     private val _typingEvents = MutableSharedFlow<TypingIndicatorPayload>()
     val typingEvents: SharedFlow<TypingIndicatorPayload> = _typingEvents
+
+    private val _messageEvents = MutableSharedFlow<SendMessagePayload>()
+    val messageEvents: SharedFlow<SendMessagePayload> = _messageEvents
 
     suspend fun connect(): Boolean {
         val jwt = tokenManager.getAccessToken()
@@ -78,6 +80,8 @@ class WebSocketManager @Inject constructor(
                                     ackWaiters.remove(tempId)?.complete(AckResult.Success(data))
                                 }
                             }
+
+                            data?.let { _messageEvents.tryEmit(it) }
                         }
 
                         SocketMessageType.ERROR -> {

@@ -18,13 +18,17 @@ import com.example.resell.model.Message
 import com.example.resell.model.NewMessagePayload
 import com.example.resell.model.SocketMessageType
 import com.example.resell.model.TypingIndicatorPayload
+import com.example.resell.model.User
+import com.example.resell.store.ReactiveStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -36,6 +40,7 @@ class MessageRepositoryImpl @Inject constructor(
 ): MessageRepository {
     init {
         observeTypingEvents()
+        observeIncomingMessages()
     }
 
     override suspend fun createConversation(
@@ -233,4 +238,19 @@ class MessageRepositoryImpl @Inject constructor(
         }
     }
 
+    private val _receivedMessage = MutableSharedFlow<Message>()
+    val receivedMessage: SharedFlow<Message> = _receivedMessage
+
+    private fun observeIncomingMessages() {
+        CoroutineScope(Dispatchers.Default).launch {
+                wsManager.messageEvents.collect { payload ->
+                val message = payload.message
+                val currentUserId = ReactiveStore<User>().item.value?.id
+
+                if (message.senderId != currentUserId) {
+                    _receivedMessage.emit(message)
+                }
+            }
+        }
+    }
 }
