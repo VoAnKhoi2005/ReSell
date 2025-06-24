@@ -82,12 +82,12 @@ fun LoginScreen(
   ) {
         Column(modifier = Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()) ) {
             TopSection()
-            Spacer(modifier = Modifier.height(36.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             Column(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 30.dp)
             ) {
                 LoginForm(viewModel,coroutineScope)
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
 
             }
@@ -221,7 +221,7 @@ private fun TopSection() {
         Image(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.46f),
+                .height(340.dp),
             painter = painterResource(id = R.drawable.subtract),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
