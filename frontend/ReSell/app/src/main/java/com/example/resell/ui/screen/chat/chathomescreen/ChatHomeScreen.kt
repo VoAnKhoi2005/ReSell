@@ -45,7 +45,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.resell.model.User
+import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.navigation.NavigationController
+import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.theme.SoftBlue
 import com.example.resell.ui.theme.White2
 
@@ -74,11 +77,14 @@ fun ChatHomeContent(
 
             LazyColumn {
                 items(state.conversationCards){ conversationCard ->
-                    ConversationCard(conversationCard.post.user?.avatarURL?: stringResource(R.string.default_avatar_url),
-                        conversationCard.post.user!!.username,
-                        "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-                        conversationCard.post.title?:"Mô tả sản phẩm",
-                        conversationCard.conversation.id)
+                    val isBuyer = conversationCard.buyerId == (ReactiveStore<User>().item.value?.id ?: "")
+                    val avt = if (isBuyer) conversationCard.sellerAvatar else conversationCard.buyerAvatar
+                    val username = if (isBuyer) conversationCard.sellerUsername else conversationCard.buyerAvatar
+                    ConversationCard(avt?: stringResource(R.string.default_avatar_url),
+                        username!!,
+                        conversationCard.postThumbnail,
+                        conversationCard.postTitle?:"Mô tả sản phẩm",
+                        conversationCard.conversationId)
                 }
             }
         }

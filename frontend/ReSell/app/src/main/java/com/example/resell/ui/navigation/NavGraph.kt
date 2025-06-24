@@ -67,15 +67,7 @@ fun SetupNavGraph(
         composable(
             route = "chat/{conversationId}", // Định nghĩa tuyến đường với đối số
             arguments = listOf(navArgument("conversationId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val conversationId = backStackEntry.arguments?.getString("conversationId")
-            if (conversationId != null) {
-                ChatScreen(conversationId)
-            } else {
-                // Xử lý trường hợp conversationId bị thiếu, ví dụ: hiển thị lỗi hoặc quay lại
-                // navController.popBackStack()
-                Text("Error: Conversation ID missing")
-            }
+        ) { ChatScreen()
         }
         composable(
             route = Screen.Main.route

@@ -57,6 +57,7 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.example.resell.model.Post
 import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.navigation.Screen
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -65,28 +66,30 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 
 @Composable
-fun ChatScreen(conversationId: String) {
+fun ChatScreen() {
     val viewModel: ChatViewModel  = hiltViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
-
+    val post by viewModel.post.collectAsState()
     LoadingDialog(isLoading = state.isLoading)
-
+    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(key1 = true) {
-        viewModel.getMessages(conversationId)
+        viewModel.getMessages()
     }
-   val receiverAvatarUrl = "https://plus.unsplash.com/premium_photo-1666700698946-fbf7baa0134a"
-
+    val receiverAvatarUrl =post?.user?.avatarURL?: stringResource(R.string.default_avatar_url)
+    val receiverUsername =post?.user?.username?:""
 
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             ChatTopBar(
-                receiverName = "Chúa MHề 4.0",
-                receiverAvatarUrl = receiverAvatarUrl.takeIf { it.isNotBlank() } ?: "https://static.vecteezy.com/system/resources/previews/009/734/564/original/default-avatar-profile-icon-of-social-media-user-vector.jpg"
+                receiverName = receiverUsername,
+                receiverAvatarUrl = receiverAvatarUrl
             )
         },
         bottomBar = {
@@ -96,7 +99,9 @@ fun ChatScreen(conversationId: String) {
             ) {
                 ChatInputBar(
                     viewModel = viewModel,
-                    onSendMessage = { text -> viewModel.sendMessage(text) }
+                    onSendMessage = { text -> coroutineScope.launch {
+                        viewModel.sendMessage(text)
+                    }}
                 )
                 Spacer(modifier = Modifier.height(32.dp))
             }
@@ -107,7 +112,8 @@ fun ChatScreen(conversationId: String) {
         ChatMessages(
             modifier = Modifier.padding(innerPadding),
             messages = state.messages,
-            receiverAvatarUrl
+            receiverAvatarUrl,
+            post
         )
 
 
@@ -117,7 +123,8 @@ fun ChatScreen(conversationId: String) {
 fun ChatMessages(
     modifier: Modifier = Modifier,
     messages: List<Message>,
-    receiverAvatarUrl: String
+    receiverAvatarUrl: String,
+    post: Post?=null
 ) {
     val listState = rememberLazyListState()
 
@@ -135,8 +142,8 @@ fun ChatMessages(
             Surface(color = Color.White) {
                 OfferView(
                     avatarUrl = "https://plus.unsplash.com/premium_photo-1666700698946-fbf7baa0134a",
-                    displayName = "iPhone 15 Pro Max 1TB - VN/A",
-                    price = "43.000.000₫"
+                    displayName = post?.title?:"",
+                    price = post?.price.toString()
                 )
             }
 

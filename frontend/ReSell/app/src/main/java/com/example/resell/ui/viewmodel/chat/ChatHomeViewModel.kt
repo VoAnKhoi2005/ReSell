@@ -35,7 +35,7 @@ class ChatHomeViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
 
-            val result = messageRepository.getAllConversations()
+            val result = messageRepository.getAllUserConversations()
 
             result.fold(
                 { error ->
@@ -50,21 +50,10 @@ class ChatHomeViewModel @Inject constructor(
                     }
                 },
                 { conversations ->
-                    val conversationCards = conversations.mapNotNull { conversation ->
-                        val postResult = postRepository.getPostByID(conversation.postId)
-
-                        if (postResult.isRight()) {
-                            val post = (postResult as Either.Right).value
-                            ConversationCard(conversation, post)
-                        } else {
-                            null // Bỏ qua nếu 1 trong 2 lỗi
-                        }
-                    }
-
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            conversationCards = conversationCards,
+                            conversationCards = conversations,
                             error = null
                         )
                     }

@@ -80,18 +80,8 @@ class ProductDetailViewModel @Inject constructor(
                    }
                    else {
                         Log.d("ProductDetail","Chưa có cuộc trò chuyện")
-                       val createResult = messageRepository.createConversation(ReactiveStore<User>().item.value!!.id,postDetail!!.userID,postId)
-
-                       createResult.fold(
-                           ifLeft = { createError ->
-                               Log.e("ProductDetail", "Lỗi tạo cuộc trò chuyện: ${createError.message}")
-                               errorMessage = "Lỗi tạo cuộc trò chuyện"
-                           },
-                           ifRight = { newConversation ->
-                               Log.d("ProductDetail", "Tạo cuộc trò chuyện thành công: ${newConversation}")
-                               NavigationController.navController.navigate("chat/${newConversation.id}")
-                           }
-                       )
+                       ReactiveStore<Post>().set(postDetail)
+                       NavigationController.navController.navigate("chat/")
                    }
                     _isLoading.value = false
             }
