@@ -30,7 +30,7 @@ type Message struct {
 type SocketMessageType string
 
 const (
-	MessageSend     SocketMessageType = "message_send"
+	MessageSend     SocketMessageType = "send_message"
 	NewMessage      SocketMessageType = "new_message"
 	TypingIndicator SocketMessageType = "typing"
 	InChatIndicator SocketMessageType = "in_chat"

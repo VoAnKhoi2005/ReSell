@@ -41,8 +41,12 @@ func (m *messageService) DeleteConversation(userID string, conversationID string
 		return err
 	}
 
-	if *conversation.BuyerId != userID || *conversation.SellerId != userID {
-		return errors.New("unauthorized. cannot delete conversation")
+	if conversation.BuyerId == nil || conversation.SellerId == nil {
+		return errors.New("invalid conversation: missing buyer or seller")
+	}
+
+	if *conversation.BuyerId != userID && *conversation.SellerId != userID {
+		return errors.New("unauthorized: user cannot delete this conversation")
 	}
 
 	return m.messageRepository.DeleteConversation(conversation)

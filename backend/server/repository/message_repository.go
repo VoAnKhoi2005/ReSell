@@ -56,7 +56,9 @@ func (m *messageRepository) GetConversationByID(conversationId string) (*model.C
 	defer cancel()
 
 	var conversation *model.Conversation = nil
-	err := m.db.WithContext(ctx).First(&conversation, "id = ?", conversationId).Error
+	err := m.db.WithContext(ctx).
+		Preload("Post.PostImages").
+		First(&conversation, "id = ?", conversationId).Error
 	return conversation, err
 }
 
@@ -112,19 +114,6 @@ func (m *messageRepository) GetConversationsByUserID(userId string) ([]*model.Co
 
 	var conversations []*model.Conversation
 	err := m.db.WithContext(ctx).Find(&conversations, "seller_id = ? OR buyer_id = ?", userId, userId).Error
-	return conversations, err
-}
-
-func (m *messageRepository) GetConversationsStatByUserID(userId string) ([]*model.Conversation, error) {
-	ctx, cancel := util.NewDBContext()
-	defer cancel()
-
-	var conversations []*model.Conversation
-	err := m.db.WithContext(ctx).
-		Preload("Buyer").
-		Preload("Seller").
-		Preload("Post.PostImages").
-		Find(&conversations, "seller_id = ? OR buyer_id = ?", userId, userId).Error
 	return conversations, err
 }
 
