@@ -98,6 +98,7 @@ dependencies {
     implementation (libs.play.services.auth)
     implementation ("com.google.firebase:firebase-auth-ktx:22.3.0")
     implementation ("com.google.android.gms:play-services-auth:21.0.0")
+    implementation (libs.recaptcha)
 
     implementation(libs.logging.interceptor)
 }

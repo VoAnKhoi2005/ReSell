@@ -94,8 +94,6 @@ fun PhoneAuthScreen(viewModel: PhoneAuthViewModel = hiltViewModel()) {
     val isCountingDown = timeLeft > 0
 
     fun startPhoneAuth() {
-        val auth = FirebaseAuth.getInstance()
-
         val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                 viewModel.signInWithCredential(credential)
