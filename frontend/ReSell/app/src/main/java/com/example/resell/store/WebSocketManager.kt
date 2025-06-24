@@ -178,11 +178,14 @@ inline fun <reified T> parseSocketMessageData(
     data: Map<String, Any>,
     moshi: Moshi
 ): T? {
+    val typeAdapter = moshi.adapter(SocketMessageType::class.java)
+    val jsonType = typeAdapter.toJson(type).removeSurrounding("\"")
+
     val socketType = Types.newParameterizedType(SocketMessage::class.java, T::class.java)
     val adapter = moshi.adapter<SocketMessage<T>>(socketType)
 
     val fullMap = mapOf(
-        "type" to type.name,
+        "type" to jsonType,
         "data" to data
     )
 
