@@ -42,7 +42,7 @@ class RegisterViewModel @Inject constructor(
         if (!validateForm()) return
 
         Log.d("RegisterViewModel", "type=$type id=$id user=$userName")
-        if(type=="email"){
+        if(type == "email" || type == "phone") {
             //TODO: Xử lí đăng ký bằng email ở đây
             val response = userRepository.firebaseAuth(id, userName, password)
             response.fold(

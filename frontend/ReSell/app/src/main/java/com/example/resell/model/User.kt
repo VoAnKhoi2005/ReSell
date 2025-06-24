@@ -9,10 +9,10 @@ import com.squareup.moshi.JsonClass
 data class User(
     val id: String,
     val username: String,
-    val email: String,
+    val email: String? = null,
     @Json(name = "is_email_verified")
     val isEmailVerified: Boolean,
-    val phone: String,
+    val phone: String? = null,
     @Json(name = "is_phone_verified")
     val isPhoneVerified: Boolean,
     val password: String,
