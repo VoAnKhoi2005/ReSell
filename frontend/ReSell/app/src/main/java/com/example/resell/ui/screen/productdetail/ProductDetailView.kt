@@ -112,7 +112,9 @@ fun ProductDetailScreen(
                         }
                         context.startActivity(intent)
                     } ,
-                    onChatClick = {}
+                    onChatClick = {
+                        viewModel.openConversation()
+                    }
                 )
             }
             item {
@@ -174,7 +176,7 @@ fun ActionButtons(onContactClick: () -> Unit, onChatClick: () -> Unit) {
             contentAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.weight(1f) // ✅ chia đều
         ) {
-
+            onChatClick()
         }
     }
 }

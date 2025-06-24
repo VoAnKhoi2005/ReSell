@@ -7,8 +7,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.resell.model.Post
+import com.example.resell.model.User
+import com.example.resell.repository.MessageRepository
 import com.example.resell.repository.PostRepository
+import com.example.resell.store.ReactiveStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProductDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
+    private val messageRepository: MessageRepository
 ) : ViewModel() {
 
     val postId: String = savedStateHandle["id"] ?: ""
@@ -48,6 +53,28 @@ class ProductDetailViewModel @Inject constructor(
                     postDetail = post
                     isLoading = false
                 }
+            )
+        }
+    }
+    fun openConversation(){
+        Log.d("TEST","CON")
+        viewModelScope.launch {
+            val result = messageRepository.getConversationByPostAndUserID(postId)
+            result.fold (
+                ifLeft = {error ->
+                    Log.e("ProductDetail", "Lỗi lấy cuộc trò chuyện: ${error.message}")
+                    errorMessage = "Lỗi lấy cuộc trò chuyện"
+                    isLoading = false
+                },
+                ifRight = { conversation ->
+                    Log.d("Conversation: ","${conversation}")
+                   if (conversation.isExist) {
+
+                   }
+                   else {
+                        Log.d("ProductDetail","Chưa có cuộc trò chuyện")
+                   }
+            }
             )
         }
     }

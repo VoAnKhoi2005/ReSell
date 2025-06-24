@@ -47,7 +47,7 @@ fun ProfileScreen() {
                 name = user?.username,
                 rating = "3.5",
                 reviewCount = 120,
-                userId = "08366333080",
+                userId = user?.id,
                 followerCount = 0,
                 followingCount = 0,
                 onChangeAvatarClick = {

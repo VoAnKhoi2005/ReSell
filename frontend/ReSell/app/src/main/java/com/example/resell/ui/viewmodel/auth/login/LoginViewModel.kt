@@ -104,9 +104,11 @@ class LoginViewModel @Inject constructor(
                     onError("Đăng nhập thất bại: Không tìm thấy tài khoản Google nào trên thiết bị")
                 } else {
                     onError("Đăng nhập thất bại: ${e.type}")
+                    Log.e(TAG,"${e.type}")
                 }
             } catch (e: Exception) {
                 onError("Đăng nhập thất bại: ${e.message}")
+                Log.e(TAG,"${e.message}")
             }
         }
     }
