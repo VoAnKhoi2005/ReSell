@@ -40,3 +40,5 @@ vendor/
 *.local
 coverage/
 tmp/
+
+ngrok.yml
