@@ -5,20 +5,19 @@ import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconToggleButton
+
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,13 +28,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.resell.R
-import com.example.resell.model.PostImage
 import com.example.resell.model.User
 import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.components.CircleIconButton
@@ -49,6 +46,7 @@ import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.PhoneBox
 import com.example.resell.ui.theme.White2
 import com.example.resell.ui.theme.priceColor
+import com.example.resell.ui.viewmodel.chat.ChatViewModel
 import com.example.resell.ui.viewmodel.productDetail.ProductDetailViewModel
 import com.example.resell.util.getRelativeTime
 
@@ -59,69 +57,82 @@ fun ProductDetailScreen(
 ) {
     val context = LocalContext.current
     val post = viewModel.postDetail
-    val isLoading = viewModel.isLoading
+    val isLoading by viewModel.isLoading.collectAsState()
     val error = viewModel.errorMessage
-    Column(modifier = Modifier.fillMaxSize()) {
+    if (isLoading) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+    } else {
+        Column(modifier = Modifier.fillMaxSize()) {
 
-        // ✅ TopBar thêm vào đầu màn
-        TopBar(
-            titleText = "Chi tiết sản phẩm",
-            showBackButton = true,
-            onBackClick = {
-                NavigationController.navController.popBackStack()
-            }
-        )
+            // ✅ TopBar thêm vào đầu màn
+            TopBar(
+                titleText = "Chi tiết sản phẩm",
+                showBackButton = true,
+                onBackClick = {
+                    NavigationController.navController.popBackStack()
+                }
+            )
 
-        LazyColumn(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
-            item {
-                ImageCarousel(images = post?.images?.map { it.url }.orEmpty())
-            }
-            item {
-                Spacer(modifier = Modifier.height(12.dp))
-                ProductBasicInfo( title = post?.title?:"",
-                    price = post?.price?:0,
-                    category = post?.category?.name ?: "",
-                    time = getRelativeTime( post?.createdAt),
-                    address = post?.address?.detail?:""
-                )
-            }
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .border(1.dp, Color.LightGray, shape = RoundedCornerShape(8.dp))
-                        .padding(8.dp)
-                ) {
-                    ProfileSimpleHeader(
-                        avatarUrl = ReactiveStore<User>().item.value?.avatarURL?: stringResource(R.string.default_avatar_url),
-                        name = post?.user?.username,
-                        rating = "",
-                        soldCount = 150
+            LazyColumn(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
+                item {
+                    ImageCarousel(images = post?.images?.map { it.url }.orEmpty())
+                }
+                item {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    ProductBasicInfo(
+                        title = post?.title ?: "",
+                        price = post?.price ?: 0,
+                        category = post?.category?.name ?: "",
+                        time = getRelativeTime(post?.createdAt),
+                        address = post?.address?.detail ?: ""
                     )
                 }
-            }
-            item {
-                Spacer(modifier = Modifier.height(12.dp))
-               ProductDescription(post?.description?:"")
-            }
-            item {
-                Divider(modifier = Modifier.padding(vertical = 12.dp))
-                Spacer(modifier = Modifier.height(2.dp))
-                ActionButtons(
-                    onContactClick ={
-                        val intent = Intent(Intent.ACTION_DIAL).apply {
-                            data = Uri.parse("tel:${post?.user?.phone}")
-                        }
-                        context.startActivity(intent)
-                    } ,
-                    onChatClick = {
-                        viewModel.openConversation()
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .border(1.dp, Color.LightGray, shape = RoundedCornerShape(8.dp))
+                            .padding(8.dp)
+                    ) {
+                        ProfileSimpleHeader(
+                            avatarUrl = ReactiveStore<User>().item.value?.avatarURL
+                                ?: stringResource(R.string.default_avatar_url),
+                            name = post?.user?.username,
+                            rating = "",
+                            soldCount = 150
+                        )
                     }
-                )
-            }
-            item {
-                Spacer(modifier = Modifier.height(12.dp))
+                }
+                item {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    ProductDescription(post?.description ?: "")
+                }
+                item {
+                    Divider(modifier = Modifier.padding(vertical = 12.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
+                    ActionButtons(
+                        onContactClick = {
+                            val phoneNumer = post?.user?.phone ?: ""
+                            if (phoneNumer.isNotBlank()) {
+                                val intent = Intent(Intent.ACTION_DIAL).apply {
+                                    data = Uri.parse("tel:${phoneNumer}")
+                                }
+                                context.startActivity(intent)
+                            }
+                        },
+                        onChatClick = {
+                            viewModel.openConversation()
+                        },viewModel
+                    )
+                }
+                item {
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
         }
     }
@@ -151,7 +162,8 @@ fun ProductDescription(description: String) {
 }
 
 @Composable
-fun ActionButtons(onContactClick: () -> Unit, onChatClick: () -> Unit) {
+fun ActionButtons(onContactClick: () -> Unit, onChatClick: () -> Unit,viewModel: ProductDetailViewModel) {
+    val isLoading by viewModel.isLoading.collectAsState()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -177,9 +189,9 @@ fun ActionButtons(onContactClick: () -> Unit, onChatClick: () -> Unit) {
             hasBorder = true,
             iconResId = R.drawable.chat_duotone,
             contentAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.weight(1f) // ✅ chia đều
+            modifier = Modifier.weight(1f), // ✅ chia đều
         ) {
-            onChatClick()
+           if (!isLoading) onChatClick()
         }
     }
 }

@@ -48,7 +48,8 @@ class LoginViewModel @Inject constructor(
     private val context by lazy { application.applicationContext }
 
     private val auth = Firebase.auth
-
+    private val _isLoginLoading = MutableStateFlow(false)
+    val isLoginLoading: StateFlow<Boolean> = _isLoginLoading
     private val _state = MutableStateFlow(LoginViewState())
     val state = _state.asStateFlow()
 
@@ -65,7 +66,7 @@ class LoginViewModel @Inject constructor(
      */
     fun launchUsernameSignIn(identifier: String, password: String){
         viewModelScope.launch {
-
+            _isLoginLoading.value = true
             val result = userRepository.loginUser(identifier, password,LoginType.USERNAME)
 
             result.fold(
@@ -79,9 +80,11 @@ class LoginViewModel @Inject constructor(
                     error.errors?.forEach { (field, msg) ->
                         Log.e("Login", "$field: $msg")
                     }
+                    _isLoginLoading.value = false
                 },
                 { response -> // Right - thành công
                    onSuccess(response.user)
+                    _isLoginLoading.value = false
                 }
             )
         }

@@ -68,6 +68,7 @@ import kotlinx.coroutines.launch
 import android.content.Intent
 import android.provider.Settings
 import android.widget.Toast
+import androidx.compose.material3.CircularProgressIndicator
 import com.example.resell.repository.AddressRepository
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import kotlinx.coroutines.Dispatchers
@@ -110,7 +111,7 @@ private fun LoginForm(
     var username by remember { mutableStateOf("user4") }
     val signInClient = remember { Identity.getSignInClient(context) }
     val error by viewModel.loginError.collectAsState()
-
+    val isLoginLoading by viewModel.isLoginLoading.collectAsState()
     val TYPE_NO_CREDENTIAL = "android.credentials.GetCredentialException.TYPE_NO_CREDENTIAL"
 
     fun startGoogleLogin() {
@@ -187,7 +188,6 @@ private fun LoginForm(
             .height(40.dp),
         onClick = {
             //TODO nút đăng nhập bằng username
-            Log.d("Login", "✅ Đăng nhập: ${username} ${password}")
             viewModel.launchUsernameSignIn(username,password)
         },
 
@@ -195,14 +195,24 @@ private fun LoginForm(
             containerColor = Color.Black,
             contentColor = Color.White
         ),
-        shape = RoundedCornerShape(size = 4.dp)
+        shape = RoundedCornerShape(size = 4.dp),
+        enabled = !isLoginLoading
 
 
     ) {
-        Text(
-            text = "Đăng nhập",
-            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
-        )
+        if (isLoginLoading) {
+            CircularProgressIndicator(
+                color = Color.White,
+                modifier = Modifier
+                    .size(20.dp),
+                strokeWidth = 2.dp
+            )
+        } else {
+            Text(
+                text = "Đăng nhập",
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
+            )
+        }
     }
     Spacer(modifier = Modifier.height(20.dp))
     GoogleSignInButton( onClick =  {startGoogleLogin()}, modifier =  Modifier.fillMaxWidth())
