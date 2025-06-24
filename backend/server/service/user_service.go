@@ -75,12 +75,18 @@ func (s *userService) Register(user *model.User) map[string]string {
 	var validationErrors map[string]string
 	validationErrors = make(map[string]string)
 
-	if _, err := s.userRepository.GetByEmail(user.Email); err == nil {
-		validationErrors["email"] = "email already taken"
+	if user.Email != nil {
+		_, err := s.userRepository.GetByEmail(*user.Email)
+		if err == nil {
+			validationErrors["EmailAlreadyExists"] = "Email Already Exists"
+		}
 	}
 
-	if _, err := s.userRepository.GetByPhone(user.Phone); err == nil {
-		validationErrors["phone"] = "phone number already taken"
+	if user.Phone != nil {
+		_, err := s.userRepository.GetByEmail(*user.Phone)
+		if err == nil {
+			validationErrors["phone"] = "phone number already taken"
+		}
 	}
 
 	if _, err := s.userRepository.GetByUsername(user.Username); err == nil {
@@ -209,14 +215,6 @@ func (s *userService) UpdateUser(userID string, request *request.UpdateUserReque
 	if request.Username != nil && *request.Username != "" {
 		user.Username = *request.Username
 
-	}
-
-	if request.Email != nil && *request.Email != "" {
-		user.Email = *request.Email
-	}
-
-	if request.Phone != nil && *request.Phone != "" {
-		user.Phone = *request.Phone
 	}
 
 	if request.FullName != nil && *request.FullName != "" {
