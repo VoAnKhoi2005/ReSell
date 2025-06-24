@@ -57,6 +57,17 @@ class PhoneAuthViewModel @Inject constructor(
         signInWithCredential(credential)
     }
 
+    fun formatPhoneNumber(raw: String): String {
+        // Remove all spaces, dashes, or brackets
+        val cleaned = raw.replace(Regex("[^\\d+]"), "")
+
+        return when {
+            cleaned.startsWith("+") -> cleaned // Already in E.164
+            cleaned.startsWith("0") -> "+84" + cleaned.drop(1) // Vietnam default
+            else -> "+$cleaned" // fallback (assumes input includes country code)
+        }
+    }
+
     fun signInWithCredential(credential: PhoneAuthCredential) {
         viewModelScope.launch {
             _isLoading.value = true

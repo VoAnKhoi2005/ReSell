@@ -71,7 +71,7 @@ func (rc *ReviewController) GetReviewsByBuyerID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"reviews": reviews})
+	c.JSON(http.StatusOK, reviews)
 }
 
 func (rc *ReviewController) GetReviewByOrderID(c *gin.Context) {
@@ -87,7 +87,7 @@ func (rc *ReviewController) GetReviewByOrderID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"review": review})
+	c.JSON(http.StatusOK, review)
 }
 
 func (rc *ReviewController) GetReviewByPostID(c *gin.Context) {
@@ -103,7 +103,7 @@ func (rc *ReviewController) GetReviewByPostID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"review": review})
+	c.JSON(http.StatusOK, review)
 }
 
 func (rc *ReviewController) DeleteReviewByOrderID(c *gin.Context) {

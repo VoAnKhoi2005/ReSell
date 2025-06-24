@@ -28,7 +28,7 @@ func (h *UserController) GetUserByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": user})
+	c.JSON(http.StatusOK, user)
 }
 
 func (h *UserController) GetUserByUsername(c *gin.Context) {
@@ -43,7 +43,7 @@ func (h *UserController) GetUserByUsername(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": user})
+	c.JSON(http.StatusOK, user)
 }
 
 func (h *UserController) GetAllUserByBatch(c *gin.Context) {
@@ -182,7 +182,7 @@ func (h *UserController) GetAllFollowee(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"followees": followees})
+	c.JSON(http.StatusOK, followees)
 }
 
 func (h *UserController) UnFollow(c *gin.Context) {

@@ -1,4 +1,4 @@
-package com.example.resell
+package com.example.resell.ui
 
 import SetupNavGraph
 
@@ -17,6 +17,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 
 import androidx.navigation.compose.rememberNavController
+import com.example.resell.repository.AddressRepository
 import com.example.resell.ui.navigation.NavigationController
 
 
@@ -25,12 +26,15 @@ import com.example.resell.ui.theme.MyApplicationTheme
 import dagger.hilt.android.AndroidEntryPoint
 import com.example.resell.util.Event
 import com.example.resell.util.EventBus
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     lateinit var navController: NavHostController
-    override fun onCreate(savedInstanceState: Bundle?) {
 
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {

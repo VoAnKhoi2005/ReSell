@@ -29,6 +29,14 @@ data class User(
     @Json(name = "ban_end")
     val banEnd: LocalDateTime? = null,
     @Json(name = "created_at")
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime,
+    @Json(name = "is_selling")
+    val isSelling: Boolean,
+    @Json(name = "stripe_account_id")
+    val stripeAccountID: String? = null,
+    @Json(name = "is_stripe_verified")
+    val isStripeVerified: Boolean,
+    @Json(name = "avatar_url")
+    val avatarURL: String? = null
 )
 

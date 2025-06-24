@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
+	"strings"
 	"time"
 )
 
@@ -15,7 +16,7 @@ type NotificationService interface {
 	GetByID(notificationID string) (*model.Notification, error)
 	GetNotificationsByBatch(userID string, batchSize int, page int) ([]*model.Notification, int, error)
 	GetNotificationsByDate(userID string, date time.Time) ([]*model.Notification, error)
-	GetNotificationsByType(userID string, notificationType model.NotificationType) ([]*model.Notification, error)
+	GetNotificationsByType(userID string, notificationTypeStr string) ([]*model.Notification, error)
 	GetUnsentNotifications(userID string) ([]*model.Notification, error)
 }
 
@@ -64,7 +65,8 @@ func (n *notificationService) GetNotificationsByDate(userID string, date time.Ti
 	return n.notificationRepository.GetNotificationsByDate(userID, date)
 }
 
-func (n *notificationService) GetNotificationsByType(userID string, notificationType model.NotificationType) ([]*model.Notification, error) {
+func (n *notificationService) GetNotificationsByType(userID string, notificationTypeStr string) ([]*model.Notification, error) {
+	notificationType := model.NotificationType(strings.ToLower(notificationTypeStr))
 	return n.notificationRepository.GetNotificationsByType(userID, notificationType)
 }
 

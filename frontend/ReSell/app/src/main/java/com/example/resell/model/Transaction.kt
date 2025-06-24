@@ -271,6 +271,13 @@ data class SaveFCMTokenRequest(
     val token: String
 )
 
+@JsonClass(generateAdapter = true)
+data class GetNotificationByBatchResponse(
+    val notifications: List<Notification>,
+    @Json(name = "total_batch_count")
+    val totalBatchCount: Int
+)
+
 // endregion
 
 @JsonClass(generateAdapter = true)

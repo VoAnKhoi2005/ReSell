@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type NotificationType string
 
@@ -11,6 +14,21 @@ const (
 	OrderNotification   NotificationType = "order"
 	DefaultNotification NotificationType = "default"
 )
+
+func NotificationTypeFromString(s string) (NotificationType, error) {
+	switch s {
+	case "message":
+		return MessageNotification, nil
+	case "alert":
+		return AlertNotification, nil
+	case "system":
+		return SystemNotification, nil
+	case "order":
+		return OrderNotification, nil
+	default:
+		return "", fmt.Errorf("invalid notification type: %s", s)
+	}
+}
 
 func DefaultNotificationContent(nType NotificationType) (title string, description string) {
 	switch nType {

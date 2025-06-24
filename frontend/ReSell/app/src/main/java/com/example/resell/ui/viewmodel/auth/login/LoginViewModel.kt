@@ -24,6 +24,7 @@ import javax.inject.Inject
 import com.example.resell.R
 import com.example.resell.model.LoginType
 import com.example.resell.model.User
+import com.example.resell.repository.AddressRepository
 import com.example.resell.repository.UserRepository
 import com.example.resell.store.FCMTokenManager
 import com.example.resell.store.ReactiveStore
@@ -40,7 +41,8 @@ class LoginViewModel @Inject constructor(
     application: Application,
     private val userRepository: UserRepository,
     private val fcmTokenManager: FCMTokenManager,
-    private val webSocketManager: WebSocketManager
+    private val webSocketManager: WebSocketManager,
+    private val repo: AddressRepository
 ) : AndroidViewModel(application) {
 
     private val context by lazy { application.applicationContext }
@@ -88,6 +90,14 @@ class LoginViewModel @Inject constructor(
     fun launchGoogleSignIn(result: GetCredentialResponse) {
         viewModelScope.launch {
             try {
+//                val response = repo.getAllProvinces()
+//                response.fold(
+//                    ifLeft = {provinces ->
+//                        val pro = provinces
+//                    },
+//                    ifRight = {}
+//                )
+
                 val googleIdToken = handleSignIn(result)
                 val credential = GoogleAuthProvider.getCredential(googleIdToken, null)
                 val authResult = auth.signInWithCredential(credential).await()

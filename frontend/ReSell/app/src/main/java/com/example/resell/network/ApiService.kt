@@ -31,6 +31,7 @@ import com.example.resell.model.UpdateProfileRequest
 import com.example.resell.model.AvatarUploadResponse
 import com.example.resell.model.FirebaseAuthResponse
 import com.example.resell.model.GetConversationByPostAndUserResponse
+import com.example.resell.model.GetNotificationByBatchResponse
 import com.example.resell.model.User
 import okhttp3.MultipartBody
 import retrofit2.http.Body
@@ -274,7 +275,7 @@ interface ApiService {
     suspend fun getNotificationsByBatch(
         @Path("batch_size") batchSize: Int,
         @Path("page") page: Int,
-    ): List<Notification>
+    ): GetNotificationByBatchResponse
 
     @GET("notification/date/{date}")
     suspend fun getNotificationsByDate(@Path("date") date: String): List<Notification>

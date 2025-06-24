@@ -87,7 +87,7 @@ func (oc *OrderController) GetOrderByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"order": order})
+	c.JSON(http.StatusOK, order)
 }
 
 func (oc *OrderController) GetByPostID(c *gin.Context) {
@@ -103,7 +103,7 @@ func (oc *OrderController) GetByPostID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"order": order})
+	c.JSON(http.StatusOK, order)
 }
 
 func (oc *OrderController) GetByBuyerID(c *gin.Context) {
@@ -119,7 +119,7 @@ func (oc *OrderController) GetByBuyerID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"order": order})
+	c.JSON(http.StatusOK, order)
 }
 
 func (oc *OrderController) GetBySellerID(c *gin.Context) {
@@ -135,7 +135,7 @@ func (oc *OrderController) GetBySellerID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"orders": orders})
+	c.JSON(http.StatusOK, orders)
 }
 
 func (oc *OrderController) UpdateStatus(c *gin.Context) {

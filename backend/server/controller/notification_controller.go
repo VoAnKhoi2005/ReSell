@@ -70,7 +70,7 @@ func (n *NotificationController) GetNotificationsByDate(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"notifications": notifications})
+	c.JSON(http.StatusOK, notifications)
 }
 
 func (n *NotificationController) GetNotificationsByType(c *gin.Context) {
@@ -86,4 +86,12 @@ func (n *NotificationController) GetNotificationsByType(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "type is required"})
 		return
 	}
+
+	notifications, err := n.notificationService.GetNotificationsByType(userID, typeStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, notifications)
 }

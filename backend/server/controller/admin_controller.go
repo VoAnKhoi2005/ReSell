@@ -64,7 +64,7 @@ func (a *AdminController) GetAdminByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"admin": admin})
+	c.JSON(http.StatusOK, admin)
 }
 
 func (a *AdminController) GetAdminByUsername(c *gin.Context) {
@@ -80,7 +80,7 @@ func (a *AdminController) GetAdminByUsername(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"admin": admin})
+	c.JSON(http.StatusOK, admin)
 }
 
 func (a *AdminController) ChangeEmail(c *gin.Context) {

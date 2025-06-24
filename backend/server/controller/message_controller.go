@@ -64,7 +64,7 @@ func (mc *MessageController) GetConversationByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"conversation": conversation})
+	c.JSON(http.StatusOK, conversation)
 }
 
 func (mc *MessageController) GetConversationByPostID(c *gin.Context) {
@@ -80,7 +80,7 @@ func (mc *MessageController) GetConversationByPostID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"conversations": conversations})
+	c.JSON(http.StatusOK, conversations)
 }
 
 func (mc *MessageController) GetConversationByUserID(c *gin.Context) {
@@ -96,7 +96,7 @@ func (mc *MessageController) GetConversationByUserID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"conversations": conversations})
+	c.JSON(http.StatusOK, conversations)
 }
 
 func (mc *MessageController) GetConversationByUserAndPostID(c *gin.Context) {
@@ -173,7 +173,7 @@ func (mc *MessageController) CreateMessage(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": returnMessage})
+	c.JSON(http.StatusOK, returnMessage)
 }
 
 func (mc *MessageController) GetMessagesInRange(c *gin.Context) {
@@ -202,7 +202,7 @@ func (mc *MessageController) GetMessagesInRange(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"messages": messages})
+	c.JSON(http.StatusOK, messages)
 }
 
 func (mc *MessageController) GetLatestMessages(c *gin.Context) {
@@ -220,5 +220,5 @@ func (mc *MessageController) GetLatestMessages(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"messages": messages})
+	c.JSON(http.StatusOK, messages)
 }

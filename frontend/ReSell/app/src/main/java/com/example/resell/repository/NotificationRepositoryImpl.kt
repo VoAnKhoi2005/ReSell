@@ -1,6 +1,7 @@
 package com.example.resell.repository
 
 import arrow.core.Either
+import com.example.resell.model.GetNotificationByBatchResponse
 import com.example.resell.network.NetworkError
 import com.example.resell.network.toNetworkError
 import com.example.resell.network.ApiService
@@ -18,7 +19,7 @@ class NotificationRepositoryImpl @Inject constructor(
     override suspend fun getNotificationsByBatch(
         batchSize: Int,
         page: Int
-    ): Either<NetworkError, List<Notification>> {
+    ): Either<NetworkError, GetNotificationByBatchResponse> {
         return Either.catch {
             apiService.getNotificationsByBatch(batchSize, page)
         }.mapLeft { it.toNetworkError() }

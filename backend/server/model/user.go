@@ -48,8 +48,8 @@ type User struct {
 }
 
 type Follow struct {
-	SellerId *string `gorm:"type:uuid;primaryKey" json:"seller_id"`
-	BuyerId  *string `gorm:"type:uuid;primaryKey" json:"buyer_id"`
+	SellerID *string `gorm:"type:uuid;primaryKey" json:"seller_id"`
+	BuyerID  *string `gorm:"type:uuid;primaryKey" json:"buyer_id"`
 
 	Seller *User `json:"seller,omitempty"`
 	Buyer  *User `json:"buyer,omitempty"`

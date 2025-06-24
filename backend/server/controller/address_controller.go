@@ -54,7 +54,7 @@ func (ac *AddressController) GetAllProvinces(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"provinces": provinces})
+	c.JSON(http.StatusOK, provinces)
 }
 
 func (ac *AddressController) GetDistricts(c *gin.Context) {
@@ -70,7 +70,7 @@ func (ac *AddressController) GetDistricts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"districts": districts})
+	c.JSON(http.StatusOK, districts)
 }
 
 func (ac *AddressController) GetWards(c *gin.Context) {
@@ -86,7 +86,7 @@ func (ac *AddressController) GetWards(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"wards": wards})
+	c.JSON(http.StatusOK, wards)
 }
 
 func (ac *AddressController) GetAddressByID(c *gin.Context) {
@@ -102,7 +102,7 @@ func (ac *AddressController) GetAddressByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"address": address})
+	c.JSON(http.StatusOK, address)
 }
 
 func (ac *AddressController) GetAddressByUserID(c *gin.Context) {
@@ -118,7 +118,7 @@ func (ac *AddressController) GetAddressByUserID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"addresses": addresses})
+	c.JSON(http.StatusOK, addresses)
 }
 
 func (ac *AddressController) UpdateAddress(c *gin.Context) {
@@ -209,7 +209,7 @@ func (ac *AddressController) CreateProvinces(c *gin.Context) {
 	}
 
 	if len(failResponses) > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": failResponses})
+		c.JSON(http.StatusBadRequest, gin.H{"errors": failResponses})
 		return
 	}
 
@@ -239,7 +239,7 @@ func (ac *AddressController) CreateDistricts(c *gin.Context) {
 	}
 
 	if len(failResponses) > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": failResponses})
+		c.JSON(http.StatusBadRequest, gin.H{"errors": failResponses})
 		return
 	}
 
@@ -269,7 +269,7 @@ func (ac *AddressController) CreateWards(c *gin.Context) {
 	}
 
 	if len(failResponses) > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": failResponses})
+		c.JSON(http.StatusBadRequest, gin.H{"errors": failResponses})
 		return
 	}
 

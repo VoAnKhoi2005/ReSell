@@ -96,7 +96,7 @@ interface MessageRepository{
 }
 
 interface NotificationRepository{
-    suspend fun getNotificationsByBatch(batchSize: Int, page: Int): Either<NetworkError, List<Notification>>
+    suspend fun getNotificationsByBatch(batchSize: Int, page: Int): Either<NetworkError, GetNotificationByBatchResponse>
     suspend fun getNotificationsByDate(date: LocalDate): Either<NetworkError, List<Notification>>
     suspend fun getNotificationsByType(type: NotificationType): Either<NetworkError, List<Notification>>
 }

@@ -68,7 +68,9 @@ import kotlinx.coroutines.launch
 import android.content.Intent
 import android.provider.Settings
 import android.widget.Toast
+import com.example.resell.repository.AddressRepository
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import kotlinx.coroutines.Dispatchers
 
 
 @Composable
@@ -86,10 +88,8 @@ fun LoginScreen(
             Column(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 30.dp)
             ) {
-                LoginForm(viewModel,coroutineScope)
+                LoginForm(viewModel, coroutineScope)
                 Spacer(modifier = Modifier.height(20.dp))
-
-
             }
 
         }
@@ -100,8 +100,10 @@ fun LoginScreen(
 
 
 @Composable
-private fun LoginForm(viewModel: LoginViewModel,
-                      coroutineScope: CoroutineScope) {
+private fun LoginForm(
+    viewModel: LoginViewModel,
+    coroutineScope: CoroutineScope
+) {
     val context = LocalContext.current
     val activity = context as Activity
     var password by remember { mutableStateOf("123456789") }
