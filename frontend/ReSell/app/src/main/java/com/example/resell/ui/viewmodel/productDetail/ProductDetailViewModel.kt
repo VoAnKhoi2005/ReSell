@@ -1,5 +1,6 @@
 package com.example.resell.ui.viewmodel.productDetail
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -38,7 +39,8 @@ class ProductDetailViewModel @Inject constructor(
             isLoading = true
             val result = postRepository.getPostByID(postId)
             result.fold(
-                ifLeft = {
+                ifLeft = {error ->
+                    Log.e("HomeViewModel", "Lỗi lấy bài đăng: ${error.message}")
                     errorMessage = "Không thể tải bài đăng"
                     isLoading = false
                 },

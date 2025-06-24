@@ -114,12 +114,6 @@ private fun LoginForm(viewModel: LoginViewModel,
     fun startGoogleLogin() {
         coroutineScope.launch {
             try {
-                val googleIDOption = GetGoogleIdOption.Builder()
-                    .setServerClientId(activity.getString(R.string.default_web_client_id))
-                    .setFilterByAuthorizedAccounts(false)
-                    .setAutoSelectEnabled(true)
-                    .build()
-
                 val signInWithGoogleOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
                     .Builder(activity.getString(R.string.default_web_client_id))
                     .build()
