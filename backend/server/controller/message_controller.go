@@ -1,11 +1,13 @@
 package controller
 
 import (
+	"errors"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/transaction"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 	"time"
@@ -95,6 +97,32 @@ func (mc *MessageController) GetConversationByUserID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"conversations": conversations})
+}
+
+func (mc *MessageController) GetConversationByUserAndPostID(c *gin.Context) {
+	postID := c.Param("post_id")
+	if postID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "post id is required"})
+		return
+	}
+
+	userID, err := util.GetUserID(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	conversation, err := mc.messageService.GetConversationByUserAndPostID(userID, postID)
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusOK, transaction.GetConversationResponse{Conversation: nil, IsExist: false})
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, transaction.GetConversationResponse{Conversation: conversation, IsExist: true})
 }
 
 func (mc *MessageController) DeleteConversation(c *gin.Context) {

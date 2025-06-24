@@ -181,6 +181,13 @@ data class CreateReviewRequest(
 // region Message
 
 @JsonClass(generateAdapter = true)
+data class GetConversationByPostAndUserResponse(
+    @Json(name = "conversation") val conversation: Conversation,
+    @Json(name = "is_exist") val isExist: Boolean,
+)
+
+
+@JsonClass(generateAdapter = true)
 data class CreateConversationRequest(
     @Json(name = "buyer_id") val buyerID: String,
     @Json(name = "seller_id") val sellerID: String,

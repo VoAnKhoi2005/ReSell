@@ -25,6 +25,7 @@ func RegisterMessageRote(rg *gin.RouterGroup, db *gorm.DB) {
 	messageRoute.GET("/:id", messageController.GetConversationByID)
 	messageRoute.GET("/post/:post_id", messageController.GetConversationByPostID)
 	messageRoute.GET("/all", messageController.GetConversationByUserID)
+	messageRoute.GET("/post/:post_id/user", messageController.GetConversationByUserAndPostID)
 	messageRoute.DELETE("/:id", messageController.DeleteConversation)
 
 	//messageRoute.POST("/:id/messages/", messageController.CreateMessage)

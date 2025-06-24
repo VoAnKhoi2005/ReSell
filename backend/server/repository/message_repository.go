@@ -13,6 +13,7 @@ type MessageRepository interface {
 	GetConversationByID(conversationId string) (*model.Conversation, error)
 	GetConversationsByPostID(postID string) ([]*model.Conversation, error)
 	GetConversationsByUserID(userId string) ([]*model.Conversation, error)
+	GetConversationByUserAndPostID(userID string, postID string) (*model.Conversation, error)
 
 	CreateMessage(message *model.Message) (*model.Message, error)
 	GetAllMessage(conversationID string) ([]*model.Message, error)
@@ -73,6 +74,16 @@ func (m *messageRepository) GetConversationsByUserID(userId string) ([]*model.Co
 	var conversations []*model.Conversation
 	err := m.db.WithContext(ctx).Find(&conversations, "seller_id = ? OR buyer_id = ?", userId, userId).Error
 	return conversations, err
+}
+
+func (m *messageRepository) GetConversationByUserAndPostID(userID string, postID string) (*model.Conversation, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var conversation *model.Conversation = nil
+	err := m.db.WithContext(ctx).First(&conversation, "(buyer_id = ? OR seller_id = ?) AND post_id = ?",
+		userID, userID, postID).Error
+	return conversation, err
 }
 
 func (m *messageRepository) CreateMessage(message *model.Message) (*model.Message, error) {

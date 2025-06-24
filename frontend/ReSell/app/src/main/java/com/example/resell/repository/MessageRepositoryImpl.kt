@@ -12,6 +12,7 @@ import kotlinx.coroutines.withTimeout
 import com.example.resell.model.Conversation
 import com.example.resell.model.CreateConversationRequest
 import com.example.resell.model.ErrorPayload
+import com.example.resell.model.GetConversationByPostAndUserResponse
 import com.example.resell.model.InChatIndicatorPayload
 import com.example.resell.model.Message
 import com.example.resell.model.NewMessagePayload
@@ -68,6 +69,12 @@ class MessageRepositoryImpl @Inject constructor(
     override suspend fun getConversationsByPostID(postID: String): Either<NetworkError, List<Conversation>> {
         return Either.catch {
             apiService.getConversationByPostID(postID)
+        }.mapLeft { it.toNetworkError() }
+    }
+
+    override suspend fun getConversationByPostAndUserID(postID: String): Either<NetworkError, GetConversationByPostAndUserResponse> {
+        return Either.catch {
+            apiService.getConversationByPostAndUser(postID)
         }.mapLeft { it.toNetworkError() }
     }
 

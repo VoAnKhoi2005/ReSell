@@ -85,6 +85,7 @@ interface MessageRepository{
     suspend fun createConversation(buyerID: String, sellerID: String, postID: String): Either<NetworkError, Conversation>
     suspend fun getConversationByID(conversationID: String): Either<NetworkError, Conversation>
     suspend fun getConversationsByPostID(postID: String): Either<NetworkError, List<Conversation>>
+    suspend fun getConversationByPostAndUserID(postID: String): Either<NetworkError, GetConversationByPostAndUserResponse>
     suspend fun getAllConversations(): Either<NetworkError, List<Conversation>>
     suspend fun deleteConversation(conversationID: String): Either<NetworkError, Boolean>
     suspend fun getLatestMessage(conversationID: String, amount: Int): Either<NetworkError,List<Message>>
