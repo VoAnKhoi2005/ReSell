@@ -1,5 +1,7 @@
 package com.example.resell.ui.screen.productdetail
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,14 +47,14 @@ import com.example.resell.ui.theme.PhoneBox
 import com.example.resell.ui.theme.White2
 import com.example.resell.ui.theme.priceColor
 import com.example.resell.ui.viewmodel.productDetail.ProductDetailViewModel
+import com.example.resell.util.getRelativeTime
 
 
 @Composable
 fun ProductDetailScreen(
-    viewModel: ProductDetailViewModel = hiltViewModel(),
-    onContactClick: () -> Unit,
-    onBuyClick: () -> Unit
+    viewModel: ProductDetailViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val post = viewModel.postDetail
     val isLoading = viewModel.isLoading
     val error = viewModel.errorMessage
@@ -72,11 +75,12 @@ fun ProductDetailScreen(
             }
             item {
                 Spacer(modifier = Modifier.height(12.dp))
-//                ProductBasicInfo( title = post.title,
-//                    price = post.price,
-//                    category = post.category?.name ?: "",
-//                    time = post.createdAt?.toString() ?: "",
-//                )
+                ProductBasicInfo( title = post?.title?:"",
+                    price = post?.price?:0,
+                    category = post?.category?.name ?: "",
+                    time = getRelativeTime( post?.createdAt),
+                    address = post?.address?.detail?:""
+                )
             }
             item {
                 Box(
@@ -86,24 +90,29 @@ fun ProductDetailScreen(
                         .border(1.dp, Color.LightGray, shape = RoundedCornerShape(8.dp))
                         .padding(8.dp)
                 ) {
-//                    ProfileSimpleHeader(
-//                        avatarUrl = avatarUrl,
-//                        name = sellerName,
-//                        rating = sellerRating,
-//                        soldCount = 150
-//                    )
+                    ProfileSimpleHeader(
+                        avatarUrl = "",
+                        name = post?.user?.username,
+                        rating = "",
+                        soldCount = 150
+                    )
                 }
             }
             item {
                 Spacer(modifier = Modifier.height(12.dp))
-               // ProductDescription(description)
+               ProductDescription(post?.description?:"")
             }
             item {
                 Divider(modifier = Modifier.padding(vertical = 12.dp))
                 Spacer(modifier = Modifier.height(2.dp))
                 ActionButtons(
-                    onContactClick = onContactClick,
-                    onBuyClick = onBuyClick
+                    onContactClick ={
+                        val intent = Intent(Intent.ACTION_DIAL).apply {
+                            data = Uri.parse("tel:${post?.user?.phone}")
+                        }
+                        context.startActivity(intent)
+                    } ,
+                    onChatClick = {}
                 )
             }
             item {
@@ -137,7 +146,7 @@ fun ProductDescription(description: String) {
 }
 
 @Composable
-fun ActionButtons(onContactClick: () -> Unit, onBuyClick: () -> Unit) {
+fun ActionButtons(onContactClick: () -> Unit, onChatClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -154,7 +163,7 @@ fun ActionButtons(onContactClick: () -> Unit, onBuyClick: () -> Unit) {
             contentAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.weight(1f) // ✅ chia đều
         ) {
-
+            onContactClick()
         }
         Spacer(modifier = Modifier.width(12.dp))
 

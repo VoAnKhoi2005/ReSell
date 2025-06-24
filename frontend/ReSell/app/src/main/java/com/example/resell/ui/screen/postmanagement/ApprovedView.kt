@@ -16,15 +16,6 @@ fun ApproveScreen() {
             price = 25500000,
             category = "Điện thoại",
             address = "Quận 1, TP.HCM"
-        ),
-        ProductPost(
-            id="",
-            title = "Xe máy Honda SH 2023",
-            time = "5 giờ trước",
-            imageUrl = "https://images.unsplash.com/photo-1609630875171-b1321377ee65?q=80",
-            price = 75000000,
-            category = "Phương tiện",
-            address = "Quận 7, TP.HCM"
         )
     )
 

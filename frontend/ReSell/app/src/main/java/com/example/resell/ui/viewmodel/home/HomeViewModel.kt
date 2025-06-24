@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.resell.model.Post
 import com.example.resell.repository.PostRepository
 import com.example.resell.ui.screen.home.ProductPost
+import com.example.resell.util.getRelativeTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -62,7 +63,7 @@ class HomeViewModel @Inject constructor(
 
                         Log.d(
                             "HomeViewModel",
-                            "Post: ${post.title}, createdAt=$createdAt, time=$timeText, imageUrl=${post.thumbnail}"
+                            "Post: ${post.title}, createdAt=$createdAt, time=$createdAt, imageUrl=${post.thumbnail}"
                         )
 
                         ProductPost(
@@ -83,20 +84,3 @@ class HomeViewModel @Inject constructor(
     }
 }
 
-fun getRelativeTime(time: LocalDateTime?): String {
-    if (time == null) return "Không rõ"
-
-    val now = LocalDateTime.now()
-    val duration = Duration.between(time, now)
-
-    return when {
-        duration.toMinutes() < 1 -> "Vừa xong"
-        duration.toMinutes() < 60 -> "${duration.toMinutes()} phút trước"
-        duration.toHours() < 24 -> "${duration.toHours()} giờ trước"
-        duration.toDays() == 1L -> "Hôm qua"
-        duration.toDays() < 7 -> "${duration.toDays()} ngày trước"
-        duration.toDays() < 30 -> "${duration.toDays() / 7} tuần trước"
-        duration.toDays() < 365 -> "${duration.toDays() / 30} tháng trước"
-        else -> "${duration.toDays() / 365} năm trước"
-    }
-}

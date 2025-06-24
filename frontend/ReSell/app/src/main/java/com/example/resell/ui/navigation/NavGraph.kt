@@ -91,12 +91,11 @@ fun SetupNavGraph(
             )) {
             ProfileDetailScreen()
         }
-        composable(Screen.ProductDetail.route) {
-            ProductDetailScreen(
-
-                onContactClick = { /* TODO */ },
-                onBuyClick = { /* TODO */ }
-            )
+        composable(Screen.ProductDetail.route+"/{id}",
+            arguments = listOf(
+                navArgument("id") {type = NavType.StringType  }
+            )) {
+            ProductDetailScreen()
         }
         composable(
             route = Screen.PhoneAuth.route + "/{phoneNumber}",
