@@ -182,7 +182,7 @@ data class CreateReviewRequest(
 
 @JsonClass(generateAdapter = true)
 data class GetConversationByPostAndUserResponse(
-    @Json(name = "conversation") val conversation: Conversation,
+    @Json(name = "conversation") val conversation: Conversation?=null,
     @Json(name = "is_exist") val isExist: Boolean,
 )
 
