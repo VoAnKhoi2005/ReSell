@@ -1,0 +1,21 @@
+# Ignore node_modules vì sẽ install trong Docker
+node_modules
+
+# Ignore Git data
+.git
+.gitignore
+
+# Ignore environment config
+.env
+.env.* 
+
+# Ignore build files
+dist
+build
+
+# Ignore logs, editor files
+*.log
+*.swp
+.DS_Store
+.vscode
+.idea
