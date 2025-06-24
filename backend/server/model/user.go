@@ -28,9 +28,9 @@ const (
 type User struct {
 	ID               string           `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
 	Username         string           `json:"username"`
-	Email            string           `json:"email"`
+	Email            *string          `json:"email"`
 	IsEmailVerified  bool             `json:"is_email_verified"`
-	Phone            string           `json:"phone"`
+	Phone            *string          `json:"phone"`
 	IsPhoneVerified  bool             `json:"is_phone_verified"`
 	Password         string           `json:"password"`
 	FirebaseUID      *string          `json:"firebase_uid"`

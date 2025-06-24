@@ -46,9 +46,9 @@ func (h *AuthController) Register(c *gin.Context) {
 
 	user := model.User{
 		Username:        req.Username,
-		Email:           req.Email,
+		Email:           &req.Email,
 		IsEmailVerified: false,
-		Phone:           req.Phone,
+		Phone:           &req.Phone,
 		IsPhoneVerified: false,
 		Password:        encryptedPasswordStr,
 		AuthProvider:    model.LocalAuth,
@@ -81,15 +81,28 @@ func (h *AuthController) FirebaseAuth(c *gin.Context) {
 		return
 	}
 
+	var emailStr, phoneStr string
+	var email, phone *string
+
 	uid := token.UID
-	email, _ := token.Claims["email"].(string)
-	phone, _ := token.Claims["phone_number"].(string)
+
+	if val, ok := token.Claims["email"].(string); ok && val != "" {
+		emailStr = val
+		email = &emailStr
+	}
+
+	if val, ok := token.Claims["phone_number"].(string); ok && val != "" {
+		phoneStr = val
+		phone = &phoneStr
+	}
 
 	var provider model.AuthProviderType
-	if email != "" {
+	if email != nil {
 		provider = model.GoogleAuth
-	} else if phone != "" {
+		phone = nil
+	} else if phone != nil {
 		provider = model.PhoneAuth
+		email = nil
 	} else {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid auth provider token"})
 		return

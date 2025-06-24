@@ -90,7 +90,7 @@ func (mc *MessageController) GetConversationByUserID(c *gin.Context) {
 		return
 	}
 
-	conversations, err := mc.messageService.GetConversationsByUserID(userID)
+	conversations, err := mc.messageService.GetConversationStatDTOByUserID(userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

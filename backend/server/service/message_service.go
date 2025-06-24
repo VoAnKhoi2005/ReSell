@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/dto"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 )
@@ -9,9 +10,11 @@ import (
 type MessageService interface {
 	CreateConversation(conversation *model.Conversation) (*model.Conversation, error)
 	DeleteConversation(userID string, conversationID string) error
+
 	GetConversationByID(conversationId string) (*model.Conversation, error)
 	GetConversationsByPostID(postID string) ([]*model.Conversation, error)
 	GetConversationsByUserID(userID string) ([]*model.Conversation, error)
+	GetConversationStatDTOByUserID(conversationId string) ([]*dto.ConversationStatDTO, error)
 	GetConversationByUserAndPostID(userID string, postID string) (*model.Conversation, error)
 
 	CreateMessage(message *model.Message) (*model.Message, error)
@@ -47,6 +50,10 @@ func (m *messageService) DeleteConversation(userID string, conversationID string
 
 func (m *messageService) GetConversationByID(conversationId string) (*model.Conversation, error) {
 	return m.messageRepository.GetConversationByID(conversationId)
+}
+
+func (m *messageService) GetConversationStatDTOByUserID(conversationId string) ([]*dto.ConversationStatDTO, error) {
+	return m.messageRepository.GetConversationStatsByUserID(conversationId)
 }
 
 func (m *messageService) GetConversationsByPostID(postID string) ([]*model.Conversation, error) {

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/VoAnKhoi2005/ReSell/backend/server/dto"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"gorm.io/gorm"
@@ -13,6 +14,7 @@ type MessageRepository interface {
 	GetConversationByID(conversationId string) (*model.Conversation, error)
 	GetConversationsByPostID(postID string) ([]*model.Conversation, error)
 	GetConversationsByUserID(userId string) ([]*model.Conversation, error)
+	GetConversationStatsByUserID(userID string) ([]*dto.ConversationStatDTO, error)
 	GetConversationByUserAndPostID(userID string, postID string) (*model.Conversation, error)
 
 	CreateMessage(message *model.Message) (*model.Message, error)
@@ -58,6 +60,43 @@ func (m *messageRepository) GetConversationByID(conversationId string) (*model.C
 	return conversation, err
 }
 
+func (m *messageRepository) GetConversationStatsByUserID(userID string) ([]*dto.ConversationStatDTO, error) {
+	var results []*dto.ConversationStatDTO
+
+	subQuery := m.db.
+		Table("messages").
+		Select("DISTINCT ON (conversation_id) conversation_id, content, created_at").
+		Order("conversation_id, created_at DESC")
+
+	err := m.db.
+		Table("conversations").
+		Select(`
+			conversations.id AS conversation_id,
+			seller.id AS seller_id,
+			seller.username AS seller_username,
+			seller.avatar_url AS seller_avatar,
+			buyer.id AS buyer_id,
+			buyer.username AS buyer_username,
+			buyer.avatar_url AS buyer_avatar,
+			posts.id AS post_id,
+			posts.title AS post_title,
+			post_images.image_url AS post_thumbnail,
+			messages.content AS last_message,
+			messages.created_at AS last_updated_at,
+			conversations.created_at
+		`).
+		Joins("LEFT JOIN users AS seller ON seller.id = conversations.seller_id").
+		Joins("LEFT JOIN users AS buyer ON buyer.id = conversations.buyer_id").
+		Joins("LEFT JOIN posts ON posts.id = conversations.post_id").
+		Joins("LEFT JOIN post_images ON post_images.post_id = posts.id").
+		Joins("LEFT JOIN (?) AS messages ON messages.conversation_id = conversations.id", subQuery).
+		Where("conversations.buyer_id = ? OR conversations.seller_id = ?", userID, userID).
+		Group("conversations.id, seller.id, buyer.id, posts.id, post_images.image_url, messages.content, messages.created_at").
+		Scan(&results).Error
+
+	return results, err
+}
+
 func (m *messageRepository) GetConversationsByPostID(postID string) ([]*model.Conversation, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
@@ -73,6 +112,19 @@ func (m *messageRepository) GetConversationsByUserID(userId string) ([]*model.Co
 
 	var conversations []*model.Conversation
 	err := m.db.WithContext(ctx).Find(&conversations, "seller_id = ? OR buyer_id = ?", userId, userId).Error
+	return conversations, err
+}
+
+func (m *messageRepository) GetConversationsStatByUserID(userId string) ([]*model.Conversation, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var conversations []*model.Conversation
+	err := m.db.WithContext(ctx).
+		Preload("Buyer").
+		Preload("Seller").
+		Preload("Post.PostImages").
+		Find(&conversations, "seller_id = ? OR buyer_id = ?", userId, userId).Error
 	return conversations, err
 }
 
