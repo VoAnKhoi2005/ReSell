@@ -40,7 +40,7 @@ services:
     - --log
     - stdout
     volumes:
-      - ./backend/server/ngrok.yml:/etc/ngrok.yml
+      - ./ngrok.yml:/etc/ngrok.yml
       - ngrok_data:/var/lib/ngrok
     depends_on:
       - backend
