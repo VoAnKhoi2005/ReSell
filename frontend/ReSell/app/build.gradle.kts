@@ -89,7 +89,7 @@ dependencies {
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.auth)
     implementation(libs.androidx.credentials)
-    implementation(libs.androidx.credentials.play.services.auth)
+    //implementation(libs.androidx.credentials.play.services.auth)
 
     implementation(libs.accompanist.permissions)
     implementation(libs.play.services.location)
@@ -99,6 +99,9 @@ dependencies {
     implementation ("com.google.firebase:firebase-auth-ktx:22.3.0")
     implementation ("com.google.android.gms:play-services-auth:21.0.0")
     implementation (libs.recaptcha)
+
+    implementation ("androidx.credentials:credentials:1.2.0-alpha02")
+    implementation ("androidx.credentials:credentials-play-services-auth:1.2.0-alpha02")
 
     implementation(libs.logging.interceptor)
 }

@@ -68,6 +68,7 @@ import kotlinx.coroutines.launch
 import android.content.Intent
 import android.provider.Settings
 import android.widget.Toast
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 
 
 @Composable
@@ -116,10 +117,15 @@ private fun LoginForm(viewModel: LoginViewModel,
                 val googleIDOption = GetGoogleIdOption.Builder()
                     .setServerClientId(activity.getString(R.string.default_web_client_id))
                     .setFilterByAuthorizedAccounts(false)
+                    .setAutoSelectEnabled(true)
+                    .build()
+
+                val signInWithGoogleOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
+                    .Builder(activity.getString(R.string.default_web_client_id))
                     .build()
 
                 val request = GetCredentialRequest.Builder()
-                    .addCredentialOption(googleIDOption)
+                    .addCredentialOption(signInWithGoogleOption)
                     .build()
 
                 val credentialManager = CredentialManager.create(activity)
