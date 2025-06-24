@@ -1,7 +1,10 @@
 package com.example.resell.ui.viewmodel.chat
 
+import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import arrow.core.Either
 import com.example.resell.model.Conversation
 import com.example.resell.model.Message
 import com.example.resell.model.User
@@ -17,19 +20,20 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val myRepository: MessageRepository
+    savedStateHandle: SavedStateHandle,
+    private val messageRepository: MessageRepository
 ) : ViewModel() {
     val user = ReactiveStore<User>().item.value
 
     private val _state = MutableStateFlow(ChatViewState())
     val state = _state.asStateFlow()
 
-    private lateinit var _conversation: Conversation
+    val conversationId: String = savedStateHandle["id"] ?: ""
 
     fun sendMessage(content: String) {
         val message = Message(
             id = "",
-            conversationId = _conversation.id,
+            conversationId = conversationId,
             senderId = user?.id ?: "",
             content = content,
             createdAt = LocalDateTime.now()
@@ -49,46 +53,34 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             showLoading()
 
-            val messages = listOf(
-                Message(
-                    id = "msg_1",
-                    conversationId = conversationId,
-                    senderId = user?.id?:"",
-                    content = "Hello, I'm buyer 1",
-                    createdAt = LocalDateTime.now().minusMinutes(10)
-                ),
-                Message(
-                    id = "msg_2",
-                    conversationId = conversationId,
-                    senderId = "seller_1",
-                    content = "Hi, I'm seller 1",
-                    createdAt = LocalDateTime.now().minusMinutes(9)
-                ),
-                // ...more messages...
-                Message(
-                    id = "msg_10",
-                    conversationId = conversationId,
-                    senderId = "seller_1",
-                    content = "You're welcome!",
-                    createdAt = LocalDateTime.now().minusMinutes(1)
-                )
+            val result = messageRepository.getLatestMessage(conversationId,10)
+
+            result.fold(
+                { error ->
+                    _state.update {
+                        Log.e("ChatHome", "Lỗi lấy cuộc trò chuyện: ${error.message}")
+                        it.copy(
+                            isLoading = false,
+                            messages = emptyList(),
+                            error = error.message ?: "Lỗi không xác định"
+
+                        )
+                    }
+                },
+                { messages ->
+
+
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            messages = messages,
+                            error = null
+                        )
+                    }
+                }
             )
 
-            _conversation = Conversation(
-                id = conversationId,
-                buyerId = "buyer_1",
-                sellerId = "seller_1",
-                postId = "post_1",
-                createdAt = LocalDateTime.now(),
-                messages = messages
-            )
 
-            _state.update {
-                it.copy(
-                    isLoading = false,
-                    messages = messages.sortedBy { it.createdAt }
-                )
-            }
         }
     }
 }

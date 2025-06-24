@@ -30,11 +30,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.resell.R
 import com.example.resell.model.PostImage
+import com.example.resell.model.User
+import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.components.CircleIconButton
 import com.example.resell.ui.components.IconButtonHorizontal
 import com.example.resell.ui.components.ProfileSimpleHeader
@@ -91,7 +94,7 @@ fun ProductDetailScreen(
                         .padding(8.dp)
                 ) {
                     ProfileSimpleHeader(
-                        avatarUrl = "",
+                        avatarUrl = ReactiveStore<User>().item.value?.avatarURL?: stringResource(R.string.default_avatar_url),
                         name = post?.user?.username,
                         rating = "",
                         soldCount = 150

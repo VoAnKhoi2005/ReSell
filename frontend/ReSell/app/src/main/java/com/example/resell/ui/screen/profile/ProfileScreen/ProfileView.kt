@@ -33,6 +33,7 @@ import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.LoginButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun ProfileScreen() {
@@ -43,7 +44,7 @@ fun ProfileScreen() {
     ) {
         item {
             ProfileSimpleHeaderSection(
-                avatarUrl = "https://i.pinimg.com/736x/b0/d3/8c/b0d38ce8049048d15c70da852021fa82.jpg",
+                avatarUrl = ReactiveStore<User>().item.value?.avatarURL?: stringResource(R.string.default_avatar_url),
                 name = user?.username,
                 rating = "3.5",
                 reviewCount = 120,
@@ -51,7 +52,7 @@ fun ProfileScreen() {
                 followerCount = 0,
                 followingCount = 0,
                 onChangeAvatarClick = {
-                    NavigationController.navController.navigate(Screen.ProfileDetail.route)
+                    NavigationController.navController.navigate(Screen.ProfileDetail.route+"/${ReactiveStore<User>().item.value!!.id}")
                 }
             )
         }

@@ -14,6 +14,7 @@ import com.example.resell.model.User
 import com.example.resell.repository.MessageRepository
 import com.example.resell.repository.PostRepository
 import com.example.resell.store.ReactiveStore
+import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -71,7 +72,7 @@ class ProductDetailViewModel @Inject constructor(
                 ifRight = { conversation ->
                     Log.d("Conversation: ","${conversation}")
                    if (conversation.isExist) {
-
+                       NavigationController.navController.navigate("chat/${conversation.conversation!!.id}")
                    }
                    else {
                         Log.d("ProductDetail","Chưa có cuộc trò chuyện")
@@ -84,7 +85,7 @@ class ProductDetailViewModel @Inject constructor(
                            },
                            ifRight = { newConversation ->
                                Log.d("ProductDetail", "Tạo cuộc trò chuyện thành công: ${newConversation}")
-                               // navigateToConversation(newConversation.id)
+                               NavigationController.navController.navigate("chat/${newConversation.id}")
                            }
                        )
 

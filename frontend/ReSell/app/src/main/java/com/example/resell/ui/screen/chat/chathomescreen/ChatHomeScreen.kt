@@ -1,5 +1,6 @@
 package com.example.resell.ui.screen.chat.chathomescreen
 
+import com.example.resell.R
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -71,12 +73,12 @@ fun ChatHomeContent(
         ){
 
             LazyColumn {
-                items(state.conversations){ conversation ->
-                    ConversationCard("https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-                        "Chúa Hề 4.0",
+                items(state.conversationCards){ conversationCard ->
+                    ConversationCard(conversationCard.post.user?.avatarURL?: stringResource(R.string.default_avatar_url),
+                        conversationCard.post.user!!.username,
                         "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-                        "Sản phẩm: Phạm Thành Long sinh viên UIT abcxyzzzzz",
-                        conversation.id)
+                        conversationCard.post.title?:"Mô tả sản phẩm",
+                        conversationCard.conversation.id)
                 }
             }
         }

@@ -38,7 +38,7 @@ class HomeViewModel @Inject constructor(
             val result = postRepository.getPosts(
                 page = 1,
                 limit = 20,
-                status = null,
+                status = "approved",
                 minPrice = null,
                 maxPrice = null,
                 provinceID = null,
