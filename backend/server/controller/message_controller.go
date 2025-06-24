@@ -114,8 +114,9 @@ func (mc *MessageController) GetConversationByUserAndPostID(c *gin.Context) {
 
 	conversation, err := mc.messageService.GetConversationByUserAndPostID(userID, postID)
 	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusOK, transaction.GetConversationResponse{Conversation: nil, IsExist: false})
+			return
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
