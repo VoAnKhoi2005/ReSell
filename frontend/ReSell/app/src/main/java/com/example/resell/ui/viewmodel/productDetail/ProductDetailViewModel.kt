@@ -17,6 +17,8 @@ import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,8 +34,9 @@ class ProductDetailViewModel @Inject constructor(
     var postDetail by mutableStateOf<Post?>(null)
         private set
 
-    var isLoading by mutableStateOf(true)
-        private set
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
 
     var errorMessage by mutableStateOf<String?>(null)
         private set
@@ -44,30 +47,31 @@ class ProductDetailViewModel @Inject constructor(
 
     private fun getPostDetail() {
         viewModelScope.launch {
-            isLoading = true
+            _isLoading.value = true
             val result = postRepository.getPostByID(postId)
             result.fold(
                 ifLeft = {error ->
                     Log.e("HomeViewModel", "Lỗi lấy bài đăng: ${error.message}")
                     errorMessage = "Không thể tải bài đăng"
-                    isLoading = false
+                    _isLoading.value = false
                 },
                 ifRight = { post ->
                     postDetail = post
-                    isLoading = false
+                    _isLoading.value = false
                 }
             )
         }
     }
     fun openConversation(){
         viewModelScope.launch {
+            _isLoading.value = true
             val result = messageRepository.getConversationByPostAndUserID(postId)
             result.fold (
                 ifLeft = {error ->
                     Log.e("ProductDetail", "Lỗi lấy cuộc trò chuyện: ${error.message}")
                     errorMessage = "Lỗi lấy cuộc trò chuyện"
 
-                    isLoading = false
+                    _isLoading.value = false
                 },
                 ifRight = { conversation ->
                     Log.d("Conversation: ","${conversation}")
@@ -88,8 +92,8 @@ class ProductDetailViewModel @Inject constructor(
                                NavigationController.navController.navigate("chat/${newConversation.id}")
                            }
                        )
-
                    }
+                    _isLoading.value = false
             }
             )
         }
