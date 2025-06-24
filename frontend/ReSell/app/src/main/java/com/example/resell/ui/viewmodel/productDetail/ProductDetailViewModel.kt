@@ -1,6 +1,7 @@
 package com.example.resell.ui.viewmodel.productDetail
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,6 +14,7 @@ import com.example.resell.model.User
 import com.example.resell.repository.MessageRepository
 import com.example.resell.repository.PostRepository
 import com.example.resell.store.ReactiveStore
+import com.example.resell.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -57,13 +59,13 @@ class ProductDetailViewModel @Inject constructor(
         }
     }
     fun openConversation(){
-        Log.d("TEST","CON")
         viewModelScope.launch {
             val result = messageRepository.getConversationByPostAndUserID(postId)
             result.fold (
                 ifLeft = {error ->
                     Log.e("ProductDetail", "Lỗi lấy cuộc trò chuyện: ${error.message}")
                     errorMessage = "Lỗi lấy cuộc trò chuyện"
+
                     isLoading = false
                 },
                 ifRight = { conversation ->
@@ -73,6 +75,19 @@ class ProductDetailViewModel @Inject constructor(
                    }
                    else {
                         Log.d("ProductDetail","Chưa có cuộc trò chuyện")
+                       val createResult = messageRepository.createConversation(ReactiveStore<User>().item.value!!.id,postDetail!!.userID,postId)
+
+                       createResult.fold(
+                           ifLeft = { createError ->
+                               Log.e("ProductDetail", "Lỗi tạo cuộc trò chuyện: ${createError.message}")
+                               errorMessage = "Lỗi tạo cuộc trò chuyện"
+                           },
+                           ifRight = { newConversation ->
+                               Log.d("ProductDetail", "Tạo cuộc trò chuyện thành công: ${newConversation}")
+                               // navigateToConversation(newConversation.id)
+                           }
+                       )
+
                    }
             }
             )

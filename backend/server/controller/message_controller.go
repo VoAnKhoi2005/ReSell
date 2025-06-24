@@ -48,7 +48,7 @@ func (mc *MessageController) CreateConversation(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"conversation": createdConversation})
+	c.JSON(http.StatusOK, createdConversation)
 }
 
 func (mc *MessageController) GetConversationByID(c *gin.Context) {
