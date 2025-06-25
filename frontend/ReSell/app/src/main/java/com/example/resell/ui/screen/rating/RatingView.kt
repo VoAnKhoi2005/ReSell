@@ -84,6 +84,6 @@ fun RatingTabsPager(
 }
 
 enum class RatingTab(val text: String) {
-    Waiting("Chờ đánh giá"),
-    Completed("Đã đánh giá")
+    Waiting("Đánh giá của tôi"),
+    Completed("Đánh giá từ khách hàng")
 }

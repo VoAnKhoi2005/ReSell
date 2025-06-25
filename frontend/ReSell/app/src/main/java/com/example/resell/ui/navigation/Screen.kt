@@ -30,4 +30,5 @@ sealed class Screen(val route: String){
     object AccountSetting: Screen("account_setting_screen")
     object PhoneRegister: Screen("phone_register_screen")
     object ResultSearchScreen: Screen("result_search_screen")
+    object ReviewProductScreen: Screen("review_product_screen")
 }

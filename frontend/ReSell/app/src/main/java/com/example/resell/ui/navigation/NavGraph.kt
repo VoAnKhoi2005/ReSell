@@ -33,6 +33,7 @@ import com.example.resell.ui.screen.auth.register.RegisterScreen
 import com.example.resell.ui.screen.favourite.FavoriteScreen
 import com.example.resell.ui.screen.payment.PaymentScreen
 import com.example.resell.ui.screen.rating.RatingScreen
+import com.example.resell.ui.screen.rating.ReviewProductScreen
 
 import com.example.resell.ui.screen.search.SearchScreen
 import com.example.resell.ui.screen.userinfor.AccountSettingScreen
@@ -154,6 +155,9 @@ fun SetupNavGraph(
         }
         composable(Screen.ResultSearchScreen.route){
             SearchResultScreen()
+        }
+        composable(Screen.ReviewProductScreen.route){
+            ReviewProductScreen()
         }
 
 
