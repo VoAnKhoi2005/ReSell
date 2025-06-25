@@ -30,5 +30,5 @@ func RegisterMessageRote(rg *gin.RouterGroup, db *gorm.DB) {
 	messageRoute.DELETE("/:id", messageController.DeleteConversation)
 
 	messageRoute.GET("/:id/messages/latest/:amount", messageController.GetLatestMessages)
-	messageRoute.GET("/:id/messages/latest/:batch_size/:page", messageController.GetLatestMessagesByBatch)
+	messageRoute.GET("/:id/messages/:batch_size/:page", messageController.GetLatestMessagesByBatch)
 }

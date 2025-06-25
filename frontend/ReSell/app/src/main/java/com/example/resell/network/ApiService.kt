@@ -266,7 +266,7 @@ interface ApiService {
         @Path("amount") amount:Int
     ): List<Message>
 
-    @GET("conversation/{conv_id}/messages/latest/{batch_size}/{page}")
+    @GET("conversation/{conv_id}/messages/{batch_size}/{page}")
     suspend fun getLatestMessagesByBatch(
         @Path("conv_id") conversationID: String,
         @Path("batch_size") batchSize:Int,
