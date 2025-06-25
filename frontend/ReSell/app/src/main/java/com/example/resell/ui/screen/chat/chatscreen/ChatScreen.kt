@@ -55,6 +55,7 @@ import android.os.Looper
 
 
 import android.widget.Toast
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.example.resell.model.Post
@@ -73,16 +74,51 @@ import kotlinx.coroutines.launch
 @Composable
 fun ChatScreen() {
     val viewModel: ChatViewModel  = hiltViewModel()
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val messages by viewModel.listMessages.collectAsState()
+    val listState = rememberLazyListState()
     val post by viewModel.post.collectAsState()
-    LoadingDialog(isLoading = state.isLoading)
+    var initialScrollDone by remember { mutableStateOf(false) }
+    LoadingDialog(isLoading = isLoading)
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(key1 = true) {
-        viewModel.getMessages()
+       viewModel.getMessages()
+
     }
+    LaunchedEffect(messages) {
+        if (messages.isNotEmpty() && !initialScrollDone) {
+            listState.animateScrollToItem(messages.size)
+            initialScrollDone = true
+        }
+    }
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex }
+            .collect { index ->
+                if (index == 0 && viewModel.isMoreMessage) {
+                    val prevIndex = listState.firstVisibleItemIndex
+                    val prevOffset = listState.firstVisibleItemScrollOffset
+
+                    // Load thêm và lấy số lượng item được thêm
+                    val addedCount = viewModel.loadMoreMessages()
+
+                    // Scroll lại đúng chỗ cũ
+                    if (addedCount > 0) {
+                        // delay 1 frame để đợi danh sách cập nhật xong
+                        withFrameNanos { }
+                        viewModel.hideLoading()
+                        listState.scrollToItem(
+                            index = prevIndex + addedCount-1,
+                            scrollOffset = prevOffset
+                        )
+                    }
+                }
+            }
+    }
+
     val receiverAvatarUrl =post?.user?.avatarURL?: stringResource(R.string.default_avatar_url)
     val receiverUsername =post?.user?.username?:""
 
+    val displayMessages = remember(messages) { messages.reversed() }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -100,7 +136,7 @@ fun ChatScreen() {
                 ChatInputBar(
                     viewModel = viewModel,
                     onSendMessage = { text -> coroutineScope.launch {
-                        viewModel.sendMessage(text)
+                        if (viewModel.sendMessage(text)) listState.animateScrollToItem(messages.size)
                     }}
                 )
                 Spacer(modifier = Modifier.height(32.dp))
@@ -111,9 +147,10 @@ fun ChatScreen() {
     ) { innerPadding ->
         ChatMessages(
             modifier = Modifier.padding(innerPadding),
-            messages = state.messages,
+            messages = displayMessages,
             receiverAvatarUrl,
-            post
+            post,
+            listState
         )
 
 
@@ -124,13 +161,9 @@ fun ChatMessages(
     modifier: Modifier = Modifier,
     messages: List<Message>,
     receiverAvatarUrl: String,
-    post: Post?=null
+    post: Post?=null,
+    listState: LazyListState
 ) {
-    val listState = rememberLazyListState()
-
-    LaunchedEffect(messages.size) {
-        listState.animateScrollToItem(messages.size)
-    }
 
     LazyColumn(
         state = listState,

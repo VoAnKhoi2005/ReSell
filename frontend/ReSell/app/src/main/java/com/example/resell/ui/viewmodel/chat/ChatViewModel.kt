@@ -1,9 +1,12 @@
 package com.example.resell.ui.viewmodel.chat
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.resell.model.Message
 import com.example.resell.model.Post
 import com.example.resell.model.User
 import com.example.resell.repository.MessageRepository
@@ -17,6 +20,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -25,15 +29,21 @@ class ChatViewModel @Inject constructor(
 ) : ViewModel() {
     val user = ReactiveStore<User>().item.value
 
-    private val _state = MutableStateFlow(ChatViewState())
-    val state = _state.asStateFlow()
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _listMessages = MutableStateFlow<List<Message>>(emptyList())
+    val listMessages: StateFlow<List<Message>> = _listMessages
 
     var conversationId: String = savedStateHandle["conversationId"] ?: ""
     private val _post = MutableStateFlow<Post?>(null)
     val post: StateFlow<Post?> = _post.asStateFlow()
 
-    suspend fun sendMessage(content: String) {
-        if (conversationId.isNullOrBlank()){
+    private val batchSize = 20
+    var isMoreMessage : Boolean = false
+    private var currentBatch: Int = 1
+    suspend fun sendMessage(content: String): Boolean {
+        if (conversationId.isBlank()){
             val createResult = messageRepository.createConversation(ReactiveStore<User>().item.value!!.id,_post.value!!.userID,_post.value!!.id)
             createResult.fold(
                 ifLeft = { createError ->
@@ -49,53 +59,67 @@ class ChatViewModel @Inject constructor(
         sendMessage.fold (
             {error->
                 Log.e("ChatView", "Lỗi gửi tin nhắn: ${error.error}")
+                _isLoading.value = false
+
             },
             {message ->
-                _state.update { it.copy(messages = it.messages + message) }
+                _isLoading.value = false
+                _listMessages.value = listOf(message) + _listMessages.value
+                return true
             }
         )
+        return false
 
     }
+    suspend fun loadMoreMessages() : Int{
+        Log.d("Chat", "Loadmore")
+        if (!isMoreMessage) return 0;
+        val result = messageRepository.getLatestMessagesByBatch(conversationId,batchSize,currentBatch)
+        result.fold(
+            { error ->
+                _isLoading.value = false
+                _listMessages.value = emptyList()
+                Log.e("ChatHome", "Lỗi lấy tin nhắn: ${error.message}")
+                return 0;
 
-    fun showLoading() {
-        _state.update { it.copy(isLoading = true) }
+            },
+            { response ->
+
+                _listMessages.value =  _listMessages.value + response.messages
+                if (response.totalBatchCount <= currentBatch) {
+                    isMoreMessage = false
+                }
+                currentBatch ++
+                return response.messages.size
+            }
+        )
     }
-
-    fun hideLoading() {
-        _state.update { it.copy(isLoading = false) }
+    fun showLoading(){
+        _isLoading.value = true
+    }
+    fun hideLoading(){
+        _isLoading.value = false
     }
 
     fun getMessages() {
         if(conversationId.isNotBlank()){ viewModelScope.launch {
-            showLoading()
+            _isLoading.value = true
 
-            val result = messageRepository.getLatestMessages(conversationId,10)
+
             val getConversation = messageRepository.getConversationByID(conversationId)
             getConversation.fold (
                 { error ->
-                    _state.update {
-                        Log.e("ChatHome", "Lỗi lấy post: ${error.message}")
-                        it.copy(
-                            isLoading = false,
-                            messages = emptyList(),
-                            error = error.message ?: "Lỗi không xác định"
-
-                        )
-                    }
+                    _listMessages.value = emptyList()
+                    Log.e("ChatHome", "Lỗi lấy conversation: ${error.message}")
                 },
                 {conversation ->
                     val getPost = postRepository.getPostByID((conversation.postId))
                     getPost.fold(
                         { error ->
-                            _state.update {
-                                Log.e("ChatHome", "Lỗi lấy post: ${error.message}")
-                                it.copy(
-                                    isLoading = false,
-                                    messages = emptyList(),
-                                    error = error.message ?: "Lỗi không xác định"
+                            _isLoading.value = false
+                            _listMessages.value = emptyList()
+                            Log.e("ChatHome", "Lỗi lấy post: ${error.message}")
 
-                                )
-                            }
                         },
                         {
                             post ->_post.value = post
@@ -103,32 +127,26 @@ class ChatViewModel @Inject constructor(
                     )
                 }
             )
+            val result = messageRepository.getLatestMessagesByBatch(conversationId,batchSize,1)
             result.fold(
                 { error ->
-                    _state.update {
-                        Log.e("ChatHome", "Lỗi lấy cuộc trò chuyện: ${error.message}")
-                        it.copy(
-                            isLoading = false,
-                            messages = emptyList(),
-                            error = error.message ?: "Lỗi không xác định"
+                    _isLoading.value = false
+                    _listMessages.value = emptyList()
+                    Log.e("ChatHome", "Lỗi lấy tin nhắn: ${error.message}")
 
-                        )
-                    }
                 },
-                { messages ->
+                { response ->
 
-
-                    _state.update {
-                        it.copy(
-                            isLoading = false,
-                            messages = messages,
-                            error = null
-                        )
+                    _listMessages.value = response.messages
+                    if (response.totalBatchCount <= currentBatch) {
+                        isMoreMessage = false
                     }
+                    else isMoreMessage = true
+                    currentBatch++
+                    _isLoading.value = false
+
                 }
             )
-
-
         }
         }
         else {
