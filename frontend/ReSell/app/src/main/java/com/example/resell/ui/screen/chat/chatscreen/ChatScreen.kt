@@ -58,6 +58,7 @@ import android.widget.Toast
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewModelScope
 import com.example.resell.model.Post
 import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.navigation.Screen
@@ -79,6 +80,20 @@ fun ChatScreen() {
     val listState = rememberLazyListState()
     val post by viewModel.post.collectAsState()
     var initialScrollDone by remember { mutableStateOf(false) }
+    val incomingMessage = viewModel.incomingMessage.collectAsState(initial = null)
+    LaunchedEffect(Unit) {
+        viewModel.inChat(true)
+    }
+
+// Gọi khi rời khỏi màn hình
+    DisposableEffect(Unit) {
+        onDispose {
+            // Gọi hàm suspend từ viewModelScope
+            viewModel.viewModelScope.launch {
+                viewModel.inChat(false)
+            }
+        }
+    }
     LoadingDialog(isLoading = isLoading)
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(key1 = true) {
@@ -89,6 +104,11 @@ fun ChatScreen() {
         if (messages.isNotEmpty() && !initialScrollDone) {
             listState.animateScrollToItem(messages.size)
             initialScrollDone = true
+        }
+    }
+    LaunchedEffect(incomingMessage.value) {
+        incomingMessage.value?.let {
+            listState.animateScrollToItem(messages.size)
         }
     }
     LaunchedEffect(listState) {

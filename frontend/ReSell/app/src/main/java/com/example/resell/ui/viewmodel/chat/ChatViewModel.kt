@@ -1,5 +1,6 @@
 package com.example.resell.ui.viewmodel.chat
 
+import android.R.id.message
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -13,9 +14,12 @@ import com.example.resell.repository.MessageRepository
 import com.example.resell.repository.PostRepository
 import com.example.resell.store.ReactiveStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -42,6 +46,27 @@ class ChatViewModel @Inject constructor(
     private val batchSize = 20
     var isMoreMessage : Boolean = false
     private var currentBatch: Int = 1
+
+    private val _incomingMessage = MutableSharedFlow<Message>(extraBufferCapacity = 64)
+    val incomingMessage: SharedFlow<Message> = _incomingMessage
+
+    init {
+        observeMessages()
+
+    }
+    suspend fun inChat(isInChat : Boolean){
+        messageRepository.sendInChatIndicator(conversationId,isInChat)
+    }
+    private fun observeMessages() {
+        viewModelScope.launch {
+            messageRepository.receivedMessage
+                .filter { it.conversationId == conversationId }
+                .collect { msg ->
+                    _listMessages.value = listOf(msg) + _listMessages.value
+                    _incomingMessage.emit(msg)
+                }
+        }
+    }
     suspend fun sendMessage(content: String): Boolean {
         if (conversationId.isBlank()){
             val createResult = messageRepository.createConversation(ReactiveStore<User>().item.value!!.id,_post.value!!.userID,_post.value!!.id)
