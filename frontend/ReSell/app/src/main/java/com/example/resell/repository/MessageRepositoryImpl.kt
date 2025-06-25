@@ -218,7 +218,7 @@ class MessageRepositoryImpl @Inject constructor(
     }
 
     private val _isTyping = MutableStateFlow(false)
-    val isTyping: StateFlow<Boolean> = _isTyping
+    override val isTyping: StateFlow<Boolean> = _isTyping
     private var typingJob: Job? = null
 
     private fun observeTypingEvents() {
@@ -241,7 +241,7 @@ class MessageRepositoryImpl @Inject constructor(
     }
 
     private val _receivedMessage = MutableSharedFlow<Message>()
-    val receivedMessage: SharedFlow<Message> = _receivedMessage
+    override val receivedMessage: SharedFlow<Message> = _receivedMessage
 
     private fun observeIncomingMessages() {
         CoroutineScope(Dispatchers.Default).launch {

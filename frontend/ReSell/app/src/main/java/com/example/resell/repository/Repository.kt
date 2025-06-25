@@ -3,6 +3,8 @@ package com.example.resell.repository
 import com.example.resell.model.*
 import arrow.core.Either
 import com.example.resell.network.NetworkError
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.io.File
 import java.time.LocalDate
 
@@ -82,6 +84,9 @@ interface ReviewRepository{
 }
 
 interface MessageRepository{
+    val receivedMessage: SharedFlow<Message>
+    val isTyping: StateFlow<Boolean>
+
     suspend fun createConversation(buyerID: String, sellerID: String, postID: String): Either<NetworkError, Conversation>
     suspend fun getConversationByID(conversationID: String): Either<NetworkError, Conversation>
     suspend fun getConversationsByPostID(postID: String): Either<NetworkError, List<Conversation>>
