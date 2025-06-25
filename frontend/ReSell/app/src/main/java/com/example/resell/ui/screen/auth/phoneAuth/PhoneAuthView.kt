@@ -108,8 +108,7 @@ fun PhoneAuthScreen(viewModel: PhoneAuthViewModel = hiltViewModel()) {
             }
         }
 
-        var formattedPhone = viewModel.formatPhoneNumber(viewModel.phoneNumber)
-        formattedPhone = "+84111111111"
+        val formattedPhone = viewModel.formatPhoneNumber(viewModel.phoneNumber)
         val options = PhoneAuthOptions.newBuilder(auth)
             .setPhoneNumber(formattedPhone)
             .setTimeout(60L, TimeUnit.SECONDS)

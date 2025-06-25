@@ -26,32 +26,6 @@ class CategoryRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
-    override suspend fun createCategory(
-        name: String,
-        parentCategoryID: String
-    ): Either<NetworkError, Boolean> {
-        return Either.catch {
-            val request = CreateCategoryRequest(
-                name = name,
-                parentCategoryID = parentCategoryID
-            )
-
-            apiService.createCategory(request)
-        }.mapLeft { it.toNetworkError() }
-    }
-
-    override suspend fun updateCategory(categoryID: String, request: UpdateCategoryRequest): Either<NetworkError, Boolean> {
-        return Either.catch {
-            apiService.updateCategory(categoryID, request)
-        }.mapLeft { it.toNetworkError() }
-    }
-
-    override suspend fun deleteCategory(categoryID: String): Either<NetworkError, Boolean> {
-        return Either.catch {
-            apiService.deleteCategory(categoryID)
-        }.mapLeft { it.toNetworkError() }
-    }
-
     override suspend fun getChildrenCategories(categoryID: String): Either<NetworkError, List<Category>> {
         return Either.catch {
             apiService.getCategoryChildren(categoryID)

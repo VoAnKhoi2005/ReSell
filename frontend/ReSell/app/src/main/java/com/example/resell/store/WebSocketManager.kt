@@ -36,10 +36,16 @@ class WebSocketManager @Inject constructor(
     val ackWaiters = mutableMapOf<String, CompletableDeferred<AckResult>>()
     val ackLock = Any()
 
-    private val _typingEvents = MutableSharedFlow<TypingIndicatorPayload>()
+    private val _typingEvents = MutableSharedFlow<TypingIndicatorPayload>(
+        replay = 1,
+        extraBufferCapacity = 10
+    )
     val typingEvents: SharedFlow<TypingIndicatorPayload> = _typingEvents
 
-    private val _messageEvents = MutableSharedFlow<ACKMessagePayload>()
+    private val _messageEvents = MutableSharedFlow<ACKMessagePayload>(
+        replay = 1,
+        extraBufferCapacity = 10
+    )
     val messageEvents: SharedFlow<ACKMessagePayload> = _messageEvents
 
     suspend fun connect(): Boolean {
@@ -81,7 +87,7 @@ class WebSocketManager @Inject constructor(
                                 }
                             }
 
-                            data?.let { _messageEvents.tryEmit(it) }
+                            data?.let { _messageEvents.tryEmit(data) }
                         }
 
                         SocketMessageType.ERROR -> {

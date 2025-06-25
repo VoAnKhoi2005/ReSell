@@ -25,6 +25,7 @@ import com.example.resell.store.ReactiveStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.delay
@@ -39,7 +40,10 @@ class MessageRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     private val wsManager: WebSocketManager
 ): MessageRepository {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
     init {
+        Log.d("MessageRepository", "init called")
         observeTypingEvents()
         observeIncomingMessages()
     }
@@ -129,6 +133,8 @@ class MessageRepositoryImpl @Inject constructor(
         val sent = wsManager.send(SocketMessageType.NEW_MESSAGE, payload, NewMessagePayload::class.java)
         if (!sent) {
             return Either.Left(ErrorPayload(error = "Failed to send message"))
+        } else {
+            Log.d("Websocket", "Success sending message")
         }
 
         val tempId = payload.tempMessageID
@@ -173,6 +179,8 @@ class MessageRepositoryImpl @Inject constructor(
         if (!sent) {
             Log.d("WebSocket", "Failed to send in chat indicator")
             return false
+        } else {
+            Log.d("Websocket", "Success sending in chat indicator")
         }
 
         val tempId = payload.tempMessageID
@@ -214,6 +222,8 @@ class MessageRepositoryImpl @Inject constructor(
         if (!sent) {
             Log.d("WebSocket", "Failed to send typing indicator")
             return
+        } else {
+            Log.d("WebSocket", "Success sending typing indicator")
         }
     }
 
@@ -222,7 +232,7 @@ class MessageRepositoryImpl @Inject constructor(
     private var typingJob: Job? = null
 
     private fun observeTypingEvents() {
-        CoroutineScope(Dispatchers.Default).launch {
+        scope.launch {
             wsManager.typingEvents.collect { payload ->
                 if (payload.isTyping) {
                     _isTyping.value = true
@@ -240,12 +250,15 @@ class MessageRepositoryImpl @Inject constructor(
         }
     }
 
-    private val _receivedMessage = MutableSharedFlow<Message>()
+    private val _receivedMessage = MutableSharedFlow<Message>(
+        replay = 1,
+        extraBufferCapacity = 10
+    )
     override val receivedMessage: SharedFlow<Message> = _receivedMessage
 
     private fun observeIncomingMessages() {
-        CoroutineScope(Dispatchers.Default).launch {
-                wsManager.messageEvents.collect { payload ->
+        scope.launch {
+            wsManager.messageEvents.collect { payload ->
                 val message = payload.message
                 val currentUserId = ReactiveStore<User>().item.value?.id
 

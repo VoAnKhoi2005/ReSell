@@ -13,6 +13,7 @@ import com.example.resell.model.User
 import com.example.resell.repository.MessageRepository
 import com.example.resell.repository.PostRepository
 import com.example.resell.store.ReactiveStore
+import com.example.resell.store.WebSocketManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,11 +53,12 @@ class ChatViewModel @Inject constructor(
 
     init {
         observeMessages()
-
     }
+
     suspend fun inChat(isInChat : Boolean){
         messageRepository.sendInChatIndicator(conversationId,isInChat)
     }
+
     private fun observeMessages() {
         viewModelScope.launch {
             messageRepository.receivedMessage

@@ -44,7 +44,6 @@ class LoginViewModel @Inject constructor(
     private val webSocketManager: WebSocketManager,
     private val repo: AddressRepository
 ) : AndroidViewModel(application) {
-
     private val context by lazy { application.applicationContext }
 
     private val auth = Firebase.auth
@@ -93,14 +92,6 @@ class LoginViewModel @Inject constructor(
     fun launchGoogleSignIn(result: GetCredentialResponse) {
         viewModelScope.launch {
             try {
-//                val response = repo.getAllProvinces()
-//                response.fold(
-//                    ifLeft = {provinces ->
-//                        val pro = provinces
-//                    },
-//                    ifRight = {}
-//                )
-
                 val googleIdToken = handleSignIn(result)
                 val credential = GoogleAuthProvider.getCredential(googleIdToken, null)
                 val authResult = auth.signInWithCredential(credential).await()

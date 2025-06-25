@@ -8,13 +8,12 @@ import javax.inject.Singleton
 
 @AndroidEntryPoint
 @Singleton
-class AppMessagingService : FirebaseMessagingService() {
+class AppNotificationService : FirebaseMessagingService() {
 
     @Inject lateinit var fcmTokenManager: FCMTokenManager
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-
         fcmTokenManager.fetchAndSendToken()
     }
 

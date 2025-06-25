@@ -29,6 +29,7 @@ import com.example.resell.model.UpdateCategoryRequest
 import com.example.resell.model.UpdatePostRequest
 import com.example.resell.model.UpdateProfileRequest
 import com.example.resell.model.AvatarUploadResponse
+import com.example.resell.model.Category
 import com.example.resell.model.ConversationStatDTO
 import com.example.resell.model.FirebaseAuthResponse
 import com.example.resell.model.GetConversationByPostAndUserResponse
@@ -120,27 +121,13 @@ interface ApiService {
 
     //region Category
     @GET("categories")
-    suspend fun getAllCategory(): List<com.example.resell.model.Category>
+    suspend fun getAllCategory(): List<Category>
 
     @GET("categories/{category_id}")
-    suspend fun getCategoryByID(@Path("category_id") categoryID: String): com.example.resell.model.Category
-
-    @POST("admin/categories")
-    suspend fun createCategory(
-        @Body request: CreateCategoryRequest
-    ): Boolean
-
-    @PUT("admin/categories/{category_id}")
-    suspend fun updateCategory(
-        @Path("category_id") categoryID: String,
-        @Body request: UpdateCategoryRequest
-    ): Boolean
-
-    @DELETE("admin/categories/{category_id}")
-    suspend fun deleteCategory(@Path("category_id") categoryID: String): Boolean
+    suspend fun getCategoryByID(@Path("category_id") categoryID: String): Category
 
     @GET("categories/{category_id}/children")
-    suspend fun getCategoryChildren(@Path("category_id") categoryID: String): List<com.example.resell.model.Category>
+    suspend fun getCategoryChildren(@Path("category_id") categoryID: String): List<Category>
     //endregion
 
     //region Post

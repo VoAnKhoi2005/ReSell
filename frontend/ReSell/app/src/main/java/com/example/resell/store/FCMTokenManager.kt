@@ -1,12 +1,16 @@
 package com.example.resell.store
 
 import android.util.Log
+import arrow.core.Either
+import com.example.resell.model.Notification
 import com.example.resell.network.ApiService
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.example.resell.model.SaveFCMTokenRequest
+import com.example.resell.network.NetworkError
+import com.example.resell.network.toNetworkError
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,7 +22,7 @@ class FCMTokenManager @Inject constructor(
         FirebaseMessaging.getInstance().token
             .addOnCompleteListener { task ->
                 if (!task.isSuccessful) {
-                    Log.w("FCM", "Fetching token failed", task.exception)
+                    Log.w("FCM Manager", "Fetching token failed", task.exception)
                     return@addOnCompleteListener
                 }
 
@@ -26,13 +30,24 @@ class FCMTokenManager @Inject constructor(
                 Log.d("FCM", "FCM Token: $token")
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        apiService.saveFCMToken(SaveFCMTokenRequest(token))
-                    } catch (e: Exception) {
-                        Log.e("FCM", "Failed to send token", e)
-                    }
+                    val response = saveFCMToken(token)
+                    response.fold(
+                        ifLeft = { error ->
+                            Log.e("FCM Manager", "Fail to save FCM token: " + error.message)
+                        },
+                        ifRight = {
+                            Log.d("FCM Manager", "Success saving FCM token")
+                        }
+                    )
                 }
             }
 
+    }
+
+    private suspend fun saveFCMToken(token: String): Either<NetworkError, Boolean> {
+        return Either.catch {
+            apiService.saveFCMToken(SaveFCMTokenRequest(token))
+            true
+        }.mapLeft { it.toNetworkError() }
     }
 }
