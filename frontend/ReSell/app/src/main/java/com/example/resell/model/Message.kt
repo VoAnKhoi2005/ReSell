@@ -12,4 +12,3 @@ data class Message(
     @Json(name = "content") val content: String,
     @Json(name = "created_at") val createdAt: LocalDateTime?
 )
-

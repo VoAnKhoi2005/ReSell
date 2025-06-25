@@ -14,13 +14,15 @@ type MessageService interface {
 	GetConversationByID(conversationId string) (*model.Conversation, error)
 	GetConversationsByPostID(postID string) ([]*model.Conversation, error)
 	GetConversationsByUserID(userID string) ([]*model.Conversation, error)
-	GetConversationStatDTOByUserID(conversationId string) ([]*dto.ConversationStatDTO, error)
 	GetConversationByUserAndPostID(userID string, postID string) (*model.Conversation, error)
+
+	GetConversationStatDTOByUserID(conversationId string) ([]*dto.ConversationStatDTO, error)
 
 	CreateMessage(message *model.Message) (*model.Message, error)
 	GetMessageByID(messageId string) (*model.Message, error)
 	GetMessagesInRange(senderID string, conversationID string, start uint, end uint) ([]*model.Message, error)
 	GetLatestMessages(conversationID string, number uint) ([]*model.Message, error)
+	GetLatestMessagesByBatch(conversationID string, batchSize int, page int) ([]*model.Message, int, error)
 }
 
 type messageService struct {
@@ -72,6 +74,19 @@ func (m *messageService) GetConversationByUserAndPostID(userID string, postID st
 	return m.messageRepository.GetConversationByUserAndPostID(userID, postID)
 }
 
+func (m *messageService) CreateMessage(message *model.Message) (*model.Message, error) {
+	conversation, err := m.messageRepository.GetConversationByID(*message.ConversationId)
+	if err != nil {
+		return nil, err
+	}
+
+	if *conversation.BuyerId != *message.SenderId && *conversation.SellerId != *message.SenderId {
+		return nil, errors.New("not authorized")
+	}
+
+	return m.messageRepository.CreateMessage(message)
+}
+
 func (m *messageService) GetMessageByID(messageId string) (*model.Message, error) {
 	return m.messageRepository.GetMessageByID(messageId)
 }
@@ -97,15 +112,14 @@ func (m *messageService) GetLatestMessages(conversationID string, number uint) (
 	return m.messageRepository.GetLatestMessages(conversationID, number)
 }
 
-func (m *messageService) CreateMessage(message *model.Message) (*model.Message, error) {
-	conversation, err := m.messageRepository.GetConversationByID(*message.ConversationId)
-	if err != nil {
-		return nil, err
+func (m *messageService) GetLatestMessagesByBatch(conversationID string, batchSize int, page int) ([]*model.Message, int, error) {
+	if batchSize < 10 || batchSize > 1000 {
+		return nil, 0, errors.New("batch size too large or too small")
 	}
 
-	if *conversation.BuyerId != *message.SenderId && *conversation.SellerId != *message.SenderId {
-		return nil, errors.New("not authorized")
+	if page < 1 {
+		return nil, 0, errors.New("page must be greater than zero")
 	}
 
-	return m.messageRepository.CreateMessage(message)
+	return m.messageRepository.GetLatestMessagesByBatch(conversationID, batchSize, page)
 }

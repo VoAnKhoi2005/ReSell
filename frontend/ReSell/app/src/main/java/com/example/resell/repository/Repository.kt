@@ -85,11 +85,12 @@ interface MessageRepository{
     suspend fun createConversation(buyerID: String, sellerID: String, postID: String): Either<NetworkError, Conversation>
     suspend fun getConversationByID(conversationID: String): Either<NetworkError, Conversation>
     suspend fun getConversationsByPostID(postID: String): Either<NetworkError, List<Conversation>>
+    suspend fun getAllUserConversations(): Either<NetworkError, List<Conversation>>
     suspend fun getConversationByPostAndUserID(postID: String): Either<NetworkError, GetConversationByPostAndUserResponse>
-    suspend fun getAllUserConversations(): Either<NetworkError, List<ConversationStatDTO>>
+    suspend fun getAllUserConversationsDTO(): Either<NetworkError, List<ConversationStatDTO>>
     suspend fun deleteConversation(conversationID: String): Either<NetworkError, Boolean>
-    suspend fun getLatestMessage(conversationID: String, amount: Int): Either<NetworkError,List<Message>>
-    suspend fun getMessageInRange(conversationID: String, start: Int, end: Int): Either<NetworkError,List<Message>>
+    suspend fun getLatestMessages(conversationID: String, amount: Int): Either<NetworkError,List<Message>>
+    suspend fun getLatestMessagesByBatch(conversationID: String, batchSize: Int, page: Int): Either<NetworkError, GetLatestMessagesByBatchResponse>
     suspend fun sendNewMessage(conversationID: String, content: String): Either<ErrorPayload, Message>
     suspend fun sendInChatIndicator(conversationID: String, isInChat: Boolean): Boolean
     suspend fun sendTypingIndicator(conversationID: String, userID: String, isTyping: Boolean)

@@ -69,21 +69,18 @@ class UserRepositoryImpl @Inject constructor(
                 newPassword = newPassword
             )
             apiService.changePassword(request)
-            true
         }.mapLeft { it.toNetworkError() }
     }
 
     override suspend fun deleteUser(userID: String): Either<NetworkError, Boolean> {
         return Either.catch {
             apiService.deleteUser(userID)
-            true
         }.mapLeft { it.toNetworkError() }
     }
 
     override suspend fun followUser(userID: String): Either<NetworkError, Boolean> {
         return Either.catch {
-            apiService.deleteUser(userID)
-            true
+            apiService.followUser(userID)
         }.mapLeft { it.toNetworkError() }
     }
 
@@ -96,7 +93,6 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun unfollowUser(userID: String): Either<NetworkError, Boolean> {
         return Either.catch {
             apiService.unfollowUser(userID)
-            true
         }.mapLeft { it.toNetworkError() }
     }
 

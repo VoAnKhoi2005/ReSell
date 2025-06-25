@@ -24,11 +24,11 @@ func RegisterMessageRote(rg *gin.RouterGroup, db *gorm.DB) {
 	messageRoute.POST("/create", messageController.CreateConversation)
 	messageRoute.GET("/:id", messageController.GetConversationByID)
 	messageRoute.GET("/post/:post_id", messageController.GetConversationByPostID)
-	messageRoute.GET("user/all", messageController.GetConversationByUserID)
+	messageRoute.GET("/dto/user/all", messageController.GetConversationsStatByUserID)
+	messageRoute.GET("/user/all", messageController.GetConversationsByUserID)
 	messageRoute.GET("/post/:post_id/user", messageController.GetConversationByUserAndPostID)
 	messageRoute.DELETE("/:id", messageController.DeleteConversation)
 
-	//messageRoute.POST("/:id/messages/", messageController.CreateMessage)
 	messageRoute.GET("/:id/messages/latest/:amount", messageController.GetLatestMessages)
-	messageRoute.GET("/:id/messages/in_range", messageController.GetMessagesInRange)
+	messageRoute.GET("/:id/messages/latest/:batch_size/:page", messageController.GetLatestMessagesByBatch)
 }

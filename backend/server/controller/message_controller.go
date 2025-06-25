@@ -83,7 +83,7 @@ func (mc *MessageController) GetConversationByPostID(c *gin.Context) {
 	c.JSON(http.StatusOK, conversations)
 }
 
-func (mc *MessageController) GetConversationByUserID(c *gin.Context) {
+func (mc *MessageController) GetConversationsStatByUserID(c *gin.Context) {
 	userID, err := util.GetUserID(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -91,6 +91,22 @@ func (mc *MessageController) GetConversationByUserID(c *gin.Context) {
 	}
 
 	conversations, err := mc.messageService.GetConversationStatDTOByUserID(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, conversations)
+}
+
+func (mc *MessageController) GetConversationsByUserID(c *gin.Context) {
+	userID, err := util.GetUserID(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	conversations, err := mc.messageService.GetConversationsByUserID(userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -148,63 +164,6 @@ func (mc *MessageController) DeleteConversation(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
-func (mc *MessageController) CreateMessage(c *gin.Context) {
-	var request transaction.CreateMessageRequest
-	err := c.ShouldBindJSON(&request)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if !util.IsUserOwner(c, request.SenderId) {
-		return
-	}
-
-	message := model.Message{
-		Content:        request.Content,
-		ConversationId: &request.ConversationId,
-		SenderId:       &request.SenderId,
-		CreatedAt:      time.Now(),
-	}
-
-	returnMessage, err := mc.messageService.CreateMessage(&message)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, returnMessage)
-}
-
-func (mc *MessageController) GetMessagesInRange(c *gin.Context) {
-	conversationId := c.Param("id")
-
-	startStr := c.Query("start")
-	endStr := c.Query("end")
-
-	start, err1 := strconv.Atoi(startStr)
-	end, err2 := strconv.Atoi(endStr)
-
-	if err1 != nil || err2 != nil || start < 0 || end <= start {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid range"})
-		return
-	}
-
-	senderIDValue, exist := c.Get("x-user-id")
-	senderID := senderIDValue.(string)
-	if !exist {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Sender not exist"})
-		return
-	}
-	messages, err := mc.messageService.GetMessagesInRange(senderID, conversationId, uint(start), uint(end))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, messages)
-}
-
 func (mc *MessageController) GetLatestMessages(c *gin.Context) {
 	conversationID := c.Param("id")
 	amountStr := c.Param("amount")
@@ -221,4 +180,34 @@ func (mc *MessageController) GetLatestMessages(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, messages)
+}
+
+func (mc *MessageController) GetLatestMessagesByBatch(c *gin.Context) {
+	batchSizeStr := c.Param("batch_size")
+	batchSize, err := strconv.Atoi(batchSizeStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "batch_size must be a valid integer"})
+		return
+	}
+
+	pageStr := c.Param("page")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "page must be a valid integer"})
+		return
+	}
+
+	conversationID := c.Param("id")
+	if conversationID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "conversation id is required"})
+		return
+	}
+
+	messages, totalBatchCount, err := mc.messageService.GetLatestMessagesByBatch(conversationID, batchSize, page)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"messages": messages, "total_batch_count": totalBatchCount})
 }

@@ -217,6 +217,12 @@ data class GetConversationByPostAndUserResponse(
 )
 
 @JsonClass(generateAdapter = true)
+data class GetLatestMessagesByBatchResponse(
+    @Json(name = "messages") val messages: List<Message>,
+    @Json(name = "total_batch_count") val totalBatchCount: Int,
+)
+
+@JsonClass(generateAdapter = true)
 data class CreateConversationRequest(
     @Json(name = "buyer_id") val buyerID: String,
     @Json(name = "seller_id") val sellerID: String,
@@ -224,8 +230,8 @@ data class CreateConversationRequest(
 )
 
 enum class SocketMessageType {
-    @Json(name = "send_message")
-    SEND_MESSAGE,
+    @Json(name = "ack_message")
+    ACK_MESSAGE,
 
     @Json(name = "new_message")
     NEW_MESSAGE,
@@ -247,7 +253,7 @@ data class SocketMessage<T>(
 )
 
 @JsonClass(generateAdapter = true)
-data class SendMessagePayload(
+data class ACKMessagePayload(
     @Json(name = "temp_message_id") val tempMessageID: String,
     @Json(name = "message") val message: Message
 )
@@ -287,7 +293,7 @@ data class PendingMessage(
 )
 
 sealed class AckResult {
-    data class Success(val payload: SendMessagePayload) : AckResult()
+    data class Success(val payload: ACKMessagePayload) : AckResult()
     data class Error(val error: ErrorPayload) : AckResult()
 }
 

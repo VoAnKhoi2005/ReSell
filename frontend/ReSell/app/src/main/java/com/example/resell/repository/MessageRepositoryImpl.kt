@@ -14,6 +14,7 @@ import com.example.resell.model.ConversationStatDTO
 import com.example.resell.model.CreateConversationRequest
 import com.example.resell.model.ErrorPayload
 import com.example.resell.model.GetConversationByPostAndUserResponse
+import com.example.resell.model.GetLatestMessagesByBatchResponse
 import com.example.resell.model.InChatIndicatorPayload
 import com.example.resell.model.Message
 import com.example.resell.model.NewMessagePayload
@@ -77,19 +78,25 @@ class MessageRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
+    override suspend fun getAllUserConversations(): Either<NetworkError, List<Conversation>> {
+        return Either.catch {
+            apiService.getAllUserConversations()
+        }.mapLeft { it.toNetworkError() }
+    }
+
     override suspend fun getConversationByPostAndUserID(postID: String): Either<NetworkError, GetConversationByPostAndUserResponse> {
         return Either.catch {
             apiService.getConversationByPostAndUser(postID)
         }.mapLeft { it.toNetworkError() }
     }
 
-    override suspend fun getAllUserConversations(): Either<NetworkError, List<ConversationStatDTO>> {
+    override suspend fun getAllUserConversationsDTO(): Either<NetworkError, List<ConversationStatDTO>> {
         return Either.catch {
-            apiService.getAllUserConversations()
+            apiService.getAllUserConversationsDTO()
         }.mapLeft { it.toNetworkError() }
     }
 
-    override suspend fun getLatestMessage(
+    override suspend fun getLatestMessages(
         conversationID: String,
         amount: Int
     ): Either<NetworkError, List<Message>> {
@@ -98,13 +105,13 @@ class MessageRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
-    override suspend fun getMessageInRange(
+    override suspend fun getLatestMessagesByBatch(
         conversationID: String,
-        start: Int,
-        end: Int
-    ): Either<NetworkError, List<Message>> {
+        batchSize: Int,
+        page: Int
+    ): Either<NetworkError, GetLatestMessagesByBatchResponse> {
         return Either.catch {
-            apiService.getMessagesInRange(conversationID, start, end)
+            apiService.getLatestMessagesByBatch(conversationID, batchSize, page)
         }.mapLeft { it.toNetworkError() }
     }
 
@@ -212,29 +219,24 @@ class MessageRepositoryImpl @Inject constructor(
 
     private val _isTyping = MutableStateFlow(false)
     val isTyping: StateFlow<Boolean> = _isTyping
-
     private var typingJob: Job? = null
 
     private fun observeTypingEvents() {
         CoroutineScope(Dispatchers.Default).launch {
             wsManager.typingEvents.collect { payload ->
-                onTypingIndicator(payload)
-            }
-        }
-    }
+                if (payload.isTyping) {
+                    _isTyping.value = true
 
-    private fun onTypingIndicator(payload: TypingIndicatorPayload) {
-        if (payload.isTyping) {
-            _isTyping.value = true
-
-            typingJob?.cancel()
-            typingJob = CoroutineScope(Dispatchers.Default).launch {
-                delay(5000)
-                _isTyping.value = false
+                    typingJob?.cancel()
+                    typingJob = CoroutineScope(Dispatchers.Default).launch {
+                        delay(5000)
+                        _isTyping.value = false
+                    }
+                } else {
+                    typingJob?.cancel()
+                    _isTyping.value = false
+                }
             }
-        } else {
-            typingJob?.cancel()
-            _isTyping.value = false
         }
     }
 

@@ -32,6 +32,7 @@ import com.example.resell.model.AvatarUploadResponse
 import com.example.resell.model.ConversationStatDTO
 import com.example.resell.model.FirebaseAuthResponse
 import com.example.resell.model.GetConversationByPostAndUserResponse
+import com.example.resell.model.GetLatestMessagesByBatchResponse
 import com.example.resell.model.GetNotificationByBatchResponse
 import com.example.resell.model.User
 import okhttp3.MultipartBody
@@ -46,7 +47,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
-
     //region User
     @POST("auth/firebase")
     suspend fun firebaseAuth(
@@ -248,8 +248,14 @@ interface ApiService {
     @GET("conversation/post/{post_id}")
     suspend fun getConversationByPostID(@Path("post_id") postID: String): List<Conversation>
 
+    @GET("conversation/post/{post_id}/user")
+    suspend fun getConversationByPostAndUser(@Path("post_id") postID: String): GetConversationByPostAndUserResponse
+
     @GET("conversation/user/all")
-    suspend fun getAllUserConversations(): List<ConversationStatDTO>
+    suspend fun getAllUserConversations(): List<Conversation>
+
+    @GET("conversation/dto/user/all")
+    suspend fun getAllUserConversationsDTO(): List<ConversationStatDTO>
 
     @DELETE("conversation/{conv_id}")
     suspend fun deleteConversation(@Path("conv_id") conversationID: String): Boolean
@@ -260,15 +266,12 @@ interface ApiService {
         @Path("amount") amount:Int
     ): List<Message>
 
-    @GET("conversation/{conv_id}/messages/in_range")
-    suspend fun getMessagesInRange(
+    @GET("conversation/{conv_id}/messages/latest/{batch_size}/{page}")
+    suspend fun getLatestMessagesByBatch(
         @Path("conv_id") conversationID: String,
-        @Query("start") start: Int,
-        @Query("end") end: Int
-    ): List<Message>
-
-    @GET("conversation/post/{post_id}/user")
-    suspend fun getConversationByPostAndUser(@Path("post_id") postID: String): GetConversationByPostAndUserResponse
+        @Path("batch_size") batchSize:Int,
+        @Path("page") page: Int
+    ): GetLatestMessagesByBatchResponse
     //endregion
 
     //region Notification
@@ -288,8 +291,5 @@ interface ApiService {
     suspend fun saveFCMToken(
         @Body request: SaveFCMTokenRequest
     ): Boolean
-
-    @DELETE("notification/FCM")
-    suspend fun deleteFCMToken(): Boolean
     //endregion
 }

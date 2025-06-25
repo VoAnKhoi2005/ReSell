@@ -3,18 +3,14 @@ package com.example.resell.ui.viewmodel.chat
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import arrow.core.Either
 import com.example.resell.repository.MessageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.example.resell.model.Conversation
-import com.example.resell.model.Message
 import com.example.resell.repository.PostRepository
 import com.example.resell.repository.UserRepository
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 
@@ -35,7 +31,7 @@ class ChatHomeViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
 
-            val result = messageRepository.getAllUserConversations()
+            val result = messageRepository.getAllUserConversationsDTO()
 
             result.fold(
                 { error ->

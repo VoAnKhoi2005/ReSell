@@ -16,7 +16,7 @@ import com.squareup.moshi.Types
 import kotlinx.coroutines.CompletableDeferred
 import com.example.resell.model.ErrorPayload
 import com.example.resell.model.PendingMessage
-import com.example.resell.model.SendMessagePayload
+import com.example.resell.model.ACKMessagePayload
 import com.example.resell.model.SocketMessageType
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -39,8 +39,8 @@ class WebSocketManager @Inject constructor(
     private val _typingEvents = MutableSharedFlow<TypingIndicatorPayload>()
     val typingEvents: SharedFlow<TypingIndicatorPayload> = _typingEvents
 
-    private val _messageEvents = MutableSharedFlow<SendMessagePayload>()
-    val messageEvents: SharedFlow<SendMessagePayload> = _messageEvents
+    private val _messageEvents = MutableSharedFlow<ACKMessagePayload>()
+    val messageEvents: SharedFlow<ACKMessagePayload> = _messageEvents
 
     suspend fun connect(): Boolean {
         val jwt = tokenManager.getAccessToken()
@@ -68,8 +68,8 @@ class WebSocketManager @Inject constructor(
                             data?.let { _typingEvents.tryEmit(it) }
                         }
 
-                        SocketMessageType.SEND_MESSAGE -> {
-                            val data = parseSocketMessageData<SendMessagePayload>(raw.type, raw.data, moshi)
+                        SocketMessageType.ACK_MESSAGE -> {
+                            val data = parseSocketMessageData<ACKMessagePayload>(raw.type, raw.data, moshi)
                             val tempId = data?.tempMessageID
 
                             if (tempId != null) {

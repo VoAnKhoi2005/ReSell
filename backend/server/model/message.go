@@ -30,7 +30,7 @@ type Message struct {
 type SocketMessageType string
 
 const (
-	MessageSend     SocketMessageType = "send_message"
+	ACKMessage      SocketMessageType = "ack_message"
 	NewMessage      SocketMessageType = "new_message"
 	TypingIndicator SocketMessageType = "typing"
 	InChatIndicator SocketMessageType = "in_chat"
@@ -48,7 +48,7 @@ type NewMessagePayload struct {
 	Content        string `json:"content"`
 }
 
-type SendMessagePayload struct {
+type ACKMessagePayload struct {
 	TempMessageID string  `json:"temp_message_id"`
 	Message       Message `json:"message"`
 }

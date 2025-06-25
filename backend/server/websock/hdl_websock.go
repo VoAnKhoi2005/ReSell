@@ -177,8 +177,8 @@ func (h *WSHandler) handleNewMessage(sess *Session, msg *model.NewMessagePayload
 
 	// Send confirmation to sender
 	h.sendToSession(sess, model.SocketMessage{
-		Type: model.MessageSend,
-		Data: model.SendMessagePayload{
+		Type: model.ACKMessage,
+		Data: model.ACKMessagePayload{
 			TempMessageID: tempMessageID,
 			Message:       *savedMsg,
 		},
@@ -187,7 +187,7 @@ func (h *WSHandler) handleNewMessage(sess *Session, msg *model.NewMessagePayload
 	// Broadcast to other participant
 	response := model.SocketMessage{
 		Type: model.NewMessage,
-		Data: model.SendMessagePayload{Message: *savedMsg},
+		Data: model.ACKMessagePayload{Message: *savedMsg},
 	}
 
 	var recipientID string

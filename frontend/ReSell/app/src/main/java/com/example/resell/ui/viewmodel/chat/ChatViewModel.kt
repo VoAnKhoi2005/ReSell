@@ -4,23 +4,17 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import arrow.core.Either
-import com.example.resell.model.Conversation
-import com.example.resell.model.Message
 import com.example.resell.model.Post
 import com.example.resell.model.User
 import com.example.resell.repository.MessageRepository
 import com.example.resell.repository.PostRepository
 import com.example.resell.store.ReactiveStore
-import com.example.resell.ui.screen.chat.chathomescreen.ConversationCard
-import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -75,7 +69,7 @@ class ChatViewModel @Inject constructor(
         if(conversationId.isNotBlank()){ viewModelScope.launch {
             showLoading()
 
-            val result = messageRepository.getLatestMessage(conversationId,10)
+            val result = messageRepository.getLatestMessages(conversationId,10)
             val getConversation = messageRepository.getConversationByID(conversationId)
             getConversation.fold (
                 { error ->

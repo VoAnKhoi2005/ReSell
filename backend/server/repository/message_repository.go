@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/dto"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
@@ -23,6 +24,7 @@ type MessageRepository interface {
 
 	GetMessagesInRange(conversationID string, start uint, end uint) ([]*model.Message, error)
 	GetLatestMessages(conversationID string, number uint) ([]*model.Message, error)
+	GetLatestMessagesByBatch(conversationID string, batchSize int, page int) ([]*model.Message, int, error)
 }
 
 type messageRepository struct {
@@ -104,7 +106,9 @@ func (m *messageRepository) GetConversationsByPostID(postID string) ([]*model.Co
 	defer cancel()
 
 	var conversations []*model.Conversation
-	err := m.db.WithContext(ctx).First(&conversations, "post_id = ?", postID).Error
+	err := m.db.WithContext(ctx).
+		Preload("Post.PostImages").
+		First(&conversations, "post_id = ?", postID).Error
 	return conversations, err
 }
 
@@ -179,7 +183,41 @@ func (m *messageRepository) GetLatestMessages(conversationID string, number uint
 
 	var messages []*model.Message
 	err := m.db.WithContext(ctx).
-		Where("conversation_id = ?", conversationID).Order("created_at desc").
+		Where("conversation_id = ?", conversationID).
+		Order("created_at desc").
 		Limit(int(number)).Find(&messages).Error
 	return messages, err
+}
+
+func (m *messageRepository) GetLatestMessagesByBatch(conversationID string, batchSize int, page int) ([]*model.Message, int, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var totalCount int64
+	err := m.db.WithContext(ctx).
+		Model(&model.Message{}).
+		Where("conversation_id = ?", conversationID).
+		Count(&totalCount).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	totalBatches := int((totalCount + int64(batchSize) - 1) / int64(batchSize))
+	offset := (page - 1) * batchSize
+
+	if totalBatches == 0 {
+		totalBatches = 1
+	}
+
+	if page > totalBatches {
+		return nil, totalBatches, fmt.Errorf("page %d out of range: total pages %d", page, totalBatches)
+	}
+
+	var messages []*model.Message
+	err = m.db.WithContext(ctx).
+		Where("conversation_id = ?", conversationID).
+		Order("created_at desc").
+		Limit(batchSize).Offset(offset).
+		Find(&messages).Error
+	return messages, totalBatches, err
 }
