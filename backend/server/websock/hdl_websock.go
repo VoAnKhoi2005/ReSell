@@ -100,7 +100,7 @@ func (h *WSHandler) readLoop(sess *Session) {
 		var incoming model.SocketMessage
 		if err = json.Unmarshal(raw, &incoming); err != nil {
 			log.Printf("ws: failed to unmarshal incoming message: %v", err)
-			h.sendError(sess, "Malformed socket message", nil)
+			h.sendError(sess, "Malformed socket message: "+err.Error(), nil)
 			continue
 		}
 
@@ -186,7 +186,7 @@ func (h *WSHandler) handleNewMessage(sess *Session, msg *model.NewMessagePayload
 
 	// Broadcast to other participant
 	response := model.SocketMessage{
-		Type: model.NewMessage,
+		Type: model.ACKMessage,
 		Data: model.ACKMessagePayload{Message: *savedMsg},
 	}
 
