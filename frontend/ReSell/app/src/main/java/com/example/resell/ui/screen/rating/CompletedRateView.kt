@@ -4,6 +4,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,8 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.resell.R
 import com.example.resell.ui.components.ProductPostItemHorizontalImage
 import com.example.resell.ui.components.StarRating
+import com.example.resell.ui.navigation.NavigationController
+import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.screen.no_result.NoRatingScreen
 import com.example.resell.ui.theme.White
 import com.example.resell.ui.theme.White2
@@ -80,28 +83,46 @@ data class RatingItemData(
 
 // 🔸 Giao diện 1 đánh giá
 @Composable
-fun RatingItem(data: RatingItemData) {
+fun RatingItem(data: RatingItemData, currentUserName: String = "Chúa MHề 4.0") {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(White, shape = RoundedCornerShape(12.dp))
+            .padding(12.dp)
     ) {
         Column {
-            // 👤 Avatar + Tên người đánh giá
+            //  Avatar + Tên người đánh giá + Nút Sửa nếu đúng user
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 4.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp)
             ) {
-                Image(
-                    painter = rememberAsyncImagePainter(data.userAvatar),
-                    contentDescription = null,
-                    modifier = Modifier.size(36.dp)
-                )
-                Text(
-                    text = data.userName,
-                    modifier = Modifier.padding(start = 8.dp),
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = rememberAsyncImagePainter(data.userAvatar),
+                        contentDescription = null,
+                        modifier = Modifier.size(36.dp)
+                    )
+                    Text(
+                        text = data.userName,
+                        modifier = Modifier.padding(start = 8.dp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                // Nút "Sửa" nếu là người đánh giá
+                if (data.userName == currentUserName) {
+                    Text(
+                        text = "Sửa",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.clickable {
+                            NavigationController.navController.navigate(Screen.ReviewProductScreen.route)
+                        }
+                    )
+                }
             }
 
             // ⭐ Star rating
@@ -122,3 +143,4 @@ fun RatingItem(data: RatingItemData) {
         }
     }
 }
+
