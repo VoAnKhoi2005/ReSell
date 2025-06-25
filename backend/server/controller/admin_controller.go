@@ -48,7 +48,7 @@ func (a *AdminController) RegisterAdmin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": errors})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (a *AdminController) GetAdminByID(c *gin.Context) {
@@ -102,7 +102,7 @@ func (a *AdminController) ChangeEmail(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (a *AdminController) ChangePassword(c *gin.Context) {
@@ -124,7 +124,7 @@ func (a *AdminController) ChangePassword(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (a *AdminController) DeleteAdmin(c *gin.Context) {
@@ -142,5 +142,5 @@ func (a *AdminController) DeleteAdmin(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }

@@ -44,7 +44,7 @@ func (ac *AddressController) CreateAddress(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (ac *AddressController) GetAllProvinces(c *gin.Context) {
@@ -147,7 +147,7 @@ func (ac *AddressController) UpdateAddress(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (ac *AddressController) DeleteAddress(c *gin.Context) {
@@ -163,7 +163,7 @@ func (ac *AddressController) DeleteAddress(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (ac *AddressController) CreateProvince(c *gin.Context) {
@@ -183,7 +183,7 @@ func (ac *AddressController) CreateProvince(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (ac *AddressController) CreateProvinces(c *gin.Context) {
@@ -213,7 +213,7 @@ func (ac *AddressController) CreateProvinces(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (ac *AddressController) CreateDistricts(c *gin.Context) {
@@ -243,7 +243,7 @@ func (ac *AddressController) CreateDistricts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (ac *AddressController) CreateWards(c *gin.Context) {
@@ -273,7 +273,7 @@ func (ac *AddressController) CreateWards(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (ac *AddressController) UpdateProvince(c *gin.Context) {
@@ -290,7 +290,7 @@ func (ac *AddressController) UpdateProvince(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (ac *AddressController) UpdateDistrict(c *gin.Context) {
@@ -307,7 +307,7 @@ func (ac *AddressController) UpdateDistrict(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (ac *AddressController) UpdateWard(c *gin.Context) {
@@ -324,7 +324,7 @@ func (ac *AddressController) UpdateWard(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (ac *AddressController) DeleteProvince(c *gin.Context) {
@@ -340,7 +340,7 @@ func (ac *AddressController) DeleteProvince(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (ac *AddressController) DeleteAllProvinces(c *gin.Context) {
@@ -350,7 +350,7 @@ func (ac *AddressController) DeleteAllProvinces(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (ac *AddressController) DeleteDistrict(c *gin.Context) {
@@ -366,7 +366,7 @@ func (ac *AddressController) DeleteDistrict(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (ac *AddressController) DeleteDistricts(c *gin.Context) {
@@ -382,7 +382,7 @@ func (ac *AddressController) DeleteDistricts(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (ac *AddressController) DeleteWard(c *gin.Context) {
@@ -398,7 +398,7 @@ func (ac *AddressController) DeleteWard(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (ac *AddressController) DeleteWards(c *gin.Context) {
@@ -414,5 +414,5 @@ func (ac *AddressController) DeleteWards(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }

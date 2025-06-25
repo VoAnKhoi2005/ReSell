@@ -83,7 +83,7 @@ func (h *UserController) DeleteUserAdmin(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (h *UserController) UpdateUser(c *gin.Context) {
@@ -106,7 +106,7 @@ func (h *UserController) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (h *UserController) ChangePassword(c *gin.Context) {
@@ -128,7 +128,7 @@ func (h *UserController) ChangePassword(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (h *UserController) DeleteUser(c *gin.Context) {
@@ -144,7 +144,7 @@ func (h *UserController) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (h *UserController) Follow(c *gin.Context) {
@@ -166,7 +166,7 @@ func (h *UserController) Follow(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (h *UserController) GetAllFollowee(c *gin.Context) {
@@ -204,7 +204,7 @@ func (h *UserController) UnFollow(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (h *UserController) BanUser(c *gin.Context) {
@@ -221,7 +221,7 @@ func (h *UserController) BanUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (h *UserController) UnBanUser(c *gin.Context) {
@@ -244,7 +244,7 @@ func (h *UserController) UnBanUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (h *UserController) UploadAvatar(c *gin.Context) {
@@ -301,5 +301,5 @@ func (h *UserController) UpdateReputation(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }

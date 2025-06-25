@@ -161,7 +161,7 @@ func (mc *MessageController) DeleteConversation(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (mc *MessageController) GetLatestMessages(c *gin.Context) {

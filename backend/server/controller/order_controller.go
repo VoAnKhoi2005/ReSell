@@ -49,7 +49,7 @@ func (oc *OrderController) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (oc *OrderController) DeleteOrder(c *gin.Context) {
@@ -71,7 +71,7 @@ func (oc *OrderController) DeleteOrder(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (oc *OrderController) GetOrderByID(c *gin.Context) {
@@ -205,5 +205,5 @@ func (oc *OrderController) UpdateStatus(c *gin.Context) {
 		log.Printf("error sending order notification %v", err)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }

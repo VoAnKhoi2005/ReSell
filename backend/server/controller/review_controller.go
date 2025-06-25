@@ -55,7 +55,7 @@ func (rc *ReviewController) CreateReview(c *gin.Context) {
 	description := "A buyer just left feedback on your post."
 	err = fb.FcmHandler.SendNotification(sellerID, title, description, false, model.DefaultNotification)
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
 
 func (rc *ReviewController) GetReviewsByBuyerID(c *gin.Context) {
@@ -125,5 +125,5 @@ func (rc *ReviewController) DeleteReviewByOrderID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true})
+	c.JSON(http.StatusOK, true)
 }
