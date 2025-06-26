@@ -184,8 +184,7 @@ fun ChatScreen() {
             receiverAvatarUrl,
             post,
             listState,
-            isTyping=true,
-            displayMessages = displayMessages
+            isTyping=true
         )
 
 
@@ -199,8 +198,7 @@ fun ChatMessages(
     receiverAvatarUrl: String,
     post: Post?=null,
     listState: LazyListState,
-    isTyping: Boolean,
-    displayMessages: List<Message>
+    isTyping: Boolean
 ) {
 
 

@@ -27,7 +27,7 @@ class ChatHomeViewModel @Inject constructor(
         getConversations()
     }
 
-    private fun getConversations() {
+    fun getConversations() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
 
