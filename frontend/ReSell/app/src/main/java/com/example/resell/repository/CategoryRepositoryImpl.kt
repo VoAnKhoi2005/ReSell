@@ -5,8 +5,6 @@ import com.example.resell.network.ApiService
 import com.example.resell.network.NetworkError
 import com.example.resell.network.toNetworkError
 import com.example.resell.model.Category
-import com.example.resell.model.CreateCategoryRequest
-import com.example.resell.model.UpdateCategoryRequest
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -6,6 +6,7 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"gorm.io/gorm"
+	"time"
 )
 
 type UserRepository interface {
@@ -44,27 +45,115 @@ func (r *userRepository) GetStat(userID string) (*dto.UserStatDTO, error) {
 	defer cancel()
 
 	var stat dto.UserStatDTO
+	stat.UserID = userID
 
-	if err := r.db.WithContext(ctx).Raw(`SELECT COUNT(*) FROM posts WHERE user_id = ?`, userID).Scan(&stat.PostNumber).Error; err != nil {
+	// Post count by user
+	if err := r.db.WithContext(ctx).Raw(`
+		SELECT COUNT(*) 
+		FROM posts 
+		WHERE user_id = ?
+	`, userID).Scan(&stat.PostNumber).Error; err != nil {
 		return nil, err
 	}
 
-	if err := r.db.WithContext(ctx).Raw(`SELECT COUNT(*) FROM shop_orders WHERE user_id = ?`, userID).Scan(&stat.BoughtNumber).Error; err != nil {
+	// Orders placed by user
+	if err := r.db.WithContext(ctx).Raw(`
+		SELECT COUNT(*) 
+		FROM shop_orders 
+		WHERE user_id = ?
+	`, userID).Scan(&stat.BoughtNumber).Error; err != nil {
 		return nil, err
 	}
 
+	// Sales and total revenue
 	row := r.db.WithContext(ctx).Raw(`
-		SELECT COUNT(*), COALESCE(SUM(total), 0) 
-		FROM shop_orders s 
-		JOIN posts p ON s.post_id = p.id 
+		SELECT COUNT(*), COALESCE(SUM(total), 0)
+		FROM shop_orders s
+		JOIN posts p ON s.post_id = p.id
 		WHERE p.user_id = ? AND s.status = 'completed'
 	`, userID).Row()
-	if err := row.Scan(&stat.SelledNumber, &stat.Revenue); err != nil {
+	if err := row.Scan(&stat.SaleNumber, &stat.TotalRevenue); err != nil {
 		return nil, err
 	}
 
-	if err := r.db.WithContext(ctx).Raw(`SELECT COUNT(*) FROM report_users WHERE reported_id = ?`, userID).Scan(&stat.ReportNumber).Error; err != nil {
+	// Reports against user
+	if err := r.db.WithContext(ctx).Raw(`
+		SELECT COUNT(*) 
+		FROM report_users 
+		WHERE reported_id = ?
+	`, userID).Scan(&stat.ReportNumber).Error; err != nil {
 		return nil, err
+	}
+
+	// Average rating received
+	if err := r.db.WithContext(ctx).Raw(`
+		SELECT COALESCE(AVG(re.rating), 0)
+		FROM user_reviews re
+		WHERE re.user_id = ?
+	`, userID).Scan(&stat.AverageRating).Error; err != nil {
+		return nil, err
+	}
+
+	// Total number of reviews received
+	if err := r.db.WithContext(ctx).Raw(`
+		SELECT COUNT(*) 
+		FROM user_reviews 
+		WHERE user_id = ?
+	`, userID).Scan(&stat.ReviewNumber).Error; err != nil {
+		return nil, err
+	}
+
+	// Average price of user's posts
+	if err := r.db.WithContext(ctx).Raw(`
+		SELECT COALESCE(AVG(p.price), 0)
+		FROM posts p
+		WHERE p.user_id = ?
+	`, userID).Scan(&stat.AveragePostPrice).Error; err != nil {
+		return nil, err
+	}
+
+	// Number of followers (other users following this user)
+	if err := r.db.WithContext(ctx).Raw(`
+	SELECT COUNT(*) 
+	FROM follows 
+	WHERE seller_id = ?
+`, userID).Scan(&stat.FollowerCount).Error; err != nil {
+		return nil, err
+	}
+
+	// Number of followees (this user following others)
+	if err := r.db.WithContext(ctx).Raw(`
+	SELECT COUNT(*) 
+	FROM follows 
+	WHERE buyer_id = ?
+`, userID).Scan(&stat.FolloweeCount).Error; err != nil {
+		return nil, err
+	}
+	//Reputation
+	if err := r.db.WithContext(ctx).Raw(`
+	SELECT reputation
+	FROM users 
+	WHERE id = ?
+`, userID).Scan(&stat.Reputation).Error; err != nil {
+		return nil, err
+	}
+
+	//Last activity
+	var lastActivity time.Time
+	err := r.db.WithContext(ctx).Raw(`
+	SELECT COALESCE(MAX(created_at), '0001-01-01 00:00:00')
+	FROM posts
+	WHERE user_id = ?
+`, userID).Scan(&lastActivity).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to nil if it's the fallback
+	if lastActivity.Equal(time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC)) {
+		stat.LastActivity = nil
+	} else {
+		stat.LastActivity = &lastActivity
 	}
 
 	return &stat, nil

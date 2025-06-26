@@ -1,41 +1,7 @@
 package com.example.resell.network
 
 
-import com.example.resell.model.Address
-import com.example.resell.model.ChangePasswordRequest
-import com.example.resell.model.Conversation
-import com.example.resell.model.CreateAddressRequest
-import com.example.resell.model.CreateCategoryRequest
-import com.example.resell.model.CreateConversationRequest
-import com.example.resell.model.CreateOrderRequest
-import com.example.resell.model.CreatePostRequest
-import com.example.resell.model.CreateReviewRequest
-import com.example.resell.model.District
-import com.example.resell.model.FirebaseAuthRequest
-import com.example.resell.model.GetPostsResponse
-import com.example.resell.model.ImageUploadResponse
-import com.example.resell.model.LoginRequest
-import com.example.resell.model.LoginResponse
-import com.example.resell.model.Message
-import com.example.resell.model.Notification
-import com.example.resell.model.NotificationType
-import com.example.resell.model.OrderStatus
-import com.example.resell.model.Post
-import com.example.resell.model.Review
-import com.example.resell.model.SaveFCMTokenRequest
-import com.example.resell.model.ShopOrder
-import com.example.resell.model.UpdateAddressRequest
-import com.example.resell.model.UpdateCategoryRequest
-import com.example.resell.model.UpdatePostRequest
-import com.example.resell.model.UpdateProfileRequest
-import com.example.resell.model.AvatarUploadResponse
-import com.example.resell.model.Category
-import com.example.resell.model.ConversationStatDTO
-import com.example.resell.model.FirebaseAuthResponse
-import com.example.resell.model.GetConversationByPostAndUserResponse
-import com.example.resell.model.GetLatestMessagesByBatchResponse
-import com.example.resell.model.GetNotificationByBatchResponse
-import com.example.resell.model.User
+import com.example.resell.model.*
 import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -49,6 +15,9 @@ import retrofit2.http.Query
 
 interface ApiService {
     //region User
+    @GET("user/stat/{user_id}")
+    suspend fun getUserStat(@Path("user_id") userID: String): UserStatResponse
+
     @POST("auth/firebase")
     suspend fun firebaseAuth(
         @Body request: FirebaseAuthRequest
@@ -101,13 +70,13 @@ interface ApiService {
     suspend fun getAddressByUserID(@Path("user_id") userID: String): List<Address>
 
     @GET("address/provinces/all")
-    suspend fun getAllProvinces(): List<com.example.resell.model.Province>
+    suspend fun getAllProvinces(): List<Province>
 
     @GET("address/districts/{province_id}")
     suspend fun getDistricts(@Path("province_id") provinceID: String): List<District>
 
     @GET("address/wards/{district_id}")
-    suspend fun getWards(@Path("district_id") districtID: String): List<com.example.resell.model.Ward>
+    suspend fun getWards(@Path("district_id") districtID: String): List<Ward>
 
     @PUT("address/update/{address_id}")
     suspend fun updateAddress(
@@ -147,6 +116,9 @@ interface ApiService {
 
     @GET("posts/{post_id}")
     suspend fun getPostByID(@Path("post_id") postID: String): Post
+
+    @GET("posts/followed")
+    suspend fun getFollowedPosts(): GetPostsResponse
 
     @POST("posts")
     suspend fun createPost(
@@ -259,6 +231,10 @@ interface ApiService {
         @Path("batch_size") batchSize:Int,
         @Path("page") page: Int
     ): GetLatestMessagesByBatchResponse
+
+    @Multipart
+    @POST("conversation/upload-image")
+    suspend fun uploadImage(@Part image: MultipartBody.Part): String
     //endregion
 
     //region Notification

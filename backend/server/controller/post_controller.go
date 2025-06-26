@@ -579,7 +579,7 @@ func (h *PostController) DeletePostImages(c *gin.Context) {
 
 }
 
-func (h *PostController) GetFollowdPosts(c *gin.Context) {
+func (h *PostController) GetFollowedPosts(c *gin.Context) {
 	userID, _ := util.GetUserID(c)
 
 	pageStr := c.DefaultQuery("page", "1")

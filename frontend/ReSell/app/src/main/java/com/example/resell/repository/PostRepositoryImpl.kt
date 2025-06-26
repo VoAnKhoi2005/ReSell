@@ -31,6 +31,12 @@ class PostRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
+    override suspend fun getFollowedPosts(): Either<NetworkError, GetPostsResponse> {
+        return Either.catch {
+            apiService.getFollowedPosts()
+        }.mapLeft { it.toNetworkError() }
+    }
+
     override suspend fun getPostByID(postID: String): Either<NetworkError, Post> {
         return Either.catch {
             apiService.getPostByID(postID)

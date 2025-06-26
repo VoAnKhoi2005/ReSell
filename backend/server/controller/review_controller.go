@@ -36,7 +36,7 @@ func (rc *ReviewController) CreateReview(c *gin.Context) {
 		UserId:  &userId,
 		OrderId: &request.OrderID,
 		Rating:  request.Rating,
-		Comment: request.Comment,
+		Comment: *request.Comment,
 	}
 
 	err = rc.reviewService.CreateReview(&review)

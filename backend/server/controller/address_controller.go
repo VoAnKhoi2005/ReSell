@@ -33,6 +33,8 @@ func (ac *AddressController) CreateAddress(c *gin.Context) {
 
 	address := model.Address{
 		UserID:    &userID,
+		Fullname:  request.FullName,
+		Phone:     request.Phone,
 		WardID:    &request.WardID,
 		Detail:    request.Detail,
 		IsDefault: request.IsDefault,

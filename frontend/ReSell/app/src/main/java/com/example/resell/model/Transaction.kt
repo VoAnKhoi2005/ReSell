@@ -75,8 +75,10 @@ data class AvatarUploadResponse(
 
 @JsonClass(generateAdapter = true)
 data class CreateAddressRequest(
+    @Json(name = "fullname") val fullName: String,
+    @Json(name = "phone") val phone: String,
     @Json(name = "ward_id") val wardID: String,
-    val detail: String,
+    @Json(name = "detail") val detail: String,
     @Json(name = "is_default") val isDefault: Boolean
 )
 
@@ -90,19 +92,6 @@ data class UpdateAddressRequest(
 // endregion
 
 // region Category
-
-@JsonClass(generateAdapter = true)
-data class CreateCategoryRequest(
-    val name: String,
-    @Json(name = "parent_category_id") val parentCategoryID: String
-)
-
-@JsonClass(generateAdapter = true)
-data class UpdateCategoryRequest(
-    val name: String? = null
-    // parentCategoryID intentionally removed
-)
-
 // endregion
 
 // region Post
@@ -118,25 +107,12 @@ data class CreatePostRequest(
 
 @JsonClass(generateAdapter = true)
 data class GetPostsResponse(
-    val data: List<GetPostsResponseData>? = null,
+    val data: List<PostData>? = null,
     @Json(name = "has_more")
     val hasMore: Boolean,
     val limit: Int,
     val page: Int,
     val total: Int,
-)
-
-@JsonClass(generateAdapter = true)
-data class GetPostsResponseData(
-    @Json(name = "id") val id: String,
-    @Json(name = "owner") val owner: String,
-    @Json(name = "category") val category: String,
-    @Json(name = "title") val title: String,
-    @Json(name = "thumbnail") val thumbnail: String,
-    @Json(name = "province") val address: String,
-    @Json(name = "price") val price: Int,
-    @Json(name = "status") val status: String,
-    @Json(name = "created_at") val createdAt: LocalDateTime? = null
 )
 
 @JsonClass(generateAdapter = true)

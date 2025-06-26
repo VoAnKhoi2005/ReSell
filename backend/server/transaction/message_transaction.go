@@ -9,7 +9,7 @@ type CreateConversationRequest struct {
 }
 
 type GetConversationResponse struct {
-	Conversation *model.Conversation `json:"conversation"`
+	Conversation *model.Conversation `json:"conversation,omitempty"`
 	IsExist      bool                `json:"is_exist"`
 }
 

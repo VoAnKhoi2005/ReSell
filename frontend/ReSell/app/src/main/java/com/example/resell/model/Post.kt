@@ -24,23 +24,32 @@ data class Post(
     @Json(name = "post_images") val images: List<PostImage>? = null
 )
 
+@JsonClass(generateAdapter = true)
+data class PostData(
+    @Json(name = "id") val id: String,
+    @Json(name = "owner") val owner: String,
+    @Json(name = "category") val category: String,
+    @Json(name = "title") val title: String,
+    @Json(name = "thumbnail") val thumbnail: String,
+    @Json(name = "province") val address: String,
+    @Json(name = "price") val price: Int,
+    @Json(name = "status") val status: String,
+    @Json(name = "created_at") val createdAt: LocalDateTime? = null
+)
+
+
 @JsonClass(generateAdapter = false)
 enum class PostStatus {
     @Json(name = "pending")
     PENDING,
-
     @Json(name = "approved")
     APPROVED,
-
     @Json(name = "rejected")
     REJECTED,
-
     @Json(name = "sold")
     SOLD,
-
     @Json(name = "hidden")
     HIDDEN,
-
     @Json(name = "deleted")
     DELETED
 }
