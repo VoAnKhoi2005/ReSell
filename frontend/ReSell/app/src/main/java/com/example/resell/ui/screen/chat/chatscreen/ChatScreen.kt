@@ -69,7 +69,9 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+
 
 
 @Composable
@@ -81,9 +83,15 @@ fun ChatScreen() {
     val post by viewModel.post.collectAsState()
     var initialScrollDone by remember { mutableStateOf(false) }
     val incomingMessage = viewModel.incomingMessage.collectAsState(initial = null)
+
+    //istyping
+    val isTyping = true
+
+
     LaunchedEffect(Unit) {
         viewModel.inChat(true)
     }
+
 
 // Gọi khi rời khỏi màn hình
     DisposableEffect(Unit) {
@@ -139,6 +147,11 @@ fun ChatScreen() {
     val receiverUsername =post?.user?.username?:""
 
     val displayMessages = remember(messages) { messages.reversed() }
+    LaunchedEffect(isTyping) {
+        if (isTyping) {
+            listState.animateScrollToItem(displayMessages.size + 1)
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -170,8 +183,11 @@ fun ChatScreen() {
             messages = displayMessages,
             receiverAvatarUrl,
             post,
-            listState
+            listState,
+            isTyping=true,
+            displayMessages = displayMessages
         )
+
 
 
     }
@@ -182,8 +198,11 @@ fun ChatMessages(
     messages: List<Message>,
     receiverAvatarUrl: String,
     post: Post?=null,
-    listState: LazyListState
+    listState: LazyListState,
+    isTyping: Boolean,
+    displayMessages: List<Message>
 ) {
+
 
     LazyColumn(
         state = listState,
@@ -203,6 +222,11 @@ fun ChatMessages(
         }
         items(messages) { message ->
             ChatBubble(message = message,receiverAvatarUrl)
+        }
+        if (isTyping) {
+            item {
+                TypingIndicator(avatarUrl = receiverAvatarUrl)
+            }
         }
         item {
             Spacer(modifier = Modifier.height(15.dp))
@@ -575,5 +599,30 @@ fun OfferView( avatarUrl: String,
     }
 
 }
+@Composable//trạng thái người bên kia
+fun TypingIndicator(avatarUrl: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 12.dp, end = 12.dp, top = 4.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = rememberAsyncImagePainter(model = avatarUrl),
+            contentDescription = "Typing avatar",
+            modifier = Modifier
+                .size(24.dp)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = "Đang nhập...",
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.Gray
+        )
+    }
+}
+
 
 
