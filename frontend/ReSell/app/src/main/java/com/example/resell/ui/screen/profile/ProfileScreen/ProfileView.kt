@@ -34,9 +34,11 @@ import com.example.resell.ui.theme.LoginButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.resell.ui.viewmodel.profile.ProfileViewModel
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
     val user by ReactiveStore<User>().item.collectAsState()
 
     LazyColumn(
@@ -83,7 +85,7 @@ fun ProfileScreen() {
         }
         item { IconButtonHorizontal("Cài đặt tài khoản", R.drawable.setting_line_duotone,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { NavigationController.navController.navigate(Screen.AccountSetting.route)} }
         item { IconButtonHorizontal("Thiết lập vị trí", R.drawable.pin_duotone,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { NavigationController.navController.navigate(Screen.AddressSetup.route) } }
-        item { IconButtonHorizontal("Đăng xuất", R.drawable.signouticon,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { } }
+        item { IconButtonHorizontal("Đăng xuất", R.drawable.signouticon,modifier = Modifier.padding(vertical = 0.dp),textColor = LoginButton) { viewModel.logout()} }
         item { Spacer(Modifier.height(32.dp)) }
     }
 }

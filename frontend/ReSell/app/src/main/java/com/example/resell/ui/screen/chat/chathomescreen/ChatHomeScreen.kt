@@ -85,7 +85,7 @@ fun ChatHomeContent(
                     val avt = if (isBuyer) conversationCard.sellerAvatar else conversationCard.buyerAvatar
                     val username = if (isBuyer) conversationCard.sellerUsername else conversationCard.buyerUsername
                     ConversationCard(avt?: stringResource(R.string.default_avatar_url),
-                        username!!,
+                        username,
                         conversationCard.postThumbnail,
                         conversationCard.postTitle?:"Mô tả sản phẩm",
                         conversationCard.conversationId)

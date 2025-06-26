@@ -47,7 +47,15 @@ class ReactiveStore<T> private constructor() {
         }
 
         inline operator fun <reified T> invoke(): ReactiveStore<T> = invoke(T::class.java)
+
+        fun clearAll() {
+            for ((_, store) in map) {
+                (store as ReactiveStore<*>).deleteAll()
+            }
+            map.clear()
+        }
     }
+
 }
 //TODO:Lưu hoặc lấy đối tượng đơn
 //ReactiveStore<User>().set(user)

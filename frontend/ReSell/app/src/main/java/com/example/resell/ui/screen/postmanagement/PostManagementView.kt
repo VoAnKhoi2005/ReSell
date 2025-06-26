@@ -5,14 +5,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -20,94 +25,118 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.resell.model.GetPostsResponseData
+import com.example.resell.ui.components.ProductPostItemHorizontalImage
 import com.example.resell.ui.components.UserProfileHeader
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
+import com.example.resell.ui.viewmodel.PostManagementViewModel
+import com.example.resell.util.getRelativeTime
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
+import com.example.resell.R
+import com.example.resell.model.User
+import com.example.resell.store.ReactiveStore
+import com.example.resell.store.ReactiveStore.Companion.invoke
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostMangamentScreen() {
+fun PostMangamentScreen(
+    viewModel: PostManagementViewModel = hiltViewModel()
+) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { HomeTabs.entries.size })
     val selectedTabIndex = remember { derivedStateOf { pagerState.currentPage } }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 8.dp)
-    ) {
+    // Collect lists
+    val pendingPosts by viewModel.pendingPosts.collectAsState()
+    val approvedPosts by viewModel.approvedPosts.collectAsState()
+    val rejectedPosts by viewModel.rejectedPosts.collectAsState()
+    val soldPosts by viewModel.soldPosts.collectAsState()
+    val hidePosts by viewModel.hidePosts.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.getPosts()
+    }
+
+    Column(modifier = Modifier.fillMaxSize().padding(top = 8.dp)) {
 
         UserProfileHeader(
-            avatarUrl = "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            displayName = "Phạm Thành Long",
+            avatarUrl = ReactiveStore<User>().item.value?.avatarURL?: stringResource(R.string.default_avatar_url),
+            displayName = ReactiveStore<User>().item.value?.username?:"",
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
 
-        TabRow(
+        // Tab
+        ScrollableTabRow(
             selectedTabIndex = selectedTabIndex.value,
-            modifier = Modifier.fillMaxWidth()
+            edgePadding = 16.dp
         ) {
-            HomeTabs.entries.forEachIndexed { index, currentTab ->
+            HomeTabs.entries.forEachIndexed { index, tab ->
                 Tab(
                     selected = selectedTabIndex.value == index,
+                    onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
                     selectedContentColor = DarkBlue,
                     unselectedContentColor = GrayFont,
-                    onClick = {
-                        scope.launch {
-                            pagerState.animateScrollToPage(currentTab.ordinal)
-                        }
-                    },
                     text = {
-                        Text(
-                            text = currentTab.text,
-                            style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp)
-                        )
+                        val count = when (tab) {
+                            HomeTabs.Pending -> pendingPosts.size
+                            HomeTabs.Approved -> approvedPosts.size
+                            HomeTabs.NotApproved -> rejectedPosts.size
+                            HomeTabs.Sold -> soldPosts.size
+                            HomeTabs.Deleted -> hidePosts.size
+                        }
+                        Text("${tab.label} ($count)", style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
                     }
                 )
             }
         }
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) { pageIndex ->
-            when (pageIndex) {
-                0 -> {
-                    // Nội dung cho "ĐANG HIỂN THỊ"
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        ApproveScreen()
-                    }
-                }
-                1 -> {
-                    // Nội dung cho "BỊ TỪ CHỐI"
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        NotApprovedScreen()
-                    }
-                }
-                2 -> {
-                    // Nội dung cho "CHỜ DUYỆT"
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        PendingScreen()
-                    }
-                }
+
+        // Nội dung theo tab
+        HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().weight(1f)) { pageIndex ->
+            when (HomeTabs.entries[pageIndex]) {
+                HomeTabs.Pending -> PostList(postList = pendingPosts)
+                HomeTabs.Approved -> PostList(postList = approvedPosts)
+                HomeTabs.NotApproved -> PostList(postList = rejectedPosts)
+                HomeTabs.Sold -> PostList(postList = soldPosts)
+                HomeTabs.Deleted -> PostList(postList = hidePosts)
             }
         }
-
     }
 }
 
-enum class HomeTabs(
-    val text: String
-){
-    Approved(
-        text ="ĐANG HIỂN THỊ (0)"
-    ),
-    NotApproved(
-     text ="BỊ TỪ CHỐI (0)"
-    ),
-    Pending(
-    text ="CHỜ DUYỆT (0)"
-    )
+@Composable
+fun PostList(postList: List<GetPostsResponseData>) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (postList.isEmpty()) {
+            // Chỉ phần Text được căn giữa
+            Text(
+                "Không có bài đăng",
+                modifier = Modifier.align(Alignment.Center),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(postList) { post ->
+                    ProductPostItemHorizontalImage(
+                        title = post.title,
+                        time = getRelativeTime(post.createdAt),
+                        imageUrl = post.thumbnail,
+                        price = post.price,
+                        address = post.address
+                    )
+                }
+            }
+        }
+    }
+}
+
+enum class HomeTabs(val label: String) {
+    Approved("ĐANG BÁN"),
+    Sold("ĐÃ BÁN"),
+    NotApproved("BỊ TỪ CHỐI"),
+    Deleted("ĐÃ ẨN"),
+    Pending("CHỜ DUYỆT");
 }
