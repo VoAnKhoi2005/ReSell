@@ -207,3 +207,45 @@ func (oc *OrderController) UpdateStatus(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
+
+func (oc *OrderController) CreateZaloPayPayment(c *gin.Context) {
+	orderID := c.Param("id")
+	if orderID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "order id is required"})
+		return
+	}
+
+	userID, err := util.GetUserID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Gọi service tạo đơn thanh toán
+	paymentURL, err := oc.orderService.CreateZaloPayOrder(orderID, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":     true,
+		"payment_url": paymentURL,
+	})
+}
+
+func (oc *OrderController) HandleZaloPayCallback(c *gin.Context) {
+	var callbackData map[string]interface{}
+	if err := c.ShouldBindJSON(&callbackData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"return_code": -1, "return_message": "invalid request"})
+		return
+	}
+
+	err := oc.orderService.HandleZaloPayCallback(callbackData)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"return_code": -1, "return_message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"return_code": 1, "return_message": "success"})
+}

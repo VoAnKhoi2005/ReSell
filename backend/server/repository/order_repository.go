@@ -19,6 +19,8 @@ type OrderRepository interface {
 	GetBySellerID(SellerID string) ([]*model.ShopOrder, error)
 
 	GetSellerID(orderID string) (string, error)
+
+	GetByAppTransID(appTransID string) (*model.ShopOrder, error)
 }
 
 type oderRepository struct {
@@ -90,4 +92,15 @@ func (o *oderRepository) GetSellerID(orderID string) (string, error) {
 	}
 
 	return *order.Post.UserID, nil
+}
+
+func (o *oderRepository) GetByAppTransID(appTransID string) (*model.ShopOrder, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+	var order model.ShopOrder
+	err := o.db.WithContext(ctx).Where("zalo_app_trans_id = ?", appTransID).First(&order).Error
+	if err != nil {
+		return nil, err
+	}
+	return &order, nil
 }
