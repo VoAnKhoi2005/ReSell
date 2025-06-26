@@ -211,3 +211,21 @@ func (mc *MessageController) GetLatestMessagesByBatch(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"messages": messages, "total_batch_count": totalBatchCount})
 }
+
+func (mc *MessageController) UploadImage(c *gin.Context) {
+	file, fileHeader, err := c.Request.FormFile("image")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	defer file.Close()
+
+	imageURL, err := util.UploadToCloudinary(file, fileHeader)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+
+	}
+	c.JSON(http.StatusOK, gin.H{"image_url": imageURL})
+}
