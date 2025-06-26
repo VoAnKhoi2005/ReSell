@@ -12,7 +12,6 @@ const (
 	PostStatusApproved PostStatus = "approved"
 	PostStatusRejected PostStatus = "rejected"
 	PostStatusSold     PostStatus = "sold"
-	PostStatusHidden   PostStatus = "hidden"
 	PostStatusDeleted  PostStatus = "deleted"
 )
 
