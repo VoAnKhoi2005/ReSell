@@ -19,8 +19,10 @@ func RegisterMessageRote(rg *gin.RouterGroup, db *gorm.DB) {
 	rg.GET("/ws", middleware.AuthMiddleware(), wsHandler.Handler)
 
 	messageRoute := rg.Group("/conversation")
+
 	messageRoute.Use(middleware.AuthMiddleware())
 
+	messageRoute.POST("/upload-image", messageController.UploadImage)
 	messageRoute.POST("/create", messageController.CreateConversation)
 	messageRoute.GET("/:id", messageController.GetConversationByID)
 	messageRoute.GET("/post/:post_id", messageController.GetConversationByPostID)

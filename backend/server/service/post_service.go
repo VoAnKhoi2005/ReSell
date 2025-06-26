@@ -32,8 +32,8 @@ type PostService interface {
 	// Admin duyệt bài
 	ApprovePost(id string) (*model.Post, error)
 	RejectPost(id string) (*model.Post, error)
-	HidePost(id string) (*model.Post, error)
-	UnhidePost(id string) (*model.Post, error)
+	//HidePost(id string) (*model.Post, error)
+	//UnhidePost(id string) (*model.Post, error)
 
 	// Hệ thống đánh dấu đã bán hoặc hoàn lại
 	MarkPostAsSold(id string) (*model.Post, error)
@@ -42,6 +42,8 @@ type PostService interface {
 	// Đánh dấu đã xóa (soft delete) hoặc hoàn tác xóa
 	MarkPostAsDeleted(id string) (*model.Post, error)
 	RestoreDeletedPost(id string) (*model.Post, error)
+
+	GetFollowedPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 }
 
 type postService struct {
@@ -54,6 +56,10 @@ func (s *postService) GetAdminPosts(filters map[string]string, page, limit int) 
 
 func (s *postService) GetUserPosts(filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
 	return s.repo.GetUserPostsByFilter(filters, page, limit)
+}
+
+func (s *postService) GetFollowedPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
+	return s.repo.GetFollowedPosts(userID, filters, page, limit)
 }
 
 func (s *postService) updatePostStatus(id string, status model.PostStatus) (*model.Post, error) {
@@ -83,20 +89,20 @@ func (s *postService) RejectPost(id string) (*model.Post, error) {
 	return s.updatePostStatus(id, model.PostStatusRejected)
 }
 
-func (s *postService) HidePost(id string) (*model.Post, error) {
-	return s.updatePostStatus(id, model.PostStatusHidden)
-}
-
-func (s *postService) UnhidePost(id string) (*model.Post, error) {
-	post, err := s.repo.GetByID(id)
-	if err != nil {
-		return nil, err
-	}
-	if post.Status != model.PostStatusHidden {
-		return nil, gorm.ErrRecordNotFound
-	}
-	return s.updatePostStatus(id, model.PostStatusApproved)
-}
+//func (s *postService) HidePost(id string) (*model.Post, error) {
+//	return s.updatePostStatus(id, model.PostStatusHidden)
+//}
+//
+//func (s *postService) UnhidePost(id string) (*model.Post, error) {
+//	post, err := s.repo.GetByID(id)
+//	if err != nil {
+//		return nil, err
+//	}
+//	if post.Status != model.PostStatusHidden {
+//		return nil, gorm.ErrRecordNotFound
+//	}
+//	return s.updatePostStatus(id, model.PostStatusApproved)
+//}
 
 func (s *postService) MarkPostAsSold(id string) (*model.Post, error) {
 	post, err := s.repo.GetByID(id)
