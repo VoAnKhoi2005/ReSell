@@ -15,6 +15,13 @@ const (
 	OrderStatusCancelled  OrderStatus = "cancelled"
 )
 
+const (
+	PaymentPending  = "pending"
+	PaymentPaid     = "paid"
+	PaymentFailed   = "failed"
+	PaymentCanceled = "canceled"
+)
+
 func ParseOrderStatus(s string) (OrderStatus, error) {
 	switch s {
 	case string(OrderStatusPending),
@@ -29,16 +36,23 @@ func ParseOrderStatus(s string) (OrderStatus, error) {
 }
 
 type ShopOrder struct {
-	ID              string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	UserId          *string `gorm:"type:uuid"`
-	PostId          *string `gorm:"type:uuid"`
-	PaymentMethodId *string `gorm:"type:uuid"`
-	Status          OrderStatus
-	AddressId       *string `gorm:"type:uuid"`
-	Total           int
-	CreatedAt       time.Time
-	CompletedAt     *time.Time
-	CanceledAt      *time.Time
+	ID              string      `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
+	UserId          *string     `gorm:"type:uuid" json:"user_id"`
+	PostId          *string     `gorm:"type:uuid" json:"post_id"`
+	PaymentMethodId *string     `gorm:"type:uuid" json:"payment_method_id"`
+	Status          OrderStatus `json:"status"`
+	AddressId       *string     `gorm:"type:uuid" json:"address_id"`
+	Total           int         `json:"total"`
+	CreatedAt       time.Time   `json:"created_at"`
+	CompletedAt     *time.Time  `json:"completed_at"`
+	CanceledAt      *time.Time  `json:"canceled_at"`
+
+	// --- ZaloPay Fields ---
+	ZaloAppTransID   *string    `json:"zalo_app_trans_id"` // nullable
+	ZaloTransID      *string    `json:"zalo_trans_id"`     // nullable
+	PaymentStatus    string     `json:"payment_status"`
+	PaidAt           *time.Time `json:"paid_at"`            // nullable
+	ZaloCallbackData *string    `json:"zalo_callback_data"` // nullable
 
 	User          *User          `json:"user,omitempty"`
 	Post          *Post          `json:"post,omitempty"`
