@@ -15,11 +15,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,15 +44,19 @@ import com.example.resell.ui.theme.White
 import com.example.resell.ui.theme.White1
 import com.example.resell.ui.viewmodel.home.HomeViewModel
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import com.example.resell.ui.components.CategoryItemButton
 import com.example.resell.ui.components.CategoryItemData
 import com.example.resell.ui.components.Horizontal2RowCategoryGrid
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
     val postList by viewModel.postList.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-
+    val gridState = rememberLazyGridState()
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = White
@@ -61,13 +68,13 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                 )
             }
         } else {
-            HomeContent(postList)
+            HomeContent(postList,viewModel=viewModel, gridState = gridState)
         }
     }
 }
 
 @Composable
-fun HomeContent(postList: List<ProductPost>, modifier: Modifier = Modifier) {
+fun HomeContent(postList: List<ProductPost>, modifier: Modifier = Modifier,viewModel: HomeViewModel, gridState: LazyGridState,) {
     val categoryList = listOf(
         CategoryItemData("Xe cộ", R.drawable.car),
         CategoryItemData("Đồ điện tử", R.drawable.electronic),
@@ -82,7 +89,28 @@ fun HomeContent(postList: List<ProductPost>, modifier: Modifier = Modifier) {
         CategoryItemData("Cho tặng miễn phí", R.drawable.giveaway)
     )
 
+    // 👇 Lắng nghe khi user scroll tới gần cuối (VD: còn 2 item)
+    LaunchedEffect(Unit) {
+        snapshotFlow { gridState.layoutInfo }
+            .map { layoutInfo ->
+                val total = layoutInfo.totalItemsCount
+                val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                lastVisible to total
+            }
+            .distinctUntilChanged()
+            .filter { (lastVisible, total) ->
+                // ✅ Chỉ gọi loadMore nếu scroll được, và đang ở gần cuối
+                val canScroll = gridState.canScrollForward
+                lastVisible >= total - 4 && total > 0 && canScroll && !viewModel.isLoading.value
+            }
+            .collect {
+                viewModel.loadMore()
+            }
+    }
+
+
     LazyVerticalGrid(
+        state = gridState,
         columns = GridCells.Fixed(2),
         modifier = modifier
             .fillMaxSize()

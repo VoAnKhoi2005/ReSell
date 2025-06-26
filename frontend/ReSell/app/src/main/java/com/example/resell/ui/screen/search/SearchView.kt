@@ -15,13 +15,14 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.MainButton
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(navController: NavHostController) {
+fun SearchScreen() {
     var query by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     var active by remember { mutableStateOf(false) }
@@ -61,7 +62,7 @@ fun SearchScreen(navController: NavHostController) {
                     contentDescription = "Quay lại",
                     tint = MainButton,
                     modifier = Modifier.clickable {
-                        navController.popBackStack()
+                        NavigationController.navController.popBackStack()
                     }
                 )
             },

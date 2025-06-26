@@ -38,6 +38,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -58,6 +59,9 @@ internal fun ChatHomeScreen(){
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     ChatHomeContent(state = state)
+    LaunchedEffect(Unit) {
+        viewModel.getConversations()
+    }
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,7 +80,7 @@ fun ChatHomeContent(
         ){
 
             LazyColumn {
-                items(state.conversationCards){ conversationCard ->
+                items(state.conversationCards.sortedByDescending { it.lastUpdatedAt }){ conversationCard ->
                     val isBuyer = conversationCard.buyerId == (ReactiveStore<User>().item.value?.id ?: "")
                     val avt = if (isBuyer) conversationCard.sellerAvatar else conversationCard.buyerAvatar
                     val username = if (isBuyer) conversationCard.sellerUsername else conversationCard.buyerUsername

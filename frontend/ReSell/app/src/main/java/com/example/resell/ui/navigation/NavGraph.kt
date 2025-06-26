@@ -76,7 +76,7 @@ fun SetupNavGraph(
             MainLayout()
         }
         composable(Screen.Search.route) {
-            SearchScreen(navController) // màn hình tì  m kiếm của bạn
+            SearchScreen() // màn hình tì  m kiếm của bạn
         }
         composable(Screen.ProfileDetail.route+"/{id}",
             arguments = listOf(
