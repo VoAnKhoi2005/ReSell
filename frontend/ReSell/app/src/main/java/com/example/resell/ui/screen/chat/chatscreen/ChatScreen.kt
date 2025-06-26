@@ -185,17 +185,11 @@ fun ChatScreen() {
         ChatMessages(
             modifier = Modifier.padding(innerPadding),
             messages = displayMessages,
-<<<<<<< Design_layout_4st
             receiverAvatarUrl = receiverAvatarUrl,
             post = post,
             listState = listState,
             isTyping = true
-=======
-            receiverAvatarUrl,
-            post,
-            listState,
-            isTyping=true
->>>>>>> main
+
         )
     }
 
@@ -207,11 +201,7 @@ fun ChatMessages(
     receiverAvatarUrl: String,
     post: Post?=null,
     listState: LazyListState,
-<<<<<<< Design_layout_4st
-    isTyping: Boolean,
-=======
     isTyping: Boolean
->>>>>>> main
 ) {
 
 
