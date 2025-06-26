@@ -227,5 +227,5 @@ func (mc *MessageController) UploadImage(c *gin.Context) {
 		return
 
 	}
-	c.JSON(http.StatusOK, gin.H{"image_url": imageURL})
+	c.JSON(http.StatusOK, imageURL)
 }
