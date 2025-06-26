@@ -1,6 +1,0 @@
-version: 2
-authtoken: 2yuqQZSFjS7oPpnTjJp2f68X2r5_2YCU2CdypCdKnsUJScDzL
-tunnels:
-  backend:
-    proto: http
-    addr: backend:8080
