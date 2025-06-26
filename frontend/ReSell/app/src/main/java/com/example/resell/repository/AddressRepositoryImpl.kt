@@ -18,12 +18,16 @@ class AddressRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ): AddressRepository {
     override suspend fun createAddress(
+        fullName: String,
+        phone: String,
         wardID: String,
         detail: String,
         isDefault: Boolean
     ): Either<NetworkError, Boolean> {
         return Either.catch {
             val request = CreateAddressRequest(
+                fullName = fullName,
+                phone = phone,
                 wardID = wardID,
                 detail = detail,
                 isDefault = isDefault
@@ -32,6 +36,7 @@ class AddressRepositoryImpl @Inject constructor(
             apiService.createAddress(request)
         }.mapLeft { it.toNetworkError() }
     }
+
 
     override suspend fun getAddressByID(addressID: String): Either<NetworkError, Address> {
         return Either.catch {

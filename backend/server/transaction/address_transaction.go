@@ -11,6 +11,8 @@ type CreateWardRequest struct {
 }
 
 type CreateAddressRequest struct {
+	FullName  string `json:"fullname" binding:"required"`
+	Phone     string `json:"phone" binding:"required"`
 	WardID    string `json:"ward_id" binding:"required"`
 	Detail    string `json:"detail" binding:"required"`
 	IsDefault bool   `json:"is_default" binding:"required"`
@@ -22,7 +24,7 @@ type FailCreateResponse struct {
 }
 
 type UpdateAddressRequest struct {
-	WardID    *string `json:"ward_id"`
-	Detail    *string `json:"detail"`
-	IsDefault *bool   `json:"is_default"`
+	WardID    *string `json:"ward_id" binding:"required"`
+	Detail    *string `json:"detail" binding:"required"`
+	IsDefault *bool   `json:"is_default" binding:"required"`
 }

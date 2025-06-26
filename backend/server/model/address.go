@@ -27,6 +27,8 @@ type Ward struct {
 type Address struct {
 	ID        string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
 	UserID    *string `gorm:"type:uuid" json:"user_id"`
+	Fullname  string  `gorm:"type:varchar(255)" json:"fullname"`
+	Phone     string  `gorm:"type:varchar(10)" json:"phone"`
 	WardID    *string `gorm:"type:uuid" json:"ward_id"`
 	Detail    string  `json:"detail"`
 	IsDefault bool    `json:"is_default"`
