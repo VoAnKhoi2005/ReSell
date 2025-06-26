@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.resell.model.GetPostsResponseData
 import com.example.resell.ui.components.ProductPostItemHorizontalImage
 import com.example.resell.ui.components.UserProfileHeader
 import com.example.resell.ui.theme.DarkBlue
@@ -37,6 +36,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import com.example.resell.R
+import com.example.resell.model.PostData
 import com.example.resell.model.User
 import com.example.resell.store.ReactiveStore
 import com.example.resell.store.ReactiveStore.Companion.invoke
@@ -106,7 +106,7 @@ fun PostMangamentScreen(
 }
 
 @Composable
-fun PostList(postList: List<GetPostsResponseData>) {
+fun PostList(postList: List<PostData>) {
     Box(modifier = Modifier.fillMaxSize()) {
         if (postList.isEmpty()) {
             // Chỉ phần Text được căn giữa

@@ -55,6 +55,8 @@ import android.os.Looper
 
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -71,7 +73,7 @@ import com.google.android.gms.location.Priority
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-
+import java.io.File
 
 
 @Composable
@@ -235,6 +237,19 @@ fun ChatMessages(
 fun ChatInputBar(viewModel: ChatViewModel,
     onSendMessage: (String) -> Unit
 ) {
+    val context = LocalContext.current
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            val file = File(context.cacheDir, "selected_image.jpg")
+            inputStream?.use { input ->
+                file.outputStream().use { output -> input.copyTo(output) }
+            }
+            viewModel.senddImage(file)
+        }
+    }
     val msg = remember { mutableStateOf("") }
     val hideKeyboardController = LocalSoftwareKeyboardController.current
     val locationMessageKey : String = stringResource(id = R.string.location_message_key)
@@ -244,7 +259,6 @@ fun ChatInputBar(viewModel: ChatViewModel,
             Manifest.permission.ACCESS_COARSE_LOCATION
         )
     )
-    val context = LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     Row(
         modifier = Modifier
@@ -297,7 +311,9 @@ fun ChatInputBar(viewModel: ChatViewModel,
             )
         }
 
-        IconButton(onClick = {}) {
+        IconButton(onClick = {
+            pickImageLauncher.launch("image/*")
+        }) {
             Image(
                 painter = painterResource(id = R.drawable.baseline_image_24),
                 contentDescription = "SendImage",

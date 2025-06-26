@@ -4,9 +4,11 @@ import android.R.id.message
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.resell.R
 import com.example.resell.model.Message
 import com.example.resell.model.Post
 import com.example.resell.model.User
@@ -14,6 +16,8 @@ import com.example.resell.repository.MessageRepository
 import com.example.resell.repository.PostRepository
 import com.example.resell.store.ReactiveStore
 import com.example.resell.store.WebSocketManager
+import com.example.resell.util.Event
+import com.example.resell.util.EventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +27,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 
@@ -67,6 +72,24 @@ class ChatViewModel @Inject constructor(
                     _listMessages.value = listOf(msg) + _listMessages.value
                     _incomingMessage.emit(msg)
                 }
+        }
+    }
+    fun senddImage(file: File) {
+        val imageKey : String ="dab64614f35cbb2e3d8819ef6c1769e55"
+        viewModelScope.launch {
+            val img = messageRepository.uploadImage(file)
+            img.fold(
+                {
+                    error ->
+                    Log.e("Chat", "Lỗi upload ảnh: ${error.message}")
+                    EventBus.sendEvent(Event.Toast("Lỗi upload ảnh: ${error.message}"))
+                },
+                {
+                    url ->
+                    EventBus.sendEvent(Event.Toast("Upload: ${url}"))
+                    sendMessage("${imageKey} $url")
+                }
+            )
         }
     }
     suspend fun sendMessage(content: String): Boolean {
