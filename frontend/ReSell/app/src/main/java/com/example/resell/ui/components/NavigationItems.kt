@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -88,6 +89,7 @@ fun IconButtonHorizontal(
     backgroundColor: Color = Color.Transparent,
     contentAlignment: Alignment.Horizontal = Alignment.Start,
     textColor: Color = GrayFont,
+    iconTint: Color = Color.Unspecified,
     onClick: () -> Unit
 ) {
     OutlinedButton(
@@ -115,7 +117,7 @@ fun IconButtonHorizontal(
                 painter = painterResource(id = iconResId),
                 contentDescription = null,
                 modifier = Modifier.size(26.dp),
-                tint = Color.Unspecified
+                tint = iconTint
             )
             Spacer(modifier = Modifier.run { width(4.dp) })
             Text(text, color = textColor, style = MaterialTheme.typography.labelMedium.copy( fontSize = 16.sp))
@@ -145,6 +147,28 @@ fun CircleIconButton(
         )
     }
 }
+@Composable
+fun IconWithTextRow(iconResId: Int, text: String, iconTint: Color =Gray) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(vertical = 2.dp)
+    ) {
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(id = iconResId),
+            contentDescription = null,
+            modifier = Modifier
+                .size(25.dp)
+                .padding(end = 6.dp),
+            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(iconTint)
+        )
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.DarkGray
+        )
+    }
+}
+
 
 
 

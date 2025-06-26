@@ -129,34 +129,41 @@ fun PostItemView(
     ) {
         // Avatar + Name
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            ProfileSimpleHeader(
-                avatarUrl = avatarUrl,
-                name = name,
-                rating = null,
-                soldCount = null,
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                ProfileSimpleHeader(
+                    avatarUrl = avatarUrl,
+                    name = name,
+                    rating = null,
+                    soldCount = null,
+                    reviewCount = null,
+                    showRating = false
+                )
+            }
 
             Button(
                 onClick = onFollowClick,
-                modifier = Modifier.height(40.dp).width(130.dp).padding(end = 10.dp, bottom = 10.dp),
+                modifier = Modifier
+                    .height(36.dp)
+                    .defaultMinSize(minWidth = 90.dp), // ✅ Đảm bảo nút không bị co
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = UserMessage,
                     contentColor = White2
                 ),
-                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp)
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
                     text = "+ Theo dõi",
                     style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp)
                 )
             }
-
         }
+
 
         Spacer(modifier = Modifier.height(4.dp))
 
