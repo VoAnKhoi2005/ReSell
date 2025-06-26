@@ -6,6 +6,7 @@ import com.example.resell.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -40,6 +41,7 @@ import coil.compose.AsyncImage
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LoginButton
+import com.example.resell.ui.theme.Yellow
 
 @Composable
 fun ProfileHeaderSection(//bên detailpropfile
@@ -367,12 +369,14 @@ fun ProfileSimpleHeaderSection(//bên profile
 }
 
 @Composable
-fun ProfileSimpleHeader(//còn lại
+fun ProfileSimpleHeader(
     avatarUrl: String?,
     name: String?,
-    rating: String?,
-    soldCount: Int?, // 🆕 Thêm tham số này
+    rating: Float? = null,
+    reviewCount: Int? = null,
+    soldCount: Int? = null,
     onChangeAvatarClick: (() -> Unit)? = null,
+    showRating: Boolean = true
 ) {
     Row(
         modifier = Modifier
@@ -393,43 +397,62 @@ fun ProfileSimpleHeader(//còn lại
                     .clip(CircleShape)
                     .border(2.dp, Color.White, CircleShape)
             )
-
-
         }
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        Column(
-            modifier = Modifier.align(Alignment.CenterVertically)
+        // Thông tin người dùng + đánh giá nếu có
+        Row(
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            name?.let {
-                Text(
-                    it,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 20.sp
+            // Cột bên trái: tên và đã bán
+            Column {
+                name?.let {
+                    Text(
+                        it,
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 20.sp
+                        )
                     )
-                )
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                soldCount?.let {
+                    Text(
+                        "Đã bán $it sản phẩm",
+                        style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp),
+                        color = GrayFont
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            // Cột bên phải: điểm đánh giá + sao
+            if (showRating && rating != null) {
+                Column(horizontalAlignment = Alignment.End) {
+                    StarRating(
+                        rating = rating,
+                        showText = false,
+                        starSize = 18
+                    )
 
-            rating?.let {
-                Text(it, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            soldCount?.let {
-                Text(
-                    "Đã bán $it sản phẩm",
-                    style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp),
-                    color = GrayFont
-                )
+                    if (reviewCount != null) {
+                        Text(
+                            "($reviewCount đánh giá)",
+                            style = MaterialTheme.typography.labelSmall.copy(color = GrayFont),
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
             }
         }
     }
 }
+
 
 @Composable
 fun ChatResponeRate(

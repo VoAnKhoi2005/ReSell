@@ -163,34 +163,35 @@ fun ChatScreen() {
         },
         bottomBar = {
             Column(
-                modifier = Modifier
-                    .padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp)
             ) {
+                if (isTyping) {
+                    TypingIndicator(receiverAvatarUrl)
+                }
+
                 ChatInputBar(
                     viewModel = viewModel,
-                    onSendMessage = { text -> coroutineScope.launch {
-                        if (viewModel.sendMessage(text)) listState.animateScrollToItem(messages.size)
-                    }}
+                    onSendMessage = { text ->
+                        coroutineScope.launch {
+                            if (viewModel.sendMessage(text))
+                                listState.animateScrollToItem(messages.size)
+                        }
+                    }
                 )
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
-
-
     ) { innerPadding ->
         ChatMessages(
             modifier = Modifier.padding(innerPadding),
             messages = displayMessages,
-            receiverAvatarUrl,
-            post,
-            listState,
-            isTyping=true,
-            displayMessages = displayMessages
+            receiverAvatarUrl = receiverAvatarUrl,
+            post = post,
+            listState = listState,
+            isTyping = true
         )
-
-
-
     }
+
 }
 @Composable
 fun ChatMessages(
@@ -200,7 +201,6 @@ fun ChatMessages(
     post: Post?=null,
     listState: LazyListState,
     isTyping: Boolean,
-    displayMessages: List<Message>
 ) {
 
 
@@ -222,11 +222,6 @@ fun ChatMessages(
         }
         items(messages) { message ->
             ChatBubble(message = message,receiverAvatarUrl)
-        }
-        if (isTyping) {
-            item {
-                TypingIndicator(avatarUrl = receiverAvatarUrl)
-            }
         }
         item {
             Spacer(modifier = Modifier.height(15.dp))
@@ -601,6 +596,18 @@ fun OfferView( avatarUrl: String,
 }
 @Composable//trạng thái người bên kia
 fun TypingIndicator(avatarUrl: String) {
+    var dotCount by remember { mutableStateOf(0) }
+
+    // Update dot count every 500ms
+    LaunchedEffect(Unit) {
+        while (true) {
+            dotCount = (dotCount + 1) % 4
+            kotlinx.coroutines.delay(500)
+        }
+    }
+
+    val dots = ".".repeat(dotCount)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -617,12 +624,13 @@ fun TypingIndicator(avatarUrl: String) {
         )
         Spacer(modifier = Modifier.width(6.dp))
         Text(
-            text = "Đang nhập...",
+            text = "Đang nhập$dots",
             style = MaterialTheme.typography.bodySmall,
             color = Color.Gray
         )
     }
 }
+
 
 
 
