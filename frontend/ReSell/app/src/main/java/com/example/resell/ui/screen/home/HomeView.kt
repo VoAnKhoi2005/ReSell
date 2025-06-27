@@ -130,7 +130,7 @@ fun HomeContent(postList: List<ProductPost>, modifier: Modifier = Modifier,viewM
                     )
                     Horizontal2RowCategoryGrid(
                         categoryList = categoryList,
-                        onItemClick = { println("Chọn danh mục: ${it.title}") }
+                        onItemClick = { NavigationController.navController.navigate(Screen.ResultSearchScreen.route) }
                     )
 
 
