@@ -48,7 +48,7 @@ class ChatViewModel @Inject constructor(
     var conversationId: String = savedStateHandle["conversationId"] ?: ""
     private val _post = MutableStateFlow<Post?>(null)
     val post: StateFlow<Post?> = _post.asStateFlow()
-
+    var receiverUsername :String =""
     private val batchSize = 20
     var isMoreMessage : Boolean = false
     private var currentBatch: Int = 1
@@ -163,6 +163,11 @@ class ChatViewModel @Inject constructor(
                     Log.e("ChatHome", "Lỗi lấy conversation: ${error.message}")
                 },
                 {conversation ->
+                    receiverUsername = if (ReactiveStore<User>().item.value!!.username == conversation.seller!!.username) {
+                        conversation.buyer!!.username
+                    }else {
+                        conversation.seller.username
+                    }
                     val getPost = postRepository.getPostByID((conversation.postId))
                     getPost.fold(
                         { error ->
