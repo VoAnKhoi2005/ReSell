@@ -234,7 +234,7 @@ class MessageRepositoryImpl @Inject constructor(
     override suspend fun uploadImage(image: File): Either<NetworkError, String> {
         return Either.catch {
             val requestBody = image.asRequestBody("image/*".toMediaTypeOrNull())
-            val part = MultipartBody.Part.createFormData("avatar", image.name, requestBody)
+            val part = MultipartBody.Part.createFormData("image", image.name, requestBody)
 
             apiService.uploadImage(part)
         }.mapLeft { it.toNetworkError() }

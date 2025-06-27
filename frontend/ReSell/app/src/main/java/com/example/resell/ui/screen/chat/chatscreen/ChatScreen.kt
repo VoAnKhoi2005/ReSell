@@ -146,7 +146,7 @@ fun ChatScreen() {
     }
 
     val receiverAvatarUrl =post?.user?.avatarURL?: stringResource(R.string.default_avatar_url)
-    val receiverUsername =post?.user?.username?:""
+
 
     val displayMessages = remember(messages) { messages.reversed() }
     LaunchedEffect(isTyping) {
@@ -159,7 +159,7 @@ fun ChatScreen() {
         modifier = Modifier.fillMaxSize(),
         topBar = {
             ChatTopBar(
-                receiverName = receiverUsername,
+                receiverName = viewModel.receiverUsername,
                 receiverAvatarUrl = receiverAvatarUrl
             )
         },
@@ -383,7 +383,10 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
     val alignment = if (isCurrentUser) Arrangement.End else Arrangement.Start
     val bubbleColor = if (isCurrentUser) UserMessage else BuyerMessage
     val locationMessageKey : String = stringResource(id = R.string.location_message_key)
+    val imageMessageKey : String = stringResource(id = R.string.image_message_key)
     val isLocationMessage = message.content.contains(locationMessageKey)
+    val isImageMessage = message.content.contains(imageMessageKey)
+
 
     Row(
         modifier = Modifier
@@ -409,6 +412,11 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
             val urlStartIndex = message.content.indexOf("https://maps.google.com")
             val mapUrl = message.content.substring(urlStartIndex)
             LocaltionBubble(mapUrl)
+        }
+        else if (isImageMessage) {
+            val urlStartIndex = message.content.indexOf("http")
+            val imageUrl = message.content.substring(urlStartIndex)
+            ImageBubble(imageUrl)
         }
         else {
             Box(
@@ -491,6 +499,30 @@ fun LocaltionBubble(locationUrl: String) {
         ) {
             Text(text = "Xem vị trí", style = MaterialTheme.typography.labelMedium)
         }
+    }
+}
+@Composable
+fun ImageBubble(imageUrl: String) {
+    val context = LocalContext.current
+
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+            .widthIn(max = 250.dp)
+    ) {
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = "Shared image",
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 180.dp)
+                .clip(RoundedCornerShape(6.dp))
+                .clickable {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(imageUrl))
+                    context.startActivity(intent)
+                },
+            contentScale = ContentScale.Crop
+        )
     }
 }
 
