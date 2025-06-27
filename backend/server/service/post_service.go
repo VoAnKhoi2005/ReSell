@@ -18,7 +18,7 @@ import (
 type PostService interface {
 	// CRUD cơ bản
 	GetAdminPosts(filters map[string]string, page, limit int) ([]*dto.PostListAdminDTO, int64, error)
-	GetUserPosts(filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
+	GetUserPosts(ownerID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 	GetPostByID(id string) (*model.Post, error)
 	CreatePost(req *transaction.CreatePostRequest, userID string) (*model.Post, error)
 	UpdatePost(id string, req *transaction.UpdatePostRequest) (*model.Post, error)
@@ -44,6 +44,7 @@ type PostService interface {
 	RestoreDeletedPost(id string) (*model.Post, error)
 
 	GetFollowedPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
+	GetOwnPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 }
 
 type postService struct {
@@ -54,12 +55,16 @@ func (s *postService) GetAdminPosts(filters map[string]string, page, limit int) 
 	return s.repo.GetAdminPostsByFilter(filters, page, limit)
 }
 
-func (s *postService) GetUserPosts(filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
-	return s.repo.GetUserPostsByFilter(filters, page, limit)
+func (s *postService) GetUserPosts(ownerID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
+	return s.repo.GetUserPostsByFilter(ownerID, filters, page, limit)
 }
 
 func (s *postService) GetFollowedPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
 	return s.repo.GetFollowedPosts(userID, filters, page, limit)
+}
+
+func (s *postService) GetOwnPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
+	return s.repo.GetOwnPosts(userID, filters, page, limit)
 }
 
 func (s *postService) updatePostStatus(id string, status model.PostStatus) (*model.Post, error) {

@@ -16,7 +16,7 @@ type PostRepository interface {
 	//self func
 	//GetPostIDsByFilter(filters map[string]string, page, limit int) ([]string, int64, error)
 	GetAdminPostsByFilter(filters map[string]string, page, limit int) ([]*dto.PostListAdminDTO, int64, error)
-	GetUserPostsByFilter(filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
+	GetUserPostsByFilter(ownerID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 	SoftDelete(post *model.Post) error
 	GetByID(id string) (*model.Post, error)
 	GetDeletedByID(id string) (*model.Post, error)
@@ -27,6 +27,7 @@ type PostRepository interface {
 	GetPostImage(postID, url string) (*model.PostImage, error)
 
 	GetFollowedPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
+	GetOwnPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 }
 
 type postRepository struct {
@@ -91,8 +92,85 @@ func (r *postRepository) GetFollowedPosts(userID string, filters map[string]stri
 	if categoryID, ok := filters["category_id"]; ok {
 		query = query.Where("posts.category_id = ?", categoryID)
 	}
-	if filterUserID, ok := filters["user_id"]; ok {
-		query = query.Where("posts.user_id = ?", filterUserID)
+	if q, ok := filters["q"]; ok {
+		query = query.Where("posts.title ILIKE ? OR posts.description ILIKE ?", "%"+q+"%", "%"+q+"%")
+	}
+
+	// ========== COUNT ==========
+	countQuery := query.Session(&gorm.Session{})
+	if err := countQuery.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// ========== FETCH + SCAN ==========
+	err := query.
+		Offset((page - 1) * limit).
+		Limit(limit).
+		Order("posts.created_at DESC").
+		Scan(&result).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return result, total, nil
+}
+
+func (r *postRepository) GetOwnPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var result []*dto.PostListUserDTO
+	var total int64
+
+	// sub query cho ảnh
+	subQuery := r.db.
+		Table("post_images").
+		Select("DISTINCT ON (post_id) post_id, image_url").
+		Order("post_id, image_order")
+
+	query := r.db.WithContext(ctx).
+		Model(&model.Post{}).
+		Select(`
+			posts.id,
+			posts.title,
+			posts.status,
+			categories.name AS category,
+			users.username AS owner,
+			posts.price,
+			provinces.name AS province,
+			imgs.image_url AS thumbnail,
+			posts.created_at
+		`).
+		Joins("JOIN users ON users.id = posts.user_id").
+		Joins("JOIN categories ON categories.id = posts.category_id").
+		Joins("JOIN addresses ON addresses.id = posts.address_id").
+		Joins("JOIN wards ON wards.id = addresses.ward_id").
+		Joins("JOIN districts ON districts.id = wards.district_id").
+		Joins("JOIN provinces ON provinces.id = districts.province_id").
+		Joins("LEFT JOIN (?) AS imgs ON imgs.post_id = posts.id", subQuery).
+		Where("posts.user_id = ?", userID)
+
+	// ========== FILTER ==========
+	if status, ok := filters["status"]; ok {
+		query = query.Where("posts.status = ?", status)
+	}
+	if minPrice, ok := filters["min_price"]; ok {
+		query = query.Where("posts.price >= ?", minPrice)
+	}
+	if maxPrice, ok := filters["max_price"]; ok {
+		query = query.Where("posts.price <= ?", maxPrice)
+	}
+	if provinceID, ok := filters["province_id"]; ok {
+		query = query.Where("provinces.id = ?", provinceID)
+	}
+	if districtID, ok := filters["district_id"]; ok {
+		query = query.Where("districts.id = ?", districtID)
+	}
+	if wardID, ok := filters["ward_id"]; ok {
+		query = query.Where("wards.id = ?", wardID)
+	}
+	if categoryID, ok := filters["category_id"]; ok {
+		query = query.Where("posts.category_id = ?", categoryID)
 	}
 	if q, ok := filters["q"]; ok {
 		query = query.Where("posts.title ILIKE ? OR posts.description ILIKE ?", "%"+q+"%", "%"+q+"%")
@@ -185,7 +263,7 @@ func (r *postRepository) GetAdminPostsByFilter(filters map[string]string, page, 
 	return result, total, nil
 }
 
-func (r *postRepository) GetUserPostsByFilter(filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
+func (r *postRepository) GetUserPostsByFilter(ownerID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
@@ -216,7 +294,8 @@ func (r *postRepository) GetUserPostsByFilter(filters map[string]string, page, l
 		Joins("JOIN wards ON wards.id = addresses.ward_id").
 		Joins("JOIN districts ON districts.id = wards.district_id").
 		Joins("JOIN provinces ON provinces.id = districts.province_id").
-		Joins("LEFT JOIN (?) AS imgs ON imgs.post_id = posts.id", subQuery)
+		Joins("LEFT JOIN (?) AS imgs ON imgs.post_id = posts.id", subQuery).
+		Where("posts.user_id != ?", ownerID)
 
 	// ========== FILTER ==========
 	if status, ok := filters["status"]; ok {

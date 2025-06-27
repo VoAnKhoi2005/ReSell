@@ -154,6 +154,7 @@ func (h *PostController) GetAdminPosts(c *gin.Context) {
 }
 
 func (h *PostController) GetUserPosts(c *gin.Context) {
+	ownerID, _ := util.GetUserID(c)
 
 	pageStr := c.DefaultQuery("page", "1")
 	limitStr := c.DefaultQuery("limit", "10")
@@ -281,7 +282,7 @@ func (h *PostController) GetUserPosts(c *gin.Context) {
 		filters["q"] = filter.Q
 	}
 
-	posts, total, err := h.service.GetUserPosts(filters, page, limit)
+	posts, total, err := h.service.GetUserPosts(ownerID, filters, page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -702,6 +703,143 @@ func (h *PostController) GetFollowdPosts(c *gin.Context) {
 	}
 
 	posts, total, err := h.service.GetFollowedPosts(userID, filters, page, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"data":     posts,
+		"total":    total,
+		"page":     page,
+		"limit":    limit,
+		"has_more": int64(page*limit) < total,
+	})
+
+}
+
+func (h *PostController) GetOwnPosts(c *gin.Context) {
+	userID, _ := util.GetUserID(c)
+
+	pageStr := c.DefaultQuery("page", "1")
+	limitStr := c.DefaultQuery("limit", "10")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+
+	type Filter struct {
+		Status     string
+		MinPrice   *uint
+		MaxPrice   *uint
+		ProvinceID string
+		DistrictID string
+		WardID     string
+		CategoryID string
+		Q          string
+	}
+
+	var filter Filter
+
+	//validate q
+	if q := c.Query("q"); q != "" {
+		filter.Q = q
+	}
+
+	// Validate status
+	if s := c.Query("status"); s != "" {
+		validStatus := map[string]bool{
+			"approved": true,
+			"rejected": true,
+			"hidden":   true,
+			"pending":  true,
+			"sold":     true,
+		}
+		if !validStatus[s] {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid status"})
+			return
+		}
+		filter.Status = s
+	}
+
+	// Min/Max price
+	if minVal := c.Query("min_price"); minVal != "" {
+		if val, err := strconv.ParseUint(minVal, 10, 64); err == nil {
+			v := uint(val)
+			filter.MinPrice = &v
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "min_price must be a number"})
+			return
+		}
+	}
+	if maxVal := c.Query("max_price"); maxVal != "" {
+		if val, err := strconv.ParseUint(maxVal, 10, 64); err == nil {
+			v := uint(val)
+			filter.MaxPrice = &v
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "max_price must be a number"})
+			return
+		}
+	}
+
+	// Validate UUID fields
+	validateUUID := func(param string, dest *string) bool {
+		if val := c.Query(param); val != "" {
+			if _, err := uuid.Parse(val); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("%s must be a valid UUID", param)})
+				return false
+			}
+			*dest = val
+		}
+		return true
+	}
+
+	if !validateUUID("province_id", &filter.ProvinceID) {
+		return
+	}
+	if !validateUUID("district_id", &filter.DistrictID) {
+		return
+	}
+	if !validateUUID("ward_id", &filter.WardID) {
+		return
+	}
+	if !validateUUID("category_id", &filter.CategoryID) {
+		return
+	}
+
+	// Chuyển sang map để truyền xuống repo
+	filters := map[string]string{}
+	if filter.Status != "" {
+		filters["status"] = filter.Status
+	}
+	if filter.MinPrice != nil {
+		filters["min_price"] = fmt.Sprint(*filter.MinPrice)
+	}
+	if filter.MaxPrice != nil {
+		filters["max_price"] = fmt.Sprint(*filter.MaxPrice)
+	}
+	if filter.ProvinceID != "" {
+		filters["province_id"] = filter.ProvinceID
+	}
+	if filter.DistrictID != "" {
+		filters["district_id"] = filter.DistrictID
+	}
+	if filter.WardID != "" {
+		filters["ward_id"] = filter.WardID
+	}
+	if filter.CategoryID != "" {
+		filters["category_id"] = filter.CategoryID
+	}
+	if filter.Q != "" {
+		filters["q"] = filter.Q
+	}
+
+	posts, total, err := h.service.GetOwnPosts(userID, filters, page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
