@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,7 +34,11 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.ui.draw.clip
+import com.example.resell.R
+import com.example.resell.ui.theme.LoginButton
 
 //test
 data class CategoryItemData(
@@ -106,6 +111,61 @@ fun Horizontal2RowCategoryGrid(
             ) {
                 columnItems.forEach { item ->
                     CategoryItemButton(item = item, onClick = { onItemClick(item) })
+                }
+            }
+        }
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable//bottomsheet danh mục
+fun CategoryFilterBottomSheet(
+    onDismissRequest: () -> Unit,
+    onCategorySelected: (String) -> Unit
+) {
+    val categories = listOf(
+        "Xe cộ" to R.drawable.car_category,
+        "Đồ điện tử" to R.drawable.electronic_category,
+        "Đồ nội thất gia dụng, cây cảnh" to R.drawable.furniture_category,
+        "Dịch vụ, du lịch" to R.drawable.service_category,
+        "Thú cưng" to R.drawable.pet_category,
+        "Tủ lạnh, máy lạnh, máy giặt" to R.drawable.fridge_category,
+        "Đồ dùng văn phòng" to R.drawable.offices_category,
+        "Thời trang, đồ cá nhân" to R.drawable.clothes_category,
+        "Đồ ăn thực phẩm" to R.drawable.food_category,
+        "Mẹ và bé" to R.drawable.baby_category,
+        "Cho tặng miễn phí" to R.drawable.giveaway_category
+    )
+
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        containerColor = Color.White
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Chọn danh mục",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            LazyColumn {
+                items(categories) { (title, iconRes) ->
+                    IconButtonHorizontal(
+                        text = title,
+                        iconResId = iconRes,
+                        hasBorder = true,
+                        contentAlignment = Alignment.Start,
+                        textColor = LoginButton,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        onCategorySelected(title)
+                        onDismissRequest()
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }

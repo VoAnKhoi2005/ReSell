@@ -27,6 +27,7 @@ import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.LoginButton
+import com.example.resell.ui.theme.White
 
 @Composable
 fun AddPostScreen(
@@ -113,7 +114,7 @@ fun AddPostScreen(
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = DarkBlue,
-                    contentColor = Color.White
+                    contentColor = White
                 )
             ) {
                 Text("Đăng")
