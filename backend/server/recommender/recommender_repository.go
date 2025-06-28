@@ -12,6 +12,7 @@ import (
 type Repository interface {
 	GetBuyerProfile(userID string) (*dto.BuyerProfile, error)
 	GetPostFeatures(postID string, buyerProfile *dto.BuyerProfile) (*dto.PostFeatures, error)
+	GetCandidatePostsID(page int, pageSize int) ([]string, error)
 }
 
 type recommenderRepository struct {
@@ -178,4 +179,30 @@ func (r *recommenderRepository) GetPostFeatures(postID string, buyerProfile *dto
 	feature.DescriptionKeywordOverlap = nil
 
 	return feature, nil
+}
+
+func (r *recommenderRepository) GetCandidatePostsID(page int, pageSize int) ([]string, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	offset := (page - 1) * pageSize
+	var postsID []string
+
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT p.id
+		FROM posts p
+		JOIN users u ON p.user_id = u.id
+		WHERE p.status = 'available'
+		  AND p.created_at >= NOW() - INTERVAL '14 days'
+		  AND u.reputation >= 10
+		  AND EXISTS (
+		    SELECT 1 FROM post_images pi WHERE pi.post_id = p.id
+		  )
+		ORDER BY (
+		    SELECT COUNT(*) FROM favorite_posts fp WHERE fp.post_id = p.id
+		) DESC, p.created_at DESC
+		LIMIT ? OFFSET ?;
+	`, pageSize, offset).Scan(&postsID).Error
+
+	return postsID, err
 }
