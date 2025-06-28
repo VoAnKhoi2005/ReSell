@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/db/data"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/route"
 	"github.com/gin-contrib/cors"
@@ -31,6 +32,10 @@ func main() {
 	config.ConnectDatabase()
 	config.InitRedis()
 	config.InitStripe()
+
+	if os.Getenv("SEED_DATA") == "true" {
+		data.GenerateSeedData()
+	}
 
 	//Firebase
 	fb.InitFirebase()

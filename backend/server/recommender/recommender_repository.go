@@ -1,0 +1,181 @@
+package recommender
+
+import (
+	"github.com/VoAnKhoi2005/ReSell/backend/server/dto"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
+	"gorm.io/gorm"
+	"math"
+	"time"
+)
+
+type Repository interface {
+	GetBuyerProfile(userID string) (*dto.BuyerProfile, error)
+	GetPostFeatures(postID string, buyerProfile *dto.BuyerProfile) (*dto.PostFeatures, error)
+}
+
+type recommenderRepository struct {
+	db *gorm.DB
+}
+
+func NewRecommenderRepository(db *gorm.DB) Repository {
+	return &recommenderRepository{db: db}
+}
+
+func (r *recommenderRepository) GetBuyerProfile(userID string) (*dto.BuyerProfile, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	db := r.db.WithContext(ctx)
+	profile := &dto.BuyerProfile{UserID: userID}
+
+	//AvgPriceLiked
+	if err := db.Raw(`
+		SELECT COALESCE(AVG(p.price), 0)
+		FROM favorite_posts f
+		JOIN posts p ON f.post_id = p.id
+		WHERE f.user_id = ?
+	`, userID).Scan(&profile.AvgPriceLiked).Error; err != nil {
+		return nil, err
+	}
+
+	//PreferredCategories
+	if err := db.Raw(`
+		SELECT DISTINCT p.category_id
+		FROM favorite_posts f
+		JOIN posts p ON f.post_id = p.id
+		WHERE f.user_id = ?
+		AND p.category_id IS NOT NULL
+	`, userID).Scan(&profile.PreferredCategories).Error; err != nil {
+		return nil, err
+	}
+
+	//Addresses
+	var addresses []model.Address
+	if err := db.Preload("Ward.District.Province").Find(&addresses, "user_id = ?", userID).Error; err != nil {
+		return nil, err
+	}
+	profile.Addresses = addresses
+
+	//LikedPostTitle
+	if err := db.Raw(`
+		SELECT p.title
+		FROM favorite_posts f
+		JOIN posts p ON f.post_id = p.id
+		WHERE f.user_id = ?
+	`, userID).Scan(&profile.LikedPostTitle).Error; err != nil {
+		return nil, err
+	}
+
+	//LikedPostDescription
+	if err := db.Raw(`
+		SELECT p.description
+		FROM favorite_posts f
+		JOIN posts p ON f.post_id = p.id
+		WHERE f.user_id = ?
+	`, userID).Scan(&profile.LikedPostDescription).Error; err != nil {
+		return nil, err
+	}
+
+	return profile, nil
+}
+
+func (r *recommenderRepository) GetPostFeatures(postID string, buyerProfile *dto.BuyerProfile) (*dto.PostFeatures, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	db := r.db.WithContext(ctx)
+	feature := &dto.PostFeatures{PostID: postID}
+
+	var post model.Post
+	err := r.db.WithContext(ctx).Preload("PostImages").First("id = ?", postID, &post).Error
+	if err != nil {
+		return nil, err
+	}
+
+	if err = db.Raw(`
+		SELECT title, description, u.reputation
+		FROM posts p
+		JOIN users u On p.user_id = u.id
+		WHERE p.id = ?
+		`, postID).Row().Scan(
+		&feature.Title,
+		&feature.Description,
+		&feature.SellerReputation,
+	); err != nil {
+		return nil, err
+	}
+
+	var categoryMatch float64
+	if err = db.Raw(`
+		SELECT 
+			CASE WHEN EXISTS (
+				SELECT 1 
+				FROM shop_orders so
+				JOIN posts p2 ON so.post_id = p2.id
+				WHERE so.user_id = ? AND p2.category_id = p.category_id
+			) THEN 1.0 ELSE 0.0 END AS score
+		FROM posts p
+		WHERE p.id = ?
+		`, buyerProfile.UserID, postID).Row().Scan(&categoryMatch); err != nil {
+		return nil, err
+	}
+	feature.CategoryMatchScore = categoryMatch
+
+	if buyerProfile.AvgPriceLiked > 0 && post.Price > 0 {
+		diff := math.Abs(float64(post.Price) - buyerProfile.AvgPriceLiked)
+		feature.PriceMatchScore = 1.0 - math.Min(diff/float64(post.Price), 1.0)
+	} else {
+		feature.PriceMatchScore = 0
+	}
+
+	if post.AddressID != nil {
+		var postAddress model.Address
+		err = db.Preload("Ward.District.Province").First(&postAddress, "id = ?", post.AddressID).Error
+
+		if err == nil {
+			for _, userAddr := range buyerProfile.Addresses {
+				if userAddr.Ward != nil && postAddress.Ward != nil {
+					if userAddr.Ward.ID == postAddress.Ward.ID {
+						feature.LocationDistanceScore = 1.0
+						break
+					} else if userAddr.Ward.DistrictID == postAddress.Ward.DistrictID {
+						feature.LocationDistanceScore = 0.7
+					} else if userAddr.Ward.District != nil && postAddress.Ward.District != nil &&
+						userAddr.Ward.District.ProvinceID == postAddress.Ward.District.ProvinceID {
+						if feature.LocationDistanceScore < 0.4 {
+							feature.LocationDistanceScore = 0.4
+						}
+					}
+				}
+			}
+		}
+	}
+
+	var engagementCount int
+	if err = db.
+		Raw(`SELECT COUNT(*) FROM favorite_posts WHERE post_id = ?`, postID).
+		Scan(&engagementCount).Error; err != nil {
+		return nil, err
+	}
+	feature.EngagementScore = float64(engagementCount)
+
+	feature.PostAgeDays = time.Since(post.CreatedAt).Hours() / 24.0
+
+	if feature.PostAgeDays > 0 {
+		feature.PostHotnessScore = feature.EngagementScore / (feature.PostAgeDays + 1)
+	} else {
+		feature.PostHotnessScore = feature.EngagementScore
+	}
+
+	var imageURLs []*string
+	for _, postImage := range post.PostImages {
+		imageURLs = append(imageURLs, &postImage.ImageURL)
+	}
+	feature.PostImagesURL = imageURLs
+
+	feature.TitleKeywordOverlap = nil
+	feature.DescriptionKeywordOverlap = nil
+
+	return feature, nil
+}

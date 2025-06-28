@@ -19,9 +19,9 @@ func seedUser() []string {
 		u := model.User{
 			ID:       id,
 			Username: fmt.Sprintf("user%d", i),
-			Email:    fmt.Sprintf("user%d@gmail.com", i),
+			Email:    ptr(fmt.Sprintf("user%d@gmail.com", i)),
 			Password: string(password),
-			Phone:    "0123456789",
+			Phone:    ptr("0123456789"),
 			Fullname: fmt.Sprintf("Nguyen Van Nguoi Dung %d", i),
 			Status:   model.ActiveStatus,
 		}
@@ -33,4 +33,8 @@ func seedUser() []string {
 	config.DB.Create(&users)
 
 	return userIDs
+}
+
+func ptr[T any](v T) *T {
+	return &v
 }
