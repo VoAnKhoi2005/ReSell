@@ -33,65 +33,49 @@ import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.LoginButton
 import com.example.resell.ui.theme.White
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.ui.components.CategoryFilterBottomSheet
 import com.example.resell.ui.components.PriceFilterBottomSheet
 import com.example.resell.ui.components.ProductPostItem
 import com.example.resell.ui.components.formatPrice
-import com.example.resell.ui.screen.home.ProductPost
+
+import com.example.resell.ui.viewmodel.search.SearchResultUiState
+import com.example.resell.ui.viewmodel.search.SearchResultViewModel
+import com.example.resell.util.getRelativeTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchResultScreen(searchQuery: String = "") {
-    var localSearchQuery by remember { mutableStateOf("") }
+    val viewModel: SearchResultViewModel = hiltViewModel()
+    val state by viewModel.uiState.collectAsState()
+
+    var showRegionSheet by remember { mutableStateOf(false) }
+    var showCategorySheet by remember { mutableStateOf(false) }
+    var showPriceSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        localSearchQuery = searchQuery
+        viewModel.loadInitial(searchQuery)
     }
+    val listState = rememberLazyListState()
 
-    var showSheet by remember { mutableStateOf(false) }
-    var region by remember { mutableStateOf(RegionSelection()) }
-
-    //quản lý sate cho danh mục sheet
-    var showCategorySheet by remember { mutableStateOf(false) }
-    var selectedCategory by remember { mutableStateOf<String?>(null) }
-
-
-    //quản lý state cho giá sheet
-    var showPriceSheet by remember { mutableStateOf(false) }
-    var selectedPriceRange by remember { mutableStateOf<Pair<Float, Float>?>(null) }
-
-
-    //test filter
-    val allPosts = remember {
-        listOf(
-            ProductPost("1", "Xe đạp thể thao", "1 giờ trước", "https://via.placeholder.com/150", 1200000, "Xe cộ", "TP.HCM"),
-            ProductPost("2", "iPhone 12", "2 giờ trước", "https://via.placeholder.com/150", 10000000, "Đồ điện tử", "Hà Nội"),
-            ProductPost("3", "Tủ lạnh Toshiba", "Hôm qua", "https://via.placeholder.com/150", 3000000, "Tủ lạnh, máy lạnh, máy giặt", "Đà Nẵng"),
-            ProductPost("4", "Chó Poodle 2 tháng", "3 ngày trước", "https://via.placeholder.com/150", 2500000, "Thú cưng", "TP.HCM"),
-            ProductPost("5", "Máy lạnh LG 2HP", "Hôm nay", "https://via.placeholder.com/150", 5000000, "Tủ lạnh, máy lạnh, máy giặt", "TP.HCM")
-        )
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .collect { lastVisibleItem ->
+                if (lastVisibleItem == state.filteredPosts.lastIndex) {
+                    viewModel.loadMore()
+                }
+            }
     }
-    val filteredPosts = remember(localSearchQuery, selectedCategory, selectedPriceRange, region) {
-        allPosts.filter { post ->
-            val matchKeyword = localSearchQuery.isBlank() || post.title.contains(localSearchQuery, ignoreCase = true)
-            val matchCategory = selectedCategory == null || post.category == selectedCategory
-            val matchPrice = selectedPriceRange == null ||
-                    (post.price in selectedPriceRange!!.first.toInt()..selectedPriceRange!!.second.toInt())
-            val matchRegion = region.province == null || post.address.contains(region.province!!, ignoreCase = true)
-            matchKeyword && matchCategory && matchPrice && matchRegion
-        }
-    }
-
-    //update region mỗi khi quay lại màn hình chọn filter địa chỉ
-    /*LaunchedEffect(NavigationController.sharedRegionSelection) {
-        region = NavigationController.sharedRegionSelection
-    }*/
-
-
-
-
-
     Scaffold(
         topBar = {
             TopBar(
@@ -117,23 +101,24 @@ fun SearchResultScreen(searchQuery: String = "") {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { showSheet = true }
+                    .clickable { showRegionSheet = true }
                     .padding(vertical = 8.dp)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.pin_duotone),
-                    contentDescription = "Bộ lọc khu vực",
+                    contentDescription = null,
                     tint = DarkBlue,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(text = "Khu vực: ", style = MaterialTheme.typography.labelMedium)
                 Text(
-                    text = region.province ?: "Toàn quốc",
+                    text = state.region.name ?: "Toàn quốc",
                     style = MaterialTheme.typography.labelMedium.copy(color = DarkBlue)
                 )
             }
-            // Bộ lọc: Danh mục & Giá
+
+            // Bộ lọc
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -143,37 +128,33 @@ fun SearchResultScreen(searchQuery: String = "") {
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.filter),
-                    contentDescription = "Bộ lọc theo giá và danh mục",
+                    contentDescription = null,
                     tint = DarkBlue,
                     modifier = Modifier.size(20.dp)
                 )
 
-                FilterButton(label = selectedCategory ?: "Danh mục") {
+                FilterButton(label = state.selectedCategory ?: "Danh mục") {
                     showCategorySheet = true
                 }
 
-
-                val priceLabel = selectedPriceRange?.let { (min, max) ->
-                    "Giá: ${formatPrice(min)} - ${formatPrice(max)}"
+                val priceLabel = state.selectedPriceRange?.let { (min, max) ->
+                    "Giá: ${formatPrice(min.toFloat())} - ${formatPrice(max.toFloat())}"
                 } ?: "Giá"
+
 
                 FilterButton(label = priceLabel) {
                     showPriceSheet = true
                 }
-
-
             }
 
-
-            // Nội dung kết quả
-            Spacer(modifier = Modifier.height(16.dp))
-            if (localSearchQuery.isNotBlank()) {
+            // Kết quả tìm kiếm
+            if (state.searchQuery.isNotBlank()) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(bottom = 8.dp)
                 ) {
                     Text(
-                        text = "Kết quả cho từ khóa: \"$localSearchQuery\"",
+                        text = "Kết quả cho từ khóa: \"${state.searchQuery}\"",
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -181,15 +162,13 @@ fun SearchResultScreen(searchQuery: String = "") {
                         text = "Xóa",
                         color = Color.Red,
                         modifier = Modifier
-                            .clickable { localSearchQuery = "" }
+                            .clickable { viewModel.clearSearchQuery() }
                             .padding(4.dp)
                     )
                 }
             }
 
-
-
-            if (filteredPosts.isEmpty()) {
+            if (state.filteredPosts.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -202,12 +181,12 @@ fun SearchResultScreen(searchQuery: String = "") {
                     )
                 }
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(filteredPosts) { post ->
+                LazyColumn(modifier = Modifier.fillMaxSize(),state = listState) {
+                    items(state.filteredPosts) { post ->
                         ProductPostItem(
                             title = post.title,
-                            time = post.time,
-                            imageUrl = post.imageUrl,
+                            time = getRelativeTime(post.createdAt),
+                            imageUrl = post.thumbnail,
                             price = post.price,
                             category = post.category,
                             address = post.address,
@@ -220,91 +199,161 @@ fun SearchResultScreen(searchQuery: String = "") {
                     }
                 }
             }
-
-
         }
 
-        // Bottom Sheet lọc khu vực
-        if (showSheet) {
+        // Bottom Sheets
+        if (showRegionSheet) {
             RegionFilterBottomSheet(
-                region = region,
-                onDismissRequest = { showSheet = false },
-                onProvinceClick = {
-                    showSheet = false
-                    NavigationController.navController.navigate(Screen.ProvinceSelect.route)
-                },
-                onDistrictClick = {
-                    showSheet = false
-                    NavigationController.navController.navigate(Screen.DistrictSelect.route)
-                },
-                onWardClick = {
-                    showSheet = false
-                    NavigationController.navController.navigate(Screen.WardSelect.route)
-                }
+                state = state,
+                onDismiss = { showRegionSheet = false },
+                onApply = { viewModel.applyLocationSelection() },
+                onSelectProvince = { viewModel.setProvince(it) },
+                onSelectDistrict = { viewModel.setDistrict(it) },
+                onSelectWard = { viewModel.setWard(it) }
             )
         }
+
+
         if (showCategorySheet) {
             CategoryFilterBottomSheet(
                 onDismissRequest = { showCategorySheet = false },
                 onCategorySelected = { category ->
-                    selectedCategory = category
-
+                    viewModel.setSelectedCategory(category)
+                    showCategorySheet = false
                 }
-
             )
         }
+
         if (showPriceSheet) {
             PriceFilterBottomSheet(
-                initialMin = selectedPriceRange?.first ?: 0f,
-                initialMax = selectedPriceRange?.second ?: 100_000_000f,
+                initialMin = state.selectedPriceRange?.first ?: 0,
+                initialMax = state.selectedPriceRange?.second ?: 100_000_000,
                 onDismissRequest = { showPriceSheet = false },
                 onApply = { min, max ->
-                    selectedPriceRange = min to max
+                    viewModel.setSelectedPriceRange(min to max)
                     showPriceSheet = false
                 }
             )
         }
-
-
     }
 }
 
-//  Dữ liệu chọn khu vực
-data class RegionSelection(
-    val province: String? = null,
-    val district: String? = null,
-    val ward: String? = null
-)
 
+
+// UI (Compose)
+// UI (Compose)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegionFilterBottomSheet(
-    region: RegionSelection,
-    onDismissRequest: () -> Unit,
-    onProvinceClick: () -> Unit,
-    onDistrictClick: () -> Unit,
-    onWardClick: () -> Unit
+    state: SearchResultUiState,
+    onDismiss: () -> Unit,
+    onApply: () -> Unit,
+    onSelectProvince: (String?) -> Unit,
+    onSelectDistrict: (String?) -> Unit,
+    onSelectWard: (String?) -> Unit
 ) {
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-        containerColor = White,
-        tonalElevation = 4.dp
-    ) {
+    ModalBottomSheet(onDismissRequest = {
+        onDismiss()
+        onApply()
+    }) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "Lọc theo khu vực",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            Text("Chọn khu vực", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(16.dp))
 
-            FilterRow("Chọn Tỉnh/Thành phố", region.province ?: "Chưa chọn", onProvinceClick)
-            FilterRow("Chọn Quận/Huyện", region.district ?: "Chưa chọn", onDistrictClick)
-            FilterRow("Chọn Phường/Xã", region.ward ?: "Chưa chọn", onWardClick)
+            if (state.provinces.isNotEmpty()) {
+                DropdownSelector(
+                    label = "Tỉnh/Thành phố",
+                    options = listOf("Toàn quốc") + state.provinces.map { it.name },
+                    selectedOption = state.region.province ?: "Toàn quốc",
+                    onSelect = { selected ->
+                        onSelectProvince(if (selected == "Toàn quốc") null else selected)
+                    }
+                )
+            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (state.region.province != null) {
+                DropdownSelector(
+                    label = "Quận/Huyện",
+                    options = listOf("Tất cả quận/huyện") + state.districts.map { it.name },
+                    selectedOption = state.region.district ?: "Tất cả quận/huyện",
+                    onSelect = { selected ->
+                        onSelectDistrict(if (selected == "Tất cả quận/huyện") null else selected)
+                    }
+                )
+            } else {
+                Text("Vui lòng chọn Tỉnh/Thành phố trước", color = Color.Gray)
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (state.region.district != null) {
+                DropdownSelector(
+                    label = "Phường/Xã",
+                    options = listOf("Tất cả phường/xã") + state.wards.map { it.name },
+                    selectedOption = state.region.ward ?: "Tất cả phường/xã",
+                    onSelect = { selected ->
+                        onSelectWard(if (selected == "Tất cả phường/xã") null else selected)
+                        onDismiss()
+                        onApply()
+                    }
+                )
+            } else {
+                Text("Vui lòng chọn Quận/Huyện trước", color = Color.Gray)
+            }
         }
     }
 }
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropdownSelector(
+    label: String,
+    options: List<String>,
+    selectedOption: String?,
+    onSelect: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedText = selectedOption ?: ""
+
+
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            readOnly = true,
+            value = selectedText,
+            onValueChange = {},
+            label = { Text(label) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor()
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { selectionOption ->
+                DropdownMenuItem(
+                    text = { Text(selectionOption) },
+                    onClick = {
+                        selectedText = selectionOption
+                        expanded = false
+                        onSelect(selectionOption)
+                    }
+                )
+            }
+        }
+    }
+}
+
+
 
 @Composable//lọc khu vực
 fun FilterRow(
