@@ -2,6 +2,7 @@ package com.example.resell.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.example.resell.network.ApiService
@@ -75,6 +76,7 @@ object AppModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit {
         val baseUrl = BuildConfig.BASE_URL
+        Log.d("Retrofit", "Retrofit is using $baseUrl")
         return Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(okHttpClient)
