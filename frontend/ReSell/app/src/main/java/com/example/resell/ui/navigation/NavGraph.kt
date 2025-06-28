@@ -46,7 +46,7 @@ fun SetupNavGraph(
 ){
     NavHost(
         navController = navController,
-        startDestination = Screen.Login.route
+        startDestination = Screen.Payment.route
     ){
         composable(
             route = Screen.Login.route
@@ -170,5 +170,6 @@ fun SetupNavGraph(
 
     }
 }
+
 
 
