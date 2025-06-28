@@ -74,7 +74,7 @@ class LoginViewModel @Inject constructor(
                        400 -> "Sai thông tin đăng nhập"
                        401 -> "Không có quyền truy cập"
                        500 -> "Lỗi hệ thống server"
-                       else -> "Đã xảy ra lỗi không xác định (mã ${error.code})"
+                       else -> "Đã xảy ra lỗi (${error.message})"
                    }
                     error.errors?.forEach { (field, msg) ->
                         Log.e("Login", "$field: $msg")

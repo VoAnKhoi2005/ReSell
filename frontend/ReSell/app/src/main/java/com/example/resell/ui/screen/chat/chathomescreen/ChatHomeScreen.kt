@@ -82,7 +82,7 @@ fun ChatHomeContent(
             LazyColumn {
                 items(state.conversationCards.sortedByDescending { it.lastUpdatedAt }){ conversationCard ->
                     val isBuyer = conversationCard.buyerId == (ReactiveStore<User>().item.value?.id ?: "")
-                    val avt = if (isBuyer) conversationCard.sellerAvatar else conversationCard.buyerAvatar
+                    val avt = if (isBuyer) conversationCard.sellerAvatar?:"" else conversationCard.buyerAvatar?:""
                     val username = if (isBuyer) conversationCard.sellerUsername else conversationCard.buyerUsername
                     ConversationCard(avt?: stringResource(R.string.default_avatar_url),
                         username,

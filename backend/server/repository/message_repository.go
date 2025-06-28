@@ -59,6 +59,8 @@ func (m *messageRepository) GetConversationByID(conversationId string) (*model.C
 
 	var conversation *model.Conversation = nil
 	err := m.db.WithContext(ctx).
+		Preload("Buyer").
+		Preload("Seller").
 		Preload("Post.PostImages").
 		First(&conversation, "id = ?", conversationId).Error
 	return conversation, err
