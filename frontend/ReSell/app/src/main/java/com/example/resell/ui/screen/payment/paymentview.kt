@@ -1,5 +1,5 @@
 package com.example.resell.ui.screen.payment
-
+import com.example.resell.R
 import android.R.attr.thickness
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,12 +27,16 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,6 +62,14 @@ fun PaymentScreen() {
     val receiverName = "Phạm Thành Long"
     val phoneNumber = "08366333080"
     val address = "123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh"
+//
+    val paymentMethods = listOf(
+        "Thanh toán khi nhận hàng (COD)",
+        "ZaloPay",
+        "Thẻ ngân hàng (ATM / Visa / Mastercard)"
+    )
+
+    val selectedMethodIndex = remember { mutableStateOf(0) }
 
     Scaffold(
         topBar = {
@@ -132,6 +144,12 @@ fun PaymentScreen() {
                             modifier = Modifier.fillMaxWidth()
                         )
                         TotalAmountBox(totalAmount = 25000000)
+                        PaymentMethodSelector(
+                            methods = paymentMethods,
+                            selectedIndex = selectedMethodIndex.value,
+                            onSelect = { selectedMethodIndex.value = it }
+                        )
+
                     }
                 }
 
@@ -182,6 +200,75 @@ fun OrderButton(
         )
     }
 }
+@Composable
+fun PaymentMethodSelector(
+    methods: List<String>,
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp)
+    ) {
+        Text(
+            text = "Phương thức thanh toán",
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Card(
+            shape = RoundedCornerShape(8.dp),
+            colors = CardDefaults.cardColors(containerColor = White),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column {
+                methods.forEachIndexed { index, method ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelect(index) }
+                            .padding(horizontal = 12.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Icon đại diện (giả lập icon theo index)
+                        val iconRes = when {
+                            method.contains("Zalo", ignoreCase = true) -> R.drawable.zalo_pay
+                            method.contains("ngân hàng", ignoreCase = true) -> R.drawable.bank_icon
+                            else -> R.drawable.cod_icon
+                        }
+
+                        Icon(
+                            painter = painterResource(id = iconRes),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .padding(end = 16.dp),
+                            tint = Color.Unspecified
+                        )
+
+
+                        Text(
+                            text = method,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        RadioButton(
+                            selected = (index == selectedIndex),
+                            onClick = { onSelect(index) }
+                        )
+                    }
+
+                    if (index != methods.size - 1) {
+                        Divider(color = LightGray, thickness = 0.5.dp)
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 
 
