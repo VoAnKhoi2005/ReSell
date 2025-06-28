@@ -52,8 +52,11 @@ fun ProvinceSelectScreen(
                     text = province,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
-                            onProvinceSelected(province)
+                        .clickable {//filterdiachi
+                            NavigationController.sharedRegionSelection =
+                                NavigationController.sharedRegionSelection.copy(province = province)
+
+
                             NavigationController.navController.popBackStack()
                         }
                         .padding(16.dp)

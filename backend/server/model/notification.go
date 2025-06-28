@@ -56,7 +56,7 @@ type Notification struct {
 	IsSent      bool             `json:"is_sent"` // Was sent to FCM
 	IsSilent    bool             `json:"is_silent"`
 	CreatedAt   time.Time        `json:"created_at"`
-	SentAt      *time.Time       `json:"sent_at"`
+	SentAt      *time.Time       `json:"sent_at,omitempty"`
 
 	User *User `json:"user,omitempty"`
 }

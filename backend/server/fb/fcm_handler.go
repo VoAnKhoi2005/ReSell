@@ -47,6 +47,8 @@ func (h *FCMHandler) SaveFCMToken(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	c.JSON(http.StatusOK, true)
 }
 
 func (h *FCMHandler) DeleteFCMToken(c *gin.Context) {
@@ -57,6 +59,8 @@ func (h *FCMHandler) DeleteFCMToken(c *gin.Context) {
 	}
 
 	delete(h.userTokens, userID)
+
+	c.JSON(http.StatusOK, true)
 }
 
 func (h *FCMHandler) SendNotification(userID string, title string, description string, isSilent bool, nofType model.NotificationType) error {

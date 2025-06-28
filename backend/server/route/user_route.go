@@ -19,18 +19,18 @@ func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	//Middleware
 	users.Use(middleware.AuthMiddleware())
 	//Add paths to group
+	users.GET("/stat/:id", userController.GetStat)
 	users.PUT("/update", userController.UpdateUser)
 	users.PUT("/change_password", userController.ChangePassword)
-	users.DELETE("/:id", userController.DeleteUser)
 	users.POST("upload-avatar", userController.UploadAvatar)
 	users.POST("/follow/:id", userController.Follow)
 	users.GET("/follow/all", userController.GetAllFollowee)
 	users.DELETE("unfollow/:id", userController.UnFollow)
+	users.DELETE("/:id", userController.DeleteUser)
 
 	//admin
 	adminRoute := rg.Group("/admin/user")
 	adminRoute.Use(middleware.AdminAuthMiddleware())
-	adminRoute.GET("/stat/:id", userController.GetStat)
 	adminRoute.GET("/id/:id", userController.GetUserByID)
 	adminRoute.GET("/username/:username", userController.GetUserByUsername)
 	adminRoute.GET("/batch/:batch_size/:page", userController.GetAllUserByBatch)

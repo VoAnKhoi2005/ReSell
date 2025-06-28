@@ -16,6 +16,7 @@ interface UserRepository{
     ): Either<NetworkError, FirebaseAuthResponse>
     suspend fun loginUser(identifier: String, password: String, loginType: LoginType): Either<NetworkError, LoginResponse>
     suspend fun updateInfo(request: UpdateProfileRequest): Either<NetworkError, Boolean>
+    suspend fun getUserStat(userID: String): Either<NetworkError, UserStatResponse>
     suspend fun changePassword(oldPassword: String, newPassword: String): Either<NetworkError, Boolean>
     suspend fun deleteUser(userID: String): Either<NetworkError, Boolean>
     suspend fun followUser(userID: String): Either<NetworkError, Boolean>
@@ -25,7 +26,7 @@ interface UserRepository{
 }
 
 interface AddressRepository{
-    suspend fun createAddress(wardID: String, detail: String, isDefault: Boolean): Either<NetworkError, Boolean>
+    suspend fun createAddress(fullName: String, phone: String, wardID: String, detail: String, isDefault: Boolean): Either<NetworkError, Boolean>
     suspend fun getAddressByID(addressID: String): Either<NetworkError, Address>
     suspend fun getAddressByUserID(userID: String): Either<NetworkError, List<Address>>
     suspend fun getAllProvinces(): Either<NetworkError, List<Province>>
@@ -50,6 +51,7 @@ interface PostRepository {
         userID: String? = null,
         categoryID: String? = null
     ): Either<NetworkError, GetPostsResponse>
+    suspend fun getFollowedPosts(): Either<NetworkError, GetPostsResponse>
     suspend fun getPostByID(postID: String): Either<NetworkError, Post>
     suspend fun createPost(title: String, description: String,
                            categoryID: String, addressID: String,
@@ -96,6 +98,7 @@ interface MessageRepository{
     suspend fun sendNewMessage(conversationID: String, content: String): Either<ErrorPayload, Message>
     suspend fun sendInChatIndicator(conversationID: String, isInChat: Boolean): Boolean
     suspend fun sendTypingIndicator(conversationID: String, userID: String, isTyping: Boolean)
+    suspend fun uploadImage(image: File): Either<NetworkError, String>
 }
 
 interface NotificationRepository{

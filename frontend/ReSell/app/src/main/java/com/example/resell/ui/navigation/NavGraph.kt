@@ -23,7 +23,9 @@ import com.example.resell.ui.screen.add.AddScreen
 import com.example.resell.ui.screen.add.CategorySelectionScreen
 import com.example.resell.ui.screen.address.AddressAddScreen
 import com.example.resell.ui.screen.address.AddressSetupScreen
+import com.example.resell.ui.screen.address.DistrictSelectScreen
 import com.example.resell.ui.screen.address.ProvinceSelectScreen
+import com.example.resell.ui.screen.address.WardSelectScreen
 import com.example.resell.ui.screen.auth.register.PhoneRegisterScreen
 
 import com.example.resell.ui.screen.productdetail.ProductDetailScreen
@@ -104,7 +106,7 @@ fun SetupNavGraph(
         composable (Screen.AddressSetup.route){ AddressSetupScreen() }
         composable (Screen.AddressAdd.route){ AddressAddScreen()}
         composable (Screen.PhoneRegister.route){ PhoneRegisterScreen() }
-        /*composable(Screen.ProvinceSelect.route) {
+        composable(Screen.ProvinceSelect.route) {
             ProvinceSelectScreen { selectedProvince ->
                 NavigationController.navController.previousBackStackEntry
                     ?.savedStateHandle?.set("province", selectedProvince)
@@ -137,7 +139,7 @@ fun SetupNavGraph(
                 NavigationController.navController.popBackStack()
             }
         }
-*/
+
         composable(Screen.Favorite.route){
             FavoriteScreen()
         }
@@ -153,9 +155,14 @@ fun SetupNavGraph(
         composable(Screen.AccountSetting.route){
            AccountSettingScreen()
         }
-        composable(Screen.ResultSearchScreen.route){
-            SearchResultScreen()
+        composable(//searchresult
+            route = Screen.ResultSearchScreen.route,
+            arguments = listOf(navArgument("query") { defaultValue = "" })
+        ) {
+            val query = it.arguments?.getString("query") ?: ""
+            SearchResultScreen(searchQuery = query)
         }
+
         composable(Screen.ReviewProductScreen.route){
             ReviewProductScreen()
         }

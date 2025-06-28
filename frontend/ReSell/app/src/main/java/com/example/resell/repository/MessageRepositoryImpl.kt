@@ -32,6 +32,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -225,6 +229,15 @@ class MessageRepositoryImpl @Inject constructor(
         } else {
             Log.d("WebSocket", "Success sending typing indicator")
         }
+    }
+
+    override suspend fun uploadImage(image: File): Either<NetworkError, String> {
+        return Either.catch {
+            val requestBody = image.asRequestBody("image/*".toMediaTypeOrNull())
+            val part = MultipartBody.Part.createFormData("image", image.name, requestBody)
+
+            apiService.uploadImage(part)
+        }.mapLeft { it.toNetworkError() }
     }
 
     private val _isTyping = MutableStateFlow(false)

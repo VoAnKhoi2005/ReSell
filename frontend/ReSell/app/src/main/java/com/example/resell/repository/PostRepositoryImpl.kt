@@ -31,6 +31,12 @@ class PostRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
+    override suspend fun getFollowedPosts(): Either<NetworkError, GetPostsResponse> {
+        return Either.catch {
+            apiService.getFollowedPosts()
+        }.mapLeft { it.toNetworkError() }
+    }
+
     override suspend fun getPostByID(postID: String): Either<NetworkError, Post> {
         return Either.catch {
             apiService.getPostByID(postID)
@@ -54,24 +60,28 @@ class PostRepositoryImpl @Inject constructor(
             )
 
             apiService.createPost(request)
+            true
         }.mapLeft { it.toNetworkError() }
     }
 
     override suspend fun updatePost(postID: String, request: UpdatePostRequest): Either<NetworkError, Boolean> {
         return Either.catch {
             apiService.updatePost(postID, request)
+            true
         }.mapLeft { it.toNetworkError() }
     }
 
     override suspend fun hardDeletePost(postID: String): Either<NetworkError, Boolean> {
         return Either.catch {
             apiService.hardDeletePost(postID)
+            true
         }.mapLeft { it.toNetworkError() }
     }
 
     override suspend fun softDeletePost(postID: String): Either<NetworkError, Boolean> {
         return Either.catch {
             apiService.softDeletePost(postID)
+            true
         }.mapLeft { it.toNetworkError() }
     }
 
@@ -84,6 +94,7 @@ class PostRepositoryImpl @Inject constructor(
     override suspend fun restoreDeletedPost(postID: String): Either<NetworkError, Boolean> {
         return Either.catch {
             apiService.restoreDeletedPost(postID)
+            true
         }.mapLeft { it.toNetworkError() }
     }
 

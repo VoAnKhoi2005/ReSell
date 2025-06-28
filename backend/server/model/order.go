@@ -48,11 +48,11 @@ type ShopOrder struct {
 	CanceledAt      *time.Time  `json:"canceled_at"`
 
 	// --- ZaloPay Fields ---
-	ZaloAppTransID   *string    `json:"zalo_app_trans_id"` // nullable
-	ZaloTransID      *string    `json:"zalo_trans_id"`     // nullable
+	ZaloAppTransID   *string    `json:"zalo_app_trans_id,omitempty"` // nullable
+	ZaloTransID      *string    `json:"zalo_trans_id,omitempty"`     // nullable
 	PaymentStatus    string     `json:"payment_status"`
-	PaidAt           *time.Time `json:"paid_at"`            // nullable
-	ZaloCallbackData *string    `json:"zalo_callback_data"` // nullable
+	PaidAt           *time.Time `json:"paid_at,omitempty"`            // nullable
+	ZaloCallbackData *string    `json:"zalo_callback_data,omitempty"` // nullable
 
 	User          *User          `json:"user,omitempty"`
 	Post          *Post          `json:"post,omitempty"`

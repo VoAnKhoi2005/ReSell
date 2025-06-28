@@ -278,7 +278,7 @@ func (h *UserController) GetStat(c *gin.Context) {
 	stat, err := h.userService.GetStat(userID)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

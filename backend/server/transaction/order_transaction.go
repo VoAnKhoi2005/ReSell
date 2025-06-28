@@ -7,7 +7,7 @@ type CreateOrderRequest struct {
 }
 
 type CreateReviewRequest struct {
-	OrderID string `json:"order_id" binding:"required"`
-	Rating  int    `json:"rating" binding:"required"`
-	Comment string `json:"comment"`
+	OrderID string  `json:"order_id" binding:"required"`
+	Rating  int     `json:"rating" binding:"required"`
+	Comment *string `json:"comment,omitempty"`
 }

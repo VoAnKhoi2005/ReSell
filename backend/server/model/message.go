@@ -66,6 +66,6 @@ type InChatIndicatorPayload struct {
 }
 
 type ErrorPayload struct {
-	TempMessageID *string `json:"temp_message_id"`
+	TempMessageID *string `json:"temp_message_id,omitempty"`
 	Error         string  `json:"error"`
 }

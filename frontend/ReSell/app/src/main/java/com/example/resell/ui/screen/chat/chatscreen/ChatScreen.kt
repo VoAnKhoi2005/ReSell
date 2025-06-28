@@ -55,6 +55,8 @@ import android.os.Looper
 
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -71,7 +73,7 @@ import com.google.android.gms.location.Priority
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-
+import java.io.File
 
 
 @Composable
@@ -144,7 +146,7 @@ fun ChatScreen() {
     }
 
     val receiverAvatarUrl =post?.user?.avatarURL?: stringResource(R.string.default_avatar_url)
-    val receiverUsername =post?.user?.username?:""
+
 
     val displayMessages = remember(messages) { messages.reversed() }
     LaunchedEffect(isTyping) {
@@ -157,7 +159,7 @@ fun ChatScreen() {
         modifier = Modifier.fillMaxSize(),
         topBar = {
             ChatTopBar(
-                receiverName = receiverUsername,
+                receiverName = viewModel.receiverUsername,
                 receiverAvatarUrl = receiverAvatarUrl
             )
         },
@@ -235,6 +237,19 @@ fun ChatMessages(
 fun ChatInputBar(viewModel: ChatViewModel,
     onSendMessage: (String) -> Unit
 ) {
+    val context = LocalContext.current
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            val file = File(context.cacheDir, "selected_image.jpg")
+            inputStream?.use { input ->
+                file.outputStream().use { output -> input.copyTo(output) }
+            }
+            viewModel.senddImage(file)
+        }
+    }
     val msg = remember { mutableStateOf("") }
     val hideKeyboardController = LocalSoftwareKeyboardController.current
     val locationMessageKey : String = stringResource(id = R.string.location_message_key)
@@ -244,7 +259,6 @@ fun ChatInputBar(viewModel: ChatViewModel,
             Manifest.permission.ACCESS_COARSE_LOCATION
         )
     )
-    val context = LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     Row(
         modifier = Modifier
@@ -297,7 +311,9 @@ fun ChatInputBar(viewModel: ChatViewModel,
             )
         }
 
-        IconButton(onClick = {}) {
+        IconButton(onClick = {
+            pickImageLauncher.launch("image/*")
+        }) {
             Image(
                 painter = painterResource(id = R.drawable.baseline_image_24),
                 contentDescription = "SendImage",
@@ -367,7 +383,10 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
     val alignment = if (isCurrentUser) Arrangement.End else Arrangement.Start
     val bubbleColor = if (isCurrentUser) UserMessage else BuyerMessage
     val locationMessageKey : String = stringResource(id = R.string.location_message_key)
+    val imageMessageKey : String = stringResource(id = R.string.image_message_key)
     val isLocationMessage = message.content.contains(locationMessageKey)
+    val isImageMessage = message.content.contains(imageMessageKey)
+
 
     Row(
         modifier = Modifier
@@ -393,6 +412,11 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
             val urlStartIndex = message.content.indexOf("https://maps.google.com")
             val mapUrl = message.content.substring(urlStartIndex)
             LocaltionBubble(mapUrl)
+        }
+        else if (isImageMessage) {
+            val urlStartIndex = message.content.indexOf("http")
+            val imageUrl = message.content.substring(urlStartIndex)
+            ImageBubble(imageUrl)
         }
         else {
             Box(
@@ -475,6 +499,30 @@ fun LocaltionBubble(locationUrl: String) {
         ) {
             Text(text = "Xem vị trí", style = MaterialTheme.typography.labelMedium)
         }
+    }
+}
+@Composable
+fun ImageBubble(imageUrl: String) {
+    val context = LocalContext.current
+
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+            .widthIn(max = 250.dp)
+    ) {
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = "Shared image",
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 180.dp)
+                .clip(RoundedCornerShape(6.dp))
+                .clickable {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(imageUrl))
+                    context.startActivity(intent)
+                },
+            contentScale = ContentScale.Crop
+        )
     }
 }
 
