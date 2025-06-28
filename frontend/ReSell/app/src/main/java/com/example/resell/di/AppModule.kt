@@ -24,8 +24,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Named
 import javax.inject.Singleton
-
-const val BASE_URL = "http://10.0.2.2:8080/api/"
+import com.example.resell.BuildConfig
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -75,8 +74,9 @@ object AppModule {
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit {
+        val baseUrl = BuildConfig.BASE_URL
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(baseUrl)
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
@@ -103,8 +103,9 @@ object AppModule {
         moshi: Moshi,
         @Named("refreshOkHttp") refreshClient: OkHttpClient
     ): Retrofit {
+        val baseUrl = BuildConfig.BASE_URL
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(baseUrl)
             .client(refreshClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()

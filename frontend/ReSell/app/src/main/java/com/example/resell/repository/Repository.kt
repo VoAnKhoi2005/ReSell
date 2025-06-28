@@ -49,9 +49,25 @@ interface PostRepository {
         minPrice: Int? = null, maxPrice: Int? = null,
         provinceID: String? = null, districtID: String? = null, wardID: String? = null,
         userID: String? = null,
-        categoryID: String? = null
+        categoryID: String? = null,
+        search: String? = null,
     ): Either<NetworkError, GetPostsResponse>
-    suspend fun getFollowedPosts(): Either<NetworkError, GetPostsResponse>
+    suspend fun getOwnPosts(
+        page: Int, limit: Int,
+        status: String? = null,
+        minPrice: Int? = null, maxPrice: Int? = null,
+        provinceID: String? = null, districtID: String? = null, wardID: String? = null,
+        categoryID: String? = null,
+        search: String? = null,
+    ): Either<NetworkError, GetPostsResponse>
+    suspend fun getFollowedPosts(
+        page: Int, limit: Int,
+        status: String? = null,
+        minPrice: Int? = null, maxPrice: Int? = null,
+        provinceID: String? = null, districtID: String? = null, wardID: String? = null,
+        categoryID: String? = null,
+        search: String? = null,
+    ): Either<NetworkError, GetPostsResponse>
     suspend fun getPostByID(postID: String): Either<NetworkError, Post>
     suspend fun createPost(title: String, description: String,
                            categoryID: String, addressID: String,

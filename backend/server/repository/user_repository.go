@@ -251,7 +251,7 @@ func (r *userRepository) FollowUser(followerID *string, followedID *string) erro
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	return r.db.WithContext(ctx).Create(&model.Follow{BuyerID: followerID, SellerID: followedID}).Error
+	return r.db.WithContext(ctx).Create(&model.Follow{FolloweeID: followerID, FollowerID: followedID}).Error
 }
 
 func (r *userRepository) GetAllFollowUser(followerID *string) ([]*model.User, error) {

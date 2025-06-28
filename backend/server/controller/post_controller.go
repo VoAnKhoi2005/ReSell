@@ -294,8 +294,8 @@ func (h *PostController) GetUserPosts(c *gin.Context) {
 		"limit":    limit,
 		"has_more": int64(page*limit) < total,
 	})
-
 }
+
 func (h *PostController) GetPostByID(c *gin.Context) {
 	id := c.Param("id")
 	post, err := h.service.GetPostByID(id)
@@ -851,5 +851,4 @@ func (h *PostController) GetOwnPosts(c *gin.Context) {
 		"limit":    limit,
 		"has_more": int64(page*limit) < total,
 	})
-
 }

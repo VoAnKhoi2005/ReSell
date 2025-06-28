@@ -126,7 +126,7 @@ func (r *recommenderService) PreparePostFeature(postID string, userProfile *User
 	// 4. Location distance
 	locScore := ComputeLocationDistance(userProfile.Addresses, post.Address)
 
-	// 5. Seller reputation
+	// 5. Follower reputation
 	sellerReputation := 0.0
 	if post.User != nil {
 		sellerReputation = float64(post.User.Reputation)
