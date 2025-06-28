@@ -1,5 +1,6 @@
 package com.example.resell.util
 
+import android.util.Log
 import java.time.Duration
 import java.time.LocalDateTime
 
@@ -8,6 +9,8 @@ fun getRelativeTime(time: LocalDateTime?): String {
 
     val now = LocalDateTime.now()
     val duration = Duration.between(time, now)
+    Log.d("RelativeTime", "Server time: $time, Now: $now")
+
 
     return when {
         duration.toMinutes() < 1 -> "Vừa xong"

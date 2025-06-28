@@ -69,7 +69,7 @@ class HomeViewModel @Inject constructor(
 
                         Log.d(
                             "HomeViewModel",
-                            "Post: ${post.title}, createdAt=$createdAt, time=$createdAt, imageUrl=${post.thumbnail}"
+                            "Post: ${post.title}, createdAt=$createdAt, imageUrl=${post.thumbnail}"
                         )
 
                         ProductPost(

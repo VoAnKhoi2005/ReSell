@@ -160,17 +160,6 @@ fun HomeContent(postList: List<ProductPost>, modifier: Modifier = Modifier,viewM
                             .padding(start = 4.dp)
                             .alignByBaseline()
                     )
-
-                    Spacer(modifier = Modifier.padding(2.dp))
-                    Icon(
-                        painter = painterResource(id = R.drawable.filter_horizontal),
-                        contentDescription = "Gợi ý",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clickable { println("Icon được click") }
-                            .padding(bottom = 16.dp),
-                        tint = DarkBlue
-                    )
                 }
             }
         }
