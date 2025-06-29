@@ -58,9 +58,12 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewModelScope
+import coil.compose.AsyncImagePainter
 import com.example.resell.model.Post
 import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.navigation.Screen
@@ -269,8 +272,10 @@ fun ChatInputBar(viewModel: ChatViewModel,
     {
         IconButton(onClick = {
             locationPermissions.launchMultiplePermissionRequest()
+
             if (locationPermissions.allPermissionsGranted) {
-                    viewModel.showLoading()
+                viewModel.showLoading()
+
                 val locationRequest = LocationRequest.create().apply {
                     priority = Priority.PRIORITY_HIGH_ACCURACY
                     interval = 1000
@@ -294,13 +299,19 @@ fun ChatInputBar(viewModel: ChatViewModel,
                     }
                 }
 
-                fusedLocationClient.requestLocationUpdates(
-                    locationRequest,
-                    locationCallback,
-                    Looper.getMainLooper()
-                )
+                try {
+                    fusedLocationClient.requestLocationUpdates(
+                        locationRequest,
+                        locationCallback,
+                        Looper.getMainLooper()
+                    )
+                } catch (e: SecurityException) {
+                    viewModel.hideLoading()
+                    Toast.makeText(context, "Chưa được cấp quyền vị trí", Toast.LENGTH_SHORT).show()
+                }
+
             } else {
-                locationPermissions.launchMultiplePermissionRequest()
+                Toast.makeText(context, "Vui lòng cấp quyền vị trí", Toast.LENGTH_SHORT).show()
             }
         }) {
             Image(
@@ -310,6 +321,7 @@ fun ChatInputBar(viewModel: ChatViewModel,
                 colorFilter = ColorFilter.tint(DarkBlue)
             )
         }
+
 
         IconButton(onClick = {
             pickImageLauncher.launch("image/*")
@@ -379,7 +391,8 @@ fun ChatInputBar(viewModel: ChatViewModel,
 
 @Composable
 fun ChatBubble(message: Message, receiverAvatarUrl : String) {
-    val isCurrentUser = message.senderId == ReactiveStore<User>().item.value?.id
+    val currentUser by ReactiveStore<User>().item.collectAsState()
+    val isCurrentUser = message.senderId == currentUser?.id
     val alignment = if (isCurrentUser) Arrangement.End else Arrangement.Start
     val bubbleColor = if (isCurrentUser) UserMessage else BuyerMessage
     val locationMessageKey : String = stringResource(id = R.string.location_message_key)
@@ -503,28 +516,55 @@ fun LocaltionBubble(locationUrl: String) {
 }
 @Composable
 fun ImageBubble(imageUrl: String) {
-    val context = LocalContext.current
+    val painter = rememberAsyncImagePainter(model = imageUrl)
+    val state = painter.state
+    val density = LocalDensity.current
 
-    Column(
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+
+    val maxWidthDp = screenWidth * 0.7f  // ảnh chiếm tối đa 70% chiều rộng màn hình
+    val maxHeightDp = screenHeight * 0.4f // ảnh không quá 40% chiều cao màn hình
+
+
+    // Tính width và height dựa trên kích thước thật và chuyển về dp
+    val (imageWidthDp, imageHeightDp) = if (state is AsyncImagePainter.State.Success) {
+        val sizePx = painter.intrinsicSize
+        if (sizePx.width > 0 && sizePx.height > 0) {
+            with(density) {
+                val widthDp = sizePx.width.toDp()
+                val heightDp = sizePx.height.toDp()
+
+                // Co giãn ảnh theo tỉ lệ nhưng không vượt quá maxWidth và maxHeight
+                val scale = minOf(
+                    maxWidthDp / widthDp,
+                    maxHeightDp / heightDp,
+                    1f // không scale lên nếu nhỏ hơn
+                )
+
+                Pair(widthDp * scale, heightDp * scale)
+            }
+        } else {
+            Pair(maxWidthDp, maxWidthDp) // fallback vuông
+        }
+    } else {
+        Pair(maxWidthDp, maxWidthDp) // placeholder tạm
+    }
+
+    Box(
         modifier = Modifier
-            .padding(8.dp)
-            .widthIn(max = 250.dp)
+            .size(width = imageWidthDp, height = imageHeightDp)
+            .clip(RoundedCornerShape(6.dp))
     ) {
-        AsyncImage(
-            model = imageUrl,
+        Image(
+            painter = painter,
             contentDescription = "Shared image",
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = 180.dp)
-                .clip(RoundedCornerShape(6.dp))
-                .clickable {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(imageUrl))
-                    context.startActivity(intent)
-                },
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.fillMaxSize()
         )
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
