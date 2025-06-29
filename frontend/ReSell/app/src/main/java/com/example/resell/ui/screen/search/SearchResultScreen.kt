@@ -45,6 +45,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.ui.components.CategoryFilterBottomSheet
+import com.example.resell.ui.components.CategoryPickerBottomSheet
 import com.example.resell.ui.components.PriceFilterBottomSheet
 import com.example.resell.ui.components.ProductPostItem
 import com.example.resell.ui.components.formatPrice
@@ -62,7 +63,8 @@ fun SearchResultScreen(searchQuery: String = "") {
     var showRegionSheet by remember { mutableStateOf(false) }
     var showCategorySheet by remember { mutableStateOf(false) }
     var showPriceSheet by remember { mutableStateOf(false) }
-
+    val selectedCategory by viewModel.selectedCategory
+    val categoryTree by viewModel.categoryTree
     LaunchedEffect(Unit) {
         viewModel.loadInitial(searchQuery)
     }
@@ -144,7 +146,7 @@ fun SearchResultScreen(searchQuery: String = "") {
                     modifier = Modifier.size(20.dp)
                 )
 
-                FilterButton(label = state.selectedCategory ?: "Danh mục") {
+                FilterButton(label = selectedCategory?.name ?: "Danh mục") {
                     showCategorySheet = true
                 }
 
@@ -207,12 +209,13 @@ fun SearchResultScreen(searchQuery: String = "") {
 
 
         if (showCategorySheet) {
-            CategoryFilterBottomSheet(
-                onDismissRequest = { showCategorySheet = false },
-                onCategorySelected = { category ->
-                    viewModel.setSelectedCategory(category)
+            CategoryPickerBottomSheet(
+                categoryTree = categoryTree,
+                onCategorySelected = {
+                   viewModel.selectCategory(it)
                     showCategorySheet = false
-                }
+                },
+                onDismiss = { showCategorySheet = false }
             )
         }
 

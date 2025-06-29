@@ -110,4 +110,5 @@ dependencies {
     implementation ("androidx.credentials:credentials-play-services-auth:1.2.0-alpha02")
 
     implementation(libs.logging.interceptor)
+    implementation("androidx.compose.material:material-icons-extended")
 }

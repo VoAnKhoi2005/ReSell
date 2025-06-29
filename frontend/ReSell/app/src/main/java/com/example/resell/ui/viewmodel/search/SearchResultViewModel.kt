@@ -1,8 +1,10 @@
 package com.example.resell.ui.viewmodel.search
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.resell.model.CategoryNode
 import com.example.resell.model.District
 import com.example.resell.model.GetPostsResponse
 import com.example.resell.model.Post
@@ -17,17 +19,37 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
+import com.example.resell.model.Category
+import com.example.resell.model.buildCategoryTree
+import com.example.resell.model.printCategoryTree
+import com.example.resell.repository.CategoryRepository
 
 @HiltViewModel
 class SearchResultViewModel @Inject constructor(
     private val postRepository: PostRepository,
-    private val addressRepository: AddressRepository
+    private val addressRepository: AddressRepository,
+    private val categoryRepository: CategoryRepository
 ) : ViewModel() {
     private var currentPage = 1
     private var isLoadingMore = false
     private var allProvinces: List<Province> = emptyList()
     private val _uiState = MutableStateFlow(SearchResultUiState())
     val uiState: StateFlow<SearchResultUiState> = _uiState
+    private val _selectedCategory = mutableStateOf<Category?>(null)
+    val selectedCategory: State<Category?> = _selectedCategory
+
+    fun selectCategory(category: Category) {
+        _selectedCategory.value = category
+        applyLocationSelection()
+    }
+    private val _categoryTree = mutableStateOf<List<CategoryNode>>(emptyList())
+    val categoryTree: State<List<CategoryNode>> = _categoryTree
+
     init {
         viewModelScope.launch {
             val result = addressRepository.getAllProvinces()
@@ -36,6 +58,15 @@ class SearchResultViewModel @Inject constructor(
                 { provinces ->
                     allProvinces = provinces
                     _uiState.update { it.copy(provinces = provinces) }
+                }
+            )
+            val cate = categoryRepository.getAllCategory()
+            cate.fold(
+                {
+                    Log.e("SearchResult", it.message ?: "Error")
+                },{
+                    _categoryTree.value = buildCategoryTree(it)
+                    printCategoryTree(_categoryTree.value)
                 }
             )
         }
@@ -134,10 +165,7 @@ class SearchResultViewModel @Inject constructor(
         reloadPosts()
     }
 
-    fun setSelectedCategory(category: String?) {
-        _uiState.update { it.copy(selectedCategory = category) }
-        applyLocationSelection()
-    }
+
 
     fun setSelectedPriceRange(range: Pair<Int, Int>?) {
         _uiState.update { it.copy(selectedPriceRange = range) }
@@ -159,12 +187,13 @@ class SearchResultViewModel @Inject constructor(
                 limit =20,
                 status = "approved",
                 search = state.searchQuery,
-                categoryID = state.selectedCategory,
+                categoryID = _selectedCategory.value?.id?:"",
                 minPrice = state.selectedPriceRange?.first?:0,
                 maxPrice = state.selectedPriceRange?.second?:100000000,
                 provinceID = provinceID,
                 districtID = districtID,
                 wardID = wardID
+
             )
             posts.fold(
                 {

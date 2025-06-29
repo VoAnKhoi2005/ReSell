@@ -25,6 +25,7 @@ services:
     env_file: ./backend/server/.env
     environment:
       REDIS_ADDR: redis:6379
+      TZ: Asia/Ho_Chi_Minh
     depends_on:
       - redis
     networks:
