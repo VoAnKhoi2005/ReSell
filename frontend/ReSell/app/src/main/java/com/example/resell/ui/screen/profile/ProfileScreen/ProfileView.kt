@@ -54,7 +54,12 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
                 followerCount = viewModel.statUser?.followerCount,
                 followingCount = viewModel.statUser?.followeeCount,
                 onChangeAvatarClick = {
-                    NavigationController.navController.navigate(Screen.ProfileDetail.route+"/${ReactiveStore<User>().item.value!!.id}")
+                 /*   NavigationController.navController.navigate(Screen.ProfileDetail.route+"/${ReactiveStore<User>().item.value!!.id}")*/
+                    // currentUserId và targetUserId giống nhau
+                    NavigationController.navController.navigate(Screen.ProfileDetail.route + "/me123")
+                    // currentUserId và targetUserId khác nhau
+                    /*NavigationController.navController.navigate(Screen.ProfileDetail.route + "/user456")*/
+
                 }
             )
         }
