@@ -59,8 +59,7 @@ fun DistrictSelectScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            NavigationController.sharedRegionSelection =
-                                NavigationController.sharedRegionSelection.copy(district=district)
+
 
 
                             NavigationController.navController.popBackStack()

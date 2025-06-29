@@ -1,3 +1,51 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environment files
+.env
+*.env
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# IDE files
 .vscode/
 .idea/
-.venv/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs and cache
+*.log
+*.pot
+*.pyc
+.cache/
+*.egg-info/
+.eggs/
+
+# Test outputs
+htmlcov/
+.tox/
+coverage.*
+nosetests.xml
+test-results/
+junit-*.xml
+
+# Docker
+__pycache__/
+*.pid
+*.sock
+
+# Jupyter (if any)
+.ipynb_checkpoints/
+*.ipynb
+
+# Mypy, Pyright, Pylint, etc.
+.mypy_cache/
+.pyright/
+.pytest_cache/

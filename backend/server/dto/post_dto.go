@@ -1,6 +1,8 @@
 package dto
 
-import "time"
+import (
+	"time"
+)
 
 type PostListAdminDTO struct {
 	ID       string `json:"id"`
@@ -17,7 +19,7 @@ type PostListUserDTO struct {
 	Category  string    `json:"category"`
 	Owner     string    `json:"owner"`
 	Thumbnail string    `json:"thumbnail"`
-	Province  string    `json:"province"`
+	Address   string    `json:"address"`
 	Price     int       `json:"price"`
 	CreatedAt time.Time `json:"created_at"`
 }

@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application
-        android:name=".ui.ReSell"
+        android:name=".ReSell"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -15,11 +15,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ReSell"
         tools:targetApi="31"
-
         android:networkSecurityConfig="@xml/network_security_config">
+
         <meta-data
             android:name="com.google.android.gms.auth.api.credentials.CREDENTIAL_PICKER"
             android:value="true" />
+
         <activity
             android:name=".ui.MainActivity"
             android:windowSoftInputMode="adjustPan"

@@ -264,7 +264,7 @@ fun ProfileSimpleHeaderSection(//bên profile
     name: String?,
     rating: String?,              // "Chưa có đánh giá"
     reviewCount: Int=0,
-    userId: String?,
+    userName: String?,
     followerCount: Int?,
     followingCount: Int?,
     onChangeAvatarClick: (() -> Unit)? = null
@@ -338,9 +338,9 @@ fun ProfileSimpleHeaderSection(//bên profile
                     showText = true
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                userId?.let {
+                userName?.let {
                     Text(
-                        "ID: $it",
+                        "Username: $it",
                         color = GrayFont,
                         style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp)
                     )
@@ -415,13 +415,33 @@ fun ProfileSimpleHeader(
                         it,
                         style = MaterialTheme.typography.labelMedium.copy(
                             fontWeight = FontWeight.Medium,
-                            fontSize = 20.sp
+                            fontSize = 16.sp
                         )
                     )
                 }
 
                 Spacer(modifier = Modifier.height(6.dp))
+                if (showRating && rating != null) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        StarRating(
+                            rating = rating,
+                            showText = false,
+                            starSize = 18
+                        )
 
+                        if (reviewCount != null) {
+                            Spacer(modifier = Modifier.width(4.dp)) // Khoảng cách giữa sao và text
+                            Text(
+                                text = "($reviewCount đánh giá)",
+                                style = MaterialTheme.typography.labelSmall.copy(color = GrayFont)
+                            )
+                        }
+                    }
+
+                }
+                Spacer(modifier = Modifier.height(6.dp))
                 soldCount?.let {
                     Text(
                         "Đã bán $it sản phẩm",
@@ -431,24 +451,6 @@ fun ProfileSimpleHeader(
                 }
             }
 
-            // Cột bên phải: điểm đánh giá + sao
-            if (showRating && rating != null) {
-                Column(horizontalAlignment = Alignment.End) {
-                    StarRating(
-                        rating = rating,
-                        showText = false,
-                        starSize = 18
-                    )
-
-                    if (reviewCount != null) {
-                        Text(
-                            "($reviewCount đánh giá)",
-                            style = MaterialTheme.typography.labelSmall.copy(color = GrayFont),
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                    }
-                }
-            }
         }
     }
 }

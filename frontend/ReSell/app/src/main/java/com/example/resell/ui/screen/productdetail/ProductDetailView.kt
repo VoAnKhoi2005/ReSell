@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.resell.R
+import com.example.resell.model.PostData
 import com.example.resell.model.User
 import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.components.CircleIconButton
@@ -58,48 +59,7 @@ import com.example.resell.ui.viewmodel.chat.ChatViewModel
 import com.example.resell.ui.viewmodel.productDetail.ProductDetailViewModel
 import com.example.resell.util.getRelativeTime
 
-// Giả lập dữ liệu
-val fakeRelatedPosts = listOf(
-    ProductPost(
-        id = "1",
-        title = "iPhone 13 Pro Max 128GB",
-        time = "1 giờ trước",
-        imageUrl = "https://picsum.photos/id/1043/800/600",
-        price = 21000000,
-        category = "Điện thoại",
-        address = "Q.1, TP.HCM"
-    ),
-    ProductPost(
-        id = "2",
-        title = "Samsung Galaxy S22",
-        time = "2 giờ trước",
-        imageUrl = "https://picsum.photos/id/1041/800/600",
-        price = 17500000,
-        category = "Điện thoại",
-        address = "Q.10, TP.HCM"
-    )
-)
 
-val fakeSellerPosts = listOf(
-    ProductPost(
-        id = "3",
-        title = "MacBook Pro M1",
-        time = "3 ngày trước",
-        imageUrl = "https://picsum.photos/id/1039/800/600",
-        price = 28500000,
-        category = "Laptop",
-        address = "Q.5, TP.HCM"
-    ),
-    ProductPost(
-        id = "4",
-        title = "AirPods Pro 2",
-        time = "4 giờ trước",
-        imageUrl = "https://picsum.photos/id/1052/800/600",
-        price = 4700000,
-        category = "Phụ kiện",
-        address = "Q.7, TP.HCM"
-    )
-)
 
 
 @Composable
@@ -109,7 +69,6 @@ fun ProductDetailScreen(
     val context = LocalContext.current
     val post = viewModel.postDetail
     val isLoading by viewModel.isLoading.collectAsState()
-    val error = viewModel.errorMessage
     if (isLoading) {
         Box(modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator(
@@ -151,12 +110,12 @@ fun ProductDetailScreen(
                             .padding(8.dp)
                     ) {
                         ProfileSimpleHeader(
-                            avatarUrl = ReactiveStore<User>().item.value?.avatarURL
+                            avatarUrl = viewModel.postDetail?.user?.avatarURL
                                 ?: stringResource(R.string.default_avatar_url),
-                            name = post?.user?.username,
-                            rating = 4.5f,
-                            reviewCount = 20,
-                            soldCount = 150
+                            name = post?.user?.fullName,
+                            rating = (viewModel.statSeller?.averageRating as? Number)?.toFloat() ?: 5f,
+                            reviewCount = viewModel.statSeller?.reviewNumber,
+                            soldCount = viewModel.statSeller?.saleNumber
                         )
 
                     }
@@ -189,16 +148,16 @@ fun ProductDetailScreen(
                 item {
                     HorizontalPostListSection(
                         title = "Tin đăng tương tự",
-                        posts = fakeRelatedPosts
+                        posts = viewModel.relatedPosts
                     ) { selectedPost ->
                         NavigationController.navController.navigate(Screen.ProductDetail.route + "/${selectedPost.id}")
                     }
                 }
 
-                item {
+                if (!viewModel.sellerPosts.isEmpty())item {
                     HorizontalPostListSection(
                         title = "Tin đăng của ${post?.user?.username ?: "người bán"}",
-                        posts = fakeSellerPosts
+                        posts = viewModel.sellerPosts
                     ) { selectedPost ->
                         NavigationController.navController.navigate(Screen.ProductDetail.route + "/${selectedPost.id}")
                     }
@@ -353,8 +312,8 @@ fun ImageCarousel(images: List<String>) {
 @Composable
 fun HorizontalPostListSection(
     title: String,
-    posts: List<ProductPost>,
-    onPostClick: (ProductPost) -> Unit
+    posts: List<PostData>,
+    onPostClick: (PostData) -> Unit
 ) {
     Column(modifier = Modifier.padding(top = 16.dp)) {
         Text(
@@ -370,8 +329,8 @@ fun HorizontalPostListSection(
             items(posts) { post ->
                 ProductPostItem(
                     title = post.title,
-                    time = post.time,
-                    imageUrl = post.imageUrl,
+                    time = getRelativeTime(post.createdAt),
+                    imageUrl = post.thumbnail,
                     price = post.price,
                     category = post.category,
                     address = post.address,

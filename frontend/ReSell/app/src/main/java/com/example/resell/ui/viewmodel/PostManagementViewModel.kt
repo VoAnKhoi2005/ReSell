@@ -36,10 +36,9 @@ class PostManagementViewModel @Inject constructor(
             var isHasMore = true
 
             while (isHasMore) {
-                val result = postRepository.getPosts(
+                val result = postRepository.getOwnPosts(
                     page = currentPage,
-                    limit = 100,
-                    userID = ReactiveStore<User>().item.value!!.id
+                    limit = 100
                 )
 
                 result.fold(

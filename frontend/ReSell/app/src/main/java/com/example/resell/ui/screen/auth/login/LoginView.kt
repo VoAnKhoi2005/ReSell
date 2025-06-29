@@ -136,7 +136,9 @@ private fun LoginForm(
                     }
                     activity.startActivity(intent)
                 } else {
+
                     Toast.makeText(context, "Lỗi đăng nhập: ${e.type}", Toast.LENGTH_LONG).show()
+                    Log.e("Login","type: ${e.type}, message: ${e.message}")
                 }
             } catch (e: Exception) {
                 Toast.makeText(context, "Lỗi không xác định: ${e.localizedMessage}", Toast.LENGTH_LONG).show()

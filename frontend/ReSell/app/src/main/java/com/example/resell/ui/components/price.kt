@@ -56,16 +56,21 @@ import com.example.resell.ui.theme.White
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PriceFilterBottomSheet(
-    minPrice: Float = 0f,
-    maxPrice: Float = 100_000_000f,
-    initialMin: Float = 0f,
-    initialMax: Float = 100_000_000f,
+    minPrice: Int = 0,
+    maxPrice: Int = 100_000_000,
+    initialMin: Int = 0,
+    initialMax: Int = 100_000_000,
     onDismissRequest: () -> Unit,
-    onApply: (Float, Float) -> Unit
+    onApply: (Int, Int) -> Unit
 ) {
-    var priceRange by remember { mutableStateOf(initialMin..initialMax) }
-    var inputMin by remember { mutableStateOf(initialMin.toInt().toString()) }
-    var inputMax by remember { mutableStateOf(initialMax.toInt().toString()) }
+    // Float range cho RangeSlider
+    var priceRange by remember {
+        mutableStateOf(initialMin.toFloat()..initialMax.toFloat())
+    }
+
+    // TextField input (chuỗi)
+    var inputMin by remember { mutableStateOf(initialMin.toString()) }
+    var inputMax by remember { mutableStateOf(initialMax.toString()) }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -89,7 +94,7 @@ fun PriceFilterBottomSheet(
                         inputMin = it.start.toInt().toString()
                         inputMax = it.endInclusive.toInt().toString()
                     },
-                    valueRange = minPrice..maxPrice,
+                    valueRange = minPrice.toFloat()..maxPrice.toFloat(),
                     steps = 10,
                     colors = SliderDefaults.colors(
                         thumbColor = GrayFont,
@@ -98,25 +103,21 @@ fun PriceFilterBottomSheet(
                         activeTickColor = Color.Transparent,
                         inactiveTickColor = Color.Transparent
                     )
-
                 )
 
-                // Label min - max ở 2 đầu
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "${minPrice.toInt()} đ", color = Color.Black)
-                    Text(text = "${maxPrice.toInt()} đ", color = Color.Black)
+                    Text(text = "${minPrice} đ", color = Color.Black)
+                    Text(text = "${maxPrice} đ", color = Color.Black)
                 }
             }
 
-
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Hai hộp nhập giá
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -125,9 +126,11 @@ fun PriceFilterBottomSheet(
                 OutlinedTextField(
                     value = inputMin,
                     onValueChange = {
-                        inputMin = it.filter { c -> c.isDigit() }
-                        val min = inputMin.toFloatOrNull() ?: minPrice
-                        priceRange = min..priceRange.endInclusive
+                        inputMin = it.filter(Char::isDigit)
+                        val min = inputMin.toFloatOrNull()?.coerceIn(minPrice.toFloat(), priceRange.endInclusive)
+                        if (min != null) {
+                            priceRange = min..priceRange.endInclusive
+                        }
                     },
                     label = { Text("Giá tối thiểu") },
                     singleLine = true,
@@ -139,9 +142,11 @@ fun PriceFilterBottomSheet(
                 OutlinedTextField(
                     value = inputMax,
                     onValueChange = {
-                        inputMax = it.filter { c -> c.isDigit() }
-                        val max = inputMax.toFloatOrNull() ?: maxPrice
-                        priceRange = priceRange.start..max
+                        inputMax = it.filter(Char::isDigit)
+                        val max = inputMax.toFloatOrNull()?.coerceIn(priceRange.start, maxPrice.toFloat())
+                        if (max != null) {
+                            priceRange = priceRange.start..max
+                        }
                     },
                     label = { Text("Giá tối đa") },
                     singleLine = true,
@@ -151,11 +156,10 @@ fun PriceFilterBottomSheet(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Nút áp dụng
             Button(
                 onClick = {
-                    val min = inputMin.toFloatOrNull() ?: priceRange.start
-                    val max = inputMax.toFloatOrNull() ?: priceRange.endInclusive
+                    val min = inputMin.toIntOrNull() ?: priceRange.start.toInt()
+                    val max = inputMax.toIntOrNull() ?: priceRange.endInclusive.toInt()
                     onApply(min, max)
                     onDismissRequest()
                 },
@@ -169,6 +173,7 @@ fun PriceFilterBottomSheet(
         }
     }
 }
+
 @Composable//hàm hiện giá ở filterbuttong giá
 fun formatPrice(value: Float): String {
     return when {

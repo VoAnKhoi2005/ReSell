@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.resell.R
+import com.example.resell.model.PostData
 import com.example.resell.ui.components.IconButtonHorizontal
 import com.example.resell.ui.components.ProfileSimpleHeader
 
@@ -29,73 +30,44 @@ import com.example.resell.ui.theme.FollowButton
 import com.example.resell.ui.theme.UserMessage
 import com.example.resell.ui.theme.White2
 
-data class PostData(
-    val avatar: String?,
-    val name: String,
-    val time: String,
-    val address: String,
-    val images: List<String>,
-    val title: String,
-    val content: String
-)
+
 
 @Composable
-fun ExploreScreen() {
-    val samplePosts = listOf(
-        PostData(
-            name = "Nguyễn Văn A",
-            avatar = "https://i.pinimg.com/736x/39/91/f1/3991f1840e975b01f9b205d97f644d98.jpg",
-            time = "Cách đây 2 giờ",
-            address = "Quận 1, TP. Hồ Chí Minh",
-            images = listOf(
-                "https://picsum.photos/id/1003/800/600",
-                "https://picsum.photos/id/1011/800/600"
-            ),
-            title = "iPhone 14 Pro Max 128GB - Hàng chính hãng",
-            content = "Máy mới 100%, bảo hành 12 tháng chính hãng. Có hỗ trợ trả góp lãi suất 0%."
-        ),
-        PostData(
-            name = "Trần Thị B",
-            avatar = "https://i.pinimg.com/736x/39/83/63/398363cdc6c47752bccb799b8a666935.jpg",
-            time = "Cách đây 30 phút",
-            address = "Thủ Đức, TP.HCM",
-            images = listOf(
-                "https://picsum.photos/id/1024/800/600"
-            ),
-            title = "MacBook Air M2 2023",
-            content = "Máy mỏng nhẹ, pin trâu. Thích hợp cho học sinh, sinh viên, văn phòng."
-        ),
-        PostData(
-            name = "Lê Văn C",
-            avatar = "https://i.pinimg.com/736x/da/7e/4c/da7e4cd7e1f8fd4758f0e15f6ea13932.jpg",
-            time = "1 ngày trước",
-            address = "Bình Thạnh, TP.HCM",
-            images = listOf(
-                "https://picsum.photos/id/1035/800/600",
-                "https://picsum.photos/id/1033/800/600",
-                "https://picsum.photos/id/1039/800/600"
-            ),
-            title = "Xe máy Honda Vision 2022",
-            content = "Xe đi 8.000km, bảo dưỡng đầy đủ, giấy tờ hợp lệ. Bao sang tên."
-        )
-    )
+fun ExploreScreen(posts: List<PostData>) {
+
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 16.dp)
     ) {
-        itemsIndexed(samplePosts) { index, post ->
-            PostItemView(
-                avatarUrl = post.avatar,
-                name = post.name,
-                time = post.time,
-                address = post.address,
-                images = post.images,
-                title = post.title,
-                contentDescription = post.content
-            )
+        if (posts.isEmpty()) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Không có bài đăng nào",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+                }
+            }
+        } else {
+        itemsIndexed(posts) { index, post ->
+//            PostItemView(
+//                avatarUrl = post.avatar,
+//                name = post.name,
+//                time = post.time,
+//                address = post.address,
+//                images = post.images,
+//                title = post.title,
+//                contentDescription = post.content
+//            )
 
-            if (index < samplePosts.lastIndex) {
+            if (index < posts.lastIndex) {
                 Divider(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -105,10 +77,9 @@ fun ExploreScreen() {
                 )
             }
         }
-    }
+    }    }
 
 }
-
 @Composable
 fun PostItemView(
     avatarUrl: String?,
@@ -214,5 +185,3 @@ fun PostItemView(
         }
     }
 }
-
-
