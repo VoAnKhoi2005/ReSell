@@ -1,13 +1,17 @@
 import { getToken, clearToken, clearUser } from "./authService";
 
-// Lấy biến env từ Vite (.env file)
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
 export async function apiFetch(path, options = {}) {
   const token = getToken();
+
+  const isFormData = options.body instanceof FormData;
+
   options.headers = {
     ...(options.headers || {}),
     ...(token ? { Authorization: "Bearer " + token } : {}),
+    // ✅ Nếu body không phải FormData thì mới gán Content-Type là JSON
+    ...(!isFormData ? { "Content-Type": "application/json" } : {}),
   };
 
   const url =
@@ -17,7 +21,6 @@ export async function apiFetch(path, options = {}) {
 
   const response = await fetch(url, options);
 
-  // Xử lý hết hạn token
   if (response.status === 401) {
     clearToken();
     clearUser();
@@ -26,13 +29,11 @@ export async function apiFetch(path, options = {}) {
     throw new Error("Token expired");
   }
 
-  // ✅ Bổ sung xử lý lỗi chung ở đây:
   if (!response.ok) {
     let errObj = {};
     try {
       errObj = await response.json();
     } catch (e) {
-      // Nếu không phải JSON thì lấy text
       try {
         const text = await response.text();
         errObj = { error: text || `HTTP ${response.status}` };

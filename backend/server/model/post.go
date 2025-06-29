@@ -19,6 +19,7 @@ type Category struct {
 	ID               string  `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
 	ParentCategoryID *string `gorm:"type:uuid;index;constraint:OnDelete:CASCADE;" json:"parent_category_id"`
 	Name             string  `json:"name"`
+	ImageURL         *string `json:"image_url"`
 
 	ParentCategory *Category `json:"parent_category,omitempty"`
 }
