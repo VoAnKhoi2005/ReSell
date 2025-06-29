@@ -80,14 +80,18 @@ fun SearchResultScreen(searchQuery: String = "") {
         topBar = {
             TopBar(
                 showSearch = true,
+                searchQuery = state.searchQuery,
+                onClearSearch = {
+                    viewModel.clearSearchQuery()
+                    NavigationController.navController.popBackStack() // 👈 quay lại màn Search
+                },
                 showBackButton = true,
                 showEmailIcon = true,
                 showNotificationIcon = true,
-                onBackClick = { NavigationController.navController.popBackStack() },
-                onSearchNavigate = {
-                    NavigationController.navController.navigate(Screen.Search.route)
-                }
+                onBackClick = { NavigationController.navController.popBackStack() }
             )
+
+
         }
     ) { innerPadding ->
         Column(
@@ -147,26 +151,7 @@ fun SearchResultScreen(searchQuery: String = "") {
                 }
             }
 
-            // Kết quả tìm kiếm
-            if (state.searchQuery.isNotBlank()) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                ) {
-                    Text(
-                        text = "Kết quả cho từ khóa: \"${state.searchQuery}\"",
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Xóa",
-                        color = Color.Red,
-                        modifier = Modifier
-                            .clickable { viewModel.clearSearchQuery() }
-                            .padding(4.dp)
-                    )
-                }
-            }
+
 
             if (state.filteredPosts.isEmpty()) {
                 Box(
