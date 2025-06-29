@@ -7,5 +7,7 @@ import com.squareup.moshi.JsonClass
 data class Ward(
     @Json(name = "id") val id: String,
     @Json(name = "name") val name: String,
-    @Json(name = "district_id") val districtId: String
+    @Json(name = "district_id") val districtId: String,
+
+    @Json(name = "district") val district: District? = null
 )

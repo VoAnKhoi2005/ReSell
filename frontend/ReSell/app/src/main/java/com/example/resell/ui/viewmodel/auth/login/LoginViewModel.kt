@@ -23,8 +23,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import com.example.resell.R
 import com.example.resell.model.LoginType
+import com.example.resell.model.Post
 import com.example.resell.model.User
 import com.example.resell.repository.AddressRepository
+import com.example.resell.repository.PostRepository
 import com.example.resell.repository.UserRepository
 import com.example.resell.store.FCMTokenManager
 import com.example.resell.store.ReactiveStore
@@ -42,7 +44,7 @@ class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val fcmTokenManager: FCMTokenManager,
     private val webSocketManager: WebSocketManager,
-    private val repo: AddressRepository
+    private val repo: PostRepository
 ) : AndroidViewModel(application) {
     private val context by lazy { application.applicationContext }
 
@@ -166,6 +168,16 @@ class LoginViewModel @Inject constructor(
         fcmTokenManager.fetchAndSendToken()
         ReactiveStore<User>().set(user);
         NavigationController.navController.navigate(Screen.Main.route)
+
+        val response = repo.getPosts(1, 10)
+        response.fold(
+            ifLeft = { error ->
+                Log.e("Testing", "Error: ${error.message}")
+            },
+            ifRight = { apiObject ->
+                val temp = apiObject
+            }
+        )
     }
     //TODO: Xử lý đăng nhập với firebase thất bại
     private fun onError(message : String){

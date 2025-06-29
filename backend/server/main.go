@@ -32,9 +32,7 @@ func main() {
 	config.InitRedis()
 	config.InitStripe()
 
-	//if os.Getenv("SEED_DATA") == "true" {
-	//	data.GenerateSeedData()
-	//}
+	//data.GenerateSeedData()
 
 	//Firebase
 	fb.InitFirebase()

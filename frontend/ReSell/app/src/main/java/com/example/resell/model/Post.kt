@@ -31,7 +31,7 @@ data class PostData(
     @Json(name = "category") val category: String,
     @Json(name = "title") val title: String,
     @Json(name = "thumbnail") val thumbnail: String,
-    @Json(name = "province") val address: String,
+    @Json(name = "address") val address: String,
     @Json(name = "price") val price: Int,
     @Json(name = "status") val status: String,
     @Json(name = "created_at") val createdAt: LocalDateTime? = null
