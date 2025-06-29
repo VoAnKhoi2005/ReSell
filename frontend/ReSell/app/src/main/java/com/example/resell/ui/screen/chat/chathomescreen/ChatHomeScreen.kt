@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -43,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -50,6 +52,7 @@ import com.example.resell.model.User
 import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
+import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.SoftBlue
 import com.example.resell.ui.theme.White2
 
@@ -82,8 +85,8 @@ fun ChatHomeContent(
             LazyColumn {
                 items(state.conversationCards.sortedByDescending { it.lastUpdatedAt }){ conversationCard ->
                     val isBuyer = conversationCard.buyerId == (ReactiveStore<User>().item.value?.id ?: "")
-                    val avt = if (isBuyer) conversationCard.sellerAvatar?:"" else conversationCard.buyerAvatar?:""
-                    val username = if (isBuyer) conversationCard.sellerUsername else conversationCard.buyerUsername
+                    val avt = if (isBuyer) conversationCard.sellerAvatar else conversationCard.buyerAvatar
+                    val username = if (isBuyer) conversationCard.sellerFullName else conversationCard.buyerFullName
                     ConversationCard(avt?: stringResource(R.string.default_avatar_url),
                         username,
                         conversationCard.postThumbnail,
@@ -97,56 +100,72 @@ fun ChatHomeContent(
 }
 
 @Composable
-fun ConversationCard(avtUrl :String,name: String,productImg:String, productName: String, conversationId: String) {
+fun ConversationCard(
+    avtUrl: String,
+    name: String,
+    productImg: String,
+    productName: String,
+    conversationId: String
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .border(1.dp, LightGray, RoundedCornerShape(0.dp))
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
             .clickable {
                 NavigationController.navController.navigate("chat/${conversationId}")
             }
+            .padding(horizontal = 16.dp, vertical = 8.dp) // tăng padding
     ) {
-        Spacer(modifier = Modifier.width(12.dp))
         AsyncImage(
             model = avtUrl,
             contentDescription = "Avatar",
+            contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(50.dp)
+                .size(56.dp) // to hơn
                 .clip(CircleShape)
-                .border(1.dp, Color.LightGray, CircleShape),
-            contentScale = ContentScale.Crop
+                .border(1.dp, LightGray, CircleShape)
         )
 
-        Spacer(modifier = Modifier.width(12.dp))
-        Column(modifier = Modifier.padding(end = 12.dp).weight(1f)) {
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
             Text(
                 text = name,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.bodyLarge.copy( // to hơn
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold
+                ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = productName,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.bodySmall.copy( // to hơn
+                    color = GrayFont,
+                    fontSize = 13.sp
+                ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
         }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
         AsyncImage(
             model = productImg,
-            contentDescription = "product",
+            contentDescription = "Product",
+            contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(70.dp)
+                .size(70.dp) // to hơn
                 .clip(RoundedCornerShape(10.dp))
-                .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp)),
-            contentScale = ContentScale.Crop
+                .border(1.dp, LightGray, RoundedCornerShape(10.dp))
         )
-        Spacer(modifier = Modifier.width(12.dp))
-
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

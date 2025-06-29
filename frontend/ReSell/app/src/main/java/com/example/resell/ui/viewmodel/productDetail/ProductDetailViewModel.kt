@@ -10,11 +10,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.resell.model.Post
+import com.example.resell.model.PostData
 import com.example.resell.model.User
+import com.example.resell.model.UserStatResponse
 import com.example.resell.repository.MessageRepository
 import com.example.resell.repository.PostRepository
+import com.example.resell.repository.UserRepository
 import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.navigation.NavigationController
+import com.example.resell.ui.screen.home.ProductPost
 import com.example.resell.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,19 +30,22 @@ import javax.inject.Inject
 class ProductDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val postRepository: PostRepository,
-    private val messageRepository: MessageRepository
+    private val messageRepository: MessageRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     val postId: String = savedStateHandle["id"] ?: ""
 
     var postDetail by mutableStateOf<Post?>(null)
         private set
-
+    var statSeller by mutableStateOf<UserStatResponse?>(null)
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    var sellerPosts by mutableStateOf<List<PostData>>(emptyList())
+        private set
 
-    var errorMessage by mutableStateOf<String?>(null)
+    var relatedPosts by mutableStateOf<List<PostData>>(emptyList())
         private set
 
     init {
@@ -52,14 +59,36 @@ class ProductDetailViewModel @Inject constructor(
             result.fold(
                 ifLeft = {error ->
                     Log.e("HomeViewModel", "Lỗi lấy bài đăng: ${error.message}")
-                    errorMessage = "Không thể tải bài đăng"
                     _isLoading.value = false
                 },
                 ifRight = { post ->
                     postDetail = post
+
+                    val seller = postRepository.getPosts(
+                        page =1,
+                        limit = 10,
+                        status = "approved",
+                        userID = postDetail?.userID,
+                    )
+                    val related = postRepository.getPosts(
+                        page = 1,
+                        limit =10,
+                        status = "approved",
+                        categoryID = postDetail?.categoryID
+                    )
+                    val stat = userRepository.getUserStat(postDetail?.userID?:"")
+                    if (seller.isRight() && related.isRight()&&stat.isRight()) {
+                        val _sellerPosts = seller.orNull()?.data ?: emptyList()
+                        val _relatedPosts = related.orNull()?.data ?: emptyList()
+                        statSeller = stat.orNull()
+                        sellerPosts = _sellerPosts
+                        relatedPosts = _relatedPosts
+                    }
                     _isLoading.value = false
                 }
             )
+
+
         }
     }
     fun openConversation(){
@@ -69,7 +98,6 @@ class ProductDetailViewModel @Inject constructor(
             result.fold (
                 ifLeft = {error ->
                     Log.e("ProductDetail", "Lỗi lấy cuộc trò chuyện: ${error.message}")
-                    errorMessage = "Lỗi lấy cuộc trò chuyện"
 
                     _isLoading.value = false
                 },

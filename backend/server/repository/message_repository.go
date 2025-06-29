@@ -79,10 +79,10 @@ func (m *messageRepository) GetConversationStatsByUserID(userID string) ([]*dto.
 		Select(`
 			conversations.id AS conversation_id,
 			seller.id AS seller_id,
-			seller.username AS seller_username,
+			seller.fullname AS seller_full_name,
 			seller.avatar_url AS seller_avatar,
 			buyer.id AS buyer_id,
-			buyer.username AS buyer_username,
+			buyer.fullname AS buyer_full_name,
 			buyer.avatar_url AS buyer_avatar,
 			posts.id AS post_id,
 			posts.title AS post_title,
