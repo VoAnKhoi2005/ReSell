@@ -5,8 +5,10 @@ import androidx.compose.runtime.Composable
 import com.example.resell.ui.components.ProductPostItemHorizontalImage
 import com.example.resell.ui.screen.home.ProductPost
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
+
 @Composable
-fun ApproveScreen() {
+fun ApproveScreen(isCurrentUser: Boolean) {
     val postList = listOf(
         ProductPost(
             id="",
@@ -18,7 +20,7 @@ fun ApproveScreen() {
             address = "Quận 1, TP.HCM"
         )
     )
-
+if(isCurrentUser){
     LazyColumn {
         items(postList) { post ->
             ProductPostItemHorizontalImage(
@@ -29,5 +31,9 @@ fun ApproveScreen() {
                 address = post.address
             )
         }
+    }
+}
+    else{
+    Text(text = "Không có bài đăng nào")
     }
 }

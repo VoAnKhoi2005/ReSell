@@ -80,12 +80,15 @@ fun SetupNavGraph(
         composable(Screen.Search.route) {
             SearchScreen() // màn hình tì  m kiếm của bạn
         }
-        composable(Screen.ProfileDetail.route+"/{id}",
-            arguments = listOf(
-                navArgument("id") {type = NavType.StringType  }
-            )) {
-            ProfileDetailScreen()
+        composable(
+            route = Screen.ProfileDetail.route + "/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val targetUserId = backStackEntry.arguments?.getString("id") ?: ""
+            ProfileDetailScreen(targetUserId = targetUserId)
         }
+
+
         composable(Screen.ProductDetail.route+"/{id}",
             arguments = listOf(
                 navArgument("id") {type = NavType.StringType  }
