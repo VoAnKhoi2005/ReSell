@@ -1,17 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
 
-def main():
-    score = (
-            0.25 * category_match_score +
-            0.20 * price_match_score +
-            -0.10 * location_distance +
-            0.10 * seller_reputation +
-            0.15 * engagement_score +
-            0.10 * post_hotness_score +
-            0.05 * image_score
-    )
+app = Flask(__name__)
 
-    return
+@app.route("/ping", methods=["GET"])
+def ping():
+    return jsonify({"message": "pong"}), 200
 
 if __name__ == "__main__":
-    main()
+    app.run(host="0.0.0.0", port=5000)
