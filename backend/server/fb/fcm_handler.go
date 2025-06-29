@@ -70,7 +70,7 @@ func (h *FCMHandler) SendNotification(userID string, title string, description s
 		Description: &description,
 		IsSilent:    isSilent,
 		Type:        nofType,
-		CreatedAt:   time.Now(),
+		CreatedAt:   time.Now().UTC(),
 		IsSent:      false,
 	}
 
@@ -90,7 +90,7 @@ func (h *FCMHandler) SendNotification(userID string, title string, description s
 	}
 
 	notification.IsSent = true
-	now := time.Now()
+	now := time.Now().UTC()
 	notification.SentAt = &now
 	if err = h.notificationService.UpdateNotification(notification); err != nil {
 		return fmt.Errorf("sent but failed to store: %w", err)

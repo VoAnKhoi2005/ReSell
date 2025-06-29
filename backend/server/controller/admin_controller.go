@@ -39,7 +39,7 @@ func (a *AdminController) RegisterAdmin(c *gin.Context) {
 		Username:  request.Username,
 		Email:     request.Email,
 		Password:  string(encryptedPassword),
-		CreatedAt: time.Now(),
+		CreatedAt: time.Now().UTC(),
 	}
 
 	errors := a.adminService.Register(&admin)

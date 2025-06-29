@@ -56,7 +56,7 @@ func (h *AuthController) Register(c *gin.Context) {
 		Status:          model.ActiveStatus,
 		BanStart:        nil,
 		BanEnd:          nil,
-		CreatedAt:       time.Now(),
+		CreatedAt:       time.Now().UTC(),
 	}
 
 	myErrors := h.userService.Register(&user)
@@ -149,7 +149,7 @@ func (h *AuthController) FirebaseAuth(c *gin.Context) {
 			AuthProvider: provider,
 			Reputation:   100,
 			Status:       model.ActiveStatus,
-			CreatedAt:    time.Now(),
+			CreatedAt:    time.Now().UTC(),
 		}
 
 		myErrors := h.userService.Register(user)

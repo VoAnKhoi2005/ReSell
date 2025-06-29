@@ -82,9 +82,9 @@ func (h *WSHandler) readLoop(sess *Session) {
 	}()
 
 	sess.WS.SetReadLimit(maxMessageSize)
-	_ = sess.WS.SetReadDeadline(time.Now().Add(pongWait))
+	_ = sess.WS.SetReadDeadline(time.Now().UTC().Add(pongWait))
 	sess.WS.SetPongHandler(func(string) error {
-		_ = sess.WS.SetReadDeadline(time.Now().Add(pongWait))
+		_ = sess.WS.SetReadDeadline(time.Now().UTC().Add(pongWait))
 		return nil
 	})
 
@@ -157,7 +157,7 @@ func (h *WSHandler) handleNewMessage(sess *Session, msg *model.NewMessagePayload
 		ConversationId: &msg.ConversationId,
 		Content:        msg.Content,
 		SenderId:       senderID,
-		CreatedAt:      time.Now(),
+		CreatedAt:      time.Now().UTC(),
 	}
 
 	// Save to database
@@ -288,7 +288,7 @@ func (h *WSHandler) writeLoop(sess *Session) {
 		case <-sess.Stop:
 			return
 		case <-ticker.C:
-			_ = sess.WS.SetWriteDeadline(time.Now().Add(writeWait))
+			_ = sess.WS.SetWriteDeadline(time.Now().UTC().Add(writeWait))
 			if err := sess.WS.WriteMessage(websocket.PingMessage, nil); err != nil {
 				log.Printf("Ping failed for user %s: %v", sess.UserID, err)
 				return
@@ -311,7 +311,7 @@ func (h *WSHandler) writeMessage(ws *websocket.Conn, msg interface{}) error {
 			return err
 		}
 	}
-	_ = ws.SetWriteDeadline(time.Now().Add(writeWait))
+	_ = ws.SetWriteDeadline(time.Now().UTC().Add(writeWait))
 	return ws.WriteMessage(websocket.TextMessage, payload)
 }
 
