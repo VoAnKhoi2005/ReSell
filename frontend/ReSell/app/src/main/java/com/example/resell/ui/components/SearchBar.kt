@@ -54,11 +54,11 @@ fun MySearchBar(
             onSearch = {},
             active = activeState,
             onActiveChange = { isActive ->
-                if (isActive && searchQuery.isBlank()) {
+                if (isActive) {
                     onSearchNavigate?.invoke()
                 }
-                activeState = false // tắt lại luôn
-            },
+            }
+            ,
             placeholder = {
                 Text(
                     text = "Tìm kiếm...",

@@ -80,10 +80,17 @@ fun SearchResultScreen(searchQuery: String = "") {
         topBar = {
             TopBar(
                 showSearch = true,
+                onSearchNavigate = {
+                    NavigationController.navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("searchQuery", state.searchQuery)
+
+                    NavigationController.navController.popBackStack() // Quay lại SearchScreen
+                },
                 searchQuery = state.searchQuery,
                 onClearSearch = {
                     viewModel.clearSearchQuery()
-                    NavigationController.navController.popBackStack() // 👈 quay lại màn Search
+                    NavigationController.navController.popBackStack() // quay lại màn Search
                 },
                 showBackButton = true,
                 showEmailIcon = true,
