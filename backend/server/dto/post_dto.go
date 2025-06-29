@@ -23,10 +23,11 @@ type PostListUserDTO struct {
 }
 
 type PostFeatures struct {
-	PostID           string  `json:"post_id"`
-	Title            string  `json:"title"`
-	Description      string  `json:"description"`
-	SellerReputation float64 `json:"seller_reputation"`
+	PostID           string    `json:"post_id"`
+	Title            string    `json:"title"`
+	Description      string    `json:"description"`
+	SellerReputation float64   `json:"seller_reputation"`
+	PostImagesURL    []*string `json:"post_images_url"`
 
 	CategoryMatchScore    float64 `json:"category_match_score"`
 	PriceMatchScore       float64 `json:"price_match_score"`
@@ -36,7 +37,7 @@ type PostFeatures struct {
 	PostAgeDays           float64 `json:"post_age_days"`
 
 	//Calculate in python
-	TitleKeywordOverlap       *float64  `json:"title_keyword_overlap"`
-	DescriptionKeywordOverlap *float64  `json:"description_keyword_overlap"`
-	PostImagesURL             []*string `json:"post_images_url"`
+	TitleKeywordOverlap       *float64 `json:"title_keyword_overlap"`
+	DescriptionKeywordOverlap *float64 `json:"description_keyword_overlap"`
+	PostImageScore            float64  `json:"post_image_score"`
 }
