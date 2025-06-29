@@ -19,21 +19,54 @@ class PostRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ): PostRepository {
     override suspend fun getPosts(
-        page: Int, limit: Int,
+        page: Int,
+        limit: Int,
         status: String?,
-        minPrice: Int?, maxPrice: Int?,
-        provinceID: String?, districtID: String?, wardID: String?,
+        minPrice: Int?,
+        maxPrice: Int?,
+        provinceID: String?,
+        districtID: String?,
+        wardID: String?,
         userID: String?,
-        categoryID: String?
+        categoryID: String?,
+        search: String?
     ): Either<NetworkError, GetPostsResponse> {
         return Either.catch {
-            apiService.getPosts(page, limit, status, minPrice, maxPrice, provinceID, districtID, wardID, userID, categoryID)
+            apiService.getPosts(page, limit, status, minPrice, maxPrice, provinceID, districtID, wardID, userID, categoryID, search)
         }.mapLeft { it.toNetworkError() }
     }
 
-    override suspend fun getFollowedPosts(): Either<NetworkError, GetPostsResponse> {
+    override suspend fun getOwnPosts(
+        page: Int,
+        limit: Int,
+        status: String?,
+        minPrice: Int?,
+        maxPrice: Int?,
+        provinceID: String?,
+        districtID: String?,
+        wardID: String?,
+        categoryID: String?,
+        search: String?
+    ): Either<NetworkError, GetPostsResponse> {
         return Either.catch {
-            apiService.getFollowedPosts()
+            apiService.getOwnPosts(page, limit, status, minPrice, maxPrice, provinceID, districtID, wardID, categoryID, search)
+        }.mapLeft { it.toNetworkError() }
+    }
+
+    override suspend fun getFollowedPosts(
+        page: Int,
+        limit: Int,
+        status: String?,
+        minPrice: Int?,
+        maxPrice: Int?,
+        provinceID: String?,
+        districtID: String?,
+        wardID: String?,
+        categoryID: String?,
+        search: String?
+    ): Either<NetworkError, GetPostsResponse> {
+        return Either.catch {
+            apiService.getFollowedPosts(page, limit, status, minPrice, maxPrice, provinceID, districtID, wardID, categoryID, search)
         }.mapLeft { it.toNetworkError() }
     }
 

@@ -91,6 +91,24 @@ private fun RegisterForm(viewModel: RegisterViewModel) {
 
     }
     Spacer(modifier = Modifier.height(15.dp))
+    LoginTextField(
+        value =viewModel.fullName,
+        onTextChange = {
+            viewModel.fullName = it
+        },
+        lable = "Họ tên",
+        modifier = Modifier.fillMaxWidth()
+    )
+    if (viewModel.fullNameError != null) {
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = viewModel.fullNameError ?: "",
+            color = Color.Red,
+            style = MaterialTheme.typography.bodySmall
+        )
+
+    }
+    Spacer(modifier = Modifier.height(15.dp))
     PasswordTextField(
         password = viewModel.password,
         onPasswordChange = {

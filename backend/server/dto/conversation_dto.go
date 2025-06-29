@@ -5,10 +5,10 @@ import "time"
 type ConversationStatDTO struct {
 	ConversationID string    `json:"conversation_id"`
 	SellerID       string    `json:"seller_id"`
-	SellerUsername string    `json:"seller_username"`
+	SellerFullName string    `json:"seller_full_name"`
 	SellerAvatar   *string   `json:"seller_avatar"`
 	BuyerID        string    `json:"buyer_id"`
-	BuyerUsername  string    `json:"buyer_username"`
+	BuyerFullName  string    `json:"buyer_full_name"`
 	BuyerAvatar    *string   `json:"buyer_avatar"`
 	PostID         string    `json:"post_id"`
 	PostTitle      string    `json:"post_title"`

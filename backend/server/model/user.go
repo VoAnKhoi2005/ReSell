@@ -48,11 +48,11 @@ type User struct {
 }
 
 type Follow struct {
-	SellerID *string `gorm:"type:uuid;primaryKey" json:"seller_id"`
-	BuyerID  *string `gorm:"type:uuid;primaryKey" json:"buyer_id"`
+	FollowerID *string `gorm:"type:uuid;primaryKey" json:"follower_id"`
+	FolloweeID *string `gorm:"type:uuid;primaryKey" json:"followee_id"`
 
-	Seller *User `json:"seller,omitempty"`
-	Buyer  *User `json:"buyer,omitempty"`
+	Follower *User `json:"follower,omitempty"`
+	Followee *User `json:"followee,omitempty"`
 }
 
 func (u *User) StripeAccountIDValue() string {

@@ -1,6 +1,9 @@
 package dto
 
-import "time"
+import (
+	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
+	"time"
+)
 
 type UserStatDTO struct {
 	UserID           string     `json:"user_id"`
@@ -16,4 +19,13 @@ type UserStatDTO struct {
 	AveragePostPrice float64    `json:"average_post_price"`
 	FollowerCount    uint       `json:"follower_count"`
 	FolloweeCount    uint       `json:"followee_count"`
+}
+
+type BuyerProfile struct {
+	UserID               string          `json:"user_id"`
+	AvgPriceLiked        float64         `json:"avg_price_liked"`
+	PreferredCategories  []string        `json:"preferred_categories"`
+	Addresses            []model.Address `json:"addresses"`
+	LikedPostTitle       []string        `json:"liked_post_title"`
+	LikedPostDescription []string        `json:"liked_post_description"`
 }

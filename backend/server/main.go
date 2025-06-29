@@ -32,6 +32,8 @@ func main() {
 	config.InitRedis()
 	config.InitStripe()
 
+	//data.GenerateSeedData()
+
 	//Firebase
 	fb.InitFirebase()
 	fb.InitFCMHandler()

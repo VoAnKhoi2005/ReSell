@@ -56,7 +56,7 @@ func (r *postRepository) GetFollowedPosts(userID string, filters map[string]stri
 			categories.name AS category,
 			users.username AS owner,
 			posts.price,
-			provinces.name AS province,
+			CONCAT_WS(', ', addresses.detail, wards.name, districts.name, provinces.name) AS address,
 			imgs.image_url AS thumbnail,
 			posts.created_at
 		`).
@@ -137,7 +137,7 @@ func (r *postRepository) GetOwnPosts(userID string, filters map[string]string, p
 			categories.name AS category,
 			users.username AS owner,
 			posts.price,
-			provinces.name AS province,
+			CONCAT_WS(', ', addresses.detail, wards.name, districts.name, provinces.name) AS address,
 			imgs.image_url AS thumbnail,
 			posts.created_at
 		`).
@@ -284,7 +284,7 @@ func (r *postRepository) GetUserPostsByFilter(ownerID string, filters map[string
 		categories.name AS category,
 		users.username AS owner,
 		posts.price,
-		provinces.name AS province,
+		CONCAT_WS(', ', addresses.detail, wards.name, districts.name, provinces.name) AS address,
 		imgs.image_url AS thumbnail,
 		posts.created_at
 	`).

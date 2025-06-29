@@ -8,5 +8,7 @@ data class District(
     @Json(name = "id") val id: String,
     @Json(name = "name") val name: String,
     @Json(name = "province_id") val provinceId: String,
-    @Json(name = "wards") val wards: List<Ward>
+
+    @Json(name = "wards") val wards: List<Ward>? = null,
+    @Json(name = "province") val province: Province? = null
 )

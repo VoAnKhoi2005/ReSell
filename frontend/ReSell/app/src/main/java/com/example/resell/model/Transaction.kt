@@ -162,14 +162,14 @@ data class ConversationStatDTO(
     val conversationId: String,
     @Json(name = "seller_id")
     val sellerId: String,
-    @Json(name = "seller_username")
-    val sellerUsername: String,
+    @Json(name = "seller_full_name")
+    val sellerFullName: String,
     @Json(name = "seller_avatar")
     val sellerAvatar: String? = null,
     @Json(name = "buyer_id")
     val buyerId: String,
-    @Json(name = "buyer_username")
-    val buyerUsername: String,
+    @Json(name = "buyer_full_name")
+    val buyerFullName: String,
     @Json(name = "buyer_avatar")
     val buyerAvatar: String? = null,
     @Json(name = "post_id")

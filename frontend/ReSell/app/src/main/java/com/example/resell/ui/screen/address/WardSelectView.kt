@@ -61,8 +61,7 @@ fun WardSelectScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            NavigationController.sharedRegionSelection =
-                                NavigationController.sharedRegionSelection.copy(ward=ward)
+
 
 
                             NavigationController.navController.popBackStack()

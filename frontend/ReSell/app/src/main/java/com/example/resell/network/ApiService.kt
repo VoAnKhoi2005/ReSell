@@ -111,14 +111,40 @@ interface ApiService {
         @Query("district_id") districtID: String? = null,
         @Query("ward_id") wardID: String? = null,
         @Query("user_id") userID: String? = null,
-        @Query("category_id") categoryID: String? = null
+        @Query("category_id") categoryID: String? = null,
+        @Query("q") search: String? = null
+    ): GetPostsResponse
+
+    @GET("posts/own")
+    suspend fun getOwnPosts(
+        @Query("page") page: Int,
+        @Query("limit") limit: Int,
+        @Query("status") status: String? = null,
+        @Query("min_price") minPrice: Int? = null,
+        @Query("max_price") maxPrice: Int? = null,
+        @Query("province_id") provinceID: String? = null,
+        @Query("district_id") districtID: String? = null,
+        @Query("ward_id") wardID: String? = null,
+        @Query("category_id") categoryID: String? = null,
+        @Query("q") search: String? = null
+    ): GetPostsResponse
+
+    @GET("posts/followed")
+    suspend fun getFollowedPosts(
+        @Query("page") page: Int,
+        @Query("limit") limit: Int,
+        @Query("status") status: String? = null,
+        @Query("min_price") minPrice: Int? = null,
+        @Query("max_price") maxPrice: Int? = null,
+        @Query("province_id") provinceID: String? = null,
+        @Query("district_id") districtID: String? = null,
+        @Query("ward_id") wardID: String? = null,
+        @Query("category_id") categoryID: String? = null,
+        @Query("q") search: String? = null
     ): GetPostsResponse
 
     @GET("posts/{post_id}")
     suspend fun getPostByID(@Path("post_id") postID: String): Post
-
-    @GET("posts/followed")
-    suspend fun getFollowedPosts(): GetPostsResponse
 
     @POST("posts")
     suspend fun createPost(
@@ -254,5 +280,8 @@ interface ApiService {
     suspend fun saveFCMToken(
         @Body request: SaveFCMTokenRequest
     ): Boolean
+
+    @DELETE("notification/FCM")
+    suspend fun deleteFCMToken(): Boolean
     //endregion
 }

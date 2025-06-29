@@ -164,9 +164,9 @@ class ChatViewModel @Inject constructor(
                 },
                 {conversation ->
                     receiverUsername = if (ReactiveStore<User>().item.value!!.username == conversation.seller!!.username) {
-                        conversation.buyer!!.username
+                        conversation.buyer!!.fullName
                     }else {
-                        conversation.seller.username
+                        conversation.seller.fullName
                     }
                     val getPost = postRepository.getPostByID((conversation.postId))
                     getPost.fold(

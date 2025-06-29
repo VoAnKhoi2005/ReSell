@@ -11,6 +11,7 @@ import okhttp3.WebSocketListener
 import javax.inject.Inject
 import javax.inject.Singleton
 import android.util.Log
+import com.example.resell.BuildConfig
 import com.example.resell.model.AckResult
 import com.squareup.moshi.Types
 import kotlinx.coroutines.CompletableDeferred
@@ -28,7 +29,8 @@ class WebSocketManager @Inject constructor(
     private val moshi: Moshi,
     private val tokenManager: AuthTokenManager
 ){
-    private val url = "ws://10.0.2.2:8080/api/ws"
+    private val baseURL = BuildConfig.BASE_URL
+    private val wsURL = baseURL.replaceFirst("^http".toRegex(), "ws") + "ws"
     private var webSocket: WebSocket? = null
     private val pendingMessages = mutableMapOf<String, PendingMessage>()
     private val queueLock = Any()
@@ -50,12 +52,12 @@ class WebSocketManager @Inject constructor(
 
     suspend fun connect(): Boolean {
         val jwt = tokenManager.getAccessToken()
-        val request = Request.Builder().url(url).addHeader("Authorization", "Bearer $jwt").build()
+        val request = Request.Builder().url(wsURL).addHeader("Authorization", "Bearer $jwt").build()
         val connectionResult = CompletableDeferred<Boolean>()
 
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
-                Log.d("WebSocket", "Connected to $url")
+                Log.d("WebSocket", "Connected to $wsURL")
                 connectionResult.complete(true)
             }
 

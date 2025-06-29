@@ -32,9 +32,11 @@ class RegisterViewModel @Inject constructor(
     val id: String = savedStateHandle["id"] ?: "unknown"
 
     var userName by mutableStateOf("")
+    var fullName by mutableStateOf("")
     var password by mutableStateOf("")
     var confirmPassword by mutableStateOf("")
     var userNameError by mutableStateOf<String?>(null)
+    var fullNameError by mutableStateOf<String?>(null)
     var passwordError by mutableStateOf<String?>(null)
     var confirmPasswordError by mutableStateOf<String?>(null)
 
@@ -85,7 +87,16 @@ class RegisterViewModel @Inject constructor(
     }
     private fun validateForm(): Boolean {
         var isValid = true
-
+        // Kiểm tra họ tên (fullName)
+        if (fullName.length !in 2..40) {
+            fullNameError = "Họ tên phải từ 2 đến 40 ký tự"
+            isValid = false
+        } else if (!fullName.matches(Regex("^[\\p{L} ]+$"))) {
+            fullNameError = "Họ tên chỉ được chứa chữ cái và khoảng trắng"
+            isValid = false
+        } else {
+            fullNameError = null
+        }
         // Kiểm tra tên người dùng
         if (userName.length !in 8..12) {
             userNameError = "Tên người dùng phải từ 8 đến 12 ký tự"

@@ -47,12 +47,12 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
         item {
             ProfileSimpleHeaderSection(
                 avatarUrl = ReactiveStore<User>().item.value?.avatarURL?: stringResource(R.string.default_avatar_url),
-                name = user?.username,
-                rating = "3.5",
-                reviewCount = 120,
-                userId = user?.id,
-                followerCount = 0,
-                followingCount = 0,
+                name = user?.fullName,
+                rating = viewModel.statUser?.averageRating.toString(),
+                reviewCount = viewModel.statUser?.reviewNumber?:0,
+                userName = user?.username,
+                followerCount = viewModel.statUser?.followerCount,
+                followingCount = viewModel.statUser?.followeeCount,
                 onChangeAvatarClick = {
                     NavigationController.navController.navigate(Screen.ProfileDetail.route+"/${ReactiveStore<User>().item.value!!.id}")
                 }
