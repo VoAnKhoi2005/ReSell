@@ -5,20 +5,20 @@ export async function fetchAllCategories() {
   return await res.json();
 }
 
-export async function createCategory(name, parentId = null) {
+// Truyền vào FormData thay vì string
+export async function createCategory(formData) {
   const res = await apiFetch("/api/admin/categories", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, parent_category_id: parentId }),
+    body: formData, // Không cần headers
   });
-  return await res.json(); // { id: ..., message: "Category created" }
+  return await res.json();
 }
 
-export async function updateCategory(id, name) {
+// Truyền vào FormData thay vì string
+export async function updateCategory(id, formData) {
   const res = await apiFetch(`/api/admin/categories/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name }),
+    body: formData, // Không cần headers
   });
   return await res.json();
 }
