@@ -261,7 +261,7 @@ func (s *userService) BanUserForDay(userID string, length uint) error {
 		return err
 	}
 
-	banStart := time.Now()
+	banStart := time.Now().UTC()
 	banEnd := banStart.Add(time.Duration(length) * time.Hour * 24)
 
 	user.BanStart = &banStart

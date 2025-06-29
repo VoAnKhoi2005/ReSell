@@ -116,7 +116,7 @@ func (s *postService) MarkPostAsSold(id string) (*model.Post, error) {
 	}
 
 	post.Status = model.PostStatusSold
-	now := time.Now()
+	now := time.Now().UTC()
 	post.SoldAt = &now
 
 	err = s.repo.Update(post)

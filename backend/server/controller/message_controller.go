@@ -39,7 +39,7 @@ func (mc *MessageController) CreateConversation(c *gin.Context) {
 		BuyerId:   &request.BuyerID,
 		SellerId:  &request.SellerID,
 		PostId:    &request.PostID,
-		CreatedAt: time.Now(),
+		CreatedAt: time.Now().UTC(),
 	}
 
 	createdConversation, err := mc.messageService.CreateConversation(&conversation)

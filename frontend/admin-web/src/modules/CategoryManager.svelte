@@ -11,6 +11,7 @@
   let categories = [];
   let addingCategory = false;
   let newCategoryName = "";
+  let newCategoryImage = null;
 
   async function loadCategories() {
     try {
@@ -23,16 +24,12 @@
 
   onMount(loadCategories);
 
-  // Xóa danh mục + reload lại danh sách từ server
   async function handleDeleteCategory(e) {
     const id = e.detail.id;
     try {
-      const res = await deleteCategory(id); // deleteCategory trả về response hoặc throw lỗi
-
-      // Nếu API trả về 200 hoặc 204 thì tiếp tục load lại categories
+      await deleteCategory(id);
       await loadCategories();
     } catch (err) {
-      // Nếu là response lỗi từ server
       let msg = "Lỗi khi xóa danh mục!";
       if (typeof err === "string" && err.includes("foreign key"))
         msg = "Không thể xóa vì đang có bài đăng thuộc danh mục này.";
@@ -41,11 +38,9 @@
     }
   }
 
-  // Thêm danh mục con
   async function handleAddChildCategory(e) {
-    const { parentId, name } = e.detail;
     try {
-      await createCategory(name, parentId);
+      await createCategory(e.detail.form);
       await loadCategories();
     } catch (err) {
       alert("Lỗi khi tạo danh mục con!");
@@ -53,24 +48,31 @@
     }
   }
 
-  // Đổi tên danh mục
   async function handleRenameCategory(e) {
-    const { id, name } = e.detail;
-    try {
-      await updateCategory(id, name);
-      await loadCategories();
-    } catch (err) {
-      alert("Lỗi khi đổi tên danh mục!");
-      console.error(err);
-    }
+  const { id, form } = e.detail; // ✅ nhận FormData
+  try {
+    await updateCategory(id, form); // ✅ truyền đúng kiểu
+    await loadCategories();
+  } catch (err) {
+    alert("Lỗi khi đổi tên danh mục!");
+    console.error(err);
   }
+}
 
-  // Thêm danh mục gốc
+
   async function handleAddCategory() {
     if (newCategoryName.trim() === "") return;
+
+    const form = new FormData();
+    form.append("name", newCategoryName);
+    if (newCategoryImage) {
+      form.append("image", newCategoryImage);
+    }
+
     try {
-      await createCategory(newCategoryName, null);
+      await createCategory(form);
       newCategoryName = "";
+      newCategoryImage = null;
       addingCategory = false;
       await loadCategories();
     } catch (err) {
@@ -90,14 +92,25 @@
     {:else}
       <div class="d-flex align-items-center">
         <input
-          class="form-control form-control-sm"
+          class="form-control form-control-sm me-2"
           placeholder="Tên danh mục mới"
           bind:value={newCategoryName}
-          style="width:180px; margin-right:8px;"
+          style="width:180px"
           on:keydown={(e) => {
             if (e.key === "Enter") handleAddCategory();
           }}
           autofocus
+        />
+        <input
+          type="file"
+          accept="image/*"
+          class="form-control form-control-sm me-2"
+          on:change={(e) => {
+          const input = /** @type {HTMLInputElement} */ (e.target);
+            if (input.files && input.files.length > 0) {
+              newCategoryImage = input.files[0];
+            }
+          }}
         />
         <button
           class="btn btn-success btn-sm me-1"
@@ -110,6 +123,7 @@
           on:click={() => {
             addingCategory = false;
             newCategoryName = "";
+            newCategoryImage = null;
           }}
         >
           Huỷ

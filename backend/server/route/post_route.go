@@ -38,8 +38,8 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	//images
 	images := rg.Group("/posts/:id/images")
-
-	images.POST("/", postController.UploadPostImages)
-	images.DELETE("/", postController.DeletePostImages)
+	posts.Use(middleware.AuthMiddleware())
+	images.POST("", postController.UploadPostImages)
+	images.DELETE("", postController.DeletePostImages)
 
 }

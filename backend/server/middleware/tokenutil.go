@@ -15,7 +15,7 @@ func CreateAccessToken(ID string, role string) (accessToken string, err error) {
 	if err != nil {
 		return "", err
 	}
-	exp := time.Now().Add(time.Hour * time.Duration(AccessTokenExpiryHour)).Unix()
+	exp := time.Now().UTC().Add(time.Hour * time.Duration(AccessTokenExpiryHour)).Unix()
 
 	claims := jwt.MapClaims{
 		"id":   ID,
@@ -38,7 +38,7 @@ func CreateRefreshToken(ID string, role string) (refreshToken string, err error)
 		return "", err
 	}
 
-	exp := time.Now().Add(time.Hour * time.Duration(RefreshTokenExpiryHour)).Unix()
+	exp := time.Now().UTC().Add(time.Hour * time.Duration(RefreshTokenExpiryHour)).Unix()
 
 	claims := jwt.MapClaims{
 		"id":   ID,
