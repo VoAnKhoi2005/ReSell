@@ -20,7 +20,7 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	posts.Use(middleware.AuthMiddleware())
 	posts.GET("", postController.GetUserPosts)
 	posts.GET("/own", postController.GetOwnPosts)
-	posts.GET("/followed", postController.GetFollowdPosts)
+	posts.GET("/followed", postController.GetFollowedPosts)
 	posts.GET("/trash", postController.GetAllDeletedPosts) // Get all deleted posts
 	posts.GET("/:id", postController.GetPostByID)
 	posts.POST("", postController.CreatePost)
@@ -38,8 +38,8 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	//images
 	images := rg.Group("/posts/:id/images")
-
-	images.POST("/", postController.UploadPostImages)
-	images.DELETE("/", postController.DeletePostImages)
+	posts.Use(middleware.AuthMiddleware())
+	images.POST("", postController.UploadPostImages)
+	images.DELETE("", postController.DeletePostImages)
 
 }
