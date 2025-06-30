@@ -38,3 +38,11 @@ fun printCategoryTree(nodes: List<CategoryNode>, indent: String = "") {
         }
     }
 }
+fun findCategoryById(id: String, tree: List<CategoryNode>): CategoryNode? {
+    for (node in tree) {
+        if (node.category.id == id) return node
+        val found = findCategoryById(id, node.children)
+        if (found != null) return found
+    }
+    return null
+}

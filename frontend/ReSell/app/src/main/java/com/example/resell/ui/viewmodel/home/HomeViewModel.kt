@@ -3,7 +3,9 @@ package com.example.resell.ui.viewmodel.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.resell.model.Category
 import com.example.resell.model.Post
+import com.example.resell.repository.CategoryRepository
 import com.example.resell.repository.PostRepository
 import com.example.resell.ui.screen.home.ProductPost
 import com.example.resell.util.getRelativeTime
@@ -18,11 +20,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
+    private val categoryRepository: CategoryRepository
 ) : ViewModel() {
 
     private val _postList = MutableStateFlow<List<ProductPost>>(emptyList())
     val postList: StateFlow<List<ProductPost>> = _postList
+    private val _categoryList = MutableStateFlow<List<Category>>(emptyList())
+    val categoryList: StateFlow<List<Category>> = _categoryList
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -31,6 +36,18 @@ class HomeViewModel @Inject constructor(
     private var canLoadMore = false
     init {
         getPosts()
+        viewModelScope.launch {
+            val category = categoryRepository.getAllCategory()
+            category.fold(
+                {
+                    Log.e("Home View","${it.message}")
+                },
+                {result->
+                    _categoryList.value = result.filter { it.parentId == null }
+                }
+            )
+        }
+
     }
     fun loadMore(){
         Log.d("Home","Loadmore")

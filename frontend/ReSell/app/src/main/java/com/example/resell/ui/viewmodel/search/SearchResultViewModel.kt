@@ -24,15 +24,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
+import androidx.lifecycle.SavedStateHandle
 import com.example.resell.model.Category
 import com.example.resell.model.buildCategoryTree
+import com.example.resell.model.findCategoryById
 import com.example.resell.model.printCategoryTree
 import com.example.resell.repository.CategoryRepository
 
 @HiltViewModel
 class SearchResultViewModel @Inject constructor(
     private val postRepository: PostRepository,
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private var currentPage = 1
     private var isLoadingMore = false
@@ -60,7 +63,8 @@ class SearchResultViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-
+            val searchQuery: String = savedStateHandle["query"] ?: ""
+            val category: String = savedStateHandle["category"] ?: ""
             val cate = categoryRepository.getAllCategory()
             cate.fold(
                 {
@@ -68,15 +72,15 @@ class SearchResultViewModel @Inject constructor(
                 },{
                     _categoryTree.value = buildCategoryTree(it)
                     printCategoryTree(_categoryTree.value)
+                     _selectedCategory.value = findCategoryById(category, _categoryTree.value)?.category
                 }
             )
+            _uiState.update { it.copy(searchQuery = searchQuery) }
+            reloadPosts()
         }
     }
 
-    fun loadInitial(query: String) {
-        _uiState.update { it.copy(searchQuery = query) }
-        reloadPosts()
-    }
+
 
     fun applyLocationSelection(
         province: Province?,

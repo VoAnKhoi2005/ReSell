@@ -59,7 +59,7 @@ import com.example.resell.util.getRelativeTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchResultScreen(searchQuery: String = "") {
+fun SearchResultScreen() {
     val viewModel: SearchResultViewModel = hiltViewModel()
     val addressPickerViewModel : AddressPickerViewModel = hiltViewModel()
     val categoryPickerViewModel: CategoryPickerViewModel = hiltViewModel()
@@ -74,9 +74,7 @@ fun SearchResultScreen(searchQuery: String = "") {
     val selectedProvince by viewModel.selectedProvince
     val selectedDistrict by viewModel.selectedDistrict
     val selectedWard by viewModel.selectedWard
-    LaunchedEffect(Unit) {
-        viewModel.loadInitial(searchQuery)
-    }
+
     val listState = rememberLazyListState()
 
     LaunchedEffect(listState) {

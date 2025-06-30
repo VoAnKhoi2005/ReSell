@@ -45,8 +45,6 @@ import com.example.resell.ui.theme.White1
 import com.example.resell.ui.viewmodel.home.HomeViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
-import com.example.resell.ui.components.CategoryItemButton
-import com.example.resell.ui.components.CategoryItemData
 import com.example.resell.ui.components.Horizontal2RowCategoryGrid
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -75,19 +73,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
 
 @Composable
 fun HomeContent(postList: List<ProductPost>, modifier: Modifier = Modifier,viewModel: HomeViewModel, gridState: LazyGridState,) {
-    val categoryList = listOf(
-        CategoryItemData("Xe cộ", R.drawable.car),
-        CategoryItemData("Đồ điện tử", R.drawable.electronic),
-        CategoryItemData("Đồ nội thất gia dụng", R.drawable.furniture),
-        CategoryItemData("Mẹ và bé", R.drawable.baby),
-        CategoryItemData("Dịch vụ, du lịch", R.drawable.travel),
-        CategoryItemData("Thú cưng", R.drawable.pet),
-        CategoryItemData("Tủ lạnh, máy lạnh, máy giặt", R.drawable.fridge),
-        CategoryItemData("Đồ dùng văn phòng", R.drawable.offices),
-        CategoryItemData("Thời trang, đồ cá nhân", R.drawable.clothes),
-        CategoryItemData("Đồ ăn thực phẩm", R.drawable.food),
-        CategoryItemData("Cho tặng miễn phí", R.drawable.giveaway)
-    )
+val categoryList by viewModel.categoryList.collectAsState()
 
     // 👇 Lắng nghe khi user scroll tới gần cuối (VD: còn 2 item)
     LaunchedEffect(Unit) {
@@ -130,7 +116,7 @@ fun HomeContent(postList: List<ProductPost>, modifier: Modifier = Modifier,viewM
                     )
                     Horizontal2RowCategoryGrid(
                         categoryList = categoryList,
-                        onItemClick = { NavigationController.navController.navigate(Screen.ResultSearchScreen.route) }
+                        onItemClick = { NavigationController.navController.navigate(Screen.ResultSearchScreen.route+"//${it.id}") }
                     )
 
 

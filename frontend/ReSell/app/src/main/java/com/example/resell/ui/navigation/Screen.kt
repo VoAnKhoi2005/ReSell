@@ -29,8 +29,6 @@ sealed class Screen(val route: String){
     object Rating: Screen("rating_screen")
     object AccountSetting: Screen("account_setting_screen")
     object PhoneRegister: Screen("phone_register_screen")
-    object ResultSearchScreen : Screen("search_result?query={query}") {
-        fun withQuery(query: String) = "search_result?query=${query}"
-    }
+    object ResultSearchScreen : Screen("search_result")
     object ReviewProductScreen: Screen("review_product_screen")
 }

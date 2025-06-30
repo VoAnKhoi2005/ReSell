@@ -70,7 +70,7 @@ fun SearchScreen() {
             onQueryChange = { query = it },
             onSearch = {
                 if (query.isNotBlank()) {
-                    NavigationController.navController.navigate(Screen.ResultSearchScreen.withQuery(query))
+                    NavigationController.navController.navigate(Screen.ResultSearchScreen.route+"/${query}/")
                 }
             }
 
@@ -109,7 +109,7 @@ fun SearchScreen() {
                                 .fillMaxWidth()
                                 .clickable {
                                     query = item
-                                    NavigationController.navController.navigate(Screen.ResultSearchScreen.withQuery(item))
+                                    NavigationController.navController.navigate(Screen.ResultSearchScreen.route+"/${item}/")
                                 }
                                 .padding(16.dp)
                         )
