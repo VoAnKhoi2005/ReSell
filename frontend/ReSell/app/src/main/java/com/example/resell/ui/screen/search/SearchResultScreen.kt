@@ -92,7 +92,6 @@ fun SearchResultScreen(searchQuery: String = "") {
                 searchQuery = state.searchQuery,
                 onClearSearch = {
                     viewModel.clearSearchQuery()
-                    NavigationController.navController.popBackStack() // quay lại màn Search
                 },
                 showBackButton = true,
                 showEmailIcon = true,
