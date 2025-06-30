@@ -181,6 +181,44 @@ func (r *userRepository) GetStat(userID string) (*dto.UserStatDTO, error) {
 	db := r.db.WithContext(ctx)
 	stat := &dto.UserStatDTO{UserID: userID}
 
+	if err := db.Raw(`
+		SELECT u.username, u.avatar_url, u.cover_url, u.created_at
+		FROM users u
+		WHERE id = ?
+	`, userID).Row().Scan(&stat.Username, &stat.AvatarURL, &stat.CoverURL, &stat.CreatedAt); err != nil {
+		return nil, err
+	}
+
+	if err := db.Raw(`
+	SELECT
+		COUNT(sr.conversation_id) * 100.0 / NULLIF(COUNT(bm.conversation_id), 0) AS seller_response_percentage
+	FROM (
+		SELECT c.id AS conversation_id, c.seller_id, c.buyer_id
+		FROM conversations c
+		WHERE c.seller_id = ?
+	) AS sc
+	LEFT JOIN (
+		SELECT m.conversation_id, MIN(m.created_at) AS buyer_first_msg_time
+		FROM messages m
+		JOIN conversations c ON c.id = m.conversation_id
+		WHERE m.sender_id = c.buyer_id
+		GROUP BY m.conversation_id
+	) AS bm ON bm.conversation_id = sc.conversation_id
+	LEFT JOIN (
+		SELECT DISTINCT m.conversation_id
+		FROM messages m
+		JOIN conversations c ON c.id = m.conversation_id
+		WHERE m.sender_id = c.seller_id
+		  AND m.created_at > (
+			SELECT MIN(m2.created_at)
+			FROM messages m2
+			WHERE m2.conversation_id = m.conversation_id AND m2.sender_id = c.buyer_id
+		  )
+	) AS sr ON sr.conversation_id = bm.conversation_id;
+	`, userID).Scan(&stat.ChatResponsePercentage).Error; err != nil {
+		return nil, err
+	}
+
 	// Posts and average post price
 	if err := db.Raw(`
 		SELECT COUNT(*), COALESCE(AVG(price), 0)

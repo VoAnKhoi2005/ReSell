@@ -38,6 +38,7 @@ type UserService interface {
 	BanUserForDay(userID string, length uint) error
 	UnBanUser(userID string) error
 	SetAvatar(id string, url string) error
+	SetCover(id string, url string) error
 
 	GetStat(userID string) (*dto.UserStatDTO, error)
 	UpdateReputation(userID string, reputation int) error
@@ -55,6 +56,15 @@ func (s *userService) SetAvatar(id string, url string) error {
 	user.AvatarURL = &url
 	return s.userRepository.Update(user)
 
+}
+
+func (s *userService) SetCover(id string, url string) error {
+	user, err := s.userRepository.GetByID(id)
+	if err != nil {
+		return err
+	}
+	user.CoverURL = &url
+	return s.userRepository.Update(user)
 }
 
 func (s *userService) UpdateReputation(userID string, reputation int) error {
@@ -212,13 +222,18 @@ func (s *userService) UpdateUser(userID string, request *request.UpdateUserReque
 		return err
 	}
 
-	if request.Username != nil && *request.Username != "" {
-		user.Username = *request.Username
-
+	if request.FullName != nil && *request.FullName != "" {
+		user.Username = *request.FullName
 	}
 
-	if request.FullName != nil && *request.FullName != "" {
-		user.Fullname = *request.FullName
+	if request.Email != nil && *request.Email != "" {
+		user.Email = request.Email
+		user.IsEmailVerified = true
+	}
+
+	if request.Phone != nil && *request.Phone != "" {
+		user.Phone = request.Phone
+		user.IsPhoneVerified = true
 	}
 
 	return s.userRepository.Update(user)
