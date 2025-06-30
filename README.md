@@ -19,7 +19,7 @@
 <br>  
 <br>  
 
-# Hưỡng dẫn chạy source code
+# Hướng dẫn chạy source code
 1.  Vào thư mục project:
 ```
 cd ReSell
@@ -27,14 +27,15 @@ cd ReSell
 
 2. Chạy backend  + admin web 
    
->[!TIP] Yêu cầu 
+```
+docker compose up --build 
+```
+>[!NOTE]
+> Phải đảm bảo các yêu cầu sau: 
 >  - Docker engine đang chạy
 > - Có file .env và firebase_secret.json trong project
 
 
-```
-docker compose up --build 
-``` 
 3. Copy public url của backend (ở dòng cuối của log khi chạy docker compose), có dạng https://xxx.ngrok-free.app 
    
 <br>
@@ -49,14 +50,13 @@ BASE_URL=https://xxx.ngrok-free.app/api/
 ``` 
 ![Android Base URL](images/android_base_url.png)
 
->[!NOTE] Lưu ý 
->Nhớ dùng url copy từ log
+>[!NOTE]
+> **Lưu ý:** Nhớ dùng url copy từ log
 
 
 5. Build app Android là xài được  
 
 
-<br>  
 <br>  
 <br>
 
