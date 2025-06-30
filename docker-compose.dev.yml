@@ -1,0 +1,39 @@
+
+services:
+
+  admin-web:
+    build: ./frontend/admin-web
+    ports:
+      - "5173:5173"
+    env_file: ./frontend/admin-web/.env
+    depends_on:
+      - backend
+    networks:
+      - resell_net
+    
+  redis:
+    image: redis
+    volumes:
+      - redis_data:/data
+    networks:
+      - resell_net
+
+  backend:
+    build: ./backend/server
+    ports:
+      - "8080:8080"
+    env_file: ./backend/server/.env
+    environment:
+      REDIS_ADDR: redis:6379
+      TZ: Asia/Ho_Chi_Minh
+    depends_on:
+      - redis
+    networks:
+      - resell_net
+
+
+networks:
+  resell_net:
+
+volumes:
+  redis_data:
