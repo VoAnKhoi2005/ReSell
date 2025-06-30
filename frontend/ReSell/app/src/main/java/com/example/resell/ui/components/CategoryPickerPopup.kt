@@ -1,137 +1,144 @@
 package com.example.resell.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.resell.model.Category
 import com.example.resell.model.CategoryNode
+import com.example.resell.ui.viewmodel.components.CategoryPickerViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun CategoryPickerBottomSheet(
-    categoryTree: List<CategoryNode>,
-    onCategorySelected: (Category) -> Unit,
-    onDismiss: () -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState  = rememberModalBottomSheetState(
-            skipPartiallyExpanded = true
-        ),
-        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-        tonalElevation = 4.dp
+fun CategoryPickerPopup(
+    viewModel: CategoryPickerViewModel,
+    onDismiss: () -> Unit,
+    onCategorySelected: (Category?) -> Unit,
+    allowAllRoot: Boolean = false
+)
+ {
+    val isLoading = viewModel.isLoading.value
+    val title = viewModel.getCurrentTitle()
+    val nodes = viewModel.currentLevelNodes.value
+    val atRoot = viewModel.path.isEmpty()
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.4f))
+            .clickable { onDismiss() }
     ) {
-        val expandedNodes = remember { mutableStateMapOf<String, Boolean>() }
-
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            Text(
-                text = "Chọn danh mục",
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.padding(vertical = 12.dp)
-            )
-
-            Divider()
-
-            LazyColumn(
-                contentPadding = PaddingValues(vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                items(categoryTree) { node ->
-                    CategoryItem(
-                        node = node,
-                        expandedNodes = expandedNodes,
-                        onCategorySelected = {
-                            onCategorySelected(it)
-                            onDismiss()
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun CategoryItem(
-    node: CategoryNode,
-    expandedNodes: MutableMap<String, Boolean>,
-    onCategorySelected: (Category) -> Unit,
-    level: Int = 0
-) {
-    val isExpanded = expandedNodes[node.category.id] ?: false
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        // Node chính có thể mở rộng
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-                    if (node.children.isNotEmpty()) {
-                        expandedNodes[node.category.id] = !isExpanded
-                    } else {
-                        onCategorySelected(node.category)
+                .fillMaxHeight(0.9f)
+                .align(Alignment.BottomCenter)
+                .background(Color.White, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                .clickable(enabled = false) {}
+        ) {
+            Column(Modifier.fillMaxSize()) {
+                // TopBar
+                Surface(
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 4.dp
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        IconButton(onClick = onDismiss) {
+                            Icon(Icons.Default.Close, contentDescription = "Đóng")
+                        }
+                        Text(title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                        Spacer(Modifier.width(48.dp))
                     }
                 }
-                .padding(start = (16 + level * 12).dp, top = 8.dp, bottom = 8.dp, end = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (node.children.isNotEmpty()) {
-                Icon(
-                    imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-            } else {
-                Spacer(modifier = Modifier.width(32.dp))
-            }
 
-            Text(
-                text = node.category.name,
-                fontSize = 16.sp,
-                fontWeight = if (node.children.isNotEmpty()) FontWeight.SemiBold else FontWeight.Normal,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
+                if (!atRoot) {
+                    Text(
+                        "← Quay lại",
+                        modifier = Modifier
+                            .clickable { viewModel.onBack() }
+                            .padding(start = 16.dp, top = 12.dp, bottom = 4.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
 
-        if (isExpanded && node.children.isNotEmpty()) {
-            // Thêm dòng "Tất cả + tên cha"
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onCategorySelected(node.category) }
-                    .padding(start = (16 + (level + 1) * 12).dp, top = 4.dp, bottom = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Spacer(modifier = Modifier.width(32.dp))
-                Text(
-                    text = "Tất cả ${node.category.name}",
-                    fontSize = 16.sp,
-                    fontWeight =  FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+                if (isLoading) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    LazyColumn {
+                        if (atRoot && allowAllRoot) {
+                            item {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            onCategorySelected(null)
+                                            onDismiss()
+                                        }
+                                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                                ) {
+                                    Text("Tất cả Danh mục", fontWeight = FontWeight.Medium)
+                                    Divider()
+                                }
+                            }
+                        }
+                        // Lựa chọn "Tất cả" nếu không phải node gốc
+                        if (!atRoot) {
+                            item {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            onCategorySelected(viewModel.getCurrentSelected())
+                                            onDismiss()
+                                        }
+                                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                                ) {
+                                    Text("Tất cả ${title.lowercase()}")
+                                    Divider()
+                                }
+                            }
+                        }
 
-            // Hiển thị các node con
-            node.children.forEach { child ->
-                CategoryItem(
-                    node = child,
-                    expandedNodes = expandedNodes,
-                    onCategorySelected = onCategorySelected,
-                    level = level + 1
-                )
+                        // Danh sách danh mục con
+                        items(nodes) { node ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        viewModel.onCategorySelected(node)
+                                        if (node.children.isEmpty()) {
+                                            onCategorySelected(node.category)
+                                            onDismiss()
+                                        }
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                            ) {
+                                Text(text = node.category.name)
+                                Divider()
+                            }
+                        }
+                    }
+                }
             }
         }
     }

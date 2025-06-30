@@ -45,12 +45,13 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.ui.components.AddressPickerPopup
-import com.example.resell.ui.components.CategoryFilterBottomSheet
-import com.example.resell.ui.components.CategoryPickerBottomSheet
+import com.example.resell.ui.components.CategoryPickerPopup
+
 import com.example.resell.ui.components.PriceFilterBottomSheet
 import com.example.resell.ui.components.ProductPostItem
 import com.example.resell.ui.components.formatPrice
 import com.example.resell.ui.viewmodel.components.AddressPickerViewModel
+import com.example.resell.ui.viewmodel.components.CategoryPickerViewModel
 
 import com.example.resell.ui.viewmodel.search.SearchResultUiState
 import com.example.resell.ui.viewmodel.search.SearchResultViewModel
@@ -61,6 +62,7 @@ import com.example.resell.util.getRelativeTime
 fun SearchResultScreen(searchQuery: String = "") {
     val viewModel: SearchResultViewModel = hiltViewModel()
     val addressPickerViewModel : AddressPickerViewModel = hiltViewModel()
+    val categoryPickerViewModel: CategoryPickerViewModel = hiltViewModel()
     val state by viewModel.uiState.collectAsState()
 
     var showRegionSheet by remember { mutableStateOf(false) }
@@ -216,13 +218,14 @@ fun SearchResultScreen(searchQuery: String = "") {
 
 
         if (showCategorySheet) {
-            CategoryPickerBottomSheet(
-                categoryTree = categoryTree,
+            CategoryPickerPopup(
+               viewModel = categoryPickerViewModel,
                 onCategorySelected = {
                    viewModel.selectCategory(it)
                     showCategorySheet = false
                 },
-                onDismiss = { showCategorySheet = false }
+                onDismiss = { showCategorySheet = false },
+                allowAllRoot = true
             )
         }
 
