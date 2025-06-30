@@ -110,4 +110,13 @@ class UserRepositoryImpl @Inject constructor(
             apiService.uploadAvatar(part)
         }.mapLeft { it.toNetworkError() }
     }
+
+    override suspend fun uploadCover(cover: File): Either<NetworkError, CoverUploadResponse> {
+        return Either.catch {
+            val requestBody = cover.asRequestBody("image/*".toMediaTypeOrNull())
+            val part = MultipartBody.Part.createFormData("cover", cover.name, requestBody)
+
+            apiService.uploadCover(part)
+        }.mapLeft { it.toNetworkError() }
+    }
 }
