@@ -1,5 +1,6 @@
 package com.example.resell.ui.screen.profile.ProfileScreen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,13 +55,14 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
                 followerCount = viewModel.statUser?.followerCount,
                 followingCount = viewModel.statUser?.followeeCount,
                 onChangeAvatarClick = {
-                 /*   NavigationController.navController.navigate(Screen.ProfileDetail.route+"/${ReactiveStore<User>().item.value!!.id}")*/
-                    // currentUserId và targetUserId giống nhau
-                    NavigationController.navController.navigate(Screen.ProfileDetail.route + "/me123")
-                    // currentUserId và targetUserId khác nhau
-                    /*NavigationController.navController.navigate(Screen.ProfileDetail.route + "/user456")*/
+                    user?.id?.let { userId ->
+                        Log.d("NAVIGATION", "Navigating to ProfileDetail: $userId")
+                        NavigationController.navController.navigate(Screen.ProfileDetail.withId(userId))
+                    }
+
 
                 }
+
             )
         }
 

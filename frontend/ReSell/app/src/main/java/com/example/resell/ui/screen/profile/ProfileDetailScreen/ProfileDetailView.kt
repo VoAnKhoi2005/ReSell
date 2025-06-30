@@ -1,5 +1,9 @@
 package com.example.resell.ui.screen.profile.ProfileDetailScreen
 
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -33,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -40,13 +45,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.resell.R
+import com.example.resell.model.User
+import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.components.ProfileHeaderSection
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
@@ -61,22 +70,34 @@ import kotlinx.coroutines.launch
 @Composable
 fun ProfileDetailScreen(
     targetUserId: String,
-    viewModel: ProfileDetailViewModel = viewModel() // Nếu dùng Hilt: hiltViewModel()
+    viewModel: ProfileDetailViewModel = hiltViewModel()
 ) {
+    Log.d("PROFILE_DETAIL", "Rendering ProfileDetailScreen with userId = $targetUserId")
+
     val state by viewModel.uiState
+    val currentUserId = ReactiveStore<User>().item.value?.id ?: ""
 
-    // Giả lập user hiện tại (bạn có thể lấy từ Auth hoặc ReactiveStore sau)
-    val currentUserId = "me123"
-
-    // Gọi load dữ liệu khi target hoặc current thay đổi
-    LaunchedEffect(targetUserId, currentUserId) {
-        viewModel.loadProfile(
-            targetUserId = targetUserId,
-            currentUserId = currentUserId
-        )
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let { viewModel.uploadAvatar(context, it) }
+    }
+    val coverLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let { viewModel.uploadCover(context, it) }
     }
 
-    // UI chính
+    LaunchedEffect(targetUserId, currentUserId) {
+        viewModel.loadProfile(targetUserId, currentUserId)
+    }
+
+    val pagerState = rememberPagerState(pageCount = { ProfileDetailTab.entries.size })
+    val coroutineScope = rememberCoroutineScope()
+    val selectedTabIndex = remember { mutableStateOf(0) }
+
+    // Đồng bộ pager với tab index
+    LaunchedEffect(pagerState.currentPage) {
+        selectedTabIndex.value = pagerState.currentPage
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         TopBar(
             titleText = state.name.ifBlank { "Thông tin người dùng" },
@@ -89,28 +110,33 @@ fun ProfileDetailScreen(
         ProfileHeaderSection(
             state = state,
             onEditClick = if (state.isCurrentUser) {
-                {NavigationController.navController.navigate(Screen.AccountSetting.route) }
-            } else null, //  người khác thì không truyền hàm
+                { NavigationController.navController.navigate(Screen.AccountSetting.route) }
+            } else null,
             onChangeAvatarClick = if (state.isCurrentUser) {
-                { /* Chọn avatar */ }
+                { launcher.launch("image/*") }
             } else null,
             onChangeCoverClick = if (state.isCurrentUser) {
-                { /* Chọn ảnh bìa */ }
+                { coverLauncher.launch("image/*") }
             } else null,
             onFollowClick = {
                 viewModel.toggleFollow()
             }
         )
 
-        // TODO: Tab sản phẩm hoặc phần chi tiết
         ProfileTabsPager(
-            pagerState = rememberPagerState(pageCount = { ProfileDetailTab.entries.size }),
-            selectedTabIndex = 0,
-            onTabSelected = { /* xử lý chuyển tab */ },
+            pagerState = pagerState,
+            selectedTabIndex = selectedTabIndex.value,
+            onTabSelected = { index ->
+                selectedTabIndex.value = index
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(index)
+                }
+            },
             isCurrentUser = state.isCurrentUser
         )
     }
 }
+
 
 
 

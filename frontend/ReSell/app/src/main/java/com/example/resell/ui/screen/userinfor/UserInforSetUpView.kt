@@ -28,7 +28,7 @@ import com.example.resell.ui.theme.Red
 import com.example.resell.ui.theme.White
 
 @Composable
-fun AccountSettingScreen() {
+fun AccountSettingScreen() {//ho ten, dia chi, so dien thoai, mat khau(hien view doi mk),email(co thi hien, k thi thoi)
 
     val scrollState = rememberScrollState()
     val context = LocalContext.current
