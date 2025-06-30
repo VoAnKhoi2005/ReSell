@@ -81,6 +81,7 @@ interface PostRepository {
     suspend fun getDeletedPosts(): Either<NetworkError, List<Post>>
     suspend fun restoreDeletedPost(postID: String): Either<NetworkError, Boolean>
     suspend fun uploadPostImage(postID: String, images: List<File>): Either<NetworkError, ImageUploadResponse>
+    suspend fun deletePostImages(postID: String, imageURLs: List<String>): Either<NetworkError, Boolean>
 }
 
 interface OrderRepository{

@@ -132,6 +132,12 @@ data class ImageUploadResponse(
     @Json(name = "message") val message: String? = null
 )
 
+@JsonClass(generateAdapter = true)
+data class DeletePostImagesRequest(
+    @Json(name = "image_urls")
+    val imageUrls: List<String>
+)
+
 // endregion
 
 // region Order

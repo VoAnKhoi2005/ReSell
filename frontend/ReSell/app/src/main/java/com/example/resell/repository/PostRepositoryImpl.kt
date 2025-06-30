@@ -146,4 +146,14 @@ class PostRepositoryImpl @Inject constructor(
             apiService.uploadPostImages(postID, parts)
         }.mapLeft { it.toNetworkError() }
     }
+
+    override suspend fun deletePostImages(
+        postID: String,
+        imageURLs: List<String>
+    ): Either<NetworkError, Boolean> {
+        return Either.catch {
+            apiService.deletePostImages(postID, DeletePostImagesRequest(imageURLs))
+            true
+        }.mapLeft { it.toNetworkError() }
+    }
 }
