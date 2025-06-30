@@ -184,6 +184,12 @@ interface ApiService {
         @Path("id") postId: String,
         @Part images: List<MultipartBody.Part>
     ): ImageUploadResponse
+
+    @DELETE("posts/{post_id}/images")
+    suspend fun deletePostImages(
+        @Path("post_id") postID: String,
+        @Body request: DeletePostImagesRequest
+    ): Boolean
     //endregion
 
     //region Order
