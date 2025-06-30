@@ -74,7 +74,7 @@ interface PostRepository {
     suspend fun createPost(title: String, description: String,
                            categoryID: String, addressID: String,
                            price: Double
-    ): Either<NetworkError, Boolean>
+    ): Either<NetworkError, Post>
     suspend fun updatePost(postID: String, request: UpdatePostRequest): Either<NetworkError, Boolean>
     suspend fun hardDeletePost(postID: String): Either<NetworkError, Boolean>
     suspend fun softDeletePost(postID: String): Either<NetworkError, Boolean>

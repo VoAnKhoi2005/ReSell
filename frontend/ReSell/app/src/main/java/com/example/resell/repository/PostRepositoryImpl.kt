@@ -81,7 +81,7 @@ class PostRepositoryImpl @Inject constructor(
         categoryID: String,
         addressID: String,
         price: Double
-    ): Either<NetworkError, Boolean> {
+    ): Either<NetworkError, Post> {
         return Either.catch {
             val request = CreatePostRequest(
                 title = title,
@@ -92,7 +92,6 @@ class PostRepositoryImpl @Inject constructor(
             )
 
             apiService.createPost(request)
-            true
         }.mapLeft { it.toNetworkError() }
     }
 

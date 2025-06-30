@@ -158,7 +158,7 @@ interface ApiService {
     @POST("posts")
     suspend fun createPost(
         @Body request: CreatePostRequest
-    ): Boolean
+    ): Post
 
     @PUT("posts/{post_id}")
     suspend fun updatePost(
