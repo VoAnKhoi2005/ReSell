@@ -47,7 +47,6 @@ data class LoginResponse(
 
 @JsonClass(generateAdapter = true)
 data class UpdateProfileRequest(
-    val username: String? = null,
     val email: String? = null,
     val phone: String? = null,
     @Json(name = "full_name") val fullName: String? = null,
@@ -67,6 +66,11 @@ data class RefreshRequest(
 @JsonClass(generateAdapter = true)
 data class AvatarUploadResponse(
     @Json(name = "avatar_url") val avatarURL: String
+)
+
+@JsonClass(generateAdapter = true)
+data class CoverUploadResponse(
+    @Json(name = "cover_url") val coverURL: String
 )
 
 // endregion

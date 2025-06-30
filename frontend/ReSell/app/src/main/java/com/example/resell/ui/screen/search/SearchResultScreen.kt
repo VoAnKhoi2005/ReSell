@@ -44,11 +44,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.resell.ui.components.AddressPickerPopup
 import com.example.resell.ui.components.CategoryFilterBottomSheet
 import com.example.resell.ui.components.CategoryPickerBottomSheet
 import com.example.resell.ui.components.PriceFilterBottomSheet
 import com.example.resell.ui.components.ProductPostItem
 import com.example.resell.ui.components.formatPrice
+import com.example.resell.ui.viewmodel.components.AddressPickerViewModel
 
 import com.example.resell.ui.viewmodel.search.SearchResultUiState
 import com.example.resell.ui.viewmodel.search.SearchResultViewModel
@@ -58,6 +60,7 @@ import com.example.resell.util.getRelativeTime
 @Composable
 fun SearchResultScreen(searchQuery: String = "") {
     val viewModel: SearchResultViewModel = hiltViewModel()
+    val addressPickerViewModel : AddressPickerViewModel = hiltViewModel()
     val state by viewModel.uiState.collectAsState()
 
     var showRegionSheet by remember { mutableStateOf(false) }
@@ -65,6 +68,10 @@ fun SearchResultScreen(searchQuery: String = "") {
     var showPriceSheet by remember { mutableStateOf(false) }
     val selectedCategory by viewModel.selectedCategory
     val categoryTree by viewModel.categoryTree
+
+    val selectedProvince by viewModel.selectedProvince
+    val selectedDistrict by viewModel.selectedDistrict
+    val selectedWard by viewModel.selectedWard
     LaunchedEffect(Unit) {
         viewModel.loadInitial(searchQuery)
     }
@@ -92,7 +99,6 @@ fun SearchResultScreen(searchQuery: String = "") {
                 searchQuery = state.searchQuery,
                 onClearSearch = {
                     viewModel.clearSearchQuery()
-                    NavigationController.navController.popBackStack() // quay lại màn Search
                 },
                 showBackButton = true,
                 showEmailIcon = true,
@@ -126,7 +132,7 @@ fun SearchResultScreen(searchQuery: String = "") {
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(text = "Khu vực: ", style = MaterialTheme.typography.labelMedium)
                 Text(
-                    text = state.region.name ?: "Toàn quốc",
+                    text = addressPickerViewModel.getSelectedLocationName(),
                     style = MaterialTheme.typography.labelMedium.copy(color = DarkBlue)
                 )
             }
@@ -197,13 +203,14 @@ fun SearchResultScreen(searchQuery: String = "") {
 
         // Bottom Sheets
         if (showRegionSheet) {
-            RegionFilterBottomSheet(
-                state = state,
+            AddressPickerPopup(
+                viewModel = addressPickerViewModel,
                 onDismiss = { showRegionSheet = false },
-                onApply = { viewModel.applyLocationSelection() },
-                onSelectProvince = { viewModel.setProvince(it) },
-                onSelectDistrict = { viewModel.setDistrict(it) },
-                onSelectWard = { viewModel.setWard(it) }
+                onAddressSelected = { province, district, ward ->
+                   viewModel.applyLocationSelection(province = province, district = district, ward = ward)
+                    showRegionSheet = false
+                },
+                allowAll = false
             )
         }
 
@@ -235,71 +242,7 @@ fun SearchResultScreen(searchQuery: String = "") {
 
 
 
-// UI (Compose)
-// UI (Compose)
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RegionFilterBottomSheet(
-    state: SearchResultUiState,
-    onDismiss: () -> Unit,
-    onApply: () -> Unit,
-    onSelectProvince: (String?) -> Unit,
-    onSelectDistrict: (String?) -> Unit,
-    onSelectWard: (String?) -> Unit
-) {
-    ModalBottomSheet(onDismissRequest = {
-        onDismiss()
-        onApply()
-    }) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text("Chọn khu vực", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(16.dp))
 
-            if (state.provinces.isNotEmpty()) {
-                DropdownSelector(
-                    label = "Tỉnh/Thành phố",
-                    options = listOf("Toàn quốc") + state.provinces.map { it.name },
-                    selectedOption = state.region.province ?: "Toàn quốc",
-                    onSelect = { selected ->
-                        onSelectProvince(if (selected == "Toàn quốc") null else selected)
-                    }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            if (state.region.province != null) {
-                DropdownSelector(
-                    label = "Quận/Huyện",
-                    options = listOf("Tất cả quận/huyện") + state.districts.map { it.name },
-                    selectedOption = state.region.district ?: "Tất cả quận/huyện",
-                    onSelect = { selected ->
-                        onSelectDistrict(if (selected == "Tất cả quận/huyện") null else selected)
-                    }
-                )
-            } else {
-                Text("Vui lòng chọn Tỉnh/Thành phố trước", color = Color.Gray)
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            if (state.region.district != null) {
-                DropdownSelector(
-                    label = "Phường/Xã",
-                    options = listOf("Tất cả phường/xã") + state.wards.map { it.name },
-                    selectedOption = state.region.ward ?: "Tất cả phường/xã",
-                    onSelect = { selected ->
-                        onSelectWard(if (selected == "Tất cả phường/xã") null else selected)
-                        onDismiss()
-                        onApply()
-                    }
-                )
-            } else {
-                Text("Vui lòng chọn Quận/Huyện trước", color = Color.Gray)
-            }
-        }
-    }
-}
 
 
 @OptIn(ExperimentalMaterial3Api::class)

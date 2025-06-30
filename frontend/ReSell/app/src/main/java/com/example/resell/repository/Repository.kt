@@ -23,6 +23,7 @@ interface UserRepository{
     suspend fun getAllFollows(): Either<NetworkError, List<User>>
     suspend fun unfollowUser(userID: String): Either<NetworkError, Boolean>
     suspend fun uploadAvatar(avatar: File): Either<NetworkError, AvatarUploadResponse>
+    suspend fun uploadCover(cover: File): Either<NetworkError, CoverUploadResponse>
 }
 
 interface AddressRepository{

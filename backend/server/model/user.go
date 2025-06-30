@@ -45,6 +45,7 @@ type User struct {
 	StripeAccountID  *string          `json:"stripe_account_id,omitempty"` // Stripe ID nếu có
 	IsStripeVerified bool             `json:"is_stripe_verified"`
 	AvatarURL        *string          `json:"avatar_url,omitempty"`
+	CoverURL         *string          `json:"cover_url,omitempty"`
 }
 
 type Follow struct {

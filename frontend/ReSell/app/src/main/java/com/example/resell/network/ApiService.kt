@@ -55,6 +55,12 @@ interface ApiService {
     suspend fun uploadAvatar(
         @Part image: MultipartBody.Part
     ): AvatarUploadResponse
+
+    @Multipart
+    @POST("user/upload-cover")
+    suspend fun uploadCover(
+        @Part image: MultipartBody.Part
+    ): CoverUploadResponse
     //endregion
 
     //region Address
