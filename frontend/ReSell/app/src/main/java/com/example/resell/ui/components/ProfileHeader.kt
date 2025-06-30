@@ -103,14 +103,19 @@ fun ProfileHeaderSection(
                 .align(Alignment.BottomStart)
                 .offset(x = 16.dp, y = 30.dp)
         ) {
+            val fallbackAvatar = painterResource(id = R.drawable.default_avatar)
+            val avatarUrl = if (state.avatarUrl.isNotBlank()) state.avatarUrl else null
             AsyncImage(
-                model = state.avatarUrl,
+                model = avatarUrl,
                 contentDescription = "Avatar",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(CircleShape)
-                    .border(2.dp, Color.White, CircleShape)
+                    .border(2.dp, Color.White, CircleShape),
+                error = fallbackAvatar,
+                fallback = fallbackAvatar,
+                placeholder = fallbackAvatar
             )
 
             if (state.isCurrentUser) {
@@ -208,7 +213,7 @@ fun ProfileHeaderSection(
                 showText = true
             )
             Spacer(modifier = Modifier.width(40.dp))
-            Text("ID: ${state.userId}", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
+            Text("Username: ${state.userName}", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
         }
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -235,11 +240,6 @@ fun ProfileHeaderSection(
         if (state.createdAt.isNotBlank()) {
             CreatedAt(state.createdAt)
             Spacer(modifier = Modifier.height(8.dp))
-        }
-
-        if (state.address.isNotBlank()) {
-            Address(state.address)
-            Spacer(modifier = Modifier.height(10.dp))
         }
     }
 }

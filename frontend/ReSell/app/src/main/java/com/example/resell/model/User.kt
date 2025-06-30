@@ -47,7 +47,7 @@ data class UserStatResponse(
     @Json(name ="full_name")
     val fullName:String,
     @Json(name = "username")
-    val username: String,
+    val username: String? = null,
     @Json(name = "avatar_url")
     val avatarURL: String? = null,
     @Json(name = "cover_url")
@@ -79,5 +79,5 @@ data class UserStatResponse(
     @Json(name = "followee_count")
     val followeeCount: Int,
     @Json(name = "created_at")
-    val createAt: LocalDateTime
+    val createAt: LocalDateTime,
 )

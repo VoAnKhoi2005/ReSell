@@ -11,7 +11,12 @@ sealed class Screen(val route: String){
     object Profile: Screen("profile_screen")
     object Market: Screen("market_screen")
     object Search: Screen("search_screen")
-    object ProfileDetail: Screen("profiledetail_screen")
+
+    object ProfileDetail : Screen("profiledetail_screen/{id}") {
+        fun withId(id: String) = "profiledetail_screen/$id"
+    }
+
+
     object ProductDetail: Screen("productdetail_screen")
     object PhoneAuth: Screen("phoneAuth_screen")
     object Add: Screen("add_screen")

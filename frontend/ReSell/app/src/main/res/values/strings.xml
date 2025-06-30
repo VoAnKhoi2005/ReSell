@@ -9,4 +9,5 @@
     <string name="location_message_key">dab64614f35cbb2e3d8819ef6c1769e4</string>
     <string name="image_message_key">dab64614f35cbb2e3d8819ef6c1769e55</string>
     <string name="default_avatar_url">https://i.pinimg.com/736x/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg</string>
+    <string name="default_cover_url">https://placehold.co/600x200</string>
 </resources>
