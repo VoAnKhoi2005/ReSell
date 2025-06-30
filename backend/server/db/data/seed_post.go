@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"math/rand"
+	"time"
 )
 
 func seedCategory() []string {
@@ -32,7 +33,9 @@ func seedCategory() []string {
 }
 
 // Voi moi user, tao so luong post ngau nhien thuoc category ngau nhien, address thi phai thuoc user do
-func seedPost(userIDs, categoryIDs, addressIDs []string) []string {
+func seedPost(userIDs, categoryIDs, wardsIDs []string) []string {
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+
 	var posts []model.Post
 	var postIDs []string
 
@@ -55,7 +58,7 @@ func seedPost(userIDs, categoryIDs, addressIDs []string) []string {
 				ID:          id,
 				UserID:      &userID,
 				CategoryID:  &categoryID,
-				AddressID:   &addressIDs[i], //thu tu cua address trung voi thu tu cua user
+				WardID:      &wardsIDs[rng.Intn(len(wardsIDs))],
 				Title:       fmt.Sprintf("Post %02d - %02d", i+1, j),
 				Description: lorem.Paragraph(2, 4),
 				Status:      status,

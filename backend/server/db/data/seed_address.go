@@ -48,7 +48,7 @@ func seedWard(districtIDs []string) []string {
 	var wards []model.Ward
 	var wardIDs []string
 	for i, districtID := range districtIDs {
-		for j := 1; j <= 5; j++ {
+		for j := 1; j <= 15; j++ {
 			id := uuid.New().String()
 			w := model.Ward{
 				ID:         id,

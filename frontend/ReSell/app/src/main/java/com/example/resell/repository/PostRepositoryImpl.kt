@@ -12,7 +12,6 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.min
 
 @Singleton
 class PostRepositoryImpl @Inject constructor(
@@ -88,7 +87,7 @@ class PostRepositoryImpl @Inject constructor(
                 title = title,
                 description = description,
                 categoryID = categoryID,
-                addressID = addressID,
+                wardID = addressID,
                 price = price
             )
 

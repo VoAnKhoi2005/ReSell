@@ -42,6 +42,7 @@ type UserService interface {
 
 	GetStat(userID string) (*dto.UserStatDTO, error)
 	UpdateReputation(userID string, reputation int) error
+	SearchUsername(query string) ([]*model.User, error)
 }
 
 type userService struct {
@@ -301,4 +302,8 @@ func (s *userService) UnBanUser(userID string) error {
 
 func (s *userService) GetStat(userID string) (*dto.UserStatDTO, error) {
 	return s.userRepository.GetStat(userID)
+}
+
+func (s *userService) SearchUsername(query string) ([]*model.User, error) {
+	return s.userRepository.SearchUsername(query)
 }

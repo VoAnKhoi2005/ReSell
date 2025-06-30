@@ -18,6 +18,9 @@ interface ApiService {
     @GET("user/stat/{user_id}")
     suspend fun getUserStat(@Path("user_id") userID: String): UserStatResponse
 
+    @GET("user/search/{query}")
+    suspend fun searchUsername(@Path("query") query: String): List<User>
+
     @POST("auth/firebase")
     suspend fun firebaseAuth(
         @Body request: FirebaseAuthRequest

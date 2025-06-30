@@ -34,6 +34,7 @@ type UserRepository interface {
 	GetByStripeAccountID(accountID string) (*model.User, error)
 
 	GetStat(userID string) (*dto.UserStatDTO, error)
+	SearchUsername(query string) ([]*model.User, error)
 }
 
 type userRepository struct {
@@ -299,4 +300,13 @@ func (r *userRepository) GetStat(userID string) (*dto.UserStatDTO, error) {
 	}
 
 	return stat, nil
+}
+
+func (r *userRepository) SearchUsername(query string) ([]*model.User, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var users []*model.User
+	err := r.db.WithContext(ctx).Where("username ILIKE ?", query).Find(&users).Error
+	return users, err
 }

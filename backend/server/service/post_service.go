@@ -171,7 +171,7 @@ func (s *postService) CreatePost(req *transaction.CreatePostRequest, userID stri
 		ID:          uuid.New().String(),
 		UserID:      &userID,
 		CategoryID:  &req.CategoryID,
-		AddressID:   &req.AddressID,
+		WardID:      &req.WardID,
 		Title:       req.Title,
 		Description: req.Description,
 		Price:       req.Price,
@@ -196,8 +196,8 @@ func (s *postService) UpdatePost(id string, req *transaction.UpdatePostRequest) 
 		isChange = true
 	}
 
-	if req.AddressID != nil && *req.AddressID != "" {
-		post.AddressID = req.AddressID
+	if req.WardID != nil && *req.WardID != "" {
+		post.WardID = req.WardID
 		isChange = true
 	}
 

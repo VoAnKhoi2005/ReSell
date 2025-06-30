@@ -28,7 +28,7 @@ type Post struct {
 	ID          string         `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
 	UserID      *string        `gorm:"type:uuid" json:"user_id"`
 	CategoryID  *string        `gorm:"type:uuid" json:"category_id"`
-	AddressID   *string        `gorm:"type:uuid" json:"address_id"`
+	WardID      *string        `gorm:"type:uuid" json:"ward_id"`
 	Title       string         `json:"title"`
 	Description string         `json:"description"`
 	Price       uint           `json:"price"`
@@ -41,7 +41,7 @@ type Post struct {
 
 	User     *User     `json:"user,omitempty"`
 	Category *Category `json:"category,omitempty"`
-	Address  *Address  `json:"address,omitempty"`
+	Ward     *Ward     `json:"ward,omitempty"`
 }
 
 type PostImage struct {

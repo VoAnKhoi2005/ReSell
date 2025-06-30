@@ -32,7 +32,7 @@ func main() {
 	config.InitRedis()
 	config.InitStripe()
 	config.AutoMigrate()
-	//	data.GenerateSeedData()
+	//data.GenerateSeedData()
 
 	//Firebase
 	fb.InitFirebase()

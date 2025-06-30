@@ -17,6 +17,7 @@ interface UserRepository{
     suspend fun loginUser(identifier: String, password: String, loginType: LoginType): Either<NetworkError, LoginResponse>
     suspend fun updateInfo(request: UpdateProfileRequest): Either<NetworkError, Boolean>
     suspend fun getUserStat(userID: String): Either<NetworkError, UserStatResponse>
+    suspend fun searchUsername(query: String): Either<NetworkError, List<User>>
     suspend fun changePassword(oldPassword: String, newPassword: String): Either<NetworkError, Boolean>
     suspend fun deleteUser(userID: String): Either<NetworkError, Boolean>
     suspend fun followUser(userID: String): Either<NetworkError, Boolean>
