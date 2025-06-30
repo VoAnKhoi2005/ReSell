@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 data class UserProfileUiState(
     val isCurrentUser: Boolean = true,
-    val userId: String = "",
+    val userName: String = "",
     val name: String = "",
     val avatarUrl: String = "",
     val coverUrl: String = "",
@@ -60,8 +60,8 @@ class ProfileDetailViewModel @Inject constructor(
                 Log.d("PROFILE_VM", "Stat from repo: $stat")
                 _uiState.value = UserProfileUiState(
                     isCurrentUser = targetUserId == currentUserId,
-                    userId = stat.userId,
-                    name = stat.username ?: "Không rõ",
+                    userName = stat.username?:"Không rõ",
+                    name = stat.fullName ?: "Không rõ",
                     avatarUrl = stat.avatarURL.orEmpty(),
                     coverUrl = stat.coverURL.orEmpty(),
                     rating = stat.averageRating?.toString() ?: "0.0",

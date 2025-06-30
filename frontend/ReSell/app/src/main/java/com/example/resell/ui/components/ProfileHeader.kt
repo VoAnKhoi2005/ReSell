@@ -213,7 +213,7 @@ fun ProfileHeaderSection(
                 showText = true
             )
             Spacer(modifier = Modifier.width(40.dp))
-            Text("ID: ${state.userId}", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
+            Text("Username: ${state.userName}", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
         }
 
         Spacer(modifier = Modifier.height(10.dp))
