@@ -56,14 +56,13 @@ func (r *postRepository) GetFollowedPosts(userID string, filters map[string]stri
 			categories.name AS category,
 			users.username AS owner,
 			posts.price,
-			CONCAT_WS(', ', addresses.detail, wards.name, districts.name, provinces.name) AS address,
+			CONCAT_WS(', ', wards.name, districts.name, provinces.name) AS address,
 			imgs.image_url AS thumbnail,
 			posts.created_at
 		`).
 		Joins("JOIN users ON users.id = posts.user_id").
 		Joins("JOIN categories ON categories.id = posts.category_id").
-		Joins("JOIN addresses ON addresses.id = posts.address_id").
-		Joins("JOIN wards ON wards.id = addresses.ward_id").
+		Joins("JOIN wards ON wards.id = posts.ward_id").
 		Joins("JOIN districts ON districts.id = wards.district_id").
 		Joins("JOIN provinces ON provinces.id = districts.province_id").
 		Joins("LEFT JOIN (?) AS imgs ON imgs.post_id = posts.id", subQuery).
@@ -137,14 +136,13 @@ func (r *postRepository) GetOwnPosts(userID string, filters map[string]string, p
 			categories.name AS category,
 			users.username AS owner,
 			posts.price,
-			CONCAT_WS(', ', addresses.detail, wards.name, districts.name, provinces.name) AS address,
+			CONCAT_WS(', ', wards.name, districts.name, provinces.name) AS address,
 			imgs.image_url AS thumbnail,
 			posts.created_at
 		`).
 		Joins("JOIN users ON users.id = posts.user_id").
 		Joins("JOIN categories ON categories.id = posts.category_id").
-		Joins("JOIN addresses ON addresses.id = posts.address_id").
-		Joins("JOIN wards ON wards.id = addresses.ward_id").
+		Joins("JOIN wards ON wards.id = posts.ward_id").
 		Joins("JOIN districts ON districts.id = wards.district_id").
 		Joins("JOIN provinces ON provinces.id = districts.province_id").
 		Joins("LEFT JOIN (?) AS imgs ON imgs.post_id = posts.id", subQuery).
@@ -213,8 +211,7 @@ func (r *postRepository) GetAdminPostsByFilter(filters map[string]string, page, 
 		Select("posts.id, posts.title, posts.status, categories.name AS category, users.username AS owner").
 		Joins("JOIN users ON users.id = posts.user_id").
 		Joins("JOIN categories ON categories.id = posts.category_id").
-		Joins("JOIN addresses ON addresses.id = posts.address_id").
-		Joins("JOIN wards ON wards.id = addresses.ward_id").
+		Joins("JOIN wards ON wards.id = posts.ward_id").
 		Joins("JOIN districts ON districts.id = wards.district_id").
 		Joins("JOIN provinces ON provinces.id = districts.province_id")
 
@@ -284,14 +281,13 @@ func (r *postRepository) GetUserPostsByFilter(ownerID string, filters map[string
 		categories.name AS category,
 		users.username AS owner,
 		posts.price,
-		CONCAT_WS(', ', addresses.detail, wards.name, districts.name, provinces.name) AS address,
+		CONCAT_WS(', ', wards.name, districts.name, provinces.name) AS address,
 		imgs.image_url AS thumbnail,
 		posts.created_at
 	`).
 		Joins("JOIN users ON users.id = posts.user_id").
 		Joins("JOIN categories ON categories.id = posts.category_id").
-		Joins("JOIN addresses ON addresses.id = posts.address_id").
-		Joins("JOIN wards ON wards.id = addresses.ward_id").
+		Joins("JOIN wards ON wards.id = posts.ward_id").
 		Joins("JOIN districts ON districts.id = wards.district_id").
 		Joins("JOIN provinces ON provinces.id = districts.province_id").
 		Joins("LEFT JOIN (?) AS imgs ON imgs.post_id = posts.id", subQuery).
@@ -351,7 +347,7 @@ func (r *postRepository) GetByID(id string) (*model.Post, error) {
 	var post model.Post
 	err := r.db.WithContext(ctx).Preload("User").
 		Preload("Category").
-		Preload("Address.Ward.District.Province").
+		Preload("Ward.District.Province").
 		Preload("PostImages", func(db *gorm.DB) *gorm.DB {
 			return db.Order("image_order ASC")
 		}).

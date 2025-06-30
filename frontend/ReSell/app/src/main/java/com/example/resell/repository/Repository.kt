@@ -17,6 +17,7 @@ interface UserRepository{
     suspend fun loginUser(identifier: String, password: String, loginType: LoginType): Either<NetworkError, LoginResponse>
     suspend fun updateInfo(request: UpdateProfileRequest): Either<NetworkError, Boolean>
     suspend fun getUserStat(userID: String): Either<NetworkError, UserStatResponse>
+    suspend fun searchUsername(query: String): Either<NetworkError, List<User>>
     suspend fun changePassword(oldPassword: String, newPassword: String): Either<NetworkError, Boolean>
     suspend fun deleteUser(userID: String): Either<NetworkError, Boolean>
     suspend fun followUser(userID: String): Either<NetworkError, Boolean>
@@ -72,8 +73,8 @@ interface PostRepository {
     suspend fun getPostByID(postID: String): Either<NetworkError, Post>
     suspend fun createPost(title: String, description: String,
                            categoryID: String, addressID: String,
-                           price: Double
-    ): Either<NetworkError, Boolean>
+                           price: Int
+    ): Either<NetworkError, Post>
     suspend fun updatePost(postID: String, request: UpdatePostRequest): Either<NetworkError, Boolean>
     suspend fun hardDeletePost(postID: String): Either<NetworkError, Boolean>
     suspend fun softDeletePost(postID: String): Either<NetworkError, Boolean>

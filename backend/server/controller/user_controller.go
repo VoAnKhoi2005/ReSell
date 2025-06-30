@@ -328,3 +328,15 @@ func (h *UserController) UpdateReputation(c *gin.Context) {
 
 	c.JSON(http.StatusOK, true)
 }
+
+func (h *UserController) SearchUsername(c *gin.Context) {
+	query := c.Param("query")
+
+	users, err := h.userService.SearchUsername(query)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, users)
+}

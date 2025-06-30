@@ -18,6 +18,9 @@ interface ApiService {
     @GET("user/stat/{user_id}")
     suspend fun getUserStat(@Path("user_id") userID: String): UserStatResponse
 
+    @GET("user/search/{query}")
+    suspend fun searchUsername(@Path("query") query: String): List<User>
+
     @POST("auth/firebase")
     suspend fun firebaseAuth(
         @Body request: FirebaseAuthRequest
@@ -155,7 +158,7 @@ interface ApiService {
     @POST("posts")
     suspend fun createPost(
         @Body request: CreatePostRequest
-    ): Boolean
+    ): Post
 
     @PUT("posts/{post_id}")
     suspend fun updatePost(
@@ -176,7 +179,7 @@ interface ApiService {
     suspend fun restoreDeletedPost(@Path("post_id") postID: String): Boolean
 
     @Multipart
-    @POST("images/{id}")
+    @POST("posts/{id}/images")
     suspend fun uploadPostImages(
         @Path("id") postId: String,
         @Part images: List<MultipartBody.Part>

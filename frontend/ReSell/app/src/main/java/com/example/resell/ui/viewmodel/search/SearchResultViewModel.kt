@@ -51,7 +51,7 @@ class SearchResultViewModel @Inject constructor(
     private val _selectedWard = mutableStateOf<Ward?>(null)
     val selectedWard: State<Ward?> = _selectedWard
 
-    fun selectCategory(category: Category) {
+    fun selectCategory(category: Category?) {
         _selectedCategory.value = category
         reloadPosts()
     }

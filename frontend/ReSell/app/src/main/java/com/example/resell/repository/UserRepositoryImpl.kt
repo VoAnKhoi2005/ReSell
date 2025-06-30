@@ -68,6 +68,12 @@ class UserRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
+    override suspend fun searchUsername(query: String): Either<NetworkError, List<User>> {
+        return Either.catch {
+            apiService.searchUsername(query)
+        }.mapLeft { it.toNetworkError() }
+    }
+
     override suspend fun changePassword(oldPassword: String, newPassword: String): Either<NetworkError, Boolean> {
         return Either.catch {
             val request = ChangePasswordRequest(
