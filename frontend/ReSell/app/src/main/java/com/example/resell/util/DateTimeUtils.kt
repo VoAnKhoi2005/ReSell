@@ -8,7 +8,7 @@ import java.time.ZoneOffset
 fun getRelativeTime(time: LocalDateTime?): String {
     if (time == null) return "Không rõ"
 
-    val now = LocalDateTime.now(ZoneOffset.UTC)
+    val now = LocalDateTime.now()
     val duration = Duration.between(time, now)
 
 

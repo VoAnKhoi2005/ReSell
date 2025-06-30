@@ -37,9 +37,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import com.example.resell.R
 import com.example.resell.model.PostData
+import com.example.resell.model.PostStatus
 import com.example.resell.model.User
 import com.example.resell.store.ReactiveStore
 import com.example.resell.store.ReactiveStore.Companion.invoke
+import com.example.resell.ui.components.ProductPostItemHorizontalImageStatus
 
 @Composable
 fun PostMangamentScreen(
@@ -60,12 +62,6 @@ fun PostMangamentScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(top = 8.dp)) {
-
-        UserProfileHeader(
-            avatarUrl = ReactiveStore<User>().item.value?.avatarURL?: stringResource(R.string.default_avatar_url),
-            displayName = ReactiveStore<User>().item.value?.username?:"",
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
 
         // Tab
         ScrollableTabRow(
@@ -95,18 +91,18 @@ fun PostMangamentScreen(
         // Nội dung theo tab
         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().weight(1f)) { pageIndex ->
             when (HomeTabs.entries[pageIndex]) {
-                HomeTabs.Pending -> PostList(postList = pendingPosts)
-                HomeTabs.Approved -> PostList(postList = approvedPosts)
-                HomeTabs.NotApproved -> PostList(postList = rejectedPosts)
-                HomeTabs.Sold -> PostList(postList = soldPosts)
-                HomeTabs.Deleted -> PostList(postList = hidePosts)
+                HomeTabs.Pending -> PostList(postList = pendingPosts, PostStatus.PENDING)
+                HomeTabs.Approved -> PostList(postList = approvedPosts, PostStatus.APPROVED)
+                HomeTabs.NotApproved -> PostList(postList = rejectedPosts, PostStatus.REJECTED)
+                HomeTabs.Sold -> PostList(postList = soldPosts, PostStatus.SOLD)
+                HomeTabs.Deleted -> PostList(postList = hidePosts, PostStatus.DELETED)
             }
         }
     }
 }
 
 @Composable
-fun PostList(postList: List<PostData>) {
+fun PostList(postList: List<PostData>, postStatus: PostStatus) {
     Box(modifier = Modifier.fillMaxSize()) {
         if (postList.isEmpty()) {
             // Chỉ phần Text được căn giữa
@@ -120,12 +116,13 @@ fun PostList(postList: List<PostData>) {
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(postList) { post ->
-                    ProductPostItemHorizontalImage(
+                    ProductPostItemHorizontalImageStatus(
                         title = post.title,
                         time = getRelativeTime(post.createdAt),
                         imageUrl = post.thumbnail,
                         price = post.price,
-                        address = post.address
+                        address = post.address,
+                        postStatus = postStatus
                     )
                 }
             }
@@ -134,9 +131,10 @@ fun PostList(postList: List<PostData>) {
 }
 
 enum class HomeTabs(val label: String) {
+    Pending("CHỜ DUYỆT"),
     Approved("ĐANG BÁN"),
     Sold("ĐÃ BÁN"),
     NotApproved("BỊ TỪ CHỐI"),
     Deleted("ĐÃ ẨN"),
-    Pending("CHỜ DUYỆT");
+
 }

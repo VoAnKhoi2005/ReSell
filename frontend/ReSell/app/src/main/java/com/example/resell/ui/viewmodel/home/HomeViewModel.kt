@@ -84,11 +84,6 @@ class HomeViewModel @Inject constructor(
                         val createdAt = post.createdAt
                         val timeText = getRelativeTime(createdAt)
 
-                        Log.d(
-                            "HomeViewModel",
-                            "Post: ${post.title}, createdAt=$createdAt, imageUrl=${post.thumbnail}"
-                        )
-
                         ProductPost(
                             id = post.id,
                             title = post.title,
