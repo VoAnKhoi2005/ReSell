@@ -1,5 +1,8 @@
 package com.example.resell.ui.viewmodel.profile
 
+import android.content.Context
+import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -12,6 +15,9 @@ import com.example.resell.store.AuthTokenManager
 import com.example.resell.store.ReactiveStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
@@ -28,7 +34,6 @@ data class UserProfileUiState(
     val followingCount: Int = 0,
     val responseRate: String = "",
     val createdAt: String = "",
-    val address: String = "",
 )
 
 @HiltViewModel
@@ -43,42 +48,34 @@ class ProfileDetailViewModel @Inject constructor(
 
     fun loadProfile(targetUserId: String, currentUserId: String) {
         val isCurrent = targetUserId == currentUserId
-
+        Log.d("PROFILE_VM", "Loading profile: target=$targetUserId, current=$currentUserId")
         viewModelScope.launch {
-            val user = if (isCurrent) {
-                ReactiveStore<User>().item.value
-            } else {
-                userRepository.getUserById(targetUserId).getOrNull()
+            val result = runCatching {
+                userRepository.getUserStat(targetUserId)
+            }.onFailure {
+                Log.e("PROFILE_VM", "Exception when fetching user stat: ${it.message}", it)
             }
 
-            val stat = userRepository.getUserStat(targetUserId).getOrNull()
-
-            val address = addressRepository.getAddressByUserID(targetUserId)
-                .getOrNull()
-                ?.firstOrNull { it.isDefault } // Ưu tiên default address
-                ?: addressRepository.getAddressByUserID(targetUserId)
-                    .getOrNull()
-                    ?.firstOrNull() // fallback nếu không có default
-
-
-            if (user != null && stat != null) {
+            result.getOrNull()?.onRight { stat ->
+                Log.d("PROFILE_VM", "Stat from repo: $stat")
                 _uiState.value = UserProfileUiState(
-                    isCurrentUser = isCurrent,
-                    userId = user.id,
-                    name = user.fullName,
-                    avatarUrl = user.avatarURL ?: "",
-                    coverUrl = "",
-                    rating = stat.averageRating.toString(),
+                    isCurrentUser = targetUserId == currentUserId,
+                    userId = stat.userId,
+                    name = stat.username ?: "Không rõ",
+                    avatarUrl = stat.avatarURL.orEmpty(),
+                    coverUrl = stat.coverURL.orEmpty(),
+                    rating = stat.averageRating?.toString() ?: "0.0",
                     reviewCount = stat.reviewNumber,
                     followerCount = stat.followerCount,
                     followingCount = stat.followeeCount,
-                    responseRate = "N/A",
-                    createdAt = formatCreatedAt(user.createdAt),
-                    address = formatAddress(address)
+                    responseRate = formatResponseRate(stat.chatResponsePercentage),
+                    createdAt = formatCreatedAt(stat.createAt),
                 )
-            }
+            } ?: Log.e("PROFILE_VM", "UserStat result was null or left for user: $targetUserId")
         }
+
     }
+
 
 
     fun toggleFollow() {
@@ -96,25 +93,50 @@ class ProfileDetailViewModel @Inject constructor(
             else "$months tháng"
         }
     }
+    private fun formatResponseRate(percent: Float?): String {
+        return if (percent == null) "N/A" else "${percent.toInt()}%"
+    }
 
-    private fun formatAddress(address: Address?): String {
-        return if (address == null) {
-            "Chưa có địa chỉ"
-        } else {
-            buildString {
-                append(address.detail)
-                address.ward?.let { ward ->
-                    append(", ${ward.name}")
-                    ward.district?.let { district ->
-                        append(", ${district.name}")
-                        district.province?.let { province ->
-                            append(", ${province.name}")
-                        }
+    fun uploadAvatar(context: Context, uri: Uri) {
+        viewModelScope.launch {
+            val file = uriToFile(context, uri)
+            if (file != null) {
+                val result = userRepository.uploadAvatar(file)
+                result.onRight { response ->
+                    // Cập nhật ReactiveStore để đồng bộ toàn hệ thống
+                    val store = ReactiveStore<User>()
+                    val currentUser = store.item.value
+                    if (currentUser != null) {
+                        val updatedUser = currentUser.copy(avatarURL = response.avatarURL)
+                        store.set(updatedUser) // ✅ dùng set
                     }
+
+                    // Cập nhật lại UI
+                    _uiState.value = _uiState.value.copy(avatarUrl = response.avatarURL)
+                }
+                result.onLeft {
+                    // TODO: xử lý khi lỗi nếu cần
                 }
             }
         }
     }
+
+
+    private fun uriToFile(context: Context, uri: Uri): File? {
+        return try {
+            val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+            val tempFile = File.createTempFile("avatar", ".jpg", context.cacheDir)
+            val outputStream: OutputStream = tempFile.outputStream()
+            inputStream?.copyTo(outputStream)
+            outputStream.close()
+            inputStream?.close()
+            tempFile
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
 
 
 }

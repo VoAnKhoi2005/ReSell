@@ -1,5 +1,9 @@
 package com.example.resell.ui.screen.profile.ProfileDetailScreen
 
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,13 +44,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.resell.R
+import com.example.resell.model.User
+import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.components.ProfileHeaderSection
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
@@ -61,12 +69,23 @@ import kotlinx.coroutines.launch
 @Composable
 fun ProfileDetailScreen(
     targetUserId: String,
-    viewModel: ProfileDetailViewModel = viewModel() // Nếu dùng Hilt: hiltViewModel()
+    viewModel: ProfileDetailViewModel = hiltViewModel() // Nếu dùng Hilt: hiltViewModel()
 ) {
+    Log.d("PROFILE_DETAIL", "Rendering ProfileDetailScreen with userId = $targetUserId")
+
     val state by viewModel.uiState
 
     // Giả lập user hiện tại (bạn có thể lấy từ Auth hoặc ReactiveStore sau)
-    val currentUserId = "me123"
+    val currentUserId = ReactiveStore<User>().item.value?.id ?: ""
+
+//ảnh
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            viewModel.uploadAvatar(context, it)
+        }
+    }
+
 
     // Gọi load dữ liệu khi target hoặc current thay đổi
     LaunchedEffect(targetUserId, currentUserId) {
@@ -87,20 +106,20 @@ fun ProfileDetailScreen(
         )
 
         ProfileHeaderSection(
+
             state = state,
             onEditClick = if (state.isCurrentUser) {
-                {NavigationController.navController.navigate(Screen.AccountSetting.route) }
-            } else null, //  người khác thì không truyền hàm
+                { NavigationController.navController.navigate(Screen.AccountSetting.route) }
+            } else null,
             onChangeAvatarClick = if (state.isCurrentUser) {
-                { /* Chọn avatar */ }
+                { launcher.launch("image/*") }
             } else null,
-            onChangeCoverClick = if (state.isCurrentUser) {
-                { /* Chọn ảnh bìa */ }
-            } else null,
+            onChangeCoverClick = null,
             onFollowClick = {
                 viewModel.toggleFollow()
             }
         )
+
 
         // TODO: Tab sản phẩm hoặc phần chi tiết
         ProfileTabsPager(
