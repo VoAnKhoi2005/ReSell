@@ -183,10 +183,10 @@ func (r *userRepository) GetStat(userID string) (*dto.UserStatDTO, error) {
 	stat := &dto.UserStatDTO{UserID: userID}
 
 	if err := db.Raw(`
-		SELECT u.username, u.avatar_url, u.cover_url, u.created_at
+		SELECT u.username, u.fullname, u.avatar_url, u.cover_url, u.created_at
 		FROM users u
 		WHERE id = ?
-	`, userID).Row().Scan(&stat.Username, &stat.AvatarURL, &stat.CoverURL, &stat.CreatedAt); err != nil {
+	`, userID).Row().Scan(&stat.Username, &stat.FullName, &stat.AvatarURL, &stat.CoverURL, &stat.CreatedAt); err != nil {
 		return nil, err
 	}
 
