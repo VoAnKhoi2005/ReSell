@@ -87,12 +87,25 @@ class ProfileDetailViewModel @Inject constructor(
     private fun formatCreatedAt(dateTime: LocalDateTime?): String {
         return if (dateTime == null) "Không rõ"
         else {
-            val now = LocalDateTime.now()
-            val months = ChronoUnit.MONTHS.between(dateTime, now)
-            if (months <= 0) "Mới tham gia"
-            else "$months tháng"
+            val utcDateTime = dateTime.atZone(java.time.ZoneOffset.UTC)
+            val formatter = java.time.format.DateTimeFormatter
+                .ofPattern("EEEE, dd/MM/yyyy")
+                .withZone(java.time.ZoneOffset.UTC)
+
+            val formatted = formatter.format(utcDateTime)
+
+            // Đổi ngày tiếng Anh sang tiếng Việt
+            formatted
+                .replace("Monday", "Thứ Hai")
+                .replace("Tuesday", "Thứ Ba")
+                .replace("Wednesday", "Thứ Tư")
+                .replace("Thursday", "Thứ Năm")
+                .replace("Friday", "Thứ Sáu")
+                .replace("Saturday", "Thứ Bảy")
+                .replace("Sunday", "Chủ Nhật")
         }
     }
+
     private fun formatResponseRate(percent: Float?): String {
         return if (percent == null) "N/A" else "${percent.toInt()}%"
     }
@@ -120,6 +133,29 @@ class ProfileDetailViewModel @Inject constructor(
             }
         }
     }
+    fun uploadCover(context: Context, uri: Uri) {
+        viewModelScope.launch {
+            val file = uriToFile(context, uri)
+            if (file != null) {
+                val result = userRepository.uploadCover(file)
+                result.onRight { response ->
+                    // Cập nhật ReactiveStore nếu cần, tương tự avatar
+                    val store = ReactiveStore<User>()
+                    val currentUser = store.item.value
+                    if (currentUser != null) {
+                        val updatedUser = currentUser.copy(avatarURL = response.coverURL) // nếu server trả coverURL thì sửa
+                        store.set(updatedUser)
+                    }
+
+                    _uiState.value = _uiState.value.copy(coverUrl = response.coverURL)
+                }
+                result.onLeft {
+                    Log.e("PROFILE_VM", "Upload cover failed: ${it.message}")
+                }
+            }
+        }
+    }
+
 
 
     private fun uriToFile(context: Context, uri: Uri): File? {

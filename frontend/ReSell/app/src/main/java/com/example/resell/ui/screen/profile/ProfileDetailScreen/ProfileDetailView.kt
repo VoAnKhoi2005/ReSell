@@ -85,6 +85,9 @@ fun ProfileDetailScreen(
             viewModel.uploadAvatar(context, it)
         }
     }
+    val coverLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let { viewModel.uploadCover(context, it) }
+    }
 
 
     // Gọi load dữ liệu khi target hoặc current thay đổi
@@ -114,7 +117,7 @@ fun ProfileDetailScreen(
             onChangeAvatarClick = if (state.isCurrentUser) {
                 { launcher.launch("image/*") }
             } else null,
-            onChangeCoverClick = null,
+            onChangeCoverClick = if (state.isCurrentUser) { { coverLauncher.launch("image/*") } } else null,
             onFollowClick = {
                 viewModel.toggleFollow()
             }

@@ -77,5 +77,5 @@ data class UserStatResponse(
     @Json(name = "followee_count")
     val followeeCount: Int,
     @Json(name = "created_at")
-    val createAt: LocalDateTime
+    val createAt: LocalDateTime,
 )
