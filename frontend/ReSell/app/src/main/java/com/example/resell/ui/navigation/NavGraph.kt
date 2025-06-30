@@ -19,8 +19,7 @@ import com.example.resell.ui.screen.ui_operate.MainLayout
 import com.example.resell.ui.screen.auth.login.LoginScreen
 import com.example.resell.ui.screen.auth.phoneAuth.PhoneAuthScreen
 
-import com.example.resell.ui.screen.add.AddScreen
-import com.example.resell.ui.screen.add.CategorySelectionScreen
+
 import com.example.resell.ui.screen.address.AddressAddScreen
 import com.example.resell.ui.screen.address.AddressSetupScreen
 import com.example.resell.ui.screen.address.DistrictSelectScreen
@@ -102,7 +101,7 @@ fun SetupNavGraph(
             PhoneAuthScreen()
         }
 
-        composable(Screen.Add.route) { AddScreen() }
+        composable(Screen.Add.route) { AddPostScreen() }
         composable (Screen.BuyingOrder.route){ BuyingOrderScreen() }
         composable (Screen.MyOrder.route){ MyOrderScreen() }
         composable (Screen.Payment.route){ PaymentScreen()}
@@ -149,11 +148,9 @@ fun SetupNavGraph(
         composable(Screen.Rating.route){
             RatingScreen()
         }
-        composable(Screen.CategorySelection.route){
-            CategorySelectionScreen()
-        }
+
         composable(Screen.AddPost.route){
-            AddPostScreen(onCancelClick = {NavigationController.navController.popBackStack()})
+           // AddPostScreen(onCancelClick = {NavigationController.navController.popBackStack()})
         }
         composable(Screen.AccountSetting.route){
            AccountSettingScreen()

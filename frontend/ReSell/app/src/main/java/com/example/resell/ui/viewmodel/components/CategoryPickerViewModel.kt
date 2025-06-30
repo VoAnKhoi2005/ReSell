@@ -85,4 +85,27 @@ class CategoryPickerViewModel @Inject constructor(
     fun getCurrentSelected(): Category? {
         return _path.lastOrNull()?.category
     }
+    fun getFullCategoryPath(category: Category?): String {
+        if(category == null) return ""
+        val path = mutableListOf<String>()
+
+        fun dfs(current: CategoryNode, ancestors: List<String>): Boolean {
+            val newAncestors = ancestors + current.category.name
+            if (current.category.id == category.id) {
+                path.addAll(newAncestors)
+                return true
+            }
+            for (child in current.children) {
+                if (dfs(child, newAncestors)) return true
+            }
+            return false
+        }
+
+        for (node in  _categoryTree.value) {
+            if (dfs(node, emptyList())) break
+        }
+
+        return path.joinToString(" - ")
+    }
+
 }

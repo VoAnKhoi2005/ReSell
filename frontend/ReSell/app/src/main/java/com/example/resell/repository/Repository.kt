@@ -73,7 +73,7 @@ interface PostRepository {
     suspend fun getPostByID(postID: String): Either<NetworkError, Post>
     suspend fun createPost(title: String, description: String,
                            categoryID: String, addressID: String,
-                           price: Double
+                           price: Int
     ): Either<NetworkError, Post>
     suspend fun updatePost(postID: String, request: UpdatePostRequest): Either<NetworkError, Boolean>
     suspend fun hardDeletePost(postID: String): Either<NetworkError, Boolean>

@@ -53,8 +53,8 @@ import com.example.resell.ui.theme.White2
 import com.example.resell.ui.theme.priceColor
 import com.example.resell.ui.viewmodel.productDetail.ProductDetailViewModel
 import com.example.resell.util.getRelativeTime
-
-
+import kotlin.collections.joinToString
+import kotlin.collections.listOfNotNull
 
 
 @Composable
@@ -93,7 +93,7 @@ fun ProductDetailScreen(
                         price = post?.price ?: 0,
                         category = post?.category?.name ?: "",
                         time = getRelativeTime(post?.createdAt),
-                        address = post?.ward?.detail ?: ""
+                        address = listOfNotNull(post?.ward?.name,post?.ward?.district?.name,post?.ward?.district?.province?.name).joinToString(", ")
                     )
                 }
                 item {

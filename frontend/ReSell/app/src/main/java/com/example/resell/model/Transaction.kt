@@ -104,7 +104,7 @@ data class CreatePostRequest(
     val description: String,
     @Json(name = "category_id") val categoryID: String,
     @Json(name = "ward_id") val wardID: String,
-    val price: Double
+    val price: Int
 )
 
 @JsonClass(generateAdapter = true)
@@ -128,8 +128,8 @@ data class UpdatePostRequest(
 
 @JsonClass(generateAdapter = true)
 data class ImageUploadResponse(
-    val imageURLs: List<String>,
-    val message: String? = null
+    @Json(name="image_urls") val imageURLs: List<String>,
+    @Json(name = "message") val message: String? = null
 )
 
 // endregion

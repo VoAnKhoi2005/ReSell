@@ -179,7 +179,7 @@ interface ApiService {
     suspend fun restoreDeletedPost(@Path("post_id") postID: String): Boolean
 
     @Multipart
-    @POST("images/{id}")
+    @POST("posts/{id}/images")
     suspend fun uploadPostImages(
         @Path("id") postId: String,
         @Part images: List<MultipartBody.Part>

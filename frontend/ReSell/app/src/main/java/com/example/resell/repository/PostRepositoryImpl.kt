@@ -80,7 +80,7 @@ class PostRepositoryImpl @Inject constructor(
         description: String,
         categoryID: String,
         addressID: String,
-        price: Double
+        price: Int
     ): Either<NetworkError, Post> {
         return Either.catch {
             val request = CreatePostRequest(
