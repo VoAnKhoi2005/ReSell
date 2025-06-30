@@ -9,7 +9,7 @@ data class Post(
     @Json(name = "id") val id: String,
     @Json(name = "user_id") val userID: String,
     @Json(name = "category_id") val categoryID: String,
-    @Json(name = "address_id") val addressID: String,
+    @Json(name = "ward_id") val wardID: String,
     @Json(name = "title") val title: String,
     @Json(name = "description") val description: String? = null,
     @Json(name = "price") val price: Int,
@@ -20,7 +20,7 @@ data class Post(
     @Json(name = "sold_at") val soldAt: LocalDateTime? = null,
     @Json(name = "user") val user: User? = null,
     @Json(name = "category") val category: Category? = null,
-    @Json(name = "address") val address: Address? = null,
+    @Json(name = "ward") val ward: Ward? = null,
     @Json(name = "post_images") val images: List<PostImage>? = null
 )
 

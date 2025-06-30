@@ -68,6 +68,12 @@ class UserRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
+    override suspend fun searchUsername(query: String): Either<NetworkError, List<User>> {
+        return Either.catch {
+            apiService.searchUsername(query)
+        }.mapLeft { it.toNetworkError() }
+    }
+
     override suspend fun changePassword(oldPassword: String, newPassword: String): Either<NetworkError, Boolean> {
         return Either.catch {
             val request = ChangePasswordRequest(
@@ -108,6 +114,15 @@ class UserRepositoryImpl @Inject constructor(
             val part = MultipartBody.Part.createFormData("avatar", avatar.name, requestBody)
 
             apiService.uploadAvatar(part)
+        }.mapLeft { it.toNetworkError() }
+    }
+
+    override suspend fun uploadCover(cover: File): Either<NetworkError, CoverUploadResponse> {
+        return Either.catch {
+            val requestBody = cover.asRequestBody("image/*".toMediaTypeOrNull())
+            val part = MultipartBody.Part.createFormData("cover", cover.name, requestBody)
+
+            apiService.uploadCover(part)
         }.mapLeft { it.toNetworkError() }
     }
 }

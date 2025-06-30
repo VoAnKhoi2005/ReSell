@@ -42,36 +42,25 @@ import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LoginButton
 import com.example.resell.ui.theme.Yellow
+import com.example.resell.ui.viewmodel.profile.UserProfileUiState
 
 @Composable
-fun ProfileHeaderSection(//bên detailpropfile
-    avatarUrl: String?,
-    coverUrl: String?,
-    name: String?,
-    rating: String?,              // "Chưa có đánh giá"
-    reviewCount: Int =0,
-    userId: String?,
-    followerCount: Int?,
-    followingCount: Int?,
-    responseRate: String?,        // "Chưa có thông tin"
-    createdAt: String?,           // "3 tháng"
-    address: String?,             // "Huyện Hòa Thành, Tây Ninh"
+fun ProfileHeaderSection(
+    state: UserProfileUiState,
     onEditClick: (() -> Unit)? = null,
     onShareClick: (() -> Unit)? = null,
     onChangeCoverClick: (() -> Unit)? = null,
     onChangeAvatarClick: (() -> Unit)? = null,
-    showCover: Boolean = true,
-    showEditButton: Boolean = true,
-    showShareButton: Boolean = true,
+    onFollowClick: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(180.dp)
     ) {
-        if (showCover) {
+        if (state.coverUrl != null) {
             AsyncImage(
-                model = coverUrl,
+                model = state.coverUrl,
                 contentDescription = "Cover Photo",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -79,28 +68,30 @@ fun ProfileHeaderSection(//bên detailpropfile
                     .height(150.dp)
             )
 
-            IconButton(
-                onClick = { onChangeCoverClick?.invoke() },
-                modifier = Modifier
-                    .size(28.dp)
-                    .align(Alignment.TopEnd)
-                    .offset(y = 4.dp)
-            ) {
-                Box(
+            if (state.isCurrentUser) {
+                IconButton(
+                    onClick = { onChangeCoverClick?.invoke() },
                     modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape)
-                        .background(Color.White)
-                        .border(1.dp, Color.Gray, CircleShape)
+                        .size(28.dp)
+                        .align(Alignment.TopEnd)
+                        .offset(y = 4.dp)
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.camera),
-                        contentDescription = "Change coverphoto",
+                    Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(2.dp),
-                        contentScale = ContentScale.Crop
-                    )
+                            .clip(CircleShape)
+                            .background(Color.White)
+                            .border(1.dp, Color.Gray, CircleShape)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.camera),
+                            contentDescription = "Change coverphoto",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(2.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                 }
             }
         }
@@ -112,6 +103,8 @@ fun ProfileHeaderSection(//bên detailpropfile
                 .align(Alignment.BottomStart)
                 .offset(x = 16.dp, y = 30.dp)
         ) {
+            val fallbackAvatar = painterResource(id = R.drawable.default_avatar)
+            val avatarUrl = if (state.avatarUrl.isNotBlank()) state.avatarUrl else null
             AsyncImage(
                 model = avatarUrl,
                 contentDescription = "Avatar",
@@ -119,35 +112,41 @@ fun ProfileHeaderSection(//bên detailpropfile
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(CircleShape)
-                    .border(2.dp, Color.White, CircleShape)
+                    .border(2.dp, Color.White, CircleShape),
+                error = fallbackAvatar,
+                fallback = fallbackAvatar,
+                placeholder = fallbackAvatar
             )
-            IconButton(
-                onClick = { onChangeAvatarClick?.invoke() },
-                modifier = Modifier
-                    .size(28.dp)
-                    .align(Alignment.BottomEnd)
-                    .offset(x = 2.dp, y = 4.dp)
-            ) {
-                Box(
+
+            if (state.isCurrentUser) {
+                IconButton(
+                    onClick = { onChangeAvatarClick?.invoke() },
                     modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape)
-                        .background(Color.White)
-                        .border(1.dp, Color.Gray, CircleShape)
+                        .size(28.dp)
+                        .align(Alignment.BottomEnd)
+                        .offset(x = 2.dp, y = 4.dp)
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.camera),
-                        contentDescription = "Change avatar",
+                    Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(2.dp),
-                        contentScale = ContentScale.Crop
-                    )
+                            .clip(CircleShape)
+                            .background(Color.White)
+                            .border(1.dp, Color.Gray, CircleShape)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.camera),
+                            contentDescription = "Change avatar",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(2.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                 }
             }
         }
 
-        // Buttons cạnh avatar
+        // Button phía dưới avatar
         Row(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -156,9 +155,9 @@ fun ProfileHeaderSection(//bên detailpropfile
         ) {
             Spacer(modifier = Modifier.width(100.dp))
 
-            if (showEditButton && onEditClick != null) {
+            if (state.isCurrentUser) {
                 OutlinedButton(
-                    onClick = onEditClick,
+                    onClick = { onEditClick?.invoke() },
                     modifier = Modifier.height(28.dp),
                     shape = RoundedCornerShape(4.dp),
                     border = BorderStroke(0.5.dp, GrayFont),
@@ -170,12 +169,9 @@ fun ProfileHeaderSection(//bên detailpropfile
                         style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp)
                     )
                 }
-                Spacer(modifier = Modifier.width(8.dp))
-            }
-
-            if (showShareButton && onShareClick != null) {
+            } else {
                 Button(
-                    onClick = onShareClick,
+                    onClick = onFollowClick,
                     modifier = Modifier.height(28.dp),
                     shape = RoundedCornerShape(4.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -185,18 +181,19 @@ fun ProfileHeaderSection(//bên detailpropfile
                     contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
                 ) {
                     Text(
-                        "Chia sẻ",
+                        "Theo dõi",
                         style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp)
                     )
                 }
             }
         }
+
     }
 
     Spacer(modifier = Modifier.height(40.dp))
 
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-        name?.let {
+        state.name?.let {
             Text(
                 it,
                 style = MaterialTheme.typography.labelMedium.copy(
@@ -208,56 +205,45 @@ fun ProfileHeaderSection(//bên detailpropfile
 
         Spacer(modifier = Modifier.height(10.dp))
 
-            Row {//đánh giá
-                StarRating(
-                    rating = rating?.toFloatOrNull() ?: 0f,
-                    starSize = 18,
-                    reviewCount = reviewCount,
-                    showText = true
-                )
-
-
-                Spacer(modifier = Modifier.width(40.dp))
-            userId?.let {
-                Text("ID: $it", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
-            }
+        Row {
+            StarRating(
+                rating = state.rating.toFloatOrNull() ?: 0f,
+                starSize = 18,
+                reviewCount = state.reviewCount,
+                showText = true
+            )
+            Spacer(modifier = Modifier.width(40.dp))
+            Text("Username: ${state.userName}", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
         }
 
         Spacer(modifier = Modifier.height(10.dp))
 
         Row {
-            followerCount?.let {
-                Text(it.toString(), style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
-                Spacer(modifier = Modifier.width(2.dp))
-                Text("Người theo dõi", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("|", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
-                Spacer(modifier = Modifier.width(4.dp))
-            }
-            followingCount?.let {
-                Text(it.toString(), style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
-                Spacer(modifier = Modifier.width(2.dp))
-                Text("Đang theo dõi", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
-            }
+            Text("${state.followerCount}", style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
+            Spacer(modifier = Modifier.width(2.dp))
+            Text("Người theo dõi", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
+            Spacer(modifier = Modifier.width(4.dp))
+            Text("|", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
+            Spacer(modifier = Modifier.width(4.dp))
+            Text("${state.followingCount}", style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
+            Spacer(modifier = Modifier.width(2.dp))
+            Text("Đang theo dõi", color = GrayFont, style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
         }
 
         Spacer(modifier = Modifier.height(15.dp))
-        if (!responseRate.isNullOrBlank()) {
-            ChatResponeRate(responseRate)
+
+        if (state.responseRate.isNotBlank()) {
+            ChatResponeRate(state.responseRate)
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        if (!createdAt.isNullOrBlank()) {
-            CreatedAt(createdAt)
+        if (state.createdAt.isNotBlank()) {
+            CreatedAt(state.createdAt)
             Spacer(modifier = Modifier.height(8.dp))
-        }
-
-        if (!address.isNullOrBlank()) {
-            Address(address)
-            Spacer(modifier = Modifier.height(10.dp))
         }
     }
 }
+
 @Composable
 fun ProfileSimpleHeaderSection(//bên profile
     avatarUrl: String?,

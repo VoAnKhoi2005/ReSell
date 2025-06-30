@@ -1,6 +1,9 @@
 package com.example.resell.ui.screen.ui_operate
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,13 +45,14 @@ fun MainLayout(modifier: Modifier = Modifier) {
             when (currentRoute) {
                 Screen.Home.route -> TopBar(
                     showSearch = true,
-                    showNotificationIcon = true,
-                    showEmailIcon = true,
+                    searchQuery = "", // 👈 Không truyền query thì sẽ không hiển thị nút X
                     onSearchNavigate = {
                         NavigationController.navController.navigate(Screen.Search.route)
-                    // đã điều hướng đến controller qua 3 hàm trung gian từ my searchbar dến topbar và đến mainlayout
-                    }
+                    },
+                    showNotificationIcon = true,
+                    showEmailIcon = true
                 )
+
                 Screen.Manage.route -> TopBar(
                     titleText = "Quản lý tin đăng",
                     showNotificationIcon = true,

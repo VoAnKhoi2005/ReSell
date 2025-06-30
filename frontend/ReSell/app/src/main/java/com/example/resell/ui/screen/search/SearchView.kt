@@ -27,11 +27,18 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen() {
+    val navBackStackEntry = NavigationController.navController.currentBackStackEntry
+    val restoredQuery = navBackStackEntry?.savedStateHandle?.get<String>("searchQuery")
+
     var query by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     var active by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
+    // 👇 Restore query nếu có
+    LaunchedEffect(restoredQuery) {
+        restoredQuery?.let {
+            query = it
+        }
         delay(100)
         focusRequester.requestFocus()
         active = true
@@ -63,7 +70,7 @@ fun SearchScreen() {
             onQueryChange = { query = it },
             onSearch = {
                 if (query.isNotBlank()) {
-                    NavigationController.navController.navigate(Screen.ResultSearchScreen.withQuery(query))
+                    NavigationController.navController.navigate(Screen.ResultSearchScreen.route+"/${query}/")
                 }
             }
 
@@ -102,7 +109,7 @@ fun SearchScreen() {
                                 .fillMaxWidth()
                                 .clickable {
                                     query = item
-                                    NavigationController.navController.navigate(Screen.ResultSearchScreen.withQuery(item))
+                                    NavigationController.navController.navigate(Screen.ResultSearchScreen.route+"/${item}/")
                                 }
                                 .padding(16.dp)
                         )

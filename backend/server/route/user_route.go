@@ -20,9 +20,11 @@ func RegisterUserRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	users.Use(middleware.AuthMiddleware())
 	//Add paths to group
 	users.GET("/stat/:id", userController.GetStat)
+	users.GET("/search/:query", userController.SearchUsername)
 	users.PUT("/update", userController.UpdateUser)
 	users.PUT("/change_password", userController.ChangePassword)
 	users.POST("upload-avatar", userController.UploadAvatar)
+	users.POST("upload-cover", userController.UploadCover)
 	users.POST("/follow/:id", userController.Follow)
 	users.GET("/follow/all", userController.GetAllFollowee)
 	users.DELETE("unfollow/:id", userController.UnFollow)

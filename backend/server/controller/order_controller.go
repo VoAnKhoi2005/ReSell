@@ -40,7 +40,7 @@ func (oc *OrderController) CreateOrder(c *gin.Context) {
 		Status:    model.OrderStatusPending,
 		AddressId: &request.AddressID,
 		Total:     request.Total,
-		CreatedAt: time.Now(),
+		CreatedAt: time.Now().UTC(),
 	}
 
 	err = oc.orderService.CreateOrder(&order)

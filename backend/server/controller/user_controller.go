@@ -272,6 +272,31 @@ func (h *UserController) UploadAvatar(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"avatar_url": avatarURL})
 }
 
+func (h *UserController) UploadCover(c *gin.Context) {
+	userID, _ := util.GetUserID(c)
+	file, fileHeader, err := c.Request.FormFile("cover")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	defer file.Close()
+
+	coverURL, err := util.UploadToCloudinary(file, fileHeader)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+
+	}
+
+	err = h.userService.SetCover(userID, coverURL)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"cover_url": coverURL})
+}
+
 func (h *UserController) GetStat(c *gin.Context) {
 	userID := c.Param("id")
 
@@ -302,4 +327,16 @@ func (h *UserController) UpdateReputation(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, true)
+}
+
+func (h *UserController) SearchUsername(c *gin.Context) {
+	query := c.Param("query")
+
+	users, err := h.userService.SearchUsername(query)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, users)
 }

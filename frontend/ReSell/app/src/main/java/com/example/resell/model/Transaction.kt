@@ -6,7 +6,6 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 // region User
-
 @JsonClass(generateAdapter = true)
 data class FirebaseAuthRequest(
     @Json(name = "firebase_id_token") val firebaseIDToken: String,
@@ -47,7 +46,6 @@ data class LoginResponse(
 
 @JsonClass(generateAdapter = true)
 data class UpdateProfileRequest(
-    val username: String? = null,
     val email: String? = null,
     val phone: String? = null,
     @Json(name = "full_name") val fullName: String? = null,
@@ -69,6 +67,10 @@ data class AvatarUploadResponse(
     @Json(name = "avatar_url") val avatarURL: String
 )
 
+@JsonClass(generateAdapter = true)
+data class CoverUploadResponse(
+    @Json(name = "cover_url") val coverURL: String
+)
 // endregion
 
 // region Address
@@ -101,8 +103,8 @@ data class CreatePostRequest(
     val title: String,
     val description: String,
     @Json(name = "category_id") val categoryID: String,
-    @Json(name = "address_id") val addressID: String,
-    val price: Double
+    @Json(name = "ward_id") val wardID: String,
+    val price: Int
 )
 
 @JsonClass(generateAdapter = true)
@@ -118,7 +120,7 @@ data class GetPostsResponse(
 @JsonClass(generateAdapter = true)
 data class UpdatePostRequest(
     @Json(name = "category_id") val categoryID: String? = null,
-    @Json(name = "address_id") val addressID: String? = null,
+    @Json(name = "ward_id") val wardID: String? = null,
     val title: String? = null,
     val description: String? = null,
     val price: Double? = null
@@ -126,8 +128,14 @@ data class UpdatePostRequest(
 
 @JsonClass(generateAdapter = true)
 data class ImageUploadResponse(
-    val imageURLs: List<String>,
-    val message: String? = null
+    @Json(name="image_urls") val imageURLs: List<String>,
+    @Json(name = "message") val message: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class DeletePostImagesRequest(
+    @Json(name = "image_urls")
+    val imageUrls: List<String>
 )
 
 // endregion

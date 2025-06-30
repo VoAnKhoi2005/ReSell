@@ -321,7 +321,7 @@ func (h *PostController) CreatePost(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"id": post.ID, "message": "Post created"})
+	c.JSON(http.StatusCreated, post)
 }
 
 func (h *PostController) UpdatePost(c *gin.Context) {

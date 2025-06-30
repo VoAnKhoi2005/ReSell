@@ -31,7 +31,7 @@ func main() {
 	config.ConnectDatabase()
 	config.InitRedis()
 	config.InitStripe()
-
+	config.AutoMigrate()
 	//data.GenerateSeedData()
 
 	//Firebase

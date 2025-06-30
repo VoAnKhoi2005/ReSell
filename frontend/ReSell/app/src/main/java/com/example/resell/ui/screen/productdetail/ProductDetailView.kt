@@ -37,29 +37,24 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.resell.R
 import com.example.resell.model.PostData
-import com.example.resell.model.User
-import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.components.CircleIconButton
 import com.example.resell.ui.components.IconButtonHorizontal
 import com.example.resell.ui.components.IconWithTextRow
 import com.example.resell.ui.components.ProductPostItem
 import com.example.resell.ui.components.ProfileSimpleHeader
-import com.example.resell.ui.components.TimeInfor
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
-import com.example.resell.ui.screen.home.ProductPost
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.PhoneBox
 import com.example.resell.ui.theme.White
 import com.example.resell.ui.theme.White2
 import com.example.resell.ui.theme.priceColor
-import com.example.resell.ui.viewmodel.chat.ChatViewModel
 import com.example.resell.ui.viewmodel.productDetail.ProductDetailViewModel
 import com.example.resell.util.getRelativeTime
-
-
+import kotlin.collections.joinToString
+import kotlin.collections.listOfNotNull
 
 
 @Composable
@@ -98,7 +93,7 @@ fun ProductDetailScreen(
                         price = post?.price ?: 0,
                         category = post?.category?.name ?: "",
                         time = getRelativeTime(post?.createdAt),
-                        address = post?.address?.detail ?: ""
+                        address = listOfNotNull(post?.ward?.name,post?.ward?.district?.name,post?.ward?.district?.province?.name).joinToString(", ")
                     )
                 }
                 item {

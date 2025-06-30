@@ -1,10 +1,12 @@
 package transaction
 
 type CreateCategoryRequest struct {
-	ParentCategoryId *string `json:"parent_category_id"`
-	Name             string  `json:"name" binding:"required"`
+	ParentCategoryId string `json:"parent_category_id"`
+	Name             string `form:"name" json:"name" binding:"required"`
+	ImageURL         string `json:"image_url"`
 }
 
 type UpdateCategoryRequest struct {
-	Name string `json:"name" binding:"required"`
+	Name     string `form:"name" json:"name" binding:"required"`
+	ImageURL string `json:"image_url"`
 }

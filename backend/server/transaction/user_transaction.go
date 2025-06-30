@@ -6,11 +6,9 @@ type ChangePasswordRequest struct {
 }
 
 type UpdateUserRequest struct {
-	Username  *string `json:"username"`
-	Email     *string `json:"email"`
-	Phone     *string `json:"phone"`
-	FullName  *string `json:"full_name"`
-	CitizenId *string `json:"citizen_id"`
+	FullName *string `json:"full_name,omitempty"`
+	Email    *string `json:"email,omitempty"`
+	Phone    *string `json:"phone,omitempty"`
 }
 
 type BanRequest struct {

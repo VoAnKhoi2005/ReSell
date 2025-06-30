@@ -69,8 +69,12 @@ object AppModule {
             .addInterceptor(authInterceptor)
             .authenticator(tokenAuthenticator)
             .addInterceptor(logging)
+            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS) // ⏱ timeout kết nối
+            .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)    // ⏱ timeout đọc dữ liệu
+            .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)   // ⏱ timeout ghi dữ liệu
             .build()
     }
+
 
     @Provides
     @Singleton

@@ -12,7 +12,6 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.min
 
 @Singleton
 class PostRepositoryImpl @Inject constructor(
@@ -81,19 +80,18 @@ class PostRepositoryImpl @Inject constructor(
         description: String,
         categoryID: String,
         addressID: String,
-        price: Double
-    ): Either<NetworkError, Boolean> {
+        price: Int
+    ): Either<NetworkError, Post> {
         return Either.catch {
             val request = CreatePostRequest(
                 title = title,
                 description = description,
                 categoryID = categoryID,
-                addressID = addressID,
+                wardID = addressID,
                 price = price
             )
 
             apiService.createPost(request)
-            true
         }.mapLeft { it.toNetworkError() }
     }
 
@@ -146,6 +144,16 @@ class PostRepositoryImpl @Inject constructor(
             }
 
             apiService.uploadPostImages(postID, parts)
+        }.mapLeft { it.toNetworkError() }
+    }
+
+    override suspend fun deletePostImages(
+        postID: String,
+        imageURLs: List<String>
+    ): Either<NetworkError, Boolean> {
+        return Either.catch {
+            apiService.deletePostImages(postID, DeletePostImagesRequest(imageURLs))
+            true
         }.mapLeft { it.toNetworkError() }
     }
 }

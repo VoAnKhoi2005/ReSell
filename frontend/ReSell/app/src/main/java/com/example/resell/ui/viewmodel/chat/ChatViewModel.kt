@@ -206,6 +206,7 @@ class ChatViewModel @Inject constructor(
         }
         else {
             _post.value = ReactiveStore<Post>().item.value!!
+            receiverUsername = _post.value?.user?.fullName?:""
         }
 
     }

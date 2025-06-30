@@ -11,7 +11,12 @@ sealed class Screen(val route: String){
     object Profile: Screen("profile_screen")
     object Market: Screen("market_screen")
     object Search: Screen("search_screen")
-    object ProfileDetail: Screen("profiledetail_screen")
+
+    object ProfileDetail : Screen("profiledetail_screen/{id}") {
+        fun withId(id: String) = "profiledetail_screen/$id"
+    }
+
+
     object ProductDetail: Screen("productdetail_screen")
     object PhoneAuth: Screen("phoneAuth_screen")
     object Add: Screen("add_screen")
@@ -29,8 +34,6 @@ sealed class Screen(val route: String){
     object Rating: Screen("rating_screen")
     object AccountSetting: Screen("account_setting_screen")
     object PhoneRegister: Screen("phone_register_screen")
-    object ResultSearchScreen : Screen("search_result?query={query}") {
-        fun withQuery(query: String) = "search_result?query=${query}"
-    }
+    object ResultSearchScreen : Screen("search_result")
     object ReviewProductScreen: Screen("review_product_screen")
 }

@@ -1,5 +1,9 @@
 package com.example.resell.ui.screen.profile.ProfileDetailScreen
 
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,7 +34,10 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -38,29 +45,62 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.resell.R
+import com.example.resell.model.User
+import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.components.ProfileHeaderSection
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
+import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.screen.postmanagement.ApproveScreen
 import com.example.resell.ui.screen.postmanagement.NotApprovedScreen
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
+import com.example.resell.ui.viewmodel.profile.ProfileDetailViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileDetailScreen() {
+fun ProfileDetailScreen(
+    targetUserId: String,
+    viewModel: ProfileDetailViewModel = hiltViewModel()
+) {
+    Log.d("PROFILE_DETAIL", "Rendering ProfileDetailScreen with userId = $targetUserId")
+
+    val state by viewModel.uiState
+    val currentUserId = ReactiveStore<User>().item.value?.id ?: ""
+
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let { viewModel.uploadAvatar(context, it) }
+    }
+    val coverLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let { viewModel.uploadCover(context, it) }
+    }
+
+    LaunchedEffect(targetUserId, currentUserId) {
+        viewModel.loadProfile(targetUserId, currentUserId)
+    }
+
     val pagerState = rememberPagerState(pageCount = { ProfileDetailTab.entries.size })
-    val selectedTabIndex = remember { derivedStateOf { pagerState.currentPage } }
+    val coroutineScope = rememberCoroutineScope()
+    val selectedTabIndex = remember { mutableStateOf(0) }
+
+    // Đồng bộ pager với tab index
+    LaunchedEffect(pagerState.currentPage) {
+        selectedTabIndex.value = pagerState.currentPage
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopBar(
-            titleText = "Phạm Thành Long",
+            titleText = state.name.ifBlank { "Thông tin người dùng" },
             showBackButton = true,
             onBackClick = {
                 NavigationController.navController.popBackStack()
@@ -68,33 +108,36 @@ fun ProfileDetailScreen() {
         )
 
         ProfileHeaderSection(
-            avatarUrl = "https://i.pinimg.com/736x/b0/d3/8c/b0d38ce8049048d15c70da852021fa82.jpg",
-            coverUrl = "https://images.unsplash.com/photo-1560972550-aba3456b5564?w=600&auto=format&fit=crop&q=60",
-            name = "Phạm Thành Long",
-            rating = "3.5",
-            reviewCount = 120,
-            userId = "08366333080",
-            followerCount = 0,
-            followingCount = 0,
-            responseRate = "Chưa có thông tin",
-            createdAt = "3 tháng",
-            address = "Huyện Hòa Thành,Tây Ninh",
-            onEditClick = { /* TODO */ },
-            onShareClick = { /* TODO */ },
-            onChangeCoverClick = { /* TODO */ },
-            onChangeAvatarClick = { /* TODO */ },
-            showCover = true,
-            showShareButton = true,
-            showEditButton = true
+            state = state,
+            onEditClick = if (state.isCurrentUser) {
+                { NavigationController.navController.navigate(Screen.AccountSetting.route) }
+            } else null,
+            onChangeAvatarClick = if (state.isCurrentUser) {
+                { launcher.launch("image/*") }
+            } else null,
+            onChangeCoverClick = if (state.isCurrentUser) {
+                { coverLauncher.launch("image/*") }
+            } else null,
+            onFollowClick = {
+                viewModel.toggleFollow()
+            }
         )
 
         ProfileTabsPager(
-            selectedTabIndex = selectedTabIndex.value,
             pagerState = pagerState,
-            onTabSelected = { /* optional: update ViewModel or other logic */ }
+            selectedTabIndex = selectedTabIndex.value,
+            onTabSelected = { index ->
+                selectedTabIndex.value = index
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(index)
+                }
+            },
+            isCurrentUser = state.isCurrentUser
         )
     }
 }
+
+
 
 
 enum class ProfileDetailTab(
@@ -112,16 +155,23 @@ enum class ProfileDetailTab(
 fun ProfileTabsPager(
     selectedTabIndex: Int,
     pagerState: PagerState,
-    onTabSelected: (Int) -> Unit
+    onTabSelected: (Int) -> Unit,
+    isCurrentUser: Boolean
 ) {
     val coroutineScope = rememberCoroutineScope()
+
+    // 👇 Label tab động theo người dùng
+    val tabs = listOf(
+        if (isCurrentUser) "ĐANG HIỂN THỊ (0)" else "SẢN PHẨM (0)",
+        "ĐÃ BÁN (0)"
+    )
 
     Column(modifier = Modifier.fillMaxSize()) {
         TabRow(
             selectedTabIndex = selectedTabIndex,
             modifier = Modifier.fillMaxWidth()
         ) {
-            ProfileDetailTab.entries.forEachIndexed { index, currentTab ->
+            tabs.forEachIndexed { index, label ->
                 Tab(
                     selected = selectedTabIndex == index,
                     selectedContentColor = DarkBlue,
@@ -134,7 +184,7 @@ fun ProfileTabsPager(
                     },
                     text = {
                         Text(
-                            text = currentTab.text,
+                            text = label,
                             style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp)
                         )
                     }
@@ -148,18 +198,20 @@ fun ProfileTabsPager(
                 .fillMaxWidth()
                 .weight(1f)
         ) { pageIndex ->
-            when (ProfileDetailTab.entries[pageIndex]) {
-                ProfileDetailTab.Approved -> {
+            when (pageIndex) {
+                0 -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        ApproveScreen()
+                        ApproveScreen(isCurrentUser = isCurrentUser)
                     }
                 }
-                ProfileDetailTab.Sold -> {
+                1 -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        NotApprovedScreen()
+                        NotApprovedScreen(isCurrentUser = isCurrentUser)
                     }
                 }
             }
         }
+
     }
 }
+

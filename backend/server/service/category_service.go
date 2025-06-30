@@ -12,6 +12,7 @@ type CategoryService interface {
 	GetCategoryByID(id string) (*model.Category, error)
 	CreateCategory(req *transaction.CreateCategoryRequest) (*model.Category, error)
 	UpdateCategory(id string, req *transaction.UpdateCategoryRequest) (*model.Category, error)
+	//UpdateCategoryImage(id string, imageURL string) (*model.Category, error)
 	DeleteCategory(id string) error
 	GetCategoriesByParentID(parentID string) ([]*model.Category, error)
 }
@@ -21,13 +22,24 @@ type categoryService struct {
 }
 
 func (s *categoryService) CreateCategory(req *transaction.CreateCategoryRequest) (*model.Category, error) {
+	var parentID *string
+	if req.ParentCategoryId != "" {
+		parentID = &req.ParentCategoryId
+	}
+
+	var imageURL *string
+	if req.ImageURL != "" {
+		imageURL = &req.ImageURL
+	}
+
 	category := &model.Category{
 		ID:               uuid.New().String(),
 		Name:             req.Name,
-		ParentCategoryID: req.ParentCategoryId,
+		ParentCategoryID: parentID,
+		ImageURL:         imageURL,
 	}
-	err := s.repo.Create(category)
 
+	err := s.repo.Create(category)
 	return category, err
 }
 
@@ -39,6 +51,11 @@ func (s *categoryService) UpdateCategory(id string, req *transaction.UpdateCateg
 	}
 
 	category.Name = req.Name
+
+	if req.ImageURL != "" {
+		category.ImageURL = &req.ImageURL
+	}
+
 	err = s.repo.Update(category)
 	return category, err
 }
@@ -66,3 +83,13 @@ func NewCategoryService(repo repository.CategoryRepository) CategoryService {
 func (s *categoryService) GetCategoriesByParentID(parentID string) ([]*model.Category, error) {
 	return s.repo.GetByParentID(parentID)
 }
+
+//func (s *categoryService) UpdateCategoryImage(id string, imageURL string) (*model.Category, error) {
+//	category, err := s.GetCategoryByID(id)
+//	if err != nil {
+//		return nil, err
+//	}
+//	category.ImageURL = imageURL
+//	err = s.repo.Update(category)
+//	return category, err
+//}

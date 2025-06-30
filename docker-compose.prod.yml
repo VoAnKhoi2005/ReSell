@@ -1,0 +1,60 @@
+services:
+  admin-web:
+    build: ./frontend/admin-web
+    ports:
+      - "5173:5173"
+    env_file: ./frontend/admin-web/.env
+    depends_on:
+      - backend
+    networks:
+      - resell_net
+
+  redis:
+    image: redis
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6380:6379"
+    networks:
+      - resell_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: resell_user
+      POSTGRES_PASSWORD: resell_password
+      POSTGRES_DB: resell_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - resell_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resell_user -d resell_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend/server
+    ports:
+      - "8080:8080"
+    env_file: ./backend/server/.env
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - resell_net
+    restart: on-failure
+
+networks:
+  resell_net:
+
+volumes:
+  redis_data:
+  postgres_data:

@@ -46,7 +46,7 @@ func GenerateSeedData() {
 	districtIDs := seedDistrict(provinceIDs)
 	wardsIDs := seedWard(districtIDs)
 	addressIDs := seedAddress(userIDs, wardsIDs)
-	postIDs := seedPost(userIDs, categoryIDs, addressIDs)
+	postIDs := seedPost(userIDs, categoryIDs, wardsIDs)
 	paymentMethodIDs := seedPaymentMethod()
 	orderIDs := seedOrder(userIDs, addressIDs, postIDs, paymentMethodIDs)
 	seedReview(orderIDs)

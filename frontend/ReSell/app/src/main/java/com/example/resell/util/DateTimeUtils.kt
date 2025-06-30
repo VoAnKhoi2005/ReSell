@@ -3,13 +3,13 @@ package com.example.resell.util
 import android.util.Log
 import java.time.Duration
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 fun getRelativeTime(time: LocalDateTime?): String {
     if (time == null) return "Không rõ"
 
-    val now = LocalDateTime.now()
+    val now = LocalDateTime.now(ZoneOffset.UTC)
     val duration = Duration.between(time, now)
-    Log.d("RelativeTime", "Server time: $time, Now: $now")
 
 
     return when {

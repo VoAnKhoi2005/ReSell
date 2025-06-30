@@ -19,8 +19,7 @@ import com.example.resell.ui.screen.ui_operate.MainLayout
 import com.example.resell.ui.screen.auth.login.LoginScreen
 import com.example.resell.ui.screen.auth.phoneAuth.PhoneAuthScreen
 
-import com.example.resell.ui.screen.add.AddScreen
-import com.example.resell.ui.screen.add.CategorySelectionScreen
+
 import com.example.resell.ui.screen.address.AddressAddScreen
 import com.example.resell.ui.screen.address.AddressSetupScreen
 import com.example.resell.ui.screen.address.DistrictSelectScreen
@@ -80,12 +79,16 @@ fun SetupNavGraph(
         composable(Screen.Search.route) {
             SearchScreen() // màn hình tì  m kiếm của bạn
         }
-        composable(Screen.ProfileDetail.route+"/{id}",
-            arguments = listOf(
-                navArgument("id") {type = NavType.StringType  }
-            )) {
-            ProfileDetailScreen()
+        composable(
+            route = Screen.ProfileDetail.route, // <- đã là profiledetail_screen/{id}
+            arguments = listOf(navArgument("id") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val targetUserId = backStackEntry.arguments?.getString("id") ?: ""
+            ProfileDetailScreen(targetUserId = targetUserId)
         }
+
+
+
         composable(Screen.ProductDetail.route+"/{id}",
             arguments = listOf(
                 navArgument("id") {type = NavType.StringType  }
@@ -99,7 +102,7 @@ fun SetupNavGraph(
             PhoneAuthScreen()
         }
 
-        composable(Screen.Add.route) { AddScreen() }
+        composable(Screen.Add.route) { AddPostScreen() }
         composable (Screen.BuyingOrder.route){ BuyingOrderScreen() }
         composable (Screen.MyOrder.route){ MyOrderScreen() }
         composable (Screen.Payment.route){ PaymentScreen()}
@@ -146,21 +149,27 @@ fun SetupNavGraph(
         composable(Screen.Rating.route){
             RatingScreen()
         }
-        composable(Screen.CategorySelection.route){
-            CategorySelectionScreen()
-        }
+
         composable(Screen.AddPost.route){
-            AddPostScreen(onCancelClick = {NavigationController.navController.popBackStack()})
+           // AddPostScreen(onCancelClick = {NavigationController.navController.popBackStack()})
         }
         composable(Screen.AccountSetting.route){
            AccountSettingScreen()
         }
-        composable(//searchresult
-            route = Screen.ResultSearchScreen.route,
-            arguments = listOf(navArgument("query") { defaultValue = "" })
+        composable(
+            route = Screen.ResultSearchScreen.route+"/{query}/{category}",
+            arguments = listOf(
+                navArgument("query") {
+                    type = NavType.StringType
+                    defaultValue="" },
+                navArgument("category") {
+                    type = NavType.StringType
+                    defaultValue=""
+                }
+            )
         ) {
-            val query = it.arguments?.getString("query") ?: ""
-            SearchResultScreen(searchQuery = query)
+
+            SearchResultScreen()
         }
 
         composable(Screen.ReviewProductScreen.route){
