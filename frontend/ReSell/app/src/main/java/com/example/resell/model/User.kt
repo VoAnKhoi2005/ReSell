@@ -44,6 +44,8 @@ data class User(
 data class UserStatResponse(
     @Json(name = "user_id")
     val userId: String,
+    @Json(name ="full_name")
+    val fullName:String,
     @Json(name = "username")
     val username: String? = null,
     @Json(name = "avatar_url")

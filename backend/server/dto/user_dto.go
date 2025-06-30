@@ -8,6 +8,7 @@ import (
 type UserStatDTO struct {
 	UserID                 string     `json:"user_id"`
 	Username               string     `json:"username"`
+	FullName               string     `json:"full_name"`
 	AvatarURL              *string     `json:"avatar_url"`
 	CoverURL               *string     `json:"cover_url"`
 	ChatResponsePercentage *float64   `json:"chat_response_percentage"`
