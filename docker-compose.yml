@@ -31,11 +31,11 @@ services:
     networks:
       - resell_net
 
-  recommender:
-    build: ./backend/recommender_server
+  python:
+    build: backend/python_server
     ports:
-      - "5000:5000"
-    env_file: ./backend/recommender_server/.env
+      - "5000"
+    env_file: backend/python_server/.env
     depends_on:
       - backend
     networks:
