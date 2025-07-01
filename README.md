@@ -64,8 +64,6 @@ BASE_URL=https://xxx.ngrok-free.app/api/
 - Quản lý khiếu nại và báo cáo từ người dùng
 - Thống kê hoạt động toàn hệ thống
 
----
-
 ## 2. Người dùng
 
 ### 2.1. Tài khoản và hồ sơ
@@ -78,8 +76,6 @@ BASE_URL=https://xxx.ngrok-free.app/api/
 - Báo cáo sản phẩm hoặc người dùng vi phạm
 - Thống kê cá nhân: số lượt xem, đơn hàng, doanh thu, điểm uy tín
 
----
-
 ### 2.2. Người bán
 
 - Đăng, sửa, xóa bài rao bán sản phẩm
@@ -89,8 +85,6 @@ BASE_URL=https://xxx.ngrok-free.app/api/
 - Giao hàng và cập nhật trạng thái đơn hàng
 - Nhận tiền khi đơn hoàn tất
 - Xem thống kê: lượt xem, lượt theo dõi, điểm uy tín
-
----
 
 ### 2.3. Người mua
 
@@ -105,7 +99,6 @@ BASE_URL=https://xxx.ngrok-free.app/api/
 - Theo dõi người bán (nhận thông báo khi có bài đăng mới)
 - Đánh giá giao dịch
 
----
 
 ## 3. Nhắn tin & Tương tác
 
@@ -114,7 +107,6 @@ BASE_URL=https://xxx.ngrok-free.app/api/
 - Hỗ trợ trả giá trực tiếp trong chat
 - Gửi thông báo đẩy khi có tin nhắn mới
 
----
 
 ## 4. Thanh toán & Giao dịch
 
@@ -122,7 +114,6 @@ BASE_URL=https://xxx.ngrok-free.app/api/
 - Hỗ trợ tiền mặt hoặc ví nội bộ
 - Lịch sử giao dịch và doanh thu người bán
 
----
 
 ## 5. Bảo mật
 
@@ -130,7 +121,6 @@ BASE_URL=https://xxx.ngrok-free.app/api/
 - Khóa/báo cáo tài khoản vi phạm
 - Kiểm duyệt nội dung tự động hoặc thủ công
 
----
 
 ## 6. Tính năng khác
 
