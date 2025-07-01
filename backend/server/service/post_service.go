@@ -45,6 +45,7 @@ type PostService interface {
 
 	GetFollowedPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 	GetOwnPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
+	GetPostsByIdList(ownerID string, ids []string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 }
 
 type postService struct {
@@ -65,6 +66,10 @@ func (s *postService) GetFollowedPosts(userID string, filters map[string]string,
 
 func (s *postService) GetOwnPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
 	return s.repo.GetOwnPosts(userID, filters, page, limit)
+}
+
+func (s *postService) GetPostsByIdList(ownerID string, ids []string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
+	return s.repo.GetPostsByIdList(ownerID, ids, page, limit)
 }
 
 func (s *postService) updatePostStatus(id string, status model.PostStatus) (*model.Post, error) {
