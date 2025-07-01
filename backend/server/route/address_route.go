@@ -15,7 +15,7 @@ func RegisterAddressRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	addressController := controller.NewAddressController(addressService)
 
 	addressRoute := rg.Group("/address")
-	//addressRoute.Use(middleware.AuthMiddleware())
+	addressRoute.Use(middleware.AuthMiddleware())
 
 	//User
 	addressRoute.POST("/user", addressController.CreateAddress)

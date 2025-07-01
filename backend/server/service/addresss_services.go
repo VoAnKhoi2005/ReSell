@@ -50,6 +50,13 @@ func NewAddressService(repo repository.AddressRepository) AddressService {
 }
 
 func (a *addressService) CreateAddress(address *model.Address) error {
+	if address.IsDefault {
+		err := a.AddressRepository.UnsetOtherDefaultAddresses(*address.UserID)
+		if err != nil {
+			return err
+		}
+	}
+
 	return a.AddressRepository.Create(address)
 }
 

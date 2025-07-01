@@ -10,13 +10,11 @@ import (
 func GetUserID(c *gin.Context) (string, error) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "requester_id not found"})
 		return "", errors.New("requester_id not found")
 	}
 
 	userID, ok := userIDValue.(string)
 	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid user ID format"})
 		return "", errors.New("invalid user ID format")
 	}
 
