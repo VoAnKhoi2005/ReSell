@@ -79,7 +79,6 @@ BASE_URL=https://xxx.ngrok-free.app/api/
 ### 2.2. Người bán
 
 - Đăng, sửa, xóa bài rao bán sản phẩm
-  - Thông tin gồm: tiêu đề, mô tả, ảnh, giá, danh mục, tình trạng, vị trí,...
 - Tạo khuyến mãi/ưu đãi
 - Trò chuyện với người mua
 - Giao hàng và cập nhật trạng thái đơn hàng
@@ -88,8 +87,7 @@ BASE_URL=https://xxx.ngrok-free.app/api/
 
 ### 2.3. Người mua
 
-- Tìm kiếm, duyệt, sắp xếp và lọc tin rao bán theo:
-  - Danh mục, khu vực, tầm giá, thời gian đăng
+- Tìm kiếm, duyệt, sắp xếp và lọc tin rao bán
 - Xem thông tin sản phẩm và người bán
 - Thêm vào giỏ hàng
 - Liên hệ với người bán (nhắn tin, gọi điện)
@@ -128,5 +126,3 @@ BASE_URL=https://xxx.ngrok-free.app/api/
 - Tài khoản thành viên (membership) với nhiều ưu đãi
 - Hệ thống thông báo (đơn hàng, đánh giá, tin mới...)
 - Dashboard thống kê riêng cho admin và người dùng
-
----
