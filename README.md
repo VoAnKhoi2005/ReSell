@@ -55,120 +55,88 @@ BASE_URL=https://xxx.ngrok-free.app/api/
 <br>  
 <br>
 
-# Danh sách tính năng dự kiến
+# Danh sách tính năng
+## 1. Quản trị viên (Admin)
 
-# 1. Admin
+- Quản lý danh mục sản phẩm (ID, tên danh mục)
+- Duyệt/bỏ duyệt bài đăng (lọc hàng giả, hàng cấm)
+- Duyệt hồ sơ tài khoản (chống lừa đảo, giả mạo)
+- Quản lý khiếu nại và báo cáo từ người dùng
+- Thống kê hoạt động toàn hệ thống
 
-  
+---
 
-- Tạo danh mục sản phẩm (Danh mục sản phẩm gồm ID và tên)
+## 2. Người dùng
 
-- Kiểm duyệt bài đăng (tránh bán hàng giả, hàng cấm)
+### 2.1. Tài khoản và hồ sơ
 
-- Kiểm duyệt thông tin tài khoản (tránh tài khoản lừa đảo, giả mạo)
+- Đăng ký, đăng nhập bằng email/số điện thoại
+- Quản lý hồ sơ cá nhân
+- Xác minh tài khoản qua email và số điện thoại
+- Một tài khoản có thể vừa mua vừa bán
+- Quản lý đơn mua và đơn bán
+- Báo cáo sản phẩm hoặc người dùng vi phạm
+- Thống kê cá nhân: số lượt xem, đơn hàng, doanh thu, điểm uy tín
 
-  
+---
 
-# 2. Người dùng
+### 2.2. Người bán
 
-  
+- Đăng, sửa, xóa bài rao bán sản phẩm
+  - Thông tin gồm: tiêu đề, mô tả, ảnh, giá, danh mục, tình trạng, vị trí,...
+- Tạo khuyến mãi/ưu đãi
+- Trò chuyện với người mua
+- Giao hàng và cập nhật trạng thái đơn hàng
+- Nhận tiền khi đơn hoàn tất
+- Xem thống kê: lượt xem, lượt theo dõi, điểm uy tín
 
-- Đăng ký và đăng nhập (Tài khoản lúc tạo chỉ cần tên đăng nhập, email, phone, mật khẩu)
+---
 
-- Một tài khoản có thể vừa mua, vừa bán
+### 2.3. Người mua
 
-- Quản lý tài khoản ⇒ Muốn mua bán phải cung cấp thêm thông tin cá nhân:
-
-- Họ và tên
-
-- Ngày sinh
-
-- Địa chỉ
-
-- CCCD
-
-- …
-
-- Cài đặt giao diện:
-
-- Light/dark mode
-
-- Font size
-
-- …
-
-- Quản lý đơn hàng (đơn bán, đơn mua)
-
-- Báo cáo người dùng/sản phẩm
-
-  
-
-## 2.1. Người bán
-
-  
-
-- Đăng, sửa, xóa tin rao bán
-
-- 1 tin = 1 sản phẩm
-
-- 1 tin gồm: tiêu đề, mô tả, hình ảnh, giá, danh mục, tình trạng,…
-
-- Tạo ưu đãi
-
-- Trao đổi với người mua
-
-- Giao hàng cho người mua
-
-- Cập nhật trạng thái đơn hàng
-
-- Nhận tiền từ người mua khi hoàn thành đơn hàng
-
-- Xem thống kê hoạt động (số lượt xem tin rao, tình trạng tin rao, số lượt theo dõi gian hàng, doanh thu ước tính, điểm uy tín)c
-
-  
-
-## 2.2. Người mua
-
-  
-
-- Duyệt, tìm kiếm, sắp xếp và lọc tin rao bán (Danh mục, khu vực, tầm giá, thời gian đăng)
-
-- Xem tin bán
-
-- Xem thông tin người bán
-
+- Tìm kiếm, duyệt, sắp xếp và lọc tin rao bán theo:
+  - Danh mục, khu vực, tầm giá, thời gian đăng
+- Xem thông tin sản phẩm và người bán
 - Thêm vào giỏ hàng
-
-- Liên lạc với người bán (nhắn tin, gọi điện)
-
-- Đặt hàng
-
-- 1 admin có thể có nhiều địa chỉ, có một địa chỉ mặc định
-
-- Theo dõi đơn hàng
-
-- Thanh toán (tiền mặt/ví)
-
-- Theo dõi người bán (nhận thông báo khi người bán đăng tin mới)
-
+- Liên hệ với người bán (nhắn tin, gọi điện)
+- Đặt hàng với lựa chọn nhiều địa chỉ giao hàng (1 mặc định)
+- Theo dõi trạng thái đơn hàng
+- Thanh toán bằng tiền mặt hoặc ví trung gian
+- Theo dõi người bán (nhận thông báo khi có bài đăng mới)
 - Đánh giá giao dịch
 
-  
+---
 
-# 3. Chức năng khác
+## 3. Nhắn tin & Tương tác
 
-  
+- Nhắn tin giữa người mua và người bán
+- Gửi tin nhắn, hình ảnh
+- Hỗ trợ trả giá trực tiếp trong chat
+- Gửi thông báo đẩy khi có tin nhắn mới
 
-## 3.1. Nhắn tin
+---
 
-  
+## 4. Thanh toán & Giao dịch
 
-- Nhắn tin giữa người bán và người mua
+- Thanh toán trung gian (escrow): giữ tiền đến khi giao hàng thành công
+- Hỗ trợ tiền mặt hoặc ví nội bộ
+- Lịch sử giao dịch và doanh thu người bán
 
-  
+---
 
-## 3.3. Bảo mật
+## 5. Bảo mật
 
-  
+- Xác minh email, số điện thoại
+- Khóa/báo cáo tài khoản vi phạm
+- Kiểm duyệt nội dung tự động hoặc thủ công
 
-- Xác minh tài khoản (email, số điện thoại, CMND)
+---
+
+## 6. Tính năng khác
+
+- Gợi ý sản phẩm theo hành vi người dùng
+- Tài khoản thành viên (membership) với nhiều ưu đãi
+- Hệ thống thông báo (đơn hàng, đánh giá, tin mới...)
+- Dashboard thống kê riêng cho admin và người dùng
+
+---
