@@ -34,7 +34,7 @@ class PostManagementViewModel @Inject constructor(
         viewModelScope.launch {
             var currentPage = 1
             var isHasMore = true
-
+            _posts.value = emptyList()
             while (isHasMore) {
                 val result = postRepository.getOwnPosts(
                     page = currentPage,
