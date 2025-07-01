@@ -21,23 +21,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.example.resell.R
 import com.example.resell.ui.components.ProductPostItemHorizontalImage
 import com.example.resell.ui.components.StarRating
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
-import com.example.resell.ui.screen.no_result.NoRatingScreen
 import com.example.resell.ui.theme.White
-import com.example.resell.ui.theme.White2
 
 @Composable
-fun CompletedRatingScreen() {
+fun RatingFromBuyerScreen() {
     val ratings = listOf(
         RatingItemData(
             userName = "Chúa MHề 4.0",

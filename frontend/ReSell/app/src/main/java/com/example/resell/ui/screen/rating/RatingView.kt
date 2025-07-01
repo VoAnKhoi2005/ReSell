@@ -7,7 +7,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
@@ -76,14 +75,14 @@ fun RatingTabsPager(
                 .weight(1f)
         ) { pageIndex ->
             when (RatingTab.entries[pageIndex]) {
-                RatingTab.Waiting -> WaitingRatingScreen()
-                RatingTab.Completed -> CompletedRatingScreen()
+                RatingTab.MyRating -> MyRatingScreen()
+                RatingTab.RatingFromBuyer -> RatingFromBuyerScreen()
             }
         }
     }
 }
 
 enum class RatingTab(val text: String) {
-    Waiting("Đánh giá của tôi"),
-    Completed("Đánh giá từ khách hàng")
+    MyRating("Đánh giá của tôi"),
+    RatingFromBuyer("Đánh giá từ khách hàng")
 }

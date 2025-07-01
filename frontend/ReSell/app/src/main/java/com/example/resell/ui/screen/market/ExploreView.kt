@@ -106,14 +106,14 @@ fun PostItemView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                ProfileSimpleHeader(
+                /*ProfileSimpleHeader(
                     avatarUrl = avatarUrl,
                     name = name,
                     rating = null,
                     soldCount = null,
                     reviewCount = null,
                     showRating = false
-                )
+                )*/
             }
 
             Button(
