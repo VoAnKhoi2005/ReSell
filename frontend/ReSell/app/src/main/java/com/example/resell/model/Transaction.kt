@@ -10,6 +10,7 @@ import java.util.UUID
 data class FirebaseAuthRequest(
     @Json(name = "firebase_id_token") val firebaseIDToken: String,
     val username: String? = null,
+    val fullname: String? = null,
     val password: String? = null
 )
 

@@ -21,12 +21,14 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun firebaseAuth(
         firebaseIDToken: String,
         username: String?,
+        fullname: String?,
         password: String?
     ): Either<NetworkError, FirebaseAuthResponse> {
         return Either.catch {
             val request = FirebaseAuthRequest(
                 firebaseIDToken = firebaseIDToken,
                 username = username,
+                fullname = fullname,
                 password = password,
             )
 
