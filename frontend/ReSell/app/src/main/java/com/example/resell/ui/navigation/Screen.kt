@@ -26,7 +26,9 @@ sealed class Screen(val route: String){
     object MyOrder: Screen("my_order_screen")
     object Payment: Screen("payment_screen")
     object AddressSetup: Screen("address_setup_screen")
-    object AddressAdd: Screen("address_add_screen")
+    object AddressAdd : Screen("address_add") {
+        fun withID(id: String) = "address_add?id=$id"
+    }
     object ProvinceSelect: Screen("province_select_screen")
     object DistrictSelect : Screen("district_select_screen")
     object WardSelect : Screen("ward_select_screen")

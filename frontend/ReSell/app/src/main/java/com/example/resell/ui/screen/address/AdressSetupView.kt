@@ -1,40 +1,32 @@
 package com.example.resell.ui.screen.address
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.resell.model.User
+import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.components.AddressBox
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.screen.payment.OrderButton
 import com.example.resell.ui.theme.White2
+import com.example.resell.ui.viewmodel.address.AddressSetupViewModel
 
-data class AddressInfo(
-    val name: String,
-    val phone: String,
-    val address: String,
-    val default: Boolean=false
-)
 @Composable
-fun AddressSetupScreen() {
+fun AddressSetupScreen(
+    viewModel: AddressSetupViewModel = hiltViewModel()
+) {
     val scrollState = rememberScrollState()
-
-    val sampleAddresses = listOf(
-        AddressInfo("Phạm Thành Long", "08366333080", "123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh",true),
-        AddressInfo("Nguyễn Văn A", "0901234567", "456 Trần Hưng Đạo, Quận 5, TP. Hồ Chí Minh"),
-        AddressInfo("Trần Thị B", "0987654321", "789 Nguyễn Trãi, Quận 10, TP. Hồ Chí Minh")
-    )
+    val addresses = viewModel.addressList
+    val selectedID = viewModel.selectedAddressID
+    val user by ReactiveStore<User>().item.collectAsState()
 
     Scaffold(
         topBar = {
@@ -55,26 +47,36 @@ fun AddressSetupScreen() {
                 .verticalScroll(scrollState)
                 .padding(12.dp)
         ) {
-            sampleAddresses.forEach { info ->
+            addresses.forEach { address ->
                 AddressBox(
-                    receiverName = info.name,
-                    phoneNumber = info.phone,
-                    address = info.address,
-                    showIcon = info.default,
+                    receiverName = user?.fullName ?: "Người dùng",
+                    phoneNumber = user?.phone ?: "",
+                    address = listOfNotNull(
+                        address.detail,
+                        address.ward?.name,
+                        address.ward?.district?.name,
+                        address.ward?.district?.province?.name
+                    ).joinToString(", "),
+                    showIcon = address.isDefault,
                     onClick = {
-                        // TODO: xử lý chọn địa chỉ
+                        // 👉 Chuyển sang AddressAddScreen để sửa
+                        NavigationController.navController.navigate(
+                            Screen.AddressAdd.route + "?id=${address.id}"
+                        )
                     }
                 )
-
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(8.dp))
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             OrderButton(
                 text = "Thêm địa chỉ mới",
                 onClick = {
+                    // 👉 Thêm mới => không truyền ID
                     NavigationController.navController.navigate(Screen.AddressAdd.route)
                 }
             )
         }
     }
 }
-

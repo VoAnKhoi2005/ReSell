@@ -107,7 +107,19 @@ fun SetupNavGraph(
         composable (Screen.MyOrder.route){ MyOrderScreen() }
         composable (Screen.Payment.route){ PaymentScreen()}
         composable (Screen.AddressSetup.route){ AddressSetupScreen() }
-        composable (Screen.AddressAdd.route){ AddressAddScreen()}
+        composable(
+            route = Screen.AddressAdd.route + "?id={id}",
+            arguments = listOf(
+                navArgument("id") {
+                    nullable = true
+                    type = NavType.StringType
+                    defaultValue = null
+                }
+            )
+        ) {
+            AddressAddScreen()
+        }
+
         composable (Screen.PhoneRegister.route){ PhoneRegisterScreen() }
         composable(Screen.ProvinceSelect.route) {
             ProvinceSelectScreen { selectedProvince ->
