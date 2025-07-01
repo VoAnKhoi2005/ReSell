@@ -1,5 +1,6 @@
 package com.example.resell.ui.viewmodel.address
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -33,7 +34,9 @@ class AddressAddViewModel @Inject constructor(
     var isEditMode = false
     private val addressId: String? = savedStateHandle["id"]
 
+
     init {
+        Log.d("AddressViewModel", "Editing addressId = $addressId")
         addressId?.let {
             isEditMode = true
             loadAddress(it)
@@ -50,8 +53,8 @@ class AddressAddViewModel @Inject constructor(
             addressRepository.getAddressByID(id).fold(
                 { /* handle error */ },
                 { address ->
-                    /*fullName = address.fullName
-                    phoneNumber = address.phone*/
+                    fullName = address.fullname?:""
+                    phoneNumber = address.phone?:""
                     detail = address.detail
                     isDefault = address.isDefault
                     selectedWard = address.ward
@@ -64,28 +67,37 @@ class AddressAddViewModel @Inject constructor(
 
     fun saveAddress(onSaved: () -> Unit) {
         val wardID = selectedWard?.id ?: return
+        if (wardID == null) {
+            Log.e("AddressViewModel", "❌ Cannot save, ward is null")
+            return
+        }
+        Log.d("AddressViewModel", "🔄 saveAddress() called in ${if (isEditMode) "EDIT" else "CREATE"} mode")
 
         viewModelScope.launch {
             val result = if (isEditMode && addressId != null) {
+                Log.d("AddressViewModel", "Sending updateAddress with id=$addressId")
                 addressRepository.updateAddress(
                     addressId,
                     UpdateAddressRequest(fullName, phoneNumber, wardID, detail, isDefault)
                 )
             } else {
+                Log.d("AddressViewModel", "Sending createAddress")
                 addressRepository.createAddress(fullName, phoneNumber, wardID, detail, isDefault)
             }
 
             result.fold(
-                { /* handle error */ },
+                { Log.e("AddressViewModel", "❌ Failed to save address: $it") },
                 { success ->
                     if (success) {
-                        onSaved() // gọi callback khi lưu xong
+                        Log.d("AddressViewModel", "✅ Address saved successfully")
+                        onSaved()
                         reset()
                     }
                 }
             )
         }
     }
+
 
     fun reset() {
         fullName = ""

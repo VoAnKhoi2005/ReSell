@@ -31,7 +31,7 @@ class AddressSetupViewModel @Inject constructor(
         fetchAddresses()
     }
 
-    private fun fetchAddresses() {
+    fun fetchAddresses() {
         viewModelScope.launch {
             val userID = userStore.item.value?.id ?: return@launch
             val result = addressRepository.getAddressByUserID(userID)
@@ -60,6 +60,18 @@ class AddressSetupViewModel @Inject constructor(
             val old = it[index]
             it[index] = old.copy(ward = updatedWard)
         }
+        fun deleteAddresses(ids: List<String>) {
+            viewModelScope.launch {
+                try {
+                    addressRepository.deleteMultiple(ids) // ✅ đảm bảo bạn có hàm này trong Repository
+                    fetchAddresses() // Gọi lại API sau khi xóa
+                } catch (e: Exception) {
+                    Log.e("AddressSetupViewModel", "Xóa địa chỉ thất bại", e)
+                }
+            }
+        }
+
+
     }
 
 
