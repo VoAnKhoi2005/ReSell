@@ -13,15 +13,19 @@ type PostListAdminDTO struct {
 }
 
 type PostListUserDTO struct {
-	ID        string    `json:"id"`
-	Title     string    `json:"title"`
-	Status    string    `json:"status"`
-	Category  string    `json:"category"`
-	Owner     string    `json:"owner"`
-	Thumbnail string    `json:"thumbnail"`
-	Address   string    `json:"address"`
-	Price     int       `json:"price"`
-	CreatedAt time.Time `json:"created_at"`
+	ID          string    `json:"id"`
+	Title       string    `json:"title"`
+	Status      string    `json:"status"`
+	Category    string    `json:"category"`
+	Owner       string    `json:"owner"`
+	Fullname    string    `json:"fullname"`
+	Avatar      string    `json:"avatar"`
+	Description string    `json:"description"`
+	Thumbnail   string    `json:"thumbnail"`
+	Address     string    `json:"address"`
+	Price       int       `json:"price"`
+	CreatedAt   time.Time `json:"created_at"`
+	IsFollowing bool      `json:"is_following"`
 }
 
 type PostDataForScoring struct {

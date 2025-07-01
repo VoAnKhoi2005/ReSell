@@ -33,7 +33,7 @@ export async function unbanUser(userId) {
 }
 
 export async function fetchUserStat(userId) {
-  const res = await apiFetch(`/api/admin/user/stat/${userId}`);
+  const res = await apiFetch(`/api/user/stat/${userId}`);
   if (!res.ok) throw await res.text();
   return await res.json();
 }

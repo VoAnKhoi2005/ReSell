@@ -58,7 +58,11 @@ func (r *postRepository) GetFollowedPosts(userID string, filters map[string]stri
 			posts.price,
 			CONCAT_WS(', ', wards.name, districts.name, provinces.name) AS address,
 			imgs.image_url AS thumbnail,
-			posts.created_at
+			posts.created_at,
+			posts.description,
+			users.fullname, 
+			users.avatar_url,
+			TRUE as is_following
 		`).
 		Joins("JOIN users ON users.id = posts.user_id").
 		Joins("JOIN categories ON categories.id = posts.category_id").
@@ -66,8 +70,8 @@ func (r *postRepository) GetFollowedPosts(userID string, filters map[string]stri
 		Joins("JOIN districts ON districts.id = wards.district_id").
 		Joins("JOIN provinces ON provinces.id = districts.province_id").
 		Joins("LEFT JOIN (?) AS imgs ON imgs.post_id = posts.id", subQuery).
-		Joins("JOIN follows ON follows.seller_id = posts.user_id").
-		Where("follows.buyer_id = ?", userID)
+		Joins("JOIN follows ON follows.followee_id = posts.user_id").
+		Where("follows.follower_id = ?", userID)
 
 	// ========== FILTER ==========
 	if status, ok := filters["status"]; ok {
@@ -138,7 +142,11 @@ func (r *postRepository) GetOwnPosts(userID string, filters map[string]string, p
 			posts.price,
 			CONCAT_WS(', ', wards.name, districts.name, provinces.name) AS address,
 			imgs.image_url AS thumbnail,
-			posts.created_at
+			posts.created_at,
+			posts.description,
+			users.fullname, 
+			users.avatar_url,
+			FALSE as is_following
 		`).
 		Joins("JOIN users ON users.id = posts.user_id").
 		Joins("JOIN categories ON categories.id = posts.category_id").
@@ -283,7 +291,11 @@ func (r *postRepository) GetUserPostsByFilter(ownerID string, filters map[string
 		posts.price,
 		CONCAT_WS(', ', wards.name, districts.name, provinces.name) AS address,
 		imgs.image_url AS thumbnail,
-		posts.created_at
+		posts.created_at,
+		posts.description,
+		users.fullname, 
+		users.avatar_url,
+		CASE WHEN follows.follower_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_following
 	`).
 		Joins("JOIN users ON users.id = posts.user_id").
 		Joins("JOIN categories ON categories.id = posts.category_id").
@@ -291,6 +303,7 @@ func (r *postRepository) GetUserPostsByFilter(ownerID string, filters map[string
 		Joins("JOIN districts ON districts.id = wards.district_id").
 		Joins("JOIN provinces ON provinces.id = districts.province_id").
 		Joins("LEFT JOIN (?) AS imgs ON imgs.post_id = posts.id", subQuery).
+		Joins("LEFT JOIN follows ON follows.followee_id = posts.user_id and follows.followee_id = ?", ownerID). //
 		Where("posts.user_id != ?", ownerID)
 
 	// ========== FILTER ==========
