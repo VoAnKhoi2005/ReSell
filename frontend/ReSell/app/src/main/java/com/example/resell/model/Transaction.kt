@@ -86,6 +86,8 @@ data class CreateAddressRequest(
 
 @JsonClass(generateAdapter = true)
 data class UpdateAddressRequest(
+    @Json(name = "fullname") val fullName: String? = null,
+    @Json(name = "phone") val phone: String? = null,
     @Json(name = "ward_id") val wardID: String? = null,
     val detail: String? = null,
     @Json(name = "is_default") val isDefault: Boolean? = null

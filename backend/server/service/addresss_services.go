@@ -65,6 +65,16 @@ func (a *addressService) UpdateAddress(addressID string, userID string, request 
 
 	isChange := false
 
+	if request.FullName != nil && *request.FullName != "" {
+		address.Fullname = *request.FullName
+		isChange = true
+	}
+
+	if request.Phone != nil && *request.Phone != "" {
+		address.Phone = *request.Phone
+		isChange = true
+	}
+
 	if request.WardID != nil && *request.WardID != "" {
 		address.WardID = request.WardID
 		isChange = true
