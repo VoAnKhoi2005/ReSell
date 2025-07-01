@@ -7,17 +7,21 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.resell.ui.components.BottomBar
+import com.example.resell.ui.components.PhoneVerificationPopup
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.components.bottomNavItems
 import com.example.resell.ui.navigation.NavigationController
@@ -30,6 +34,8 @@ import com.example.resell.ui.screen.profile.ProfileScreen.ProfileScreen
 
 @Composable
 fun MainLayout(modifier: Modifier = Modifier) {
+    val viewModel : MainLayoutViewModel = hiltViewModel()
+    val isOpenPopup by viewModel.isOpenPopup.collectAsState()
     var selectedItem by remember { mutableStateOf(bottomNavItems[0]) }
     val bottomNavController = rememberNavController()
     // LẤY THÔNG TIN VỀ ROUTE HIỆN TẠI
@@ -63,7 +69,7 @@ fun MainLayout(modifier: Modifier = Modifier) {
                     showNotificationIcon = true,
                     showEmailIcon = true
                 )
-                Screen.Profile.route -> TopBar(titleText = "Thêm")
+                Screen.Profile.route -> TopBar(titleText = "Tài khoản")
                 else -> {}
             }
         }
@@ -72,7 +78,7 @@ fun MainLayout(modifier: Modifier = Modifier) {
             BottomBar(
                 items = bottomNavItems,
                 selectedItem = selectedItem,
-                onAddClick = { NavigationController.navController.navigate(Screen.Add.route)},
+                onAddClick = {viewModel.onAddClicked() },
                 onItemClick = {
                     selectedItem = it
                     bottomNavController.navigate(it.screen.route) {
@@ -89,6 +95,12 @@ fun MainLayout(modifier: Modifier = Modifier) {
             navController = bottomNavController
         )
 
+    }
+    if (isOpenPopup) {
+        PhoneVerificationPopup(
+            onDismiss = { viewModel.closePopUp() },
+            onVerified = { viewModel.onAddPhone(it) }
+        )
     }
 
     }

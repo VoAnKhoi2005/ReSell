@@ -14,7 +14,8 @@ func RegisterRecommenderRoute(rg *gin.RouterGroup, db *gorm.DB) {
 	recommenderRoute := rg.Group("/recommender")
 	recommenderRoute.Use(middleware.DockerInternalAuth())
 
-	recommenderRoute.GET("/profile/:user_id", controller.GetBuyerProfile)
-	recommenderRoute.GET("/posts-features", controller.GetPostsFeatures)
-	recommenderRoute.GET("/posts-candidate-id", controller.GetCandidatePostsID)
+	recommenderRoute.POST("/profile/:user_id", controller.GetBuyerProfile)
+	recommenderRoute.POST("/posts-features", controller.GetPostsFeatures)
+	recommenderRoute.POST("/posts-candidate-id", controller.GetCandidatePostsID)
+	recommenderRoute.POST("/recommendation", controller.GetRecommendation)
 }

@@ -12,6 +12,8 @@ type AddressRepository interface {
 	Update(address *model.Address) error
 	Delete(address *model.Address) error
 
+	UnsetOtherDefaultAddresses(userID string) error
+
 	GetByID(addressID string) (*model.Address, error)
 	GetByUserID(userID string) ([]*model.Address, error)
 	GetByWardID(wardID string) ([]*model.Address, error)
@@ -49,6 +51,16 @@ type addressRepository struct {
 
 func NewAddressRepository(db *gorm.DB) AddressRepository {
 	return &addressRepository{BaseRepository: NewBaseRepository[model.Address](db)}
+}
+
+func (a *addressRepository) UnsetOtherDefaultAddresses(userID string) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return a.db.WithContext(ctx).
+		Model(&model.Address{}).
+		Where("user_id = ?", userID).
+		Update("is_default", false).Error
 }
 
 func (a *addressRepository) GetByID(addressID string) (*model.Address, error) {

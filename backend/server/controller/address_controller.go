@@ -26,8 +26,8 @@ func (ac *AddressController) CreateAddress(c *gin.Context) {
 	}
 
 	userID, err := util.GetUserID(c)
-	if err != nil || userID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -37,7 +37,7 @@ func (ac *AddressController) CreateAddress(c *gin.Context) {
 		Phone:     request.Phone,
 		WardID:    &request.WardID,
 		Detail:    request.Detail,
-		IsDefault: request.IsDefault,
+		IsDefault: *request.IsDefault,
 	}
 
 	err = ac.addressService.CreateAddress(&address)

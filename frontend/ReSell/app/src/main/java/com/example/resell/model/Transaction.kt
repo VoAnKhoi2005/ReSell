@@ -10,6 +10,7 @@ import java.util.UUID
 data class FirebaseAuthRequest(
     @Json(name = "firebase_id_token") val firebaseIDToken: String,
     val username: String? = null,
+    val fullname: String? = null,
     val password: String? = null
 )
 
@@ -86,6 +87,8 @@ data class CreateAddressRequest(
 
 @JsonClass(generateAdapter = true)
 data class UpdateAddressRequest(
+    @Json(name = "fullname") val fullName: String? = null,
+    @Json(name = "phone") val phone: String? = null,
     @Json(name = "ward_id") val wardID: String? = null,
     val detail: String? = null,
     @Json(name = "is_default") val isDefault: Boolean? = null

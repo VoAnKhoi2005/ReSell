@@ -50,6 +50,13 @@ func NewAddressService(repo repository.AddressRepository) AddressService {
 }
 
 func (a *addressService) CreateAddress(address *model.Address) error {
+	if address.IsDefault {
+		err := a.AddressRepository.UnsetOtherDefaultAddresses(*address.UserID)
+		if err != nil {
+			return err
+		}
+	}
+
 	return a.AddressRepository.Create(address)
 }
 
@@ -64,6 +71,16 @@ func (a *addressService) UpdateAddress(addressID string, userID string, request 
 	}
 
 	isChange := false
+
+	if request.FullName != nil && *request.FullName != "" {
+		address.Fullname = *request.FullName
+		isChange = true
+	}
+
+	if request.Phone != nil && *request.Phone != "" {
+		address.Phone = *request.Phone
+		isChange = true
+	}
 
 	if request.WardID != nil && *request.WardID != "" {
 		address.WardID = request.WardID
