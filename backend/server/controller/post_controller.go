@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type PostController struct {
@@ -283,6 +284,44 @@ func (h *PostController) GetUserPosts(c *gin.Context) {
 	}
 
 	posts, total, err := h.service.GetUserPosts(ownerID, filters, page, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"data":     posts,
+		"total":    total,
+		"page":     page,
+		"limit":    limit,
+		"has_more": int64(page*limit) < total,
+	})
+}
+
+func (h *PostController) GetPostsByIdList(c *gin.Context) {
+	ownerID, _ := util.GetUserID(c)
+
+	// Parse IDs từ query string
+	idsParam := c.Query("ids")
+	if idsParam == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ids parameter is required"})
+		return
+	}
+	ids := strings.Split(idsParam, ",")
+
+	pageStr := c.DefaultQuery("page", "1")
+	limitStr := c.DefaultQuery("limit", "10")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+
+	posts, total, err := h.service.GetPostsByIdList(ownerID, ids, page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

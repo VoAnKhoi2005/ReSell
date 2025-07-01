@@ -22,6 +22,7 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	posts.GET("/own", postController.GetOwnPosts)
 	posts.GET("/followed", postController.GetFollowedPosts)
 	posts.GET("/trash", postController.GetAllDeletedPosts) // Get all deleted posts
+	posts.GET("/id-list", postController.GetPostsByIdList)
 	posts.GET("/:id", postController.GetPostByID)
 	posts.POST("", postController.CreatePost)
 	posts.PUT("/:id", postController.UpdatePost)
