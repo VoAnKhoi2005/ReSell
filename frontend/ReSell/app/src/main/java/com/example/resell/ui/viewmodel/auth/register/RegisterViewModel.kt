@@ -46,7 +46,7 @@ class RegisterViewModel @Inject constructor(
         Log.d("RegisterViewModel", "type=$type id=$id user=$userName")
         if(type == "email" || type == "phone") {
             //TODO: Xử lí đăng ký bằng email ở đây
-            val response = userRepository.firebaseAuth(id, userName, password)
+            val response = userRepository.firebaseAuth(id, userName, fullName,password=password)
             response.fold(
                 ifLeft = { networkError ->
                     val errors = networkError.errors
