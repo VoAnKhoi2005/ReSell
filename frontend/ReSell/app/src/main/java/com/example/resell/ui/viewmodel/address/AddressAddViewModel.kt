@@ -3,10 +3,12 @@ package com.example.resell.ui.viewmodel.address
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.resell.model.District
 import com.example.resell.model.Province
+import com.example.resell.model.UpdateAddressRequest
 import com.example.resell.model.Ward
 import com.example.resell.repository.AddressRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,8 +45,8 @@ class AddressAddViewModel @Inject constructor(
             addressRepository.getAddressByID(id).fold(
                 { /* handle error */ },
                 { address ->
-                    fullName = address.fullName
-                    phoneNumber = address.phone
+                    /*fullName = address.fullName
+                    phoneNumber = address.phone*/
                     detail = address.detail
                     isDefault = address.isDefault
                     selectedWard = address.ward
