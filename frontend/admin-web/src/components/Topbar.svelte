@@ -13,11 +13,14 @@
   }
 </script>
 
-<nav
-  class="navbar navbar-light bg-white border-bottom px-4"
-  style="height:56px;"
->
-  <div class="flex-grow-1"></div>
+<nav class="navbar navbar-light bg-white border-bottom px-4" style="height:56px;">
+  <!-- Bên trái: Logo + Tên -->
+  <div class="d-flex align-items-center">
+    <img src="logo.png" alt="ReSell Logo" style="height:32px; width:auto; margin-right:8px;" />
+    <span class="fw-bold fs-5">ReSell</span>
+  </div>
+
+  <!-- Bên phải: Dropdown -->
   <div class="dropdown ms-auto" style="position:relative;">
     <button
       class="btn btn-light border shadow-sm"
@@ -33,9 +36,7 @@
         use:clickOutside={() => (showDropdown = false)}
       >
         <li>
-          <a class="dropdown-item text-danger" href="#" on:click={logout}
-            >Đăng xuất</a
-          >
+          <a class="dropdown-item text-danger" href="#" on:click={logout}>Đăng xuất</a>
         </li>
       </ul>
     {/if}
