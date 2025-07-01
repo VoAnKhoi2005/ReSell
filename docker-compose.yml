@@ -31,6 +31,15 @@ services:
     networks:
       - resell_net
 
+  python:
+    build: backend/python_server
+    ports:
+      - "5000"
+    env_file: backend/python_server/.env
+    depends_on:
+      - backend
+    networks:
+      - resell_net
 
 networks:
   resell_net:
