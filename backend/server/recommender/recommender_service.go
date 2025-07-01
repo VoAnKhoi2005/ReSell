@@ -63,5 +63,10 @@ func (r *recommenderService) GetRecommendation(userID string, page int, pageSize
 		return postsFeatures[i].FinalScore > postsFeatures[j].FinalScore
 	})
 
+	postIDs := make([]string, len(postsFeatures))
+	for i, pf := range postsFeatures {
+		postIDs[i] = pf.PostID
+	}
+
 	return postsFeatures, nil
 }

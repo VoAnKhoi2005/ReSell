@@ -1,51 +1,37 @@
-# Python bytecode
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*.pyo
+*$py.class
 
-# Environment files
-.env
-*.env
-
-# Virtual environments
+# Virtual environment folder
 .venv/
-venv/
-ENV/
 
-# IDE files
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Test / coverage reports
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+
+# Logs
+*.log
+
+# IDE / editor folders
 .vscode/
 .idea/
 
-# OS junk
-.DS_Store
-Thumbs.db
-
-# Logs and cache
-*.log
-*.pot
-*.pyc
-.cache/
-*.egg-info/
-.eggs/
-
-# Test outputs
-htmlcov/
-.tox/
-coverage.*
-nosetests.xml
-test-results/
-junit-*.xml
-
-# Docker
-__pycache__/
-*.pid
-*.sock
-
-# Jupyter (if any)
+# Jupyter checkpoints
 .ipynb_checkpoints/
-*.ipynb
 
-# Mypy, Pyright, Pylint, etc.
-.mypy_cache/
-.pyright/
-.pytest_cache/
+# dotenv files
+.env
+
+# macOS
+.DS_Store
