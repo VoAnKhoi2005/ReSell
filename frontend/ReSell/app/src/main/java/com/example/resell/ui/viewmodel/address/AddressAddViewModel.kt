@@ -39,6 +39,11 @@ class AddressAddViewModel @Inject constructor(
             loadAddress(it)
         }
     }
+    fun updateLocation(province: Province, district: District, ward: Ward) {
+        selectedProvince = province
+        selectedDistrict = district
+        selectedWard = ward
+    }
 
     private fun loadAddress(id: String) {
         viewModelScope.launch {
