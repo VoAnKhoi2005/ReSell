@@ -14,6 +14,7 @@ type RegisterRequest struct {
 type FirebaseAuthRequest struct {
 	FirebaseIDToken string  `json:"firebase_id_token" binding:"required"`
 	Username        *string `json:"username,omitempty"`
+	Fullname        *string `json:"fullname,omitempty"`
 	Password        *string `json:"password,omitempty"`
 }
 

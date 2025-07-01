@@ -12,6 +12,7 @@ interface UserRepository{
     suspend fun firebaseAuth(
         firebaseIDToken: String,
         username: String? = null,
+        fullname: String? = null,
         password: String? = null
     ): Either<NetworkError, FirebaseAuthResponse>
     suspend fun loginUser(identifier: String, password: String, loginType: LoginType): Either<NetworkError, LoginResponse>

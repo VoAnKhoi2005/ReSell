@@ -121,7 +121,9 @@ func (h *AuthController) FirebaseAuth(c *gin.Context) {
 	var authResponse transaction.FirebaseAuthResponse
 
 	if user == nil {
-		if request.Username == nil || *request.Username == "" || request.Password == nil || *request.Password == "" {
+		if request.Username == nil || *request.Username == "" ||
+			request.Password == nil || *request.Password == "" ||
+			request.Fullname == nil || *request.Fullname == "" {
 			authResponse = transaction.FirebaseAuthResponse{
 				FirstTimeLogin: true,
 			}
@@ -145,6 +147,7 @@ func (h *AuthController) FirebaseAuth(c *gin.Context) {
 			Email:        email,
 			Phone:        phone,
 			Username:     *request.Username,
+			Fullname:     *request.Fullname,
 			Password:     encryptedPasswordStr,
 			AuthProvider: provider,
 			Reputation:   100,
