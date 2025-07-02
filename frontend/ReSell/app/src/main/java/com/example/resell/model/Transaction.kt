@@ -2,6 +2,8 @@ package com.example.resell.model
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import retrofit2.http.GET
+import retrofit2.http.POST
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -74,6 +76,35 @@ data class CoverUploadResponse(
 )
 // endregion
 
+//region Favorite
+
+@JsonClass(generateAdapter = true)
+data class LikePostRequest(
+    @Json(name = "post_id") val postID: String,
+)
+
+//endregion
+
+//region Payment
+
+@JsonClass(generateAdapter = true)
+data class CreateTransactionRequest(
+    @Json(name = "order_id")
+    val orderId: String
+)
+
+
+@JsonClass(generateAdapter = true)
+data class CreateTransactionResponse(
+    @Json(name = "client_secret")
+    val clientSecret: String,
+
+    @Json(name = "transaction_id")
+    val transactionId: String
+)
+
+//endregion
+
 // region Address
 
 @JsonClass(generateAdapter = true)
@@ -119,22 +150,7 @@ data class GetPostsResponse(
     val page: Int,
     val total: Int,
 )
-@JsonClass(generateAdapter = true)
-data class GetPostsDTO(
-    @Json(name = "id") val postId: String,
-    @Json(name = "title") val title: String,
-    @Json(name = "status") val status: String,
-    @Json(name = "category") val category: String,
-    @Json(name = "owner") val owner: String,
-    @Json(name = "fullname") val fullname: String,
-    @Json(name = "avatar") val avatar: String,
-    @Json(name = "description") val description: String,
-    @Json(name = "thumbnail") val thumbnail: String,
-    @Json(name = "address") val address: String,
-    @Json(name = "price") val price: Int,
-    @Json(name = "created_at") val createdAt: LocalDateTime,
-    @Json(name = "is_following") val isFollowing: Boolean
-)
+
 @JsonClass(generateAdapter = true)
 data class UpdatePostRequest(
     @Json(name = "category_id") val categoryID: String? = null,
@@ -168,6 +184,28 @@ data class CreateOrderRequest(
 )
 
 // endregion
+
+//region Report
+
+@JsonClass(generateAdapter = true)
+data class ReportUserRequest(
+    @Json(name = "reported_id")
+    val reportedId: String,
+
+    @Json(name = "description")
+    val description: String
+)
+
+@JsonClass(generateAdapter = true)
+data class ReportPostRequest(
+    @Json(name = "reported_id")
+    val reportedId: String,
+
+    @Json(name = "description")
+    val description: String
+)
+
+//endregion
 
 // region Review
 

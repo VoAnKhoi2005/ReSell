@@ -68,7 +68,9 @@ func (a *addressRepository) GetByID(addressID string) (*model.Address, error) {
 	defer cancel()
 
 	var address *model.Address = nil
-	err := a.db.WithContext(ctx).First(&address, "id = ?", addressID).Error
+	err := a.db.WithContext(ctx).
+		Preload("Ward.District.Province").
+		First(&address, "id = ?", addressID).Error
 	return address, err
 }
 
@@ -77,7 +79,9 @@ func (a *addressRepository) GetByUserID(userID string) ([]*model.Address, error)
 	defer cancel()
 
 	var addresses []*model.Address
-	err := a.db.WithContext(ctx).Find(&addresses, "user_id = ?", userID).Error
+	err := a.db.WithContext(ctx).
+		Preload("Ward.District.Province").
+		Find(&addresses, "user_id = ?", userID).Error
 	return addresses, err
 }
 
@@ -86,7 +90,9 @@ func (a *addressRepository) GetByWardID(wardID string) ([]*model.Address, error)
 	defer cancel()
 
 	var addresses []*model.Address
-	err := a.db.WithContext(ctx).Find(&addresses, "ward_id = ?", wardID).Error
+	err := a.db.WithContext(ctx).
+		Preload("Ward.District.Province").
+		Find(&addresses, "ward_id = ?", wardID).Error
 	return addresses, err
 }
 
@@ -95,7 +101,9 @@ func (a *addressRepository) GetByWardIDs(wardIDs []string) ([]*model.Address, er
 	defer cancel()
 
 	var addresses []*model.Address
-	err := a.db.WithContext(ctx).Find(&addresses, "ward_id IN ?", wardIDs).Error
+	err := a.db.WithContext(ctx).
+		Preload("Ward.District.Province").
+		Find(&addresses, "ward_id IN ?", wardIDs).Error
 	return addresses, err
 }
 
