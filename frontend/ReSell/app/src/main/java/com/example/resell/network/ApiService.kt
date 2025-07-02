@@ -36,7 +36,7 @@ interface ApiService {
     @PUT("user/update")
     suspend fun updateProfile(
         @Body request: UpdateProfileRequest
-    ): Boolean
+    ): User
 
     @PUT("user/change_password")
     suspend fun changePassword(

@@ -6,7 +6,7 @@ from .model import (
 )
 
 from .score_function import (
-    preprocess,
     keyword_overlap,
     score_image,
+    preprocess_text
 )

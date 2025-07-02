@@ -51,7 +51,7 @@ data class LoginResponse(
 data class UpdateProfileRequest(
     val email: String? = null,
     val phone: String? = null,
-    @Json(name = "full_name") val fullName: String? = null,
+    @Json(name = "fullname") val fullName: String? = null,
 )
 
 @JsonClass(generateAdapter = true)

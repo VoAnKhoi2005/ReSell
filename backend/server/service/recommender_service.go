@@ -1,24 +1,30 @@
-package recommender
+package service
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/dto"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 	"sort"
 )
 
-type Service interface {
+type RecommenderService interface {
 	GetBuyerProfile(userID string) (*dto.BuyerProfile, error)
 	GetPostsFeatures(postIDs []string, userID string) ([]*dto.PostFeatures, error)
 	GetCandidatePostsID(page int, pageSize int) ([]string, error)
 
-	GetRecommendation(userID string, page int, pageSize int) ([]*dto.PostFeatures, error)
+	GetRecommendation(userID string, page int, pageSize int) ([]*dto.PostListUserDTO, error)
 }
 
 type recommenderService struct {
-	repo Repository
+	repo     repository.RecommenderRepository
+	postRepo repository.PostRepository
 }
 
-func NewRecommenderService(repo Repository) Service {
-	return &recommenderService{repo}
+func NewRecommenderService(repo repository.RecommenderRepository, postRepo repository.PostRepository) RecommenderService {
+
+	return &recommenderService{
+		repo,
+		postRepo,
+	}
 }
 
 func (r *recommenderService) GetBuyerProfile(userID string) (*dto.BuyerProfile, error) {
@@ -48,7 +54,7 @@ func (r *recommenderService) GetCandidatePostsID(page int, pageSize int) ([]stri
 	return r.repo.GetCandidatePostsID(page, pageSize)
 }
 
-func (r *recommenderService) GetRecommendation(userID string, page int, pageSize int) ([]*dto.PostFeatures, error) {
+func (r *recommenderService) GetRecommendation(userID string, page int, pageSize int) ([]*dto.PostListUserDTO, error) {
 	candidatePostsID, err := r.repo.GetCandidatePostsID(page, pageSize)
 	if err != nil {
 		return nil, err
@@ -68,5 +74,7 @@ func (r *recommenderService) GetRecommendation(userID string, page int, pageSize
 		postIDs[i] = pf.PostID
 	}
 
-	return postsFeatures, nil
+	postsDTO, _, err := r.postRepo.GetPostsByIdList(userID, postIDs, 1, 100000000)
+
+	return postsDTO, nil
 }

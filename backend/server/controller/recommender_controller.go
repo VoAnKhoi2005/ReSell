@@ -1,21 +1,22 @@
-package recommender
+package controller
 
 import (
+	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
-type Controller struct {
-	service Service
+type RecommenderController struct {
+	service service.RecommenderService
 }
 
-func NewRecommenderController(service Service) *Controller {
-	return &Controller{service}
+func NewRecommenderController(service service.RecommenderService) *RecommenderController {
+	return &RecommenderController{service}
 }
 
-func (rc *Controller) GetBuyerProfile(c *gin.Context) {
+func (rc *RecommenderController) GetBuyerProfile(c *gin.Context) {
 	userID := c.Param("user_id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "user_id required"})
@@ -36,7 +37,7 @@ type GetPostsFeaturesRequest struct {
 	PostsID []string `json:"posts_id" binding:"required"`
 }
 
-func (rc *Controller) GetPostsFeatures(c *gin.Context) {
+func (rc *RecommenderController) GetPostsFeatures(c *gin.Context) {
 	var request GetPostsFeaturesRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -52,7 +53,7 @@ func (rc *Controller) GetPostsFeatures(c *gin.Context) {
 	c.JSON(http.StatusOK, postsFeatures)
 }
 
-func (rc *Controller) GetCandidatePostsID(c *gin.Context) {
+func (rc *RecommenderController) GetCandidatePostsID(c *gin.Context) {
 	pageSizeStr := c.DefaultQuery("pageSize", "10")
 	pageSize, err := strconv.Atoi(pageSizeStr)
 	if err != nil {
@@ -86,7 +87,7 @@ func (rc *Controller) GetCandidatePostsID(c *gin.Context) {
 	c.JSON(http.StatusOK, postsID)
 }
 
-func (rc *Controller) GetRecommendation(c *gin.Context) {
+func (rc *RecommenderController) GetRecommendation(c *gin.Context) {
 	userID, err := util.GetUserID(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

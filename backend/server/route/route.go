@@ -2,7 +2,6 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
-	"github.com/VoAnKhoi2005/ReSell/backend/server/recommender"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,5 +34,4 @@ func SetupRoutes(router *gin.Engine) {
 	RegisterSubscriptionRoutes(api, db)
 	RegisterStripeRoutes(api, db)
 	RegisterReportRoutes(api, db)
-	recommender.RegisterRecommenderRoute(api, db)
 }

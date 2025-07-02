@@ -27,7 +27,7 @@ type UserService interface {
 	IsEmailExist(email string) (bool, error)
 	IsPhoneExist(phone string) (bool, error)
 
-	UpdateUser(userID string, request *request.UpdateUserRequest) error
+	UpdateUser(userID string, request *request.UpdateUserRequest) (*model.User, error)
 	DeleteUser(user *model.User) error
 	DeleteUserByID(userID string) error
 
@@ -217,10 +217,10 @@ func (s *userService) IsPhoneExist(phone string) (bool, error) {
 	return user != nil, err
 }
 
-func (s *userService) UpdateUser(userID string, request *request.UpdateUserRequest) error {
+func (s *userService) UpdateUser(userID string, request *request.UpdateUserRequest) (*model.User, error) {
 	user, err := s.userRepository.GetByID(userID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if request.FullName != nil && *request.FullName != "" {
@@ -237,7 +237,12 @@ func (s *userService) UpdateUser(userID string, request *request.UpdateUserReque
 		user.IsPhoneVerified = true
 	}
 
-	return s.userRepository.Update(user)
+	err = s.userRepository.Update(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.userRepository.GetByID(user.ID)
 }
 
 func (s *userService) DeleteUser(user *model.User) error {

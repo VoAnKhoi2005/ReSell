@@ -469,8 +469,6 @@ func (r *postRepository) GetPostsByIdList(ownerID string, ids []string, page, li
 
 	// ========== FETCH + SCAN ==========
 	err := query.
-		Offset((page - 1) * limit).
-		Limit(limit).
 		Order("posts.created_at DESC").
 		Scan(&result).Error
 	if err != nil {
