@@ -48,6 +48,19 @@ func (r *postRepository) GetFollowedPosts(userID string, filters map[string]stri
 		Select("DISTINCT ON (post_id) post_id, image_url").
 		Order("post_id, image_order")
 
+	imgListSubQuery := r.db.
+		Table("post_images").
+		Select(`
+		post_id, 
+		json_agg(
+			json_build_object(
+				'image_url', image_url,
+				'image_order', image_order
+			) ORDER BY image_order
+		) AS images
+	`).
+		Group("post_id")
+
 	query := r.db.WithContext(ctx).
 		Model(&model.Post{}).
 		Select(`
@@ -65,7 +78,8 @@ func (r *postRepository) GetFollowedPosts(userID string, filters map[string]stri
 			users.avatar_url as avatar,
 			TRUE as is_following,
 			CASE WHEN favorite_posts.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_favorite,
-			posts.post_images as images
+			img_list.images AS images
+
 		`).
 		Joins("JOIN users ON users.id = posts.user_id").
 		Joins("JOIN categories ON categories.id = posts.category_id").
@@ -75,6 +89,7 @@ func (r *postRepository) GetFollowedPosts(userID string, filters map[string]stri
 		Joins("LEFT JOIN (?) AS imgs ON imgs.post_id = posts.id", subQuery).
 		Joins("JOIN follows ON follows.followee_id = posts.user_id").
 		Joins("LEFT JOIN favorite_posts ON favorite_posts.post_id = posts.id AND favorite_posts.user_id = ?", userID).
+		Joins("LEFT JOIN (?) AS img_list ON img_list.post_id = posts.id", imgListSubQuery).
 		Where("follows.follower_id = ?", userID)
 
 	// ========== FILTER ==========
@@ -135,6 +150,19 @@ func (r *postRepository) GetOwnPosts(userID string, filters map[string]string, p
 		Select("DISTINCT ON (post_id) post_id, image_url").
 		Order("post_id, image_order")
 
+	imgListSubQuery := r.db.
+		Table("post_images").
+		Select(`
+		post_id, 
+		json_agg(
+			json_build_object(
+				'image_url', image_url,
+				'image_order', image_order
+			) ORDER BY image_order
+		) AS images
+	`).
+		Group("post_id")
+
 	query := r.db.WithContext(ctx).
 		Model(&model.Post{}).
 		Select(`
@@ -152,7 +180,7 @@ func (r *postRepository) GetOwnPosts(userID string, filters map[string]string, p
 			users.avatar_url as avatar,
 			FALSE as is_following,
 			FALSE as is_favorite,
-			posts.post_images as images
+			img_list.images AS images
 		`).
 		Joins("JOIN users ON users.id = posts.user_id").
 		Joins("JOIN categories ON categories.id = posts.category_id").
@@ -160,6 +188,7 @@ func (r *postRepository) GetOwnPosts(userID string, filters map[string]string, p
 		Joins("JOIN districts ON districts.id = wards.district_id").
 		Joins("JOIN provinces ON provinces.id = districts.province_id").
 		Joins("LEFT JOIN (?) AS imgs ON imgs.post_id = posts.id", subQuery).
+		Joins("LEFT JOIN (?) AS img_list ON img_list.post_id = posts.id", imgListSubQuery).
 		Where("posts.user_id = ?", userID)
 
 	// ========== FILTER ==========
@@ -286,6 +315,19 @@ func (r *postRepository) GetUserPostsByFilter(ownerID string, filters map[string
 		Select("DISTINCT ON (post_id) post_id, image_url").
 		Order("post_id, image_order")
 
+	imgListSubQuery := r.db.
+		Table("post_images").
+		Select(`
+		post_id, 
+		json_agg(
+			json_build_object(
+				'image_url', image_url,
+				'image_order', image_order
+			) ORDER BY image_order
+		) AS images
+	`).
+		Group("post_id")
+
 	query := r.db.WithContext(ctx).
 		Model(&model.Post{}).
 		Select(`
@@ -300,10 +342,11 @@ func (r *postRepository) GetUserPostsByFilter(ownerID string, filters map[string
 		posts.created_at,
 		posts.description,
 		users.fullname, 
-		users.avatar_url,
+		users.avatar_url as avatar,
 		CASE WHEN follows.follower_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_following,
 		CASE WHEN favorite_posts.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_favorite,
-		posts.post_images as images
+		img_list.images AS images
+
 	`).
 		Joins("JOIN users ON users.id = posts.user_id").
 		Joins("JOIN categories ON categories.id = posts.category_id").
@@ -312,7 +355,8 @@ func (r *postRepository) GetUserPostsByFilter(ownerID string, filters map[string
 		Joins("JOIN provinces ON provinces.id = districts.province_id").
 		Joins("LEFT JOIN (?) AS imgs ON imgs.post_id = posts.id", subQuery).
 		Joins("LEFT JOIN follows ON follows.followee_id = posts.user_id and follows.follower_id = ?", ownerID).
-		Joins("LEFT JOIN favorite_posts on favorite_posts.post_id = posts.post_id AND favorite_posts.user_id = ?", ownerID).
+		Joins("LEFT JOIN favorite_posts on favorite_posts.post_id = posts.id AND favorite_posts.user_id = ?", ownerID).
+		Joins("LEFT JOIN (?) AS img_list ON img_list.post_id = posts.id", imgListSubQuery).
 		Where("posts.user_id != ?", ownerID)
 
 	// ========== FILTER ==========
@@ -374,6 +418,19 @@ func (r *postRepository) GetPostsByIdList(ownerID string, ids []string, page, li
 		Select("DISTINCT ON (post_id) post_id, image_url").
 		Order("post_id, image_order")
 
+	imgListSubQuery := r.db.
+		Table("post_images").
+		Select(`
+		post_id, 
+		json_agg(
+			json_build_object(
+				'image_url', image_url,
+				'image_order', image_order
+			) ORDER BY image_order
+		) AS images
+	`).
+		Group("post_id")
+
 	query := r.db.WithContext(ctx).
 		Model(&model.Post{}).
 		Select(`
@@ -388,10 +445,10 @@ func (r *postRepository) GetPostsByIdList(ownerID string, ids []string, page, li
 		posts.created_at,
 		posts.description,
 		users.fullname, 
-		users.avatar_url,
+		users.avatar_url as avatar,
 		CASE WHEN follows.follower_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_following,
 		CASE WHEN favorite_posts.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_favorite,
-		posts.post_images as images
+		img_list.images AS images
 	`).
 		Joins("JOIN users ON users.id = posts.user_id").
 		Joins("JOIN categories ON categories.id = posts.category_id").
@@ -400,7 +457,8 @@ func (r *postRepository) GetPostsByIdList(ownerID string, ids []string, page, li
 		Joins("JOIN provinces ON provinces.id = districts.province_id").
 		Joins("LEFT JOIN (?) AS imgs ON imgs.post_id = posts.id", subQuery).
 		Joins("LEFT JOIN follows ON follows.followee_id = posts.user_id and follows.follower_id = ?", ownerID).
-		Joins("LEFT JOIN favorite_posts on favorite_posts.post_id = posts.post_id AND favorite_posts.user_id = ?", ownerID).
+		Joins("LEFT JOIN favorite_posts on favorite_posts.post_id = posts.id AND favorite_posts.user_id = ?", ownerID).
+		Joins("LEFT JOIN (?) AS img_list ON img_list.post_id = posts.id", imgListSubQuery).
 		Where("posts.id IN ?", ids)
 
 	// ========== COUNT ==========
