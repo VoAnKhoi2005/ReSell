@@ -12,12 +12,14 @@ type AddressService interface {
 	CreateAddress(address *model.Address) error
 	UpdateAddress(userID string, addressID string, request *transaction.UpdateAddressRequest) error
 	DeleteAddress(addressID string) error
+	DeleteAddresses(userID string, addressesID []string) error
 
 	GetByID(addressID string) (*model.Address, error)
 	GetByUserID(userID string) ([]*model.Address, error)
 	GetByWardID(wardID string) ([]*model.Address, error)
 	GetByDistrict(districtID string) ([]*model.Address, error)
 	GetByProvince(provinceID string) ([]*model.Address, error)
+	GetDefaultAddress(userID string) (*model.Address, error)
 
 	GetAllProvinces() ([]*model.Province, error)
 	GetDistricts(provinceID string) ([]*model.District, error)
@@ -119,6 +121,10 @@ func (a *addressService) DeleteAddress(addressID string) error {
 	return a.AddressRepository.Delete(address)
 }
 
+func (a *addressService) DeleteAddresses(userID string, addressesID []string) error {
+	return a.AddressRepository.DeleteAddresses(userID, addressesID)
+}
+
 func (a *addressService) GetByID(addressID string) (*model.Address, error) {
 	return a.AddressRepository.GetByID(addressID)
 }
@@ -179,6 +185,10 @@ func (a *addressService) GetByProvince(provinceID string) ([]*model.Address, err
 
 	addresses, err := a.AddressRepository.GetByWardIDs(wardIDs)
 	return addresses, err
+}
+
+func (a *addressService) GetDefaultAddress(userID string) (*model.Address, error) {
+	return a.AddressRepository.GetDefaultAddress(userID)
 }
 
 func (a *addressService) GetAllProvinces() ([]*model.Province, error) {

@@ -41,20 +41,20 @@ interface FavoriteRepository{
 }
 
 interface PaymentRepository{
-    suspend fun getAllPaymentMethods(): Either<NetworkError, List<PaymentMethod>>
-    suspend fun getPaymentMethodByID(paymentMethodID: String): Either<NetworkError, PaymentMethod>
-    suspend fun createTransaction(orderID: String): Either<NetworkError, CreateTransactionResponse>
+    suspend fun createZaloPayPayment(orderID: String): Either<NetworkError, CreateZaloPayPaymentResponse>
 }
 
 interface AddressRepository{
     suspend fun createAddress(fullName: String, phone: String, wardID: String, detail: String, isDefault: Boolean): Either<NetworkError, Boolean>
     suspend fun getAddressByID(addressID: String): Either<NetworkError, Address>
     suspend fun getAddressByUserID(userID: String): Either<NetworkError, List<Address>>
+    suspend fun getDefaultAddress(): Either<NetworkError, Address>
     suspend fun getAllProvinces(): Either<NetworkError, List<Province>>
     suspend fun getDistricts(provinceID: String): Either<NetworkError, List<District>>
     suspend fun getWards(districtID: String): Either<NetworkError, List<Ward>>
     suspend fun updateAddress(addressID: String, request: UpdateAddressRequest): Either<NetworkError, Boolean>
     suspend fun deleteAddress(addressID: String): Either<NetworkError, Boolean>
+    suspend fun deleteAddresses(addressIDs: List<String>): Either<NetworkError, Boolean>
 }
 
 interface CategoryRepository{

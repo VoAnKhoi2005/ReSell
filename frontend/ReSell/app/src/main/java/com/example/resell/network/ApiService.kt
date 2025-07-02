@@ -93,14 +93,8 @@ interface ApiService {
 
     //region Payment
 
-    @GET("payment-methods")
-    suspend fun getAllPaymentMethods(): List<PaymentMethod>
-
-    @GET("payment-methods/{id}")
-    suspend fun getPaymentMethodByID(@Path("id") paymentMethodID: String): PaymentMethod
-
-    @POST("transactions")
-    suspend fun createTransaction(@Body request: CreateTransactionRequest): CreateTransactionResponse
+    @POST("order/{order_id}/pay")
+    suspend fun createZaloPayPayment(@Path("order_id") orderID: String): CreateZaloPayPaymentResponse
 
     //endregion
 
@@ -115,6 +109,9 @@ interface ApiService {
 
     @GET("address/user/{user_id}")
     suspend fun getAddressByUserID(@Path("user_id") userID: String): List<Address>
+
+    @GET("address/default")
+    suspend fun getDefaultAddress(): Address
 
     @GET("address/provinces/all")
     suspend fun getAllProvinces(): List<Province>
@@ -133,6 +130,9 @@ interface ApiService {
 
     @DELETE("address/{address_id}")
     suspend fun deleteAddress(@Path("address_id") addressID: String): Boolean
+
+    @DELETE("address/batch")
+    suspend fun deleteAddresses(@Body request: DeleteAddressesRequest): Boolean
     //endregion
 
     //region Category

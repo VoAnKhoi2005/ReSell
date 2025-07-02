@@ -6,6 +6,7 @@ import com.example.resell.network.NetworkError
 import com.example.resell.network.toNetworkError
 import com.example.resell.model.Address
 import com.example.resell.model.CreateAddressRequest
+import com.example.resell.model.DeleteAddressesRequest
 import com.example.resell.model.District
 import com.example.resell.model.Province
 import com.example.resell.model.UpdateAddressRequest
@@ -50,6 +51,12 @@ class AddressRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
+    override suspend fun getDefaultAddress(): Either<NetworkError, Address> {
+        return Either.catch {
+            apiService.getDefaultAddress()
+        }.mapLeft { it.toNetworkError() }
+    }
+
     override suspend fun getAllProvinces(): Either<NetworkError, List<Province>> {
         return Either.catch {
             apiService.getAllProvinces()
@@ -80,6 +87,12 @@ class AddressRepositoryImpl @Inject constructor(
     override suspend fun deleteAddress(addressID: String): Either<NetworkError, Boolean> {
         return Either.catch {
             apiService.deleteAddress(addressID)
+        }.mapLeft { it.toNetworkError() }
+    }
+
+    override suspend fun deleteAddresses(addressIDs: List<String>): Either<NetworkError, Boolean> {
+        return Either.catch {
+            apiService.deleteAddresses(DeleteAddressesRequest(addressIDs))
         }.mapLeft { it.toNetworkError() }
     }
 }

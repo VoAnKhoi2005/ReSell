@@ -30,3 +30,7 @@ type UpdateAddressRequest struct {
 	Detail    *string `json:"detail"`
 	IsDefault *bool   `json:"is_default"`
 }
+
+type DeleteAddressesRequest struct {
+	AddressIDs []string `json:"address_ids" binding:"required"`
+}

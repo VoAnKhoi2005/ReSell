@@ -88,19 +88,11 @@ data class LikePostRequest(
 //region Payment
 
 @JsonClass(generateAdapter = true)
-data class CreateTransactionRequest(
-    @Json(name = "order_id")
-    val orderId: String
-)
-
-
-@JsonClass(generateAdapter = true)
-data class CreateTransactionResponse(
-    @Json(name = "client_secret")
-    val clientSecret: String,
-
-    @Json(name = "transaction_id")
-    val transactionId: String
+data class CreateZaloPayPaymentResponse(
+    @Json(name = "success")
+    val success: Boolean,
+    @Json(name = "payment_url")
+    val paymentURL: String
 )
 
 //endregion
@@ -123,6 +115,11 @@ data class UpdateAddressRequest(
     @Json(name = "ward_id") val wardID: String? = null,
     val detail: String? = null,
     @Json(name = "is_default") val isDefault: Boolean? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class DeleteAddressesRequest(
+    @Json(name = "address_ids") val addressIDs: List<String>
 )
 
 // endregion
