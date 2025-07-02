@@ -19,6 +19,7 @@ type PostListUserDTO struct {
 	Status      string          `json:"status"`
 	Category    string          `json:"category"`
 	Owner       string          `json:"owner"`
+	UserID     string          `json:"user_id"`
 	Fullname    string          `json:"fullname"`
 	Avatar      string          `json:"avatar"`
 	Description string          `json:"description"`
