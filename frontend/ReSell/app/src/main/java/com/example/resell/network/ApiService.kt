@@ -110,6 +110,9 @@ interface ApiService {
     @GET("address/user/{user_id}")
     suspend fun getAddressByUserID(@Path("user_id") userID: String): List<Address>
 
+    @GET("address/default")
+    suspend fun getDefaultAddress(): Address
+
     @GET("address/provinces/all")
     suspend fun getAllProvinces(): List<Province>
 

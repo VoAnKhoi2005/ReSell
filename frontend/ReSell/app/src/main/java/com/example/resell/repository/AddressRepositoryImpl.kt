@@ -51,6 +51,12 @@ class AddressRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
+    override suspend fun getDefaultAddress(): Either<NetworkError, Address> {
+        return Either.catch {
+            apiService.getDefaultAddress()
+        }.mapLeft { it.toNetworkError() }
+    }
+
     override suspend fun getAllProvinces(): Either<NetworkError, List<Province>> {
         return Either.catch {
             apiService.getAllProvinces()
