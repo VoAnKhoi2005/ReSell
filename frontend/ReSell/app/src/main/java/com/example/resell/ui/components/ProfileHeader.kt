@@ -38,6 +38,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.resell.ui.navigation.NavigationController
+import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LoginButton
@@ -58,53 +60,59 @@ fun ProfileHeaderSection(
             .fillMaxWidth()
             .height(180.dp)
     ) {
-        if (state.coverUrl != null) {
-            AsyncImage(
-                model = state.coverUrl,
-                contentDescription = "Cover Photo",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
-            )
+        // COVER PHOTO (dùng ảnh mặc định nếu thiếu)
+        val fallbackCover = painterResource(id = R.drawable.defaultcover)
+        val coverUrl = state.coverUrl.ifBlank { null }
+        AsyncImage(
+            model = coverUrl,
+            contentDescription = "Cover Photo",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(150.dp),
+            placeholder = fallbackCover,
+            error = fallbackCover,
+            fallback = fallbackCover
+        )
 
-            if (state.isCurrentUser) {
-                IconButton(
-                    onClick = { onChangeCoverClick?.invoke() },
+        // Nút đổi ảnh bìa (nếu là người dùng hiện tại)
+        if (state.isCurrentUser) {
+            IconButton(
+                onClick = { onChangeCoverClick?.invoke() },
+                modifier = Modifier
+                    .size(28.dp)
+                    .align(Alignment.TopEnd)
+                    .offset(y = 4.dp)
+            ) {
+                Box(
                     modifier = Modifier
-                        .size(28.dp)
-                        .align(Alignment.TopEnd)
-                        .offset(y = 4.dp)
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                        .background(Color.White)
+                        .border(1.dp, Color.Gray, CircleShape)
                 ) {
-                    Box(
+                    Image(
+                        painter = painterResource(id = R.drawable.camera),
+                        contentDescription = "Change coverphoto",
                         modifier = Modifier
                             .fillMaxSize()
-                            .clip(CircleShape)
-                            .background(Color.White)
-                            .border(1.dp, Color.Gray, CircleShape)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.camera),
-                            contentDescription = "Change coverphoto",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(2.dp),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
+                            .padding(2.dp),
+                        contentScale = ContentScale.Crop
+                    )
                 }
             }
         }
 
-        // Avatar
+        // AVATAR
         Box(
             modifier = Modifier
                 .size(100.dp)
                 .align(Alignment.BottomStart)
                 .offset(x = 16.dp, y = 30.dp)
         ) {
-            val fallbackAvatar = painterResource(id = R.drawable.default_avatar)
-            val avatarUrl = if (state.avatarUrl.isNotBlank()) state.avatarUrl else null
+            val fallbackAvatar = painterResource(id = R.drawable.defaultavatar)
+            val avatarUrl = state.avatarUrl.ifBlank { null }
+
             AsyncImage(
                 model = avatarUrl,
                 contentDescription = "Avatar",
@@ -113,9 +121,9 @@ fun ProfileHeaderSection(
                     .fillMaxSize()
                     .clip(CircleShape)
                     .border(2.dp, Color.White, CircleShape),
+                placeholder = fallbackAvatar,
                 error = fallbackAvatar,
-                fallback = fallbackAvatar,
-                placeholder = fallbackAvatar
+                fallback = fallbackAvatar
             )
 
             if (state.isCurrentUser) {
@@ -146,7 +154,7 @@ fun ProfileHeaderSection(
             }
         }
 
-        // Button phía dưới avatar
+        // Nút chỉnh sửa / theo dõi
         Row(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -187,13 +195,13 @@ fun ProfileHeaderSection(
                 }
             }
         }
-
     }
 
     Spacer(modifier = Modifier.height(40.dp))
 
+    // Phần thông tin bên dưới
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-        state.name?.let {
+        state.name.let {
             Text(
                 it,
                 style = MaterialTheme.typography.labelMedium.copy(
@@ -241,8 +249,12 @@ fun ProfileHeaderSection(
             CreatedAt(state.createdAt)
             Spacer(modifier = Modifier.height(8.dp))
         }
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
     }
-}
+
 
 @Composable
 fun ProfileSimpleHeaderSection(//bên profile
@@ -353,9 +365,9 @@ fun ProfileSimpleHeaderSection(//bên profile
         }
     }
 }
-
 @Composable
 fun ProfileSimpleHeader(
+    userId: String,
     avatarUrl: String?,
     name: String?,
     rating: Float? = null,
@@ -363,7 +375,8 @@ fun ProfileSimpleHeader(
     soldCount: Int? = null,
     onChangeAvatarClick: (() -> Unit)? = null,
     showRating: Boolean = true
-) {
+)
+ {
     Row(
         modifier = Modifier
             .padding(6.dp)
@@ -372,17 +385,27 @@ fun ProfileSimpleHeader(
         Box(
             modifier = Modifier
                 .size(100.dp)
-                .clickable { onChangeAvatarClick?.invoke() }
-        ) {
+                .clickable {
+                    if (userId.isNotBlank()) {
+                        NavigationController.navController.navigate(Screen.ProfileDetail.withId(userId))
+                    }
+                }
+        )
+
+        {
             AsyncImage(
-                model = avatarUrl,
+                model = avatarUrl.takeIf { !it.isNullOrBlank() },
                 contentDescription = "Avatar",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(CircleShape)
-                    .border(2.dp, Color.White, CircleShape)
+                    .border(2.dp, Color.White, CircleShape),
+                fallback = painterResource(id = R.drawable.defaultavatar),
+                error = painterResource(id = R.drawable.defaultavatar),
+                placeholder = painterResource(id = R.drawable.defaultavatar)
             )
+
         }
 
         Spacer(modifier = Modifier.width(16.dp))

@@ -1,6 +1,7 @@
 package com.example.resell.ui.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,6 +36,7 @@ fun TopBar(
     showEmailIcon: Boolean = false,
     showBackButton: Boolean = false,
     onBackClick: (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
         modifier = modifier,
@@ -79,6 +81,7 @@ fun TopBar(
             }
         },
         actions = {
+            actions()
             if (showNotificationIcon) {
                 Icon(
                     imageVector = Icons.Default.Notifications,

@@ -1,40 +1,53 @@
 package com.example.resell.ui.screen.address
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.resell.model.User
+import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.components.AddressBox
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.screen.payment.OrderButton
 import com.example.resell.ui.theme.White2
+import com.example.resell.ui.viewmodel.address.AddressSetupViewModel
 
-data class AddressInfo(
-    val name: String,
-    val phone: String,
-    val address: String,
-    val default: Boolean=false
-)
 @Composable
-fun AddressSetupScreen() {
+fun AddressSetupScreen(
+    viewModel: AddressSetupViewModel = hiltViewModel()
+) {
     val scrollState = rememberScrollState()
+    val addresses = viewModel.addressList
+    val selectedID = viewModel.selectedAddressID
+    val user by ReactiveStore<User>().item.collectAsState()
 
-    val sampleAddresses = listOf(
-        AddressInfo("Phạm Thành Long", "08366333080", "123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh",true),
-        AddressInfo("Nguyễn Văn A", "0901234567", "456 Trần Hưng Đạo, Quận 5, TP. Hồ Chí Minh"),
-        AddressInfo("Trần Thị B", "0987654321", "789 Nguyễn Trãi, Quận 10, TP. Hồ Chí Minh")
-    )
+    var isDeleteMode by remember { mutableStateOf(false) }
+    val selectedAddressIds = remember { mutableStateListOf<String>() }
+
+    val navBackStackEntry = remember {
+        NavigationController.navController.currentBackStackEntry
+    }
+    val shouldReload = navBackStackEntry
+        ?.savedStateHandle
+        ?.getStateFlow("shouldReload", false)
+        ?.collectAsState()
+
+    LaunchedEffect(shouldReload?.value) {
+        if (shouldReload?.value == true) {
+            viewModel.fetchAddresses()
+            navBackStackEntry.savedStateHandle["shouldReload"] = false
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -43,9 +56,20 @@ fun AddressSetupScreen() {
                 showBackButton = true,
                 onBackClick = {
                     NavigationController.navController.popBackStack()
+                },
+                actions = {
+                    TextButton(onClick = {
+                        isDeleteMode = !isDeleteMode
+                        if (!isDeleteMode) selectedAddressIds.clear()
+                    }) {
+                        Text(
+                            text = if (isDeleteMode) "Hủy" else "Xóa",
+                            color = if (isDeleteMode) Color.Red else Color.White
+                        )
+                    }
                 }
             )
-        },
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -55,26 +79,88 @@ fun AddressSetupScreen() {
                 .verticalScroll(scrollState)
                 .padding(12.dp)
         ) {
-            sampleAddresses.forEach { info ->
-                AddressBox(
-                    receiverName = info.name,
-                    phoneNumber = info.phone,
-                    address = info.address,
-                    showIcon = info.default,
+            addresses
+                .sortedByDescending { it.isDefault }
+                .forEach { address ->
+                val isSelected = selectedAddressIds.contains(address.id)
+                val borderModifier = if (isDeleteMode && isSelected) {
+                    Modifier.border(2.dp, Color.Red)
+                } else Modifier
+
+                Box(
+                    modifier = borderModifier
+                        .fillMaxWidth()
+                        .clickable {
+                            if (isDeleteMode) {
+                                if (isSelected) selectedAddressIds.remove(address.id)
+                                else selectedAddressIds.add(address.id)
+                            } else {
+                                NavigationController.navController.navigate(
+                                    Screen.AddressAdd.route + "?id=${address.id}"
+                                )
+                            }
+                        }
+                ) {
+                    AddressBox(
+                        receiverName = address?.fullname ?: "Người dùng",
+                        phoneNumber = address?.phone ?: "",
+                        address = listOfNotNull(
+                            address.detail,
+                            address.ward?.name,
+                            address.ward?.district?.name,
+                            address.ward?.district?.province?.name
+                        ).joinToString(", "),
+                        showIcon = address.isDefault,
+                        isSelected = isDeleteMode && selectedAddressIds.contains(address.id), // <-- truyền mới
+                        onClick = {
+                            if (isDeleteMode) {
+                                if (selectedAddressIds.contains(address.id)) {
+                                    selectedAddressIds.remove(address.id)
+                                } else {
+                                    selectedAddressIds.add(address.id)
+                                }
+                            } else {
+                                NavigationController.navController.navigate(Screen.AddressAdd.route + "?id=${address.id}")
+                            }
+                        }
+                    )
+
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            if (isDeleteMode && selectedAddressIds.isNotEmpty()) {
+                Button(
                     onClick = {
-                        // TODO: xử lý chọn địa chỉ
+                        viewModel.deleteAddresses(
+                            selectedAddressIds.toList(),
+                            onSuccess = {
+                                selectedAddressIds.clear()
+                                isDeleteMode = false
+                            }
+                        )
+                    }
+                    ,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                ) {
+                    Text("Xóa ${selectedAddressIds.size} địa chỉ")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (!isDeleteMode) {
+                OrderButton(
+                    text = "Thêm địa chỉ mới",
+                    onClick = {
+                        NavigationController.navController.navigate(Screen.AddressAdd.route)
                     }
                 )
-
-                Spacer(modifier = Modifier.height(2.dp))
             }
-            OrderButton(
-                text = "Thêm địa chỉ mới",
-                onClick = {
-                    NavigationController.navController.navigate(Screen.AddressAdd.route)
-                }
-            )
         }
     }
 }
-

@@ -1,5 +1,7 @@
 package com.example.resell.ui.screen.profile.ProfileDetailScreen
 
+import ApproveScreen
+import NotApprovedScreen
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -35,6 +37,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,8 +63,6 @@ import com.example.resell.ui.components.ProfileHeaderSection
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
-import com.example.resell.ui.screen.postmanagement.ApproveScreen
-import com.example.resell.ui.screen.postmanagement.NotApprovedScreen
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.viewmodel.profile.ProfileDetailViewModel
@@ -87,6 +88,7 @@ fun ProfileDetailScreen(
 
     LaunchedEffect(targetUserId, currentUserId) {
         viewModel.loadProfile(targetUserId, currentUserId)
+        viewModel.loadUserPosts(targetUserId)
     }
 
     val pagerState = rememberPagerState(pageCount = { ProfileDetailTab.entries.size })
@@ -156,15 +158,19 @@ fun ProfileTabsPager(
     selectedTabIndex: Int,
     pagerState: PagerState,
     onTabSelected: (Int) -> Unit,
-    isCurrentUser: Boolean
+    isCurrentUser: Boolean,
+    viewModel: ProfileDetailViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val approvedPosts by viewModel.userApprovedPosts.collectAsState()
+    val soldPosts by viewModel.userSoldPosts.collectAsState()
 
     // 👇 Label tab động theo người dùng
     val tabs = listOf(
-        if (isCurrentUser) "ĐANG HIỂN THỊ (0)" else "SẢN PHẨM (0)",
-        "ĐÃ BÁN (0)"
+        if (isCurrentUser) "ĐANG HIỂN THỊ (${approvedPosts.size})" else "SẢN PHẨM (${approvedPosts.size})",
+        "ĐÃ BÁN (${soldPosts.size})"
     )
+
 
     Column(modifier = Modifier.fillMaxSize()) {
         TabRow(
@@ -200,12 +206,12 @@ fun ProfileTabsPager(
         ) { pageIndex ->
             when (pageIndex) {
                 0 -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier.fillMaxSize()) {
                         ApproveScreen(isCurrentUser = isCurrentUser)
                     }
                 }
                 1 -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier.fillMaxSize()) {
                         NotApprovedScreen(isCurrentUser = isCurrentUser)
                     }
                 }

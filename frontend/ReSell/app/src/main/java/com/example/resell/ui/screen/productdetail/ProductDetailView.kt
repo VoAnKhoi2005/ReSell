@@ -105,13 +105,16 @@ fun ProductDetailScreen(
                             .padding(8.dp)
                     ) {
                         ProfileSimpleHeader(
-                            avatarUrl = viewModel.postDetail?.user?.avatarURL
-                                ?: stringResource(R.string.default_avatar_url),
+                            userId = post?.user?.id ?: "",
+                            avatarUrl = post?.user?.avatarURL?.takeIf { it.isNotBlank() },
                             name = post?.user?.fullName,
                             rating = (viewModel.statSeller?.averageRating as? Number)?.toFloat() ?: 5f,
                             reviewCount = viewModel.statSeller?.reviewNumber,
                             soldCount = viewModel.statSeller?.saleNumber
                         )
+
+
+
 
                     }
                 }

@@ -23,12 +23,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage // ✅ Nếu bạn dùng ảnh qua URL
+import coil.request.ImageRequest
 
 import com.example.resell.R
 import com.example.resell.model.PostData
@@ -233,11 +235,14 @@ fun ProfileHeaderWithFollow(
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Avatar
+        // Avatar with fallback & error
         AsyncImage(
-            model = if (avatarUrl.isNullOrBlank()) {
-                stringResource(R.string.default_avatar_url)
-            } else avatarUrl,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(avatarUrl)
+                .crossfade(true)
+                .error(R.drawable.defaultavatar)
+                .fallback(R.drawable.defaultavatar)
+                .build(),
             contentDescription = "Avatar",
             modifier = Modifier
                 .size(48.dp)
@@ -246,7 +251,6 @@ fun ProfileHeaderWithFollow(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Tên người dùng (giới hạn 1 dòng)
         Text(
             text = name,
             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Medium),
@@ -255,7 +259,6 @@ fun ProfileHeaderWithFollow(
             modifier = Modifier.weight(1f)
         )
 
-        // Nút Theo dõi
         Button(
             onClick = onFollowClick,
             modifier = Modifier
@@ -275,3 +278,4 @@ fun ProfileHeaderWithFollow(
         }
     }
 }
+
