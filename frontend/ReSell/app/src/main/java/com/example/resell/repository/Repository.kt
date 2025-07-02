@@ -89,6 +89,7 @@ interface PostRepository {
         categoryID: String? = null,
         search: String? = null,
     ): Either<NetworkError, GetPostsResponse>
+    suspend fun getRecommendationPosts(page: Int, limit: Int): Either<NetworkError, GetPostsResponse>
     suspend fun getPostByID(postID: String): Either<NetworkError, Post>
     suspend fun createPost(title: String, description: String,
                            categoryID: String, addressID: String,

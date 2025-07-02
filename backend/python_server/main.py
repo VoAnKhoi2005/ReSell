@@ -15,7 +15,7 @@ def score_post(data: ScoringRequest):
     desc_overlap = keyword_overlap(post.description, buyer.liked_post_description)
 
     # Only score thumbnail
-    image_url = post.post_images_urls[0] if post.post_images_urls else None
+    image_url = post.post_images_url[0] if post.post_images_url else None
     image_score = score_image(image_url)
 
     return ScoringResponse(

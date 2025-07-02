@@ -9,9 +9,9 @@ import (
 type RecommenderService interface {
 	GetBuyerProfile(userID string) (*dto.BuyerProfile, error)
 	GetPostsFeatures(postIDs []string, userID string) ([]*dto.PostFeatures, error)
-	GetCandidatePostsID(page int, pageSize int) ([]string, error)
+	GetCandidatePostsID(page int, pageSize int) ([]string, int64, error)
 
-	GetRecommendation(userID string, page int, pageSize int) ([]*dto.PostListUserDTO, error)
+	GetRecommendation(userID string, page int, pageSize int) ([]*dto.PostListUserDTO, int64, error)
 }
 
 type recommenderService struct {
@@ -50,19 +50,19 @@ func (r *recommenderService) GetPostsFeatures(postIDs []string, userID string) (
 	return features, nil
 }
 
-func (r *recommenderService) GetCandidatePostsID(page int, pageSize int) ([]string, error) {
+func (r *recommenderService) GetCandidatePostsID(page int, pageSize int) ([]string, int64, error) {
 	return r.repo.GetCandidatePostsID(page, pageSize)
 }
 
-func (r *recommenderService) GetRecommendation(userID string, page int, pageSize int) ([]*dto.PostListUserDTO, error) {
-	candidatePostsID, err := r.repo.GetCandidatePostsID(page, pageSize)
+func (r *recommenderService) GetRecommendation(userID string, page int, pageSize int) ([]*dto.PostListUserDTO, int64, error) {
+	candidatePostsID, total, err := r.repo.GetCandidatePostsID(page, pageSize)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	postsFeatures, err := r.GetPostsFeatures(candidatePostsID, userID)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	sort.Slice(postsFeatures, func(i, j int) bool {
@@ -76,5 +76,5 @@ func (r *recommenderService) GetRecommendation(userID string, page int, pageSize
 
 	postsDTO, _, err := r.postRepo.GetPostsByIdList(userID, postIDs, 1, 100000000)
 
-	return postsDTO, nil
+	return postsDTO, total, nil
 }

@@ -3,8 +3,8 @@ package transaction
 import "github.com/VoAnKhoi2005/ReSell/backend/server/dto"
 
 type ScoringRequest struct {
-	PostData     dto.PostDataForScoring `json:"post_data"`
-	BuyerProfile dto.BuyerProfile       `json:"buyer_profile"`
+	PostData     dto.PostDataForScoring `json:"post"`
+	BuyerProfile dto.BuyerProfile       `json:"buyer"`
 }
 
 type ScoringResponse struct {

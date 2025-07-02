@@ -7,7 +7,7 @@ class PostDataForScoring(BaseModel):
     title: str
     description: str
     seller_reputation: float
-    post_images_urls: Optional[List[Optional[str]]]
+    post_images_url: Optional[List[Optional[str]]]
 
 class BuyerProfile(BaseModel):
     user_id: str

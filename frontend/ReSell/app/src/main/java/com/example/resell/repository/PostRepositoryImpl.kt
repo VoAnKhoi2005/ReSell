@@ -69,6 +69,15 @@ class PostRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
+    override suspend fun getRecommendationPosts(
+        page: Int,
+        limit: Int
+    ): Either<NetworkError, GetPostsResponse> {
+        return Either.catch {
+            apiService.getRecommendationPosts(page, limit)
+        }.mapLeft { it.toNetworkError() }
+    }
+
     override suspend fun getPostByID(postID: String): Either<NetworkError, Post> {
         return Either.catch {
             apiService.getPostByID(postID)
