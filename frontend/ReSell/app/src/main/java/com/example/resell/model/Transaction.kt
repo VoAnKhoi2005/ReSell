@@ -2,6 +2,8 @@ package com.example.resell.model
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import retrofit2.http.GET
+import retrofit2.http.POST
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -49,7 +51,7 @@ data class LoginResponse(
 data class UpdateProfileRequest(
     val email: String? = null,
     val phone: String? = null,
-    @Json(name = "full_name") val fullName: String? = null,
+    @Json(name = "fullname") val fullName: String? = null,
 )
 
 @JsonClass(generateAdapter = true)
@@ -73,6 +75,35 @@ data class CoverUploadResponse(
     @Json(name = "cover_url") val coverURL: String
 )
 // endregion
+
+//region Favorite
+
+@JsonClass(generateAdapter = true)
+data class LikePostRequest(
+    @Json(name = "post_id") val postID: String,
+)
+
+//endregion
+
+//region Payment
+
+@JsonClass(generateAdapter = true)
+data class CreateTransactionRequest(
+    @Json(name = "order_id")
+    val orderId: String
+)
+
+
+@JsonClass(generateAdapter = true)
+data class CreateTransactionResponse(
+    @Json(name = "client_secret")
+    val clientSecret: String,
+
+    @Json(name = "transaction_id")
+    val transactionId: String
+)
+
+//endregion
 
 // region Address
 
@@ -153,6 +184,28 @@ data class CreateOrderRequest(
 )
 
 // endregion
+
+//region Report
+
+@JsonClass(generateAdapter = true)
+data class ReportUserRequest(
+    @Json(name = "reported_id")
+    val reportedId: String,
+
+    @Json(name = "description")
+    val description: String
+)
+
+@JsonClass(generateAdapter = true)
+data class ReportPostRequest(
+    @Json(name = "reported_id")
+    val reportedId: String,
+
+    @Json(name = "description")
+    val description: String
+)
+
+//endregion
 
 // region Review
 

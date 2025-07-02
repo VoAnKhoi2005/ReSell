@@ -5,7 +5,6 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class PostImage(
-    @Json(name = "post_id") val postId: String,
     @Json(name = "image_url") var url: String,
     @Json(name = "image_order") var order: Int
 )

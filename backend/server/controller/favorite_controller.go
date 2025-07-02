@@ -8,19 +8,19 @@ import (
 	"net/http"
 )
 
-type CartController struct {
-	cartService service.CartService
+type FavoriteController struct {
+	cartService service.FavoriteService
 	postService service.PostService
 }
 
-func NewCartController(cartService service.CartService, postService service.PostService) *CartController {
-	return &CartController{
+func NewFavoriteController(cartService service.FavoriteService, postService service.PostService) *FavoriteController {
+	return &FavoriteController{
 		cartService: cartService,
 		postService: postService,
 	}
 }
 
-func (cart *CartController) GetCartItems(c *gin.Context) {
+func (cart *FavoriteController) GetCartItems(c *gin.Context) {
 	userID, err := util.GetUserID(c)
 	items, err := cart.cartService.GetCartItems(userID)
 	if err != nil {
@@ -30,7 +30,7 @@ func (cart *CartController) GetCartItems(c *gin.Context) {
 	c.JSON(http.StatusOK, items)
 }
 
-func (cart *CartController) CreateCartItem(c *gin.Context) {
+func (cart *FavoriteController) CreateCartItem(c *gin.Context) {
 	userID, _ := util.GetUserID(c)
 
 	if !util.IsUserOwner(c, userID) {
@@ -55,10 +55,10 @@ func (cart *CartController) CreateCartItem(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add item to cart"})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"message": "Item added to cart", "item": item})
+	c.JSON(http.StatusCreated, item)
 }
 
-func (cart *CartController) DeleteCartItem(c *gin.Context) {
+func (cart *FavoriteController) DeleteCartItem(c *gin.Context) {
 	userID, _ := util.GetUserID(c)
 
 	if !util.IsUserOwner(c, userID) {

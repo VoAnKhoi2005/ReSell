@@ -1,4 +1,4 @@
-package recommender
+package repository
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/dto"
@@ -22,7 +22,7 @@ const (
 	wPostImageScore      = 1.3
 )
 
-type Repository interface {
+type RecommenderRepository interface {
 	GetBuyerProfile(userID string) (*dto.BuyerProfile, error)
 	GetPostFeatures(postID string, buyerProfile *dto.BuyerProfile) (*dto.PostFeatures, error)
 	GetCandidatePostsID(page int, pageSize int) ([]string, error)
@@ -32,7 +32,7 @@ type recommenderRepository struct {
 	db *gorm.DB
 }
 
-func NewRecommenderRepository(db *gorm.DB) Repository {
+func NewRecommenderRepository(db *gorm.DB) RecommenderRepository {
 	return &recommenderRepository{db: db}
 }
 

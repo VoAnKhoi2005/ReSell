@@ -15,6 +15,10 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	postService := service.NewPostService(postRepo)
 	postController := controller.NewPostController(postService)
 
+	recommenderRepo := repository.NewRecommenderRepository(db)
+	recommenderService := service.NewRecommenderService(recommenderRepo, postRepo)
+	recommederController := controller.NewRecommenderController(recommenderService)
+
 	// User & common
 	posts := rg.Group("/posts")
 	posts.Use(middleware.AuthMiddleware())
@@ -43,4 +47,10 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	images.POST("", postController.UploadPostImages)
 	images.DELETE("", postController.DeletePostImages)
 
+	//recommender
+	recommenderRoute := rg.Group("/posts/recommender")
+	recommenderRoute.POST("/profile/:user_id", recommederController.GetBuyerProfile)
+	recommenderRoute.POST("/posts-features", recommederController.GetPostsFeatures)
+	recommenderRoute.POST("/posts-candidate-id", recommederController.GetCandidatePostsID)
+	recommenderRoute.POST("/recommendation", recommederController.GetRecommendation)
 }

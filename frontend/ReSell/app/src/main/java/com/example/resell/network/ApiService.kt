@@ -1,8 +1,10 @@
 package com.example.resell.network
 
 
+import FavoritePost
 import com.example.resell.model.*
 import okhttp3.MultipartBody
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -34,7 +36,7 @@ interface ApiService {
     @PUT("user/update")
     suspend fun updateProfile(
         @Body request: UpdateProfileRequest
-    ): Boolean
+    ): User
 
     @PUT("user/change_password")
     suspend fun changePassword(
@@ -64,6 +66,42 @@ interface ApiService {
     suspend fun uploadCover(
         @Part image: MultipartBody.Part
     ): CoverUploadResponse
+    //endregion
+
+    //region Subscription
+
+    @GET("subscriptions")
+    suspend fun getAllPlans(): List<SubscriptionPlan>
+
+    @GET("subscriptions/{id}")
+    suspend fun getPlanByID(@Path("id") planID: String): SubscriptionPlan
+
+    //endregion
+
+    //region Favorite
+
+    @GET("favorite")
+    suspend fun getFavoritePosts(): List<FavoritePost>
+
+    @POST("favorite")
+    suspend fun likePost(@Body request: LikePostRequest): FavoritePost
+
+    @DELETE("favorite/{post_id}")
+    suspend fun unlikePost(@Path("post_id") postID: String): Response<Unit>
+
+    //endregion
+
+    //region Payment
+
+    @GET("payment-methods")
+    suspend fun getAllPaymentMethods(): List<PaymentMethod>
+
+    @GET("payment-methods/{id}")
+    suspend fun getPaymentMethodByID(@Path("id") paymentMethodID: String): PaymentMethod
+
+    @POST("transactions")
+    suspend fun createTransaction(@Body request: CreateTransactionRequest): CreateTransactionResponse
+
     //endregion
 
     //region Address
@@ -215,6 +253,16 @@ interface ApiService {
 
     @GET("order/seller/{seller_id}")
     suspend fun getOrderBySellerID(@Path("seller_id") sellerID: String): List<ShopOrder>
+    //endregion
+
+    //region Report
+
+    @POST("report/users")
+    suspend fun createReportUser(@Body request: ReportUserRequest): Response<Unit>
+
+    @POST("report/posts")
+    suspend fun createReportPost(@Body request: ReportPostRequest): Response<Unit>
+
     //endregion
 
     //region Review

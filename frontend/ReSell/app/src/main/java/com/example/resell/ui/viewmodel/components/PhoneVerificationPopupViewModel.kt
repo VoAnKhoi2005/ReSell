@@ -39,6 +39,7 @@ class PhoneVerificationPopupViewModel @Inject constructor(
 
     fun onNextStep() {
         step = PhoneVerificationStep.EnterOtp
+        error.value =""
     }
 
     fun onBack() {

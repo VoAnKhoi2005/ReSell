@@ -100,13 +100,13 @@ func (h *UserController) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	err = h.userService.UpdateUser(userID, request)
+	updatedUser, err := h.userService.UpdateUser(userID, request)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, true)
+	c.JSON(http.StatusOK, updatedUser)
 }
 
 func (h *UserController) ChangePassword(c *gin.Context) {

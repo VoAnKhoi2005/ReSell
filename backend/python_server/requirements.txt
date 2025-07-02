@@ -12,6 +12,3 @@ ftfy
 regex
 tqdm
 Pillow
-open-clip-torch>=2.32.0
-
-#torch install in Dockerfile

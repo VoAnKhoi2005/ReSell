@@ -2,7 +2,6 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
-	"github.com/VoAnKhoi2005/ReSell/backend/server/recommender"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,7 +25,7 @@ func SetupRoutes(router *gin.Engine) {
 	RegisterReviewRoute(api, db)
 	RegisterCategoryRoutes(api, db)
 	RegisterPostRoutes(api, db)
-	RegisterCartRoutes(api, db)
+	RegisterFavoriteRoutes(api, db)
 	RegisterNotificationRote(api, db)
 	RegisterTransactionRoutes(api, db)
 	RegisterPaymentMethodRoutes(api, db)
@@ -35,5 +34,4 @@ func SetupRoutes(router *gin.Engine) {
 	RegisterSubscriptionRoutes(api, db)
 	RegisterStripeRoutes(api, db)
 	RegisterReportRoutes(api, db)
-	recommender.RegisterRecommenderRoute(api, db)
 }

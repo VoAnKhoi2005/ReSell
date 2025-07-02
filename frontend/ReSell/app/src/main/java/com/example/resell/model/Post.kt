@@ -27,14 +27,20 @@ data class Post(
 @JsonClass(generateAdapter = true)
 data class PostData(
     @Json(name = "id") val id: String,
-    @Json(name = "owner") val owner: String,
-    @Json(name = "category") val category: String,
     @Json(name = "title") val title: String,
+    @Json(name = "status") val status: String,
+    @Json(name = "category") val category: String,
+    @Json(name = "owner") val owner: String,
+    @Json(name = "fullname") val fullname: String,
+    @Json(name = "avatar") val avatar: String,
+    @Json(name = "description") val description: String,
     @Json(name = "thumbnail") val thumbnail: String,
     @Json(name = "address") val address: String,
     @Json(name = "price") val price: Int,
-    @Json(name = "status") val status: String,
-    @Json(name = "created_at") val createdAt: LocalDateTime? = null
+    @Json(name = "created_at") val createdAt: LocalDateTime?=null,
+    @Json(name = "is_following") val isFollowing: Boolean,
+    @Json(name = "is_favorite") val isFavorite: Boolean,
+    @Json(name = "images") var images: List<PostImage>? = emptyList()
 )
 
 

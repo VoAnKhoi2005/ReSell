@@ -6,7 +6,7 @@ type ChangePasswordRequest struct {
 }
 
 type UpdateUserRequest struct {
-	FullName *string `json:"full_name,omitempty"`
+	FullName *string `json:"fullname,omitempty"`
 	Email    *string `json:"email,omitempty"`
 	Phone    *string `json:"phone,omitempty"`
 }

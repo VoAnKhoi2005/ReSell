@@ -4,21 +4,11 @@ from io import BytesIO
 from typing import Optional, List
 
 import numpy as np
-import open_clip
 import requests
-import torch
-from PIL import Image
+from PIL import Image, ImageFilter
 from underthesea import word_tokenize
 
-# Khởi tạo device
-device = "cuda" if torch.cuda.is_available() else "cpu"
-
-# Tải mô hình CLIP và tokenizer
-model, _, preprocess = open_clip.create_model_and_transforms("ViT-B-32", pretrained="openai")
-tokenizer = open_clip.get_tokenizer("ViT-B-32")
-model.to(device).eval()
-
-with open("vietnamese-stopwords.txt", encoding="utf-8") as f:
+with open(r".\vietnamese-stopwords.txt", encoding="utf-8") as f:
     vietnamese_stopwords = set(line.strip() for line in f if line.strip())
 
 def preprocess_text(text: str) -> List[str]:
@@ -34,25 +24,6 @@ def keyword_overlap(post_text: str, liked_texts: List[str]) -> float:
         liked_tokens.update(preprocess_text(text))
     return len(post_tokens & liked_tokens) / len(post_tokens) if post_tokens else 0.0
 
-def clip_similarity(image: Image.Image, reference_text_user: str, reference_text_self: str):
-    image_input = preprocess(image).unsqueeze(0).to(device)
-    text_user_input = tokenizer([reference_text_user]).to(device)
-    text_self_input = tokenizer([reference_text_self]).to(device)
-
-    with torch.no_grad():
-        image_features = model.encode_image(image_input)
-        user_text_features = model.encode_text(text_user_input)
-        self_text_features = model.encode_text(text_self_input)
-
-        image_features /= image_features.norm(dim=-1, keepdim=True)
-        user_text_features /= user_text_features.norm(dim=-1, keepdim=True)
-        self_text_features /= self_text_features.norm(dim=-1, keepdim=True)
-
-        score_user = (image_features @ user_text_features.T).item()
-        score_self = (image_features @ self_text_features.T).item()
-
-        return score_user, score_self
-
 def resolution_score(image: Image.Image) -> float:
     width, height = image.size
     pixels = width * height
@@ -61,6 +32,17 @@ def resolution_score(image: Image.Image) -> float:
     elif pixels >= 512 * 512:
         return 0.6
     elif pixels >= 300 * 300:
+        return 0.3
+    else:
+        return 0.1
+
+def compression_score(image_data: bytes) -> float:
+    size_kb = len(image_data) / 1024
+    if size_kb >= 300:
+        return 1.0
+    elif size_kb >= 150:
+        return 0.6
+    elif size_kb >= 70:
         return 0.3
     else:
         return 0.1
@@ -75,6 +57,48 @@ def brightness_score(image: Image.Image) -> float:
     else:
         return 0.6
 
+def sharpness_score(image: Image.Image) -> float:
+    gray = image.convert("L")
+    laplacian = gray.filter(ImageFilter.FIND_EDGES)
+    variance = np.var(np.array(laplacian))
+
+    if variance > 1500:
+        return 1.0
+    elif variance > 500:
+        return 0.6
+    elif variance > 100:
+        return 0.3
+    else:
+        return 0.1
+
+def lighting_uniformity_score(image: Image.Image) -> float:
+    gray = np.array(image.convert("L"))
+    left = gray[:, :gray.shape[1]//2]
+    right = gray[:, gray.shape[1]//2:]
+    diff = abs(np.mean(left) - np.mean(right))
+    if diff < 10:
+        return 1.0
+    elif diff < 30:
+        return 0.6
+    elif diff < 50:
+        return 0.3
+    else:
+        return 0.1
+
+def snr_score(image: Image.Image) -> float:
+    gray = np.array(image.convert("L")).astype(np.float32)
+    mean = np.mean(gray)
+    std = np.std(gray)
+    snr = mean / (std + 1e-5)
+    if snr > 20:
+        return 1.0
+    elif snr > 10:
+        return 0.6
+    elif snr > 5:
+        return 0.3
+    else:
+        return 0.1
+
 def score_image(image_url: str, reference_text_user: str, reference_text_self: str):
     if not image_url:
         return 0.0
@@ -82,17 +106,29 @@ def score_image(image_url: str, reference_text_user: str, reference_text_self: s
         response = requests.get(image_url, timeout=3)
         image = Image.open(BytesIO(response.content)).convert("RGB")
 
-        score_user, score_self = clip_similarity(image, reference_text_user, reference_text_self)
-        res_score = resolution_score(image)
-        bright_score = brightness_score(image)
+        scores = {
+            "resolution": resolution_score(image),
+            "brightness": brightness_score(image),
+            "sharpness": sharpness_score(image),
+            "compression": compression_score(response.content),
+            "lighting_uniformity": lighting_uniformity_score(image),
+            "snr": snr_score(image),
+        }
 
-        total_score = (
-            0.4 * score_user +
-            0.3 * score_self +
-            0.15 * res_score +
-            0.15 * bright_score
-        )
-        return total_score
+        weights = {
+            "resolution": 10,
+            "brightness": 10,
+            "sharpness": 10,
+            "compression": 5,
+            "lighting_uniformity": 10,
+            "snr": 10
+        }
+
+        total_score = sum(scores[k] * w for k, w in weights.items())
+        total_weight = sum(weights.values())
+        normalized_score = total_score / total_weight if total_weight > 0 else 0.0
+
+        return normalized_score
 
     except Exception as e:
         print(f"[Lỗi phân tích ảnh]: {e}")

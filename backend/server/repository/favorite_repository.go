@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type CartItemRepository interface {
+type FavouriteRepository interface {
 	GetAll() ([]*model.FavoritePost, error)
 	Create(item *model.FavoritePost) error
 	Update(item *model.FavoritePost) error
@@ -16,17 +16,17 @@ type CartItemRepository interface {
 	GetByUserIDAndPostID(userID string, postID string) (*model.FavoritePost, error)
 }
 
-type cartItemRepository struct {
+type favoriteRepository struct {
 	*BaseRepository[model.FavoritePost] // embed
 }
 
-func NewCartItemRepository(db *gorm.DB) CartItemRepository {
-	return &cartItemRepository{
+func NewCartItemRepository(db *gorm.DB) FavouriteRepository {
+	return &favoriteRepository{
 		BaseRepository: NewBaseRepository[model.FavoritePost](db),
 	}
 }
 
-func (r *cartItemRepository) GetByUserID(userID string) ([]*model.FavoritePost, error) {
+func (r *favoriteRepository) GetByUserID(userID string) ([]*model.FavoritePost, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
@@ -35,7 +35,7 @@ func (r *cartItemRepository) GetByUserID(userID string) ([]*model.FavoritePost, 
 	return items, err
 }
 
-func (r *cartItemRepository) GetByUserIDAndPostID(userID string, postID string) (*model.FavoritePost, error) {
+func (r *favoriteRepository) GetByUserIDAndPostID(userID string, postID string) (*model.FavoritePost, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 

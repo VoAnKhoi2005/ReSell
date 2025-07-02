@@ -58,7 +58,7 @@ class UserRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
-    override suspend fun updateInfo(request: UpdateProfileRequest): Either<NetworkError, Boolean> {
+    override suspend fun updateInfo(request: UpdateProfileRequest): Either<NetworkError, User> {
         return Either.catch {
             apiService.updateProfile(request)
         }.mapLeft { it.toNetworkError() }
