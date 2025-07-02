@@ -71,6 +71,10 @@ class AddressAddViewModel @Inject constructor(
             Log.e("AddressViewModel", "❌ Cannot save, ward is null")
             return
         }
+
+        // 👉 THÊM LOG Ở ĐÂY
+        Log.d("AddressViewModel", "⚠️ Updating: id=$addressId, fullname=$fullName, phone=$phoneNumber, wardID=$wardID, detail=$detail, isDefault=$isDefault")
+
         Log.d("AddressViewModel", "🔄 saveAddress() called in ${if (isEditMode) "EDIT" else "CREATE"} mode")
 
         viewModelScope.launch {
@@ -97,7 +101,6 @@ class AddressAddViewModel @Inject constructor(
             )
         }
     }
-
 
     fun reset() {
         fullName = ""
