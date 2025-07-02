@@ -66,7 +66,9 @@ func (r *recommenderRepository) GetBuyerProfile(userID string) (*dto.BuyerProfil
 
 	//Addresses
 	var addresses []model.Address
-	if err := db.Preload("Ward.District.Province").Find(&addresses, "user_id = ?", userID).Error; err != nil {
+	if err := db.
+		Preload("Ward.District.Province").
+		Find(&addresses, "user_id = ?", userID).Error; err != nil {
 		return nil, err
 	}
 	profile.Addresses = addresses
