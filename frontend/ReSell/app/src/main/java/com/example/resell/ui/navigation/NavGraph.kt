@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
+import com.example.resell.ui.screen.account_setting.AccountSettingScreen
 import com.example.resell.ui.screen.add.AddPostScreen
 import com.example.resell.ui.screen.order.BuyingOrder.BuyingOrderScreen
 import com.example.resell.ui.screen.order.MyOrder.MyOrderScreen
@@ -35,7 +36,8 @@ import com.example.resell.ui.screen.rating.RatingScreen
 import com.example.resell.ui.screen.rating.ReviewProductScreen
 
 import com.example.resell.ui.screen.search.SearchScreen
-import com.example.resell.ui.screen.account_setting.AccountSettingScreen
+
+
 
 @Composable
 fun SetupNavGraph(
@@ -164,7 +166,7 @@ fun SetupNavGraph(
            // AddPostScreen(onCancelClick = {NavigationController.navController.popBackStack()})
         }
         composable(Screen.AccountSetting.route){
-           AccountSettingScreen()
+            AccountSettingScreen()
         }
         composable(
             route = Screen.ResultSearchScreen.route+"/{query}/{category}",

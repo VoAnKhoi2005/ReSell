@@ -1,6 +1,6 @@
 package com.example.resell.ui.screen.account_setting
+
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -8,31 +8,31 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.resell.ui.components.TopBar
-import com.example.resell.ui.theme.White2
 import com.example.resell.ui.navigation.NavigationController
-import java.text.SimpleDateFormat
-import java.util.*
-import com.example.resell.R
 import com.example.resell.ui.theme.DarkBlue
-import com.example.resell.ui.theme.Red
 import com.example.resell.ui.theme.White
+import com.example.resell.ui.theme.White2
+import com.example.resell.ui.viewmodel.profile.AccountSettingViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 
 @Composable
-fun AccountSettingScreen() {
+fun AccountSettingScreen(
+    viewModel: AccountSettingViewModel = hiltViewModel()
+) {
     val scrollState = rememberScrollState()
-    val context = LocalContext.current
+    val user by viewModel.currentUser.collectAsState()
 
-    var fullName by remember { mutableStateOf("") }
-    var address by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("example@gmail.com") } // Hoặc "" nếu chưa có
-    var password by remember { mutableStateOf("") }
+    var fullName by remember { mutableStateOf(user?.fullName ?: "") }
+    var phone by remember { mutableStateOf(user?.phone ?: "") }
+    var email by remember { mutableStateOf(user?.email ?: "") }
+
+    val isPhoneEditable = user?.phone.isNullOrBlank()
+    val isEmailEditable = user?.email.isNullOrBlank()
 
     Scaffold(
         topBar = {
@@ -43,7 +43,7 @@ fun AccountSettingScreen() {
                     NavigationController.navController.popBackStack()
                 }
             )
-        },
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -51,69 +51,71 @@ fun AccountSettingScreen() {
                 .background(White2)
                 .padding(innerPadding)
                 .verticalScroll(scrollState)
-                .padding(12.dp)
+                .padding(horizontal = 16.dp, vertical = 20.dp)
         ) {
-            // Họ và tên
-            TitleWithRequired(text = "Họ và tên")
-            OutlinedTextField(
+            Text("Thông tin cá nhân", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(12.dp))
+
+            InputWithLabel(
+                label = "Họ và tên",
                 value = fullName,
-                onValueChange = { fullName = it },
-                modifier = Modifier.fillMaxWidth()
+                onValueChange = { fullName = it }
             )
 
-            Spacer(Modifier.height(12.dp))
 
-            // Địa chỉ
-            Text(text = "Địa chỉ của bạn")
-            OutlinedTextField(
-                value = address,
-                onValueChange = { address = it },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            // Số điện thoại
-            TitleWithRequired(text = "Số điện thoại")
-            OutlinedTextField(
+            InputWithLabel(
+                label = "Số điện thoại",
                 value = phone,
                 onValueChange = { phone = it },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                keyboardType = KeyboardType.Phone,
+                enabled = isPhoneEditable
             )
 
-            Spacer(Modifier.height(12.dp))
+            if (!isPhoneEditable) {
+                Text(
+                    text = "Bạn không thể sửa số điện thoại sau khi đã xác minh.",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
+                )
+            } else {
+                Spacer(Modifier.height(12.dp))
+            }
 
-            // Mật khẩu
-            TitleWithRequired(text = "Mật khẩu")
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                modifier = Modifier.fillMaxWidth(),
-                visualTransformation = PasswordVisualTransformation()
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            // Email nếu có
-            Text(text = "Email")
-            OutlinedTextField(
+            InputWithLabel(
+                label = "Email",
                 value = email,
                 onValueChange = { email = it },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                keyboardType = KeyboardType.Email,
+                enabled = isEmailEditable
             )
+            if (!isEmailEditable) {
+                Text(
+                    text = "Bạn không thể sửa email sau khi đã xác minh.",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
+                )
+            } else {
+                Spacer(Modifier.height(12.dp))
+            }
+
+
 
             Spacer(Modifier.height(24.dp))
 
             Button(
                 onClick = {
-                    // TODO: Lưu thông tin cài đặt
+                    viewModel.saveChanges(
+                        name = fullName,
+                        phone = phone,
+                        email = email
+                    )
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
             ) {
-                Text("Lưu thay đổi")
+                Text("Lưu thay đổi", color = White)
             }
 
             Spacer(Modifier.height(40.dp))
@@ -121,17 +123,28 @@ fun AccountSettingScreen() {
     }
 }
 
-
 @Composable
-fun TitleWithRequired(text: String) {
-    Row {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelMedium
-        )
-        Text(
-            text = " *",
-            color = Red
-        )
-    }
+fun InputWithLabel(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    isPassword: Boolean = false,
+    enabled: Boolean = true
+) {
+    Text(
+        text = label,
+        style = MaterialTheme.typography.labelMedium
+    )
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+        enabled = enabled
+    )
+    Spacer(modifier = Modifier.height(12.dp))
 }
