@@ -57,13 +57,9 @@ class MainLayoutViewModel @Inject constructor(
                     EventBus.sendEvent(Event.Toast(it.message?:"Lỗi update info"))
                 },
                 {
-                    _isOpenPopup.value = false
-                    _currentUser.value?.let { user ->
-                        val updatedUser = user.copy(phone = phone)
-                        ReactiveStore<User>().set(updatedUser)
+                         _isOpenPopup.value = false
+                        ReactiveStore<User>().set(it)
                     }
-
-                }
             )
         }
 
