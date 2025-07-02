@@ -1,6 +1,7 @@
 package com.example.resell.ui.screen.account_setting
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,6 +20,7 @@ import com.example.resell.ui.viewmodel.profile.AccountSettingViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import com.example.resell.ui.components.PhoneVerificationPopup
 
 @Composable
 fun AccountSettingScreen(
@@ -27,9 +29,16 @@ fun AccountSettingScreen(
     val scrollState = rememberScrollState()
     val user by viewModel.currentUser.collectAsState()
 
-    var fullName by remember { mutableStateOf(user?.fullName ?: "") }
-    var phone by remember { mutableStateOf(user?.phone ?: "") }
-    var email by remember { mutableStateOf(user?.email ?: "") }
+    var showPhoneVerification by remember { mutableStateOf(false) }
+
+    val phone by viewModel.phone.collectAsState()
+    val email by viewModel.email.collectAsState()
+    val fullName by viewModel.name.collectAsState()
+
+    // Lỗi
+    var nameError by remember { mutableStateOf<String?>(null) }
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var phoneError by remember { mutableStateOf<String?>(null) }
 
     val isPhoneEditable = user?.phone.isNullOrBlank()
     val isEmailEditable = user?.email.isNullOrBlank()
@@ -59,58 +68,62 @@ fun AccountSettingScreen(
             InputWithLabel(
                 label = "Họ và tên",
                 value = fullName,
-                onValueChange = { fullName = it }
+                onValueChange = {
+                    viewModel.setName(it)
+                    nameError = null
+                },
+                errorText = nameError
             )
-
 
             InputWithLabel(
                 label = "Số điện thoại",
-                value = phone,
-                onValueChange = { phone = it },
-                keyboardType = KeyboardType.Phone,
-                enabled = isPhoneEditable
+                value = if (phone.isNullOrBlank()) "Nhập số điện thoại" else phone,
+                onValueChange = {},
+                enabled = false,
+                onClick = {
+                    if (isPhoneEditable) {
+                        showPhoneVerification = true
+                    }
+                },
+                errorText = phoneError
             )
 
-            if (!isPhoneEditable) {
-                Text(
-                    text = "Bạn không thể sửa số điện thoại sau khi đã xác minh.",
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
-                )
-            } else {
                 Spacer(Modifier.height(12.dp))
-            }
 
             InputWithLabel(
                 label = "Email",
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = {
+                    viewModel.setEmail(it)
+                    emailError = null
+                },
                 keyboardType = KeyboardType.Email,
-                enabled = isEmailEditable
+                enabled = isEmailEditable,
+                errorText = emailError
             )
-            if (!isEmailEditable) {
-                Text(
-                    text = "Bạn không thể sửa email sau khi đã xác minh.",
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
-                )
-            } else {
+
                 Spacer(Modifier.height(12.dp))
-            }
-
-
 
             Spacer(Modifier.height(24.dp))
 
             Button(
                 onClick = {
-                    viewModel.saveChanges(
-                        name = fullName,
+                    val isValid = validateProfileInput(
+                        fullName = fullName,
+                        email = email,
                         phone = phone,
-                        email = email
+                        onError = { field, msg ->
+                            when (field) {
+                                "name" -> nameError = msg
+                                "email" -> emailError = msg
+                                "phone" -> phoneError = msg
+                            }
+                        }
                     )
+
+                    if (isValid) {
+                        viewModel.saveChanges()
+                    }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
@@ -121,6 +134,16 @@ fun AccountSettingScreen(
             Spacer(Modifier.height(40.dp))
         }
     }
+
+    if (showPhoneVerification) {
+        PhoneVerificationPopup(
+            onDismiss = { showPhoneVerification = false },
+            onVerified = { verifiedPhone ->
+                showPhoneVerification = false
+                viewModel.setPhone(verifiedPhone)
+            }
+        )
+    }
 }
 
 @Composable
@@ -130,21 +153,61 @@ fun InputWithLabel(
     onValueChange: (String) -> Unit,
     keyboardType: KeyboardType = KeyboardType.Text,
     isPassword: Boolean = false,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    onClick: (() -> Unit)? = null,
+    errorText: String? = null
 ) {
-    Text(
-        text = label,
-        style = MaterialTheme.typography.labelMedium
-    )
+    Text(text = label, style = MaterialTheme.typography.labelMedium)
+
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-        enabled = enabled
+        enabled = enabled,
+        readOnly = !enabled,
+        isError = errorText != null,
     )
-    Spacer(modifier = Modifier.height(12.dp))
+
+    if (!errorText.isNullOrEmpty()) {
+        Text(
+            text = errorText,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
+        )
+    }
+    else {
+        Spacer(modifier = Modifier.height(12.dp))
+    }
+}
+
+private fun validateProfileInput(
+    fullName: String,
+    email: String,
+    phone: String,
+    onError: (field: String, message: String) -> Unit
+): Boolean {
+    var isValid = true
+
+    if (fullName.isBlank()) {
+        onError("name", "Họ và tên không được để trống")
+        isValid = false
+    }
+
+    if (email.isNotBlank() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        onError("email", "Email không hợp lệ")
+        isValid = false
+    }
+
+     if (!phone.matches(Regex("^0\\d{9}$"))) {
+        onError("phone", "Số điện thoại phải có 10 chữ số và bắt đầu bằng 0")
+        isValid = false
+    }
+
+    return isValid
 }

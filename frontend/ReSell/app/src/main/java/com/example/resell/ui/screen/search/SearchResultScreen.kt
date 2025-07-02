@@ -157,7 +157,9 @@ fun SearchResultScreen() {
                 }
 
                 val priceLabel = state.selectedPriceRange?.let { (min, max) ->
-                    "Giá: ${formatPrice(min.toFloat())} - ${formatPrice(max.toFloat())}"
+                    val minInMillions = min / 1_000_000
+                    val maxInMillions = max / 1_000_000
+                    "Giá: ${minInMillions} triệu đ - ${maxInMillions} triệu đ"
                 } ?: "Giá"
 
 

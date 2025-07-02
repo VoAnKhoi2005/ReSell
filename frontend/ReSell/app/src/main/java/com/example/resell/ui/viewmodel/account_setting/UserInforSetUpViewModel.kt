@@ -19,8 +19,28 @@ class AccountSettingViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
     private val userStore = ReactiveStore<User>()
+
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser
+
+    private val _phone = MutableStateFlow("")
+    val phone: StateFlow<String> = _phone
+    private val _name = MutableStateFlow("")
+    val name: StateFlow<String> = _name
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email
+    fun setPhone(phone: String){
+        _phone.value=phone
+    }
+    fun setName(name: String){
+        _name.value=name
+    }
+
+    fun setEmail(email: String){
+        _email.value=email
+    }
+
+
 
     init {
         viewModelScope.launch {
@@ -28,18 +48,18 @@ class AccountSettingViewModel @Inject constructor(
                 _currentUser.value = user
             }
         }
+        _phone.value=_currentUser.value?.phone?:""
+        _name.value=_currentUser.value?.fullName?:""
+        _email.value=_currentUser.value?.email?:""
     }
 
     fun saveChanges(
-        name: String,
-        phone: String,
-        email: String,
     ) {
         viewModelScope.launch {
             val request = UpdateProfileRequest(
-                fullName = name,
-                phone = if (_currentUser.value?.phone.isNullOrBlank()) phone else null,
-                email = if (_currentUser.value?.email.isNullOrBlank()) email else null
+                fullName = _name.value,
+                phone = _phone.value,
+                email =_email.value
             )
 
             val result = userRepository.updateInfo(request)
@@ -48,12 +68,7 @@ class AccountSettingViewModel @Inject constructor(
                     EventBus.sendEvent(Event.Toast("Cập nhật thất bại: ${it.message}"))
                 },
                 {
-                    val updatedUser = _currentUser.value?.copy(
-                        fullName = name,
-                        phone = null,
-                        email = email
-                    )
-                    updatedUser?.let { user -> userStore.set(user) }
+                   userStore.set(it)
                     EventBus.sendEvent(Event.Toast("Cập nhật thành công"))
                 }
             )

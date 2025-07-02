@@ -21,6 +21,7 @@ import com.example.resell.ui.components.AddressPickerPopup
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.screen.payment.OrderButton
+import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.White2
 import com.example.resell.ui.viewmodel.address.AddressAddViewModel
 import com.example.resell.ui.viewmodel.components.AddressPickerViewModel
@@ -138,8 +139,15 @@ fun AddressAddScreen(
                 Text(text = "Đặt làm địa chỉ mặc định", style = MaterialTheme.typography.bodyLarge)
                 Switch(
                     checked = viewModel.isDefault,
-                    onCheckedChange = { viewModel.isDefault = it }
+                    onCheckedChange = { viewModel.isDefault = it },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = DarkBlue,
+                        checkedTrackColor = DarkBlue.copy(alpha = 0.54f), // viền phía sau
+                        uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                        uncheckedTrackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.38f)
+                    )
                 )
+
             }
 
             Spacer(modifier = Modifier.height(24.dp))
