@@ -53,6 +53,7 @@ interface AddressRepository{
     suspend fun getWards(districtID: String): Either<NetworkError, List<Ward>>
     suspend fun updateAddress(addressID: String, request: UpdateAddressRequest): Either<NetworkError, Boolean>
     suspend fun deleteAddress(addressID: String): Either<NetworkError, Boolean>
+    suspend fun deleteAddresses(addressIDs: List<String>): Either<NetworkError, Boolean>
 }
 
 interface CategoryRepository{

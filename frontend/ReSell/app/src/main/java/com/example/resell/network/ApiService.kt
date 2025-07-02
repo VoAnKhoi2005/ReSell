@@ -127,6 +127,9 @@ interface ApiService {
 
     @DELETE("address/{address_id}")
     suspend fun deleteAddress(@Path("address_id") addressID: String): Boolean
+
+    @DELETE("address/batch")
+    suspend fun deleteAddresses(@Body request: DeleteAddressesRequest): Boolean
     //endregion
 
     //region Category

@@ -169,6 +169,22 @@ func (ac *AddressController) UpdateAddress(c *gin.Context) {
 }
 
 func (ac *AddressController) DeleteAddress(c *gin.Context) {
+	addressId := c.Param("address_id")
+	if addressId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Address id can't be empty"})
+		return
+	}
+
+	err := ac.addressService.DeleteAddress(addressId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, true)
+}
+
+func (ac *AddressController) DeleteAddresses(c *gin.Context) {
 	var request transaction.DeleteAddressesRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
@@ -183,22 +199,6 @@ func (ac *AddressController) DeleteAddress(c *gin.Context) {
 	}
 
 	err = ac.addressService.DeleteAddresses(userID, request.AddressIDs)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, true)
-}
-
-func (ac *AddressController) DeleteAddresses(c *gin.Context) {
-	addressId := c.Param("address_id")
-	if addressId == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Address id can't be empty"})
-		return
-	}
-
-	err := ac.addressService.DeleteAddress(addressId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

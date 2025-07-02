@@ -117,6 +117,11 @@ data class UpdateAddressRequest(
     @Json(name = "is_default") val isDefault: Boolean? = null
 )
 
+@JsonClass(generateAdapter = true)
+data class DeleteAddressesRequest(
+    @Json(name = "address_ids") val addressIDs: List<String>
+)
+
 // endregion
 
 // region Category
