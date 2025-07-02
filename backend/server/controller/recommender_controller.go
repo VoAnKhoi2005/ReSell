@@ -118,7 +118,7 @@ func (rc *RecommenderController) GetRecommendation(c *gin.Context) {
 		return
 	}
 
-	posts, err := rc.service.GetRecommendation(userID, pageSize, page)
+	posts, err := rc.service.GetRecommendation(userID, page, pageSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

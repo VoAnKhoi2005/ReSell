@@ -24,9 +24,9 @@ type FailCreateResponse struct {
 }
 
 type UpdateAddressRequest struct {
-	FullName  *string `json:"fullname" binding:"required"`
-	Phone     *string `json:"phone" binding:"required"`
-	WardID    *string `json:"ward_id" binding:"required"`
-	Detail    *string `json:"detail" binding:"required"`
-	IsDefault *bool   `json:"is_default" binding:"required"`
+	FullName  *string `json:"fullname"`
+	Phone     *string `json:"phone"`
+	WardID    *string `json:"ward_id"`
+	Detail    *string `json:"detail"`
+	IsDefault *bool   `json:"is_default"`
 }
