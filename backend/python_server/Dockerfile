@@ -16,6 +16,7 @@ RUN pip install --upgrade pip \
  && apt-get autoremove -y \
  && rm -rf /root/.cache /var/lib/apt/lists/*
 
+WORKDIR /app
 COPY . .
 
 CMD ["python", "main.py"]

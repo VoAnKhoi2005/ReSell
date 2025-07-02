@@ -10,7 +10,7 @@ import (
 
 type AddressService interface {
 	CreateAddress(address *model.Address) error
-	UpdateAddress(addressID string, userID string, request *transaction.UpdateAddressRequest) error
+	UpdateAddress(userID string, addressID string, request *transaction.UpdateAddressRequest) error
 	DeleteAddress(addressID string) error
 
 	GetByID(addressID string) (*model.Address, error)
@@ -60,7 +60,7 @@ func (a *addressService) CreateAddress(address *model.Address) error {
 	return a.AddressRepository.Create(address)
 }
 
-func (a *addressService) UpdateAddress(addressID string, userID string, request *transaction.UpdateAddressRequest) error {
+func (a *addressService) UpdateAddress(userID string, addressID string, request *transaction.UpdateAddressRequest) error {
 	address, err := a.AddressRepository.GetByID(addressID)
 	if err != nil {
 		return err

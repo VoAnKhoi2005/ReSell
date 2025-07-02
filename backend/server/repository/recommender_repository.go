@@ -227,9 +227,9 @@ func (r *recommenderRepository) GetCandidatePostsID(page int, pageSize int) ([]s
 		SELECT p.id
 		FROM posts p
 		JOIN users u ON p.user_id = u.id
-		WHERE p.status = 'available'
-		  AND p.created_at >= NOW() - INTERVAL '14 days'
-		  AND u.reputation >= 10
+		WHERE p.status = 'approved'
+		  AND p.created_at >= NOW() - INTERVAL '30 days'
+		  AND u.reputation >= 0
 		  AND EXISTS (
 		    SELECT 1 FROM post_images pi WHERE pi.post_id = p.id
 		  )

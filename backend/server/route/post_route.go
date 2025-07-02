@@ -49,8 +49,9 @@ func RegisterPostRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 
 	//recommender
 	recommenderRoute := rg.Group("/posts/recommender")
-	recommenderRoute.POST("/profile/:user_id", recommederController.GetBuyerProfile)
-	recommenderRoute.POST("/posts-features", recommederController.GetPostsFeatures)
-	recommenderRoute.POST("/posts-candidate-id", recommederController.GetCandidatePostsID)
-	recommenderRoute.POST("/recommendation", recommederController.GetRecommendation)
+	recommenderRoute.Use(middleware.AuthMiddleware())
+	recommenderRoute.GET("/profile/:user_id", recommederController.GetBuyerProfile)
+	recommenderRoute.GET("/posts-features", recommederController.GetPostsFeatures)
+	recommenderRoute.GET("/posts-candidate-id", recommederController.GetCandidatePostsID)
+	recommenderRoute.GET("/recommendation", recommederController.GetRecommendation)
 }

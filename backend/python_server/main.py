@@ -1,7 +1,8 @@
 import uvicorn
 from fastapi import FastAPI
 
-from backend.python_server.recommender import ScoringResponse, ScoringRequest, keyword_overlap, score_image
+from recommender.model import ScoringResponse, ScoringRequest
+from recommender.score_function import keyword_overlap, score_image
 
 app = FastAPI()
 
@@ -13,11 +14,9 @@ def score_post(data: ScoringRequest):
     title_overlap = keyword_overlap(post.title, buyer.liked_post_title)
     desc_overlap = keyword_overlap(post.description, buyer.liked_post_description)
 
-    reference_text_user = " ".join(buyer.liked_post_title + buyer.liked_post_description)
-    reference_text_self = f"{post.title} {post.description}"
     # Only score thumbnail
     image_url = post.post_images_urls[0] if post.post_images_urls else None
-    image_score = score_image(image_url, reference_text_user, reference_text_self)
+    image_score = score_image(image_url)
 
     return ScoringResponse(
         post_id=post.post_id,

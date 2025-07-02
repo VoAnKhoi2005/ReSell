@@ -8,7 +8,7 @@ import requests
 from PIL import Image, ImageFilter
 from underthesea import word_tokenize
 
-with open(r".\vietnamese-stopwords.txt", encoding="utf-8") as f:
+with open("vietnamese-stopwords.txt", encoding="utf-8") as f:
     vietnamese_stopwords = set(line.strip() for line in f if line.strip())
 
 def preprocess_text(text: str) -> List[str]:
@@ -99,7 +99,7 @@ def snr_score(image: Image.Image) -> float:
     else:
         return 0.1
 
-def score_image(image_url: str, reference_text_user: str, reference_text_self: str):
+def score_image(image_url: str):
     if not image_url:
         return 0.0
     try:
