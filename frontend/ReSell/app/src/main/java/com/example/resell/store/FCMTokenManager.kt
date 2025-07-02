@@ -2,7 +2,6 @@ package com.example.resell.store
 
 import android.util.Log
 import arrow.core.Either
-import com.example.resell.model.Notification
 import com.example.resell.network.ApiService
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope

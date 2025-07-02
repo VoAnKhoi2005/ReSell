@@ -123,6 +123,22 @@ func (ac *AddressController) GetAddressByUserID(c *gin.Context) {
 	c.JSON(http.StatusOK, addresses)
 }
 
+func (ac *AddressController) GetDefaultAddress(c *gin.Context) {
+	userID, err := util.GetUserID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	address, err := ac.addressService.GetDefaultAddress(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, address)
+}
+
 func (ac *AddressController) UpdateAddress(c *gin.Context) {
 	var request *transaction.UpdateAddressRequest
 	err := c.ShouldBindJSON(&request)
@@ -153,6 +169,29 @@ func (ac *AddressController) UpdateAddress(c *gin.Context) {
 }
 
 func (ac *AddressController) DeleteAddress(c *gin.Context) {
+	var request transaction.DeleteAddressesRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID, err := util.GetUserID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = ac.addressService.DeleteAddresses(userID, request.AddressIDs)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, true)
+}
+
+func (ac *AddressController) DeleteAddresses(c *gin.Context) {
 	addressId := c.Param("address_id")
 	if addressId == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Address id can't be empty"})

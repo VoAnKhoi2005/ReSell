@@ -41,9 +41,7 @@ interface FavoriteRepository{
 }
 
 interface PaymentRepository{
-    suspend fun getAllPaymentMethods(): Either<NetworkError, List<PaymentMethod>>
-    suspend fun getPaymentMethodByID(paymentMethodID: String): Either<NetworkError, PaymentMethod>
-    suspend fun createTransaction(orderID: String): Either<NetworkError, CreateTransactionResponse>
+    suspend fun createZaloPayPayment(orderID: String): Either<NetworkError, CreateZaloPayPaymentResponse>
 }
 
 interface AddressRepository{

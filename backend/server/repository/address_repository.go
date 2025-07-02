@@ -11,6 +11,7 @@ type AddressRepository interface {
 	Create(address *model.Address) error
 	Update(address *model.Address) error
 	Delete(address *model.Address) error
+	DeleteAddresses(userID string, addressesID []string) error
 
 	UnsetOtherDefaultAddresses(userID string) error
 
@@ -18,6 +19,7 @@ type AddressRepository interface {
 	GetByUserID(userID string) ([]*model.Address, error)
 	GetByWardID(wardID string) ([]*model.Address, error)
 	GetByWardIDs(wardIDs []string) ([]*model.Address, error)
+	GetDefaultAddress(userID string) (*model.Address, error)
 
 	GetAllProvinces() ([]*model.Province, error)
 	GetProvince(provinceID string) (*model.Province, error)
@@ -51,6 +53,15 @@ type addressRepository struct {
 
 func NewAddressRepository(db *gorm.DB) AddressRepository {
 	return &addressRepository{BaseRepository: NewBaseRepository[model.Address](db)}
+}
+
+func (a *addressRepository) DeleteAddresses(userID string, addressesID []string) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return a.db.WithContext(ctx).
+		Where("user_id = ? AND id IN ?", userID, addressesID).
+		Delete(&model.Address{}).Error
 }
 
 func (a *addressRepository) UnsetOtherDefaultAddresses(userID string) error {
@@ -105,6 +116,17 @@ func (a *addressRepository) GetByWardIDs(wardIDs []string) ([]*model.Address, er
 		Preload("Ward.District.Province").
 		Find(&addresses, "ward_id IN ?", wardIDs).Error
 	return addresses, err
+}
+
+func (a *addressRepository) GetDefaultAddress(userID string) (*model.Address, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	var address *model.Address
+	err := a.db.WithContext(ctx).
+		Preload("Ward.District.Province").
+		First(&address, "user_id = ? AND is_default = ?", userID, true).Error
+	return address, err
 }
 
 func (a *addressRepository) GetAllProvinces() ([]*model.Province, error) {

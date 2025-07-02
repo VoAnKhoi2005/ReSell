@@ -93,14 +93,8 @@ interface ApiService {
 
     //region Payment
 
-    @GET("payment-methods")
-    suspend fun getAllPaymentMethods(): List<PaymentMethod>
-
-    @GET("payment-methods/{id}")
-    suspend fun getPaymentMethodByID(@Path("id") paymentMethodID: String): PaymentMethod
-
-    @POST("transactions")
-    suspend fun createTransaction(@Body request: CreateTransactionRequest): CreateTransactionResponse
+    @POST("order/{order_id}/pay")
+    suspend fun createZaloPayPayment(@Path("order_id") orderID: String): CreateZaloPayPaymentResponse
 
     //endregion
 
