@@ -249,8 +249,12 @@ fun ProfileHeaderSection(
             CreatedAt(state.createdAt)
             Spacer(modifier = Modifier.height(8.dp))
         }
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
     }
-}
+
 
 @Composable
 fun ProfileSimpleHeaderSection(//bên profile

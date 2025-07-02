@@ -34,6 +34,8 @@ fun AccountSettingScreen(
     val phone by viewModel.phone.collectAsState()
     val email by viewModel.email.collectAsState()
     val fullName by viewModel.name.collectAsState()
+    val defaultAddressText by viewModel.defaultAddressText.collectAsState()
+
 
     // Lỗi
     var nameError by remember { mutableStateOf<String?>(null) }
@@ -103,6 +105,12 @@ fun AccountSettingScreen(
             )
 
                 Spacer(Modifier.height(12.dp))
+            InputWithLabel(
+                label = "Địa chỉ mặc định",
+                value = defaultAddressText,
+                onValueChange = {},
+                enabled = false
+            )
 
             Spacer(Modifier.height(24.dp))
 

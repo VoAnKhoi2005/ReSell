@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.resell.model.UpdateProfileRequest
 import com.example.resell.model.User
+import com.example.resell.repository.AddressRepository
 import com.example.resell.repository.UserRepository
 import com.example.resell.store.ReactiveStore
 import com.example.resell.util.Event
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AccountSettingViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val addressRepository: AddressRepository
 ) : ViewModel() {
     private val userStore = ReactiveStore<User>()
 
@@ -29,6 +31,10 @@ class AccountSettingViewModel @Inject constructor(
     val name: StateFlow<String> = _name
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
+
+    private val _defaultAddressText = MutableStateFlow("")
+    val defaultAddressText: StateFlow<String> = _defaultAddressText
+
     fun setPhone(phone: String){
         _phone.value=phone
     }
@@ -46,12 +52,27 @@ class AccountSettingViewModel @Inject constructor(
         viewModelScope.launch {
             userStore.item.collect { user ->
                 _currentUser.value = user
+                _phone.value = user?.phone ?: ""
+                _name.value = user?.fullName ?: ""
+                _email.value = user?.email ?: ""
             }
         }
-        _phone.value=_currentUser.value?.phone?:""
-        _name.value=_currentUser.value?.fullName?:""
-        _email.value=_currentUser.value?.email?:""
+
+        viewModelScope.launch {
+            addressRepository.getDefaultAddress().fold(
+                { _defaultAddressText.value = "Không có địa chỉ mặc định" },
+                { address ->
+                    _defaultAddressText.value = listOfNotNull(
+                        address.detail,
+                        address.ward?.name,
+                        address.ward?.district?.name,
+                        address.ward?.district?.province?.name
+                    ).joinToString(", ")
+                }
+            )
+        }
     }
+
 
     fun saveChanges(
     ) {
@@ -74,5 +95,6 @@ class AccountSettingViewModel @Inject constructor(
             )
         }
     }
+
 
 }

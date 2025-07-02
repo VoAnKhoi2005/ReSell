@@ -60,39 +60,25 @@ class AddressSetupViewModel @Inject constructor(
             val old = it[index]
             it[index] = old.copy(ward = updatedWard)
         }
-        /*fun deleteAddresses(ids: List<String>) {
-            viewModelScope.launch {
-                var hasError = false
 
-                ids.forEach { id ->
-                    try {
-                        val result = addressRepository.deleteAddress(id)
-                        result.fold(
-                            onRight = {
-                                // Thành công, không làm gì ở đây
-                            },
-                            onLeft = {
-                                hasError = true
-                                Log.e("AddressViewModel", "❌ Failed to delete address $id: ${it.message}")
-                            }
-                        )
-                    } catch (e: Exception) {
-                        hasError = true
-                        Log.e("AddressViewModel", "❌ Exception when deleting address $id", e)
+    }
+    fun deleteAddresses(ids: List<String>, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            val result = addressRepository.deleteAddresses(ids)
+            result.fold(
+                ifLeft = { error ->
+                    Log.e("AddressViewModel", "❌ Failed to delete addresses: ${error.message}")
+                },
+                ifRight = { success ->
+                    if (success) {
+                        Log.d("AddressViewModel", "✅ Addresses deleted")
+                        fetchAddresses()
+                        onSuccess()
                     }
                 }
+            )
 
-                // Chỉ fetch một lần sau khi xóa tất cả
-                fetchAddresses()
-
-                if (!hasError) {
-                    Log.d("AddressViewModel", "✅ All addresses deleted successfully")
-                }
-            }
         }
-*/
-
-
     }
 
 

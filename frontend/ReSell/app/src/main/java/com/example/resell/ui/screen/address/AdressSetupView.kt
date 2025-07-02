@@ -133,10 +133,15 @@ fun AddressSetupScreen(
             if (isDeleteMode && selectedAddressIds.isNotEmpty()) {
                 Button(
                     onClick = {
-                        //viewModel.deleteAddresses(selectedAddressIds.toList())
-                        selectedAddressIds.clear()
-                        isDeleteMode = false
-                    },
+                        viewModel.deleteAddresses(
+                            selectedAddressIds.toList(),
+                            onSuccess = {
+                                selectedAddressIds.clear()
+                                isDeleteMode = false
+                            }
+                        )
+                    }
+                    ,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                     modifier = Modifier
                         .fillMaxWidth()
