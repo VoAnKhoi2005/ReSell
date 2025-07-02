@@ -78,7 +78,7 @@ func (rc *RecommenderController) GetCandidatePostsID(c *gin.Context) {
 		return
 	}
 
-	postsID, err := rc.service.GetCandidatePostsID(page, pageSize)
+	postsID, _, err := rc.service.GetCandidatePostsID(page, pageSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -118,11 +118,17 @@ func (rc *RecommenderController) GetRecommendation(c *gin.Context) {
 		return
 	}
 
-	posts, err := rc.service.GetRecommendation(userID, page, pageSize)
+	posts, total, err := rc.service.GetRecommendation(userID, page, pageSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, posts)
+	c.JSON(http.StatusOK, gin.H{
+		"data":     posts,
+		"total":    total,
+		"page":     page,
+		"limit":    pageSize,
+		"has_more": int64(page*pageSize) < total,
+	})
 }

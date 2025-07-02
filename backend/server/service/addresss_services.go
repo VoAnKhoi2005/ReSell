@@ -95,6 +95,13 @@ func (a *addressService) UpdateAddress(userID string, addressID string, request 
 	if request.IsDefault != nil && *request.IsDefault != address.IsDefault {
 		address.IsDefault = *request.IsDefault
 		isChange = true
+
+		if address.IsDefault {
+			err = a.AddressRepository.UnsetOtherDefaultAddresses(*address.UserID)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	if !isChange {

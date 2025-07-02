@@ -190,6 +190,12 @@ interface ApiService {
         @Query("q") search: String? = null
     ): GetPostsResponse
 
+    @GET("posts/recommender/recommendation")
+    suspend fun getRecommendationPosts(
+        @Query("page") page: Int,
+        @Query("limit") limit: Int,
+    ): GetPostsResponse
+
     @GET("posts/{post_id}")
     suspend fun getPostByID(@Path("post_id") postID: String): Post
 

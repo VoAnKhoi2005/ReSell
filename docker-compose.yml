@@ -32,11 +32,12 @@ services:
       - resell_net
 
   python:
-    build: backend/python_server
+    build: ./backend/python_server
+    container_name: dev-python
+    volumes:
+      - ./backend/python_server:/app
     ports:
       - "5000"
-    depends_on:
-      - backend
     networks:
       - resell_net
 

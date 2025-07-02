@@ -25,7 +25,7 @@ const (
 type RecommenderRepository interface {
 	GetBuyerProfile(userID string) (*dto.BuyerProfile, error)
 	GetPostFeatures(postID string, buyerProfile *dto.BuyerProfile) (*dto.PostFeatures, error)
-	GetCandidatePostsID(page int, pageSize int) ([]string, error)
+	GetCandidatePostsID(page int, pageSize int) ([]string, int64, error)
 }
 
 type recommenderRepository struct {
@@ -66,7 +66,12 @@ func (r *recommenderRepository) GetBuyerProfile(userID string) (*dto.BuyerProfil
 
 	//Addresses
 	var addresses []model.Address
-	if err := db.Preload("Ward.District.Province").Find(&addresses, "user_id = ?", userID).Error; err != nil {
+	if err := db.
+		Joins("JOIN wards w ON w.id = addresses.ward_id").
+		Joins("JOIN districts d ON d.id = w.district_id").
+		Joins("JOIN provinces p ON p.id = d.province_id").
+		Where("addresses.user_id = ?", userID).
+		Find(&addresses).Error; err != nil {
 		return nil, err
 	}
 	profile.Addresses = addresses
@@ -100,7 +105,7 @@ func (r *recommenderRepository) GetPostFeatures(postID string, buyerProfile *dto
 
 	db := r.db.WithContext(ctx)
 	var post model.Post
-	err := r.db.WithContext(ctx).Preload("PostImages").First("id = ?", postID, &post).Error
+	err := db.Preload("PostImages").First(&post, "id = ?", postID).Error
 	if err != nil {
 		return nil, err
 	}
@@ -216,28 +221,41 @@ func (r *recommenderRepository) GetPostFeatures(postID string, buyerProfile *dto
 	return feature, nil
 }
 
-func (r *recommenderRepository) GetCandidatePostsID(page int, pageSize int) ([]string, error) {
+func (r *recommenderRepository) GetCandidatePostsID(page int, pageSize int) ([]string, int64, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
 	offset := (page - 1) * pageSize
 	var postsID []string
+	var total int64
 
-	err := r.db.WithContext(ctx).Raw(`
-		SELECT p.id
-		FROM posts p
-		JOIN users u ON p.user_id = u.id
-		WHERE p.status = 'approved'
-		  AND p.created_at >= NOW() - INTERVAL '30 days'
-		  AND u.reputation >= 0
-		  AND EXISTS (
-		    SELECT 1 FROM post_images pi WHERE pi.post_id = p.id
-		  )
-		ORDER BY (
-		    SELECT COUNT(*) FROM favorite_posts fp WHERE fp.post_id = p.id
-		) DESC, p.created_at DESC
-		LIMIT ? OFFSET ?;
-	`, pageSize, offset).Scan(&postsID).Error
+	// Base query
+	query := r.db.WithContext(ctx).
+		Table("posts").
+		Select("posts.id").
+		Joins("JOIN users ON users.id = posts.user_id").
+		Joins("JOIN post_images ON post_images.post_id = posts.id").
+		Joins("LEFT JOIN favorite_posts ON favorite_posts.post_id = posts.id").
+		Where("posts.status = 'approved'").
+		Where("posts.created_at >= NOW() - INTERVAL '30 days'").
+		Where("users.reputation >= 0").
+		Group("posts.id, posts.created_at")
 
-	return postsID, err
+	// Clone and count
+	countQuery := query.Session(&gorm.Session{})
+	if err := countQuery.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Run actual query
+	err := query.
+		Order("COUNT(favorite_posts.*) DESC, posts.created_at DESC").
+		Limit(pageSize).
+		Offset(offset).
+		Scan(&postsID).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return postsID, total, nil
 }
