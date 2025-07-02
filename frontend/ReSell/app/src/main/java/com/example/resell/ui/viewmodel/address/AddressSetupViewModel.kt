@@ -60,7 +60,7 @@ class AddressSetupViewModel @Inject constructor(
             val old = it[index]
             it[index] = old.copy(ward = updatedWard)
         }
-        fun deleteAddresses(ids: List<String>) {
+        /*fun deleteAddresses(ids: List<String>) {
             viewModelScope.launch {
                 var hasError = false
 
@@ -90,7 +90,7 @@ class AddressSetupViewModel @Inject constructor(
                 }
             }
         }
-
+*/
 
 
     }

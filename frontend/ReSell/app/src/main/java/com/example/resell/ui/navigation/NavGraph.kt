@@ -1,6 +1,4 @@
 
-import android.util.Log
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -37,7 +35,7 @@ import com.example.resell.ui.screen.rating.RatingScreen
 import com.example.resell.ui.screen.rating.ReviewProductScreen
 
 import com.example.resell.ui.screen.search.SearchScreen
-import com.example.resell.ui.screen.userinfor.AccountSettingScreen
+import com.example.resell.ui.screen.account_setting.AccountSettingScreen
 
 @Composable
 fun SetupNavGraph(

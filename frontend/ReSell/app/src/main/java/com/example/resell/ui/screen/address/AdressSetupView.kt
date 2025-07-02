@@ -79,7 +79,9 @@ fun AddressSetupScreen(
                 .verticalScroll(scrollState)
                 .padding(12.dp)
         ) {
-            addresses.forEach { address ->
+            addresses
+                .sortedByDescending { it.isDefault }
+                .forEach { address ->
                 val isSelected = selectedAddressIds.contains(address.id)
                 val borderModifier = if (isDeleteMode && isSelected) {
                     Modifier.border(2.dp, Color.Red)
@@ -131,7 +133,7 @@ fun AddressSetupScreen(
             if (isDeleteMode && selectedAddressIds.isNotEmpty()) {
                 Button(
                     onClick = {
-                        viewModel.deleteAddresses(selectedAddressIds.toList())
+                        //viewModel.deleteAddresses(selectedAddressIds.toList())
                         selectedAddressIds.clear()
                         isDeleteMode = false
                     },
