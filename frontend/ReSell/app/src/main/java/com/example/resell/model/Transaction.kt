@@ -119,7 +119,22 @@ data class GetPostsResponse(
     val page: Int,
     val total: Int,
 )
-
+@JsonClass(generateAdapter = true)
+data class GetPostsDTO(
+    @Json(name = "id") val postId: String,
+    @Json(name = "title") val title: String,
+    @Json(name = "status") val status: String,
+    @Json(name = "category") val category: String,
+    @Json(name = "owner") val owner: String,
+    @Json(name = "fullname") val fullname: String,
+    @Json(name = "avatar") val avatar: String,
+    @Json(name = "description") val description: String,
+    @Json(name = "thumbnail") val thumbnail: String,
+    @Json(name = "address") val address: String,
+    @Json(name = "price") val price: Int,
+    @Json(name = "created_at") val createdAt: LocalDateTime,
+    @Json(name = "is_following") val isFollowing: Boolean
+)
 @JsonClass(generateAdapter = true)
 data class UpdatePostRequest(
     @Json(name = "category_id") val categoryID: String? = null,

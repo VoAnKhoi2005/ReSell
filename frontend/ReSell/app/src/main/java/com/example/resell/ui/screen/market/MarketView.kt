@@ -25,7 +25,9 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -34,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.R
 import com.example.resell.model.PostData
 import com.example.resell.ui.components.IconButtonHorizontal
@@ -47,11 +50,15 @@ import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.UserMessage
 import com.example.resell.ui.theme.White2
+import com.example.resell.ui.viewmodel.market.MarketViewModel
 import com.example.resell.util.getRelativeTime
 import kotlinx.coroutines.launch
 
 @Composable
 fun MarketScreen() {
+    val viewModel : MarketViewModel = hiltViewModel()
+    val listFollow by viewModel.followPosts.collectAsState()
+    val listExplore by viewModel.explorePosts.collectAsState()
     val pagerState = rememberPagerState(pageCount = { MarketTab.entries.size })
     val selectedTabIndex = remember { derivedStateOf { pagerState.currentPage } }
     val scope = rememberCoroutineScope()
@@ -78,8 +85,8 @@ fun MarketScreen() {
         // Nội dung theo tab
         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().weight(1f)) { pageIndex ->
             when (MarketTab.entries[pageIndex]) {
-                MarketTab.Follow -> FollowScreen(emptyList())
-                MarketTab.Explore -> ExploreScreen(emptyList())
+                MarketTab.Follow -> FollowScreen(listFollow){viewModel.getMoreFollow()}
+                MarketTab.Explore -> ExploreScreen(listExplore){viewModel.getMoreExplore()}
             }
         }
     }

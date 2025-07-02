@@ -11,16 +11,21 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.resell.R
 import com.example.resell.model.Follow
 import com.example.resell.model.PostData
+import com.example.resell.model.User
+import com.example.resell.store.ReactiveStore
+import com.example.resell.store.ReactiveStore.Companion.invoke
 import com.example.resell.ui.components.IconButtonHorizontal
 import com.example.resell.ui.components.ProfileSimpleHeader
 
@@ -31,9 +36,10 @@ import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.FollowButton
 import com.example.resell.ui.theme.UserMessage
 import com.example.resell.ui.theme.White2
+import com.example.resell.util.getRelativeTime
 
 @Composable
-fun FollowScreen(posts: List<PostData>) {
+fun FollowScreen(posts: List<PostData>, onLoadMore: () -> Unit) {
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -56,26 +62,34 @@ fun FollowScreen(posts: List<PostData>) {
             }
         } else {
             itemsIndexed(posts) { index, post ->
-//                PostItemView(
-//                    avatarUrl = post.avatar,
-//                    name = post.name,
-//                    time = post.time,
-//                    address = post.address,
-//                    images = post.images,
-//                    title = post.title,
-//                    contentDescription = post.content
-//                )
+                PostItemView(
+                    avatarUrl =  post.avatar,
+                    name = post.fullname,
+                    time = getRelativeTime( post.createdAt),
+                    address = post.address,
+                    price = post.price,
+                    images = post.images?.map { it.url }?:emptyList(),
+                    title = post.title,
+                    postId = post.id,
+                    contentDescription = post.description
+                )
 
                 if (index < posts.lastIndex) {
                     Divider(
                         modifier = Modifier
-                            .fillMaxWidth()
-                        ,
+                            .fillMaxWidth(),
                         color = LightGray,
                         thickness = 4.dp
                     )
                 }
             }
-        }    }
+        }
+
+        item {
+            LaunchedEffect(Unit) {
+                onLoadMore() // gọi khi cuộn đến cuối
+            }
+        }
+    }
 
 }
