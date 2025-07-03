@@ -40,8 +40,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,6 +61,7 @@ import com.example.resell.model.PostData
 import com.example.resell.ui.components.IconButtonHorizontal
 import com.example.resell.ui.components.ProductPostItemHorizontalImage
 import com.example.resell.ui.components.ProfileSimpleHeader
+import com.example.resell.ui.components.ReportPostPopup
 import com.example.resell.ui.components.TimeInfor
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
@@ -69,13 +72,17 @@ import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.UserMessage
 import com.example.resell.ui.theme.White2
+import com.example.resell.ui.viewmodel.components.ReportPostViewModel
 import com.example.resell.ui.viewmodel.market.MarketViewModel
+import com.example.resell.util.Event
+import com.example.resell.util.EventBus
 import com.example.resell.util.getRelativeTime
 import kotlinx.coroutines.launch
 
 @Composable
 fun MarketScreen() {
     val viewModel : MarketViewModel = hiltViewModel()
+    val reportPopupViewModel: ReportPostViewModel = hiltViewModel()
     val listFollow by viewModel.followPosts.collectAsState()
     val listExplore by viewModel.explorePosts.collectAsState()
     val listRecommended by viewModel.recommendedPosts.collectAsState()
@@ -83,7 +90,11 @@ fun MarketScreen() {
     val selectedTabIndex = remember { derivedStateOf { pagerState.currentPage } }
     val scope = rememberCoroutineScope()
 
+    var showReportPopup by remember { mutableStateOf(false) }
+    var reportPostId by remember { mutableStateOf<String?>(null) }
+
     Column(modifier = Modifier.fillMaxSize()) {
+
         TabRow(
             selectedTabIndex = selectedTabIndex.value,
             containerColor = Color.White,
@@ -103,17 +114,55 @@ fun MarketScreen() {
         }
 
         // Nội dung theo tab
-        HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().weight(1f)) { pageIndex ->
+        HorizontalPager(state = pagerState, modifier = Modifier
+            .fillMaxWidth()
+            .weight(1f)) { pageIndex ->
             when (MarketTab.entries[pageIndex]) {
-                MarketTab.Follow -> MarketTabScreen(listFollow, marketViewModel =viewModel, onLoadMore = {viewModel.getMoreFollow()})
-                MarketTab.Explore -> MarketTabScreen(listExplore, marketViewModel  =viewModel, onLoadMore = {viewModel.getMoreExplore()})
-                MarketTab.Recommended -> MarketTabScreen(listRecommended, marketViewModel = viewModel, onLoadMore = {viewModel.getMoreRecommended()})
+                MarketTab.Follow -> MarketTabScreen(
+                    listFollow,
+                    marketViewModel =viewModel,
+                    onLoadMore = {viewModel.getMoreFollow()},
+                    onReportClick = { postId ->
+                        reportPostId = postId
+                        showReportPopup = true
+                    })
+                MarketTab.Explore -> MarketTabScreen(
+                    listExplore,
+                    marketViewModel  =viewModel,
+                    onLoadMore = {viewModel.getMoreExplore()},
+                    onReportClick = { postId ->
+                        reportPostId = postId
+                        showReportPopup = true
+                    })
+                MarketTab.Recommended -> MarketTabScreen(
+                    listRecommended,
+                    marketViewModel = viewModel,
+                    onLoadMore = {viewModel.getMoreRecommended()},
+                    onReportClick = { postId ->
+                        reportPostId = postId
+                        showReportPopup = true
+                    })
             }
         }
+
+    }
+    if (showReportPopup && reportPostId != null) {
+        ReportPostPopup(
+            onDismiss = { showReportPopup = false },
+            onSubmit = { reason, detail ->
+                reportPopupViewModel.report(reportPostId!!, reason, detail)
+                if (reportPopupViewModel.reportResult.value==true)
+                    showReportPopup = false
+
+            }
+        )
     }
 }
 @Composable
-fun MarketTabScreen(posts: List<PostData>,marketViewModel: MarketViewModel,onLoadMore:() ->Unit){
+fun MarketTabScreen(posts: List<PostData>,
+                    marketViewModel: MarketViewModel,
+                    onLoadMore:() ->Unit,
+                    onReportClick: (String) -> Unit){
 
 
     LazyColumn(
@@ -146,7 +195,8 @@ fun MarketTabScreen(posts: List<PostData>,marketViewModel: MarketViewModel,onLoa
                     onSaveClick =
                         {
                             marketViewModel.toggleFavorite(postId = post.id,post.isFavorite)
-                        }
+                        },
+                    onReportClick = onReportClick
                 )
 
                 if (index < posts.lastIndex) {
@@ -176,7 +226,8 @@ fun PostItemView(
     postData: PostData,
     onSaveClick: () -> Unit = {},
     onChatClick: () -> Unit = {},
-    onFollowClick: () -> Unit = {}
+    onFollowClick: () -> Unit = {},
+    onReportClick: (String) -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -206,7 +257,13 @@ fun PostItemView(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            ImageCarousel(images =postData.images?.map { it.url }?:emptyList(), isFavorite = postData.isFavorite, onFavoriteClick = onSaveClick)
+            ImageCarousel(images =postData.images?.map { it.url }?:emptyList(),
+                isFavorite = postData.isFavorite,
+                onFavoriteClick = onSaveClick,
+                onReportClick ={
+                    onReportClick(postData.id)
+                }
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 

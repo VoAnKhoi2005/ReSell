@@ -22,6 +22,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.resell.ui.components.BottomBar
 import com.example.resell.ui.components.PhoneVerificationPopup
+import com.example.resell.ui.components.ReportPostPopup
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.components.bottomNavItems
 import com.example.resell.ui.navigation.NavigationController

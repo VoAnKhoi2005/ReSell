@@ -84,7 +84,11 @@ fun ProductDetailScreen(
 
             LazyColumn(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
                 item {
-                    ImageCarousel(images = post?.images?.map { it.url }.orEmpty()){}
+                    ImageCarousel(
+                        images = post?.images?.map { it.url }.orEmpty(),
+                        onFavoriteClick = {},
+                        onReportClick = {}
+                    )
                 }
                 item {
                     Spacer(modifier = Modifier.height(12.dp))
@@ -235,14 +239,14 @@ fun ActionButtons(onContactClick: () -> Unit, onChatClick: () -> Unit,viewModel:
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImageCarousel(images: List<String>,isFavorite: Boolean = false,onFavoriteClick:()->Unit) {
+fun ImageCarousel(images: List<String>,isFavorite: Boolean = false,
+                  onFavoriteClick:()->Unit,
+                  onReportClick: () -> Unit) {
     val pagerState = rememberPagerState(
         initialPage = 0,
         pageCount = { images.size },
 
     )
-
-
 
     Column {
         Box(
@@ -282,8 +286,9 @@ fun ImageCarousel(images: List<String>,isFavorite: Boolean = false,onFavoriteCli
 
                 CircleIconButton(
                     iconResId = R.drawable.baseline_report_problem_24,
-                    contentDescription = "Report"
-                ) { /* TODO: Report */ }
+                    contentDescription = "Report",
+                    onClick = { onReportClick() }
+                )
 
             }
         }
