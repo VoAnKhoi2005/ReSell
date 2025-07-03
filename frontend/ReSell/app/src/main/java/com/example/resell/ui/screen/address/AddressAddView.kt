@@ -139,6 +139,7 @@ fun AddressAddScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             OrderButton(
+                enable = true,
                 text = if (viewModel.isEditMode) "Cập nhật địa chỉ" else "Lưu địa chỉ",
                 onClick = {
                     val valid = validateInput(

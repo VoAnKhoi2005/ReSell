@@ -56,10 +56,14 @@ class ProfileDetailViewModel @Inject constructor(
 
     private val _uiState = mutableStateOf(UserProfileUiState())
     val uiState: State<UserProfileUiState> = _uiState
+    private val _isLoadingPosts = MutableStateFlow(false)
+    val isLoadingPosts: StateFlow<Boolean> = _isLoadingPosts
 
     fun loadProfile(targetUserId: String, currentUserId: String) {
         val isCurrent = targetUserId == currentUserId
         Log.d("PROFILE_VM", "Loading profile: target=$targetUserId, current=$currentUserId")
+        _userApprovedPosts.value = emptyList()
+        _userSoldPosts.value = emptyList()
         viewModelScope.launch {
             val result = runCatching {
                 userRepository.getUserStat(targetUserId)
@@ -193,7 +197,7 @@ class ProfileDetailViewModel @Inject constructor(
                 var isHasMore = true
                 val approved = mutableListOf<PostData>()
                 val sold = mutableListOf<PostData>()
-
+                _isLoadingPosts.value = true
                 while (isHasMore) {
                     val result = postRepository.getOwnPosts(currentPage, 100)
                     result.fold(

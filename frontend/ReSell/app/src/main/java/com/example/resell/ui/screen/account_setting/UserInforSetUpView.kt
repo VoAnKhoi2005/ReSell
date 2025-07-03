@@ -21,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.example.resell.ui.components.PhoneVerificationPopup
+import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.screen.address.InfoBoxField
 import com.example.resell.ui.theme.Red
 
@@ -119,7 +120,7 @@ fun AccountSettingScreen(
                 label = "Mật khẩu",
                 value = "********",
                 onClick = {
-                    // TODO: Navigate to password change screen
+                    NavigationController.navController.navigate(Screen.ChangePassWordScreen.route)
                 }
             )
 

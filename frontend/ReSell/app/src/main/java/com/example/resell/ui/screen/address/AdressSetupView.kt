@@ -145,6 +145,7 @@ fun AddressSetupScreen(
 
             if (!isDeleteMode) {
                 OrderButton(
+                    enable = true,
                     text = "Thêm địa chỉ mới",
                     onClick = {
                         NavigationController.navController.navigate(Screen.AddressAdd.route)
