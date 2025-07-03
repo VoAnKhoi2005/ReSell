@@ -77,7 +77,7 @@ fun ProfileDetailScreen(
 
     val state by viewModel.uiState
     val currentUserId = ReactiveStore<User>().item.value?.id ?: ""
-
+    val isFollow by viewModel.isFollow.collectAsState()
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { viewModel.uploadAvatar(context, it) }
@@ -121,7 +121,8 @@ fun ProfileDetailScreen(
             } else null,
             onFollowClick = {
                 viewModel.toggleFollow()
-            }
+            },
+            isFollowing = isFollow
         )
 
         ProfileTabsPager(
