@@ -4,7 +4,12 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
 	"log"
 	"math/rand"
+	"time"
 )
+
+func ptr[T any](v T) *T {
+	return &v
+}
 
 func deleteSeedData() {
 	config.DB.Exec(`
@@ -53,6 +58,9 @@ func GenerateSeedData() {
 	seedReportPost(userIDs, postIDs)
 	seedReportUser(userIDs)
 	seedFavoritePost(userIDs, postIDs)
+	seedFollow(userIDs)
+	seedPostImage(postIDs)
+	seedNotification(userIDs)
 
 	log.Println("Generated seed data successfully!")
 }
@@ -72,4 +80,14 @@ func shuffleStrings(arr []string) []string {
 
 func randomStatus[T any](statusList []T) T {
 	return statusList[rand.Intn(len(statusList))]
+}
+
+func randomTimeBetween(from, to time.Time) time.Time {
+	if from.After(to) {
+		from, to = to, from // đảo lại nếu from > to
+	}
+	diff := to.Sub(from)
+	// random giây trong khoảng cách đó
+	seconds := rand.Int63n(int64(diff.Seconds()))
+	return from.Add(time.Duration(seconds) * time.Second)
 }
