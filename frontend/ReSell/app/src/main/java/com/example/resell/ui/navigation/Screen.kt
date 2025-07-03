@@ -38,4 +38,5 @@ sealed class Screen(val route: String){
     object PhoneRegister: Screen("phone_register_screen")
     object ResultSearchScreen : Screen("search_result")
     object ReviewProductScreen: Screen("review_product_screen")
+    object  AddressChooseScreen: Screen("address_choose_screen")
 }

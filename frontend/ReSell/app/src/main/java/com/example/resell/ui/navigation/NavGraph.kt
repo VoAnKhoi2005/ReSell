@@ -20,6 +20,7 @@ import com.example.resell.ui.screen.auth.phoneAuth.PhoneAuthScreen
 
 
 import com.example.resell.ui.screen.address.AddressAddScreen
+import com.example.resell.ui.screen.address.AddressChooseScreen
 import com.example.resell.ui.screen.address.AddressSetupScreen
 import com.example.resell.ui.screen.address.DistrictSelectScreen
 import com.example.resell.ui.screen.address.ProvinceSelectScreen
@@ -188,6 +189,9 @@ fun SetupNavGraph(
             ReviewProductScreen()
         }
 
+        composable(Screen.AddressChooseScreen.route) {
+            AddressChooseScreen()
+        }
 
     }
 }
