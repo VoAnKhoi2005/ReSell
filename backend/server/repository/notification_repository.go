@@ -13,6 +13,8 @@ type NotificationRepository interface {
 	Update(notification *model.Notification) error
 	Delete(notification *model.Notification) error
 
+	CreateNotifications(notification []*model.Notification) error
+
 	GetByID(notificationID string) (*model.Notification, error)
 	GetNotificationsByBatch(userID string, batchSize int, page int) ([]*model.Notification, int, error)
 	GetNotificationsByDate(userID string, date time.Time) ([]*model.Notification, error)
@@ -48,6 +50,13 @@ func (n *notificationRepository) Delete(notification *model.Notification) error 
 	defer cancel()
 
 	return n.db.WithContext(ctx).Delete(&notification).Error
+}
+
+func (n *notificationRepository) CreateNotifications(notification []*model.Notification) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	return n.db.WithContext(ctx).Create(&notification).Error
 }
 
 func (n *notificationRepository) GetByID(notificationID string) (*model.Notification, error) {

@@ -12,6 +12,7 @@ const (
 	AlertNotification   NotificationType = "alert"
 	SystemNotification  NotificationType = "system"
 	OrderNotification   NotificationType = "order"
+	PostNotification    NotificationType = "post"
 	DefaultNotification NotificationType = "default"
 )
 
