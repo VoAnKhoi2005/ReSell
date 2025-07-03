@@ -9,6 +9,11 @@
   export let total = 0;
   export let search = "";
   export let filter = "all";
+  let showBanModal = false;
+let banTargetUser = null;
+let banReason = "";
+let banLength = 1;
+
 
   const dispatch = createEventDispatcher();
   let totalPages = 0;
@@ -23,10 +28,18 @@
     showMenu = { ...showMenu };
   }
 
-  function handleBan(user) {
+ function handleBan(user) {
+  if (user.status === "active") {
+    banTargetUser = user;
+    banReason = "";
+    banLength = 1;
+    showBanModal = true;
+  } else {
     dispatch("toggleBan", { id: user.id });
-    closeMenu(user.id);
   }
+  closeMenu(user.id);
+}
+
 
   function viewUser(user) {
     selectedUser = user;
@@ -166,6 +179,49 @@ onClose={(e) => {
 />
 
 {/if}
+
+{#if showBanModal && banTargetUser}
+  <div class="modal-backdrop show"></div>
+  <div class="modal d-block" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Ban người dùng</h5>
+          <button type="button" class="btn-close" on:click={() => showBanModal = false}></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>{banTargetUser.username}</strong></p>
+          <div class="mb-2">
+            <label class="form-label">Lý do ban</label>
+            <input type="text" class="form-control" bind:value={banReason} />
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Thời gian ban (ngày)</label>
+            <input type="number" class="form-control" bind:value={banLength} min="1" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" on:click={() => showBanModal = false}>Hủy</button>
+          <button
+            class="btn btn-danger"
+            on:click={() => {
+              dispatch("toggleBan", {
+                id: banTargetUser.id,
+                reason: banReason,
+                length: banLength,
+              });
+              showBanModal = false;
+            }}
+            disabled={!banReason || banLength <= 0}
+          >
+            Xác nhận Ban
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+{/if}
+
 
 <style>
   .dropdown-menu.show {

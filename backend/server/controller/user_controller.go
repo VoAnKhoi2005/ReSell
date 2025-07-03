@@ -215,7 +215,7 @@ func (h *UserController) BanUser(c *gin.Context) {
 		return
 	}
 
-	err = h.userService.BanUserForDay(request.BanUserID, request.Length)
+	err = h.userService.BanUserForDay(request.BanUserID, request.Length, request.BanReason)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

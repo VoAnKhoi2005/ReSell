@@ -14,4 +14,5 @@ type UpdateUserRequest struct {
 type BanRequest struct {
 	BanUserID string `json:"ban_user_id" binding:"required"`
 	Length    uint   `json:"length" binding:"required"` //day
+	BanReason string `json:"ban_reason" binding:"required"`
 }

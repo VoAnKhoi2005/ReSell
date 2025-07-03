@@ -40,6 +40,7 @@ type User struct {
 	Reputation       int              `json:"reputation"`
 	BanStart         *time.Time       `json:"ban_start,omitempty"`
 	BanEnd           *time.Time       `json:"ban_end,omitempty"`
+	BanReason        *string          `json:"ban_reason,omitempty"`
 	CreatedAt        time.Time        `json:"created_at"`
 	IsSelling        bool             `json:"is_selling"`                  // Có phải người bán không
 	StripeAccountID  *string          `json:"stripe_account_id,omitempty"` // Stripe ID nếu có

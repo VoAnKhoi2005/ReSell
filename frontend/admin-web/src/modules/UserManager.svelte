@@ -25,6 +25,10 @@
         full_name: u.full_name || "",
         reputation: u.reputation || 0,
         status: u.status === "banned" ? "banned" : "active",
+        // 👇 THÊM 3 DÒNG NÀY
+        ban_reason: u.ban_reason,
+        ban_start: u.ban_start,
+        ban_end: u.ban_end,
       }));
       total = (data.total_batch_count || 0) * limit;
     } catch (err) {
@@ -37,17 +41,19 @@
   $: if (page || filter || search) loadUsers();
 
   async function handleToggleBan(e) {
-    const { id } = e.detail;
+    const { id, reason, length } = e.detail;
     const user = users.find((u) => u.id === id);
     if (!user) return;
+
     try {
       if (user.status === "active") {
-        await banUser(id);
+        await banUser(id, reason, length);
         user.status = "banned";
       } else {
         await unbanUser(id);
         user.status = "active";
       }
+
       users = [...users];
     } catch (err) {
       alert("Lỗi khi cập nhật trạng thái người dùng!");
@@ -105,13 +111,12 @@
   />
 
   {#if showModal && selectedUser}
-  <UserDetailModal
-  user={selectedUser}
-  onClose={(shouldRefresh) => {
-    showModal = false;
-    if (shouldRefresh) handleRefreshUser();
-  }}
-/>
-
+    <UserDetailModal
+      user={selectedUser}
+      onClose={(shouldRefresh) => {
+        showModal = false;
+        if (shouldRefresh) handleRefreshUser();
+      }}
+    />
   {/if}
 </div>

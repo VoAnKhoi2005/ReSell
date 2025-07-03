@@ -35,7 +35,7 @@ type UserService interface {
 	GetAllFollowees(followerID string) ([]*model.User, error)
 	UnFollowUser(followerID string, followeeID string) error
 
-	BanUserForDay(userID string, length uint) error
+	BanUserForDay(userID string, length uint, banReason string) error
 	UnBanUser(userID string) error
 	SetAvatar(id string, url string) error
 	SetCover(id string, url string) error
@@ -276,7 +276,7 @@ func (s *userService) UnFollowUser(followerID string, followeeID string) error {
 	return s.userRepository.UnFollowUser(&followerID, &followeeID)
 }
 
-func (s *userService) BanUserForDay(userID string, length uint) error {
+func (s *userService) BanUserForDay(userID string, length uint, banReason string) error {
 	if length < 1 {
 		return errors.New("invalid length")
 	}
@@ -292,6 +292,7 @@ func (s *userService) BanUserForDay(userID string, length uint) error {
 	user.BanStart = &banStart
 	user.BanEnd = &banEnd
 	user.Status = model.BannedStatus
+	user.BanReason = &banReason
 
 	err = s.userRepository.Update(user)
 	if err != nil {
@@ -315,6 +316,7 @@ func (s *userService) UnBanUser(userID string) error {
 	user.BanStart = nil
 	user.BanEnd = nil
 	user.Status = model.ActiveStatus
+	user.BanReason = nil
 
 	err = s.userRepository.Update(user)
 	if err != nil {
