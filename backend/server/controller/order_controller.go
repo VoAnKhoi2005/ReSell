@@ -203,11 +203,15 @@ func (oc *OrderController) HandleZaloPayCallback(c *gin.Context) {
 		return
 	}
 
-	err := oc.orderService.HandleZaloPayCallback(callbackData)
+	order, err := oc.orderService.HandleZaloPayCallback(callbackData)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{"return_code": -1, "return_message": err.Error()})
 		return
 	}
+
+	title := "Payment Success"
+	description := "Your order has been successfully processed"
+	err = fb.FcmHandler.SendNotification(*order.UserId, title, description, false, model.OrderNotification)
 
 	c.JSON(http.StatusOK, gin.H{"return_code": 1, "return_message": "success"})
 }

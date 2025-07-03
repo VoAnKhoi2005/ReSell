@@ -29,7 +29,7 @@ type OrderService interface {
 	GetBuyerID(orderID string) (string, error)
 
 	CreateZaloPayOrder(orderID string, userID string) (string, error)
-	HandleZaloPayCallback(callbackData map[string]interface{}) error
+	HandleZaloPayCallback(callbackData map[string]interface{}) (*model.ShopOrder, error)
 }
 
 type OderService struct {
@@ -214,27 +214,27 @@ func (o *OderService) CreateZaloPayOrder(orderID string, userID string) (string,
 	return paymentURL, nil
 }
 
-func (o *OderService) HandleZaloPayCallback(callback map[string]interface{}) error {
+func (o *OderService) HandleZaloPayCallback(callback map[string]interface{}) (*model.ShopOrder, error) {
 	// Lấy raw data và mac từ callback
 	rawData, ok := callback["data"].(string)
 	if !ok {
-		return errors.New("missing data field")
+		return nil, errors.New("missing data field")
 	}
 	mac, ok := callback["mac"].(string)
 	if !ok {
-		return errors.New("missing mac field")
+		return nil, errors.New("missing mac field")
 	}
 
 	// Verify MAC với key2
 	calculatedMac := generateMac(rawData, zalo.Key2)
 	if mac != calculatedMac {
-		return errors.New("invalid callback MAC")
+		return nil, errors.New("invalid callback MAC")
 	}
 
 	// Parse rawData thành JSON map
 	var data map[string]interface{}
 	if err := json.Unmarshal([]byte(rawData), &data); err != nil {
-		return errors.New("invalid JSON in data field")
+		return nil, errors.New("invalid JSON in data field")
 	}
 
 	appTransID := data["app_trans_id"].(string)
@@ -243,7 +243,7 @@ func (o *OderService) HandleZaloPayCallback(callback map[string]interface{}) err
 
 	order, err := o.orderRepository.GetByAppTransID(appTransID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Cập nhật đơn hàng
@@ -252,8 +252,8 @@ func (o *OderService) HandleZaloPayCallback(callback map[string]interface{}) err
 	paidAt := time.UnixMilli(serverTime)
 	order.PaidAt = &paidAt
 	order.ZaloCallbackData = &rawData
-
-	return o.orderRepository.Update(order)
+	err = o.orderRepository.Update(order)
+	return order, err
 }
 
 func generateMac(data, key string) string {

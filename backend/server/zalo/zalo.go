@@ -12,12 +12,20 @@ import (
 	"time"
 )
 
+var callbackURL string
+
+func SetCallbackURL(url string) {
+	if url == "" {
+		callbackURL = "http://localhost/api/order/payment/callback"
+	}
+	callbackURL = url + "/api/order/payment/callback"
+}
+
 const (
 	AppID     = 2554 // Thay bằng app_id của mày
 	Key1      = "sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn"
 	Key2      = "trMrHtvjo6myautxDUiAcYsVtaeQ8nhf"
 	CreateURL = "https://sb-openapi.zalopay.vn/v2/create"
-	Callback  = "https://6b2c-2405-4802-489-8bc0-9a68-5b94-6c31-419e.ngrok-free.app/api/order/payment/callback" // chỉnh đúng URL
 )
 
 type createOrderRequest struct {
@@ -54,7 +62,7 @@ func CreateZaloPayOrder(appTransID, appUser string, amount int) (string, string,
 		Description: "Thanh toán đơn hàng ReSell",
 		EmbedData:   "{}",
 		BankCode:    "zalopayapp",
-		CallbackURL: Callback,
+		CallbackURL: callbackURL,
 	}
 
 	// MAC: app_id|app_trans_id|app_user|amount|app_time|embed_data|item

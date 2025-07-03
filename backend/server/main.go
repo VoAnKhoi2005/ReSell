@@ -7,6 +7,7 @@ import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/route"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/zalo"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"golang.ngrok.com/ngrok/v2"
@@ -91,7 +92,7 @@ func run(ctx context.Context, address string) error {
 	}
 
 	fmt.Println("Endpoint online: forwarding from", ln.URL(), "to", address)
-
+	zalo.SetCallbackURL(ln.URL().String())
 	// Explicitly stop forwarding; otherwise it runs indefinitely
 	<-ln.Done()
 	return nil
