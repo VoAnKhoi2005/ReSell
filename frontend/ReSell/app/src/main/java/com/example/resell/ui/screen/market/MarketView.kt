@@ -1,4 +1,5 @@
 package com.example.resell.ui.screen.market
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -129,7 +130,8 @@ fun MarketScreen() {
                 MarketTab.Explore -> MarketTabScreen(
                     listExplore,
                     marketViewModel  =viewModel,
-                    onLoadMore = {viewModel.getMoreExplore()},
+                    onLoadMore = {
+                        viewModel.getMoreExplore()},
                     onReportClick = { postId ->
                         reportPostId = postId
                         showReportPopup = true
@@ -213,7 +215,7 @@ fun MarketTabScreen(posts: List<PostData>,
         }
         item {
             LaunchedEffect(Unit) {
-                onLoadMore
+                onLoadMore()
             }
         }
     }

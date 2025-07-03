@@ -162,7 +162,6 @@ class MarketViewModel @Inject constructor(
         }
     }
     fun toggleFavorite(postId: String,isFavorite: Boolean){
-        Log.d("Liked","test")
         viewModelScope.launch {
             val result = if(isFavorite) {
                 favoriteRepository.unlikePost(postId)

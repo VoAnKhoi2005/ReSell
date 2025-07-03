@@ -52,7 +52,7 @@ func (cart *FavoriteController) CreateCartItem(c *gin.Context) {
 
 	item, err := cart.cartService.AddItemToCart(userID, req.PostID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add item to cart"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusCreated, item)
