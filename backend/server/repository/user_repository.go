@@ -26,7 +26,7 @@ type UserRepository interface {
 
 	DeleteByID(id string) error
 
-	FollowUser(followerID *string, followedID *string) error
+	FollowUser(follow *model.Follow) error
 	GetAllFollowUser(followerID *string) ([]*model.User, error)
 	UnFollowUser(followerID *string, followedID *string) error
 
@@ -35,6 +35,9 @@ type UserRepository interface {
 
 	GetStat(userID string) (*dto.UserStatDTO, error)
 	SearchUsername(query string) ([]*model.User, error)
+
+	IncreaseReputation(userID string, amount int) error
+	DecreaseReputation(userID string, amount int) error
 }
 
 type userRepository struct {
@@ -129,11 +132,11 @@ func (r *userRepository) DeleteByID(id string) error {
 	return r.db.WithContext(ctx).Delete(&model.User{}, "id = ?", id).Error
 }
 
-func (r *userRepository) FollowUser(followerID *string, followedID *string) error {
+func (r *userRepository) FollowUser(follow *model.Follow) error {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	return r.db.WithContext(ctx).Create(&model.Follow{FolloweeID: followerID, FollowerID: followedID}).Error
+	return r.db.WithContext(ctx).Create(&follow).Error
 }
 
 func (r *userRepository) GetAllFollowUser(followerID *string) ([]*model.User, error) {
@@ -309,4 +312,30 @@ func (r *userRepository) SearchUsername(query string) ([]*model.User, error) {
 	var users []*model.User
 	err := r.db.WithContext(ctx).Where("username ILIKE ?", query).Find(&users).Error
 	return users, err
+}
+
+func (r *userRepository) IncreaseReputation(userID string, amount int) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	user, err := r.GetByID(userID)
+	if err != nil {
+		return err
+	}
+
+	user.Reputation = user.Reputation + amount
+	return r.db.WithContext(ctx).Save(user).Error
+}
+
+func (r *userRepository) DecreaseReputation(userID string, amount int) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	user, err := r.GetByID(userID)
+	if err != nil {
+		return err
+	}
+
+	user.Reputation = user.Reputation - amount
+	return r.db.WithContext(ctx).Save(user).Error
 }

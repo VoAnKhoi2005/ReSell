@@ -261,7 +261,11 @@ func (s *userService) FollowUser(followerID string, followeeID string) error {
 		return err
 	}
 
-	return s.userRepository.FollowUser(&followerID, &followeeID)
+	var follow *model.Follow
+	follow.FollowerID = &followerID
+	follow.FolloweeID = &followeeID
+
+	return s.userRepository.FollowUser(follow)
 }
 
 func (s *userService) GetAllFollowees(followerID string) ([]*model.User, error) {

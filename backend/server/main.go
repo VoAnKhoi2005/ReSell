@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/route"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -32,7 +33,9 @@ func main() {
 	config.InitRedis()
 	config.InitStripe()
 	config.AutoMigrate()
+
 	//data.GenerateSeedData()
+	repository.InitGlobalRepository(config.DB)
 
 	//Firebase
 	fb.InitFirebase()
