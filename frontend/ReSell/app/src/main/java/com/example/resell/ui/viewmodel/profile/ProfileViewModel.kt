@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.resell.model.User
-import com.example.resell.model.UserStatResponse
+import com.example.resell.model.UserStat
 import com.example.resell.repository.UserRepository
 import com.example.resell.store.AuthTokenManager
 import com.example.resell.store.ReactiveStore
@@ -24,7 +24,7 @@ class ProfileViewModel @Inject constructor(
     private val authTokenManager: AuthTokenManager,
     private val userRepository: UserRepository
 ) : ViewModel() {
-    var statUser by mutableStateOf<UserStatResponse?>(null)
+    var statUser by mutableStateOf<UserStat?>(null)
     init {
         viewModelScope.launch {
             val userId = ReactiveStore<User>().item.value?.id

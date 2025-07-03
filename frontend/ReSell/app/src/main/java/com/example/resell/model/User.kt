@@ -1,7 +1,6 @@
 package com.example.resell.model
 
 import com.squareup.moshi.Json
-import java.time.LocalDate
 import java.time.LocalDateTime
 import com.squareup.moshi.JsonClass
 
@@ -41,7 +40,7 @@ data class User(
 )
 
 @JsonClass(generateAdapter = true)
-data class UserStatResponse(
+data class UserStat(
     @Json(name = "user_id")
     val userId: String,
     @Json(name ="full_name")

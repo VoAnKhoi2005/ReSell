@@ -8,6 +8,13 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 // region User
+
+@JsonClass(generateAdapter = true)
+data class VerifyTokenResponse(
+    @Json(name = "user") val user: User,
+    @Json(name = "token") val token: AuthToken,
+)
+
 @JsonClass(generateAdapter = true)
 data class FirebaseAuthRequest(
     @Json(name = "firebase_id_token") val firebaseIDToken: String,

@@ -40,6 +40,14 @@ class UserRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
+    override suspend fun verifyToken(): Either<NetworkError, VerifyTokenResponse> {
+        return Either.catch {
+            val response = apiService.verifyToken()
+            tokenManager.saveToken(response.token)
+            response
+        }.mapLeft { it.toNetworkError() }
+    }
+
     override suspend fun loginUser(
         identifier: String,
         password: String,
@@ -64,7 +72,7 @@ class UserRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
-    override suspend fun getUserStat(userID: String): Either<NetworkError, UserStatResponse> {
+    override suspend fun getUserStat(userID: String): Either<NetworkError, UserStat> {
         return Either.catch {
             apiService.getUserStat(userID)
         }.mapLeft { it.toNetworkError() }

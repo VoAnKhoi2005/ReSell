@@ -258,6 +258,44 @@ func (h *AuthController) RefreshToken(c *gin.Context) {
 	c.JSON(http.StatusOK, refreshTokenResponse)
 }
 
+func (h *AuthController) VerifyToken(c *gin.Context) {
+	userIDRaw, ok := c.Get("x-user-id")
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	userID, ok := userIDRaw.(string)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	user, err := h.userService.GetUserByID(userID)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		return
+	}
+
+	accessToken, refreshToken, err := util.GenerateToken(user.ID, "user")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	authToken := transaction.TokenResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+
+	response := transaction.VerifyTokenResponse{
+		User:  *user,
+		Token: authToken,
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 func (h *AuthController) LoginAdmin(c *gin.Context) {
 	var request transaction.LoginAdminRequest
 

@@ -1,25 +1,20 @@
 package com.example.resell.ui.viewmodel.productDetail
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.resell.model.Post
 import com.example.resell.model.PostData
-import com.example.resell.model.User
-import com.example.resell.model.UserStatResponse
+import com.example.resell.model.UserStat
 import com.example.resell.repository.MessageRepository
 import com.example.resell.repository.PostRepository
 import com.example.resell.repository.UserRepository
 import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.navigation.NavigationController
-import com.example.resell.ui.screen.home.ProductPost
-import com.example.resell.util.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -38,7 +33,7 @@ class ProductDetailViewModel @Inject constructor(
 
     var postDetail by mutableStateOf<Post?>(null)
         private set
-    var statSeller by mutableStateOf<UserStatResponse?>(null)
+    var statSeller by mutableStateOf<UserStat?>(null)
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 

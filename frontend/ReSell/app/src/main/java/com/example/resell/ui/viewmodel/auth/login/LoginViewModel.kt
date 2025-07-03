@@ -28,6 +28,7 @@ import com.example.resell.model.User
 import com.example.resell.repository.AddressRepository
 import com.example.resell.repository.PostRepository
 import com.example.resell.repository.UserRepository
+import com.example.resell.store.AuthTokenManager
 import com.example.resell.store.FCMTokenManager
 import com.example.resell.store.ReactiveStore
 import com.example.resell.store.WebSocketManager
@@ -44,7 +45,8 @@ class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val fcmTokenManager: FCMTokenManager,
     private val webSocketManager: WebSocketManager,
-    private val repo: PostRepository
+    private val tokenManager: AuthTokenManager,
+    private val repo: AddressRepository
 ) : AndroidViewModel(application) {
     private val context by lazy { application.applicationContext }
 
@@ -153,13 +155,35 @@ class LoginViewModel @Inject constructor(
             },
             ifRight = { fbAuthResponse ->
                 if (fbAuthResponse.firstTimeLogin) {
-                    //TODO Di chuyển qua trang register để lấy username
                     NavigationController.navController.navigate(Screen.Register.route + "/email/${firebaseIdToken}")
                 } else {
                     onSuccess(fbAuthResponse.user)
                 }
             }
         )
+    }
+
+    fun checkAutoLogin() {
+        viewModelScope.launch {
+            val accessToken = tokenManager.getAccessToken()
+            val refreshToken = tokenManager.getRefreshToken()
+
+            if (!accessToken.isNullOrEmpty()) {
+                val result = userRepository.verifyToken()
+                result.fold(
+                    ifLeft = { onError("Phiên đăng nhập hết hạn") },
+                    ifRight = { response -> onSuccess(response.user) }
+                )
+            } else {
+                val firebaseUser = Firebase.auth.currentUser
+                if (firebaseUser != null) {
+                    val idToken = firebaseUser.getIdToken(true).await()?.token
+                    if (idToken != null) {
+                        saveToDB(idToken)
+                    }
+                }
+            }
+        }
     }
 
     //TODO: Xử lý đăng nhập thành công
@@ -169,7 +193,8 @@ class LoginViewModel @Inject constructor(
         ReactiveStore<User>().set(user);
         NavigationController.navController.navigate(Screen.Main.route)
 
-        val response = repo.getPosts(1, 10)
+        val addressIDs = listOf("fsfsfsf", "fsdfsfsds")
+        val response = repo.deleteAddresses(addressIDs)
         response.fold(
             ifLeft = { error ->
                 Log.e("Testing", "Error: ${error.message}")

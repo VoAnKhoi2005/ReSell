@@ -18,6 +18,7 @@ import androidx.navigation.NavHostController
 
 import androidx.navigation.compose.rememberNavController
 import com.example.resell.repository.AddressRepository
+import com.example.resell.ui.components.HideNavigationBar
 import com.example.resell.ui.navigation.NavigationController
 
 
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
+                HideNavigationBar()
 
                 val lifecycle = LocalLifecycleOwner.current.lifecycle
                 LaunchedEffect(key1 = lifecycle) {

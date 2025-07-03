@@ -2,6 +2,7 @@ package route
 
 import (
 	"github.com/VoAnKhoi2005/ReSell/backend/server/controller"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/middleware"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,7 @@ func RegisterAuthRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	auth.POST("/firebase", authController.FirebaseAuth)
 	auth.POST("/login", authController.Login)
 	auth.POST("/refresh", authController.RefreshToken)
+	auth.POST("/verify", middleware.AuthMiddleware(), authController.VerifyToken)
 
 	admin := rg.Group("/admin/auth")
 	admin.POST("/login", authController.LoginAdmin)

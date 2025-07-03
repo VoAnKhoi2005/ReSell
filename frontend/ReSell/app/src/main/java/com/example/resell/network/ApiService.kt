@@ -8,7 +8,6 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.HTTP
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -18,8 +17,11 @@ import retrofit2.http.Query
 
 interface ApiService {
     //region User
+    @POST("auth/verify")
+    suspend fun verifyToken(): VerifyTokenResponse
+
     @GET("user/stat/{user_id}")
-    suspend fun getUserStat(@Path("user_id") userID: String): UserStatResponse
+    suspend fun getUserStat(@Path("user_id") userID: String): UserStat
 
     @GET("user/search/{query}")
     suspend fun searchUsername(@Path("query") query: String): List<User>
@@ -132,7 +134,7 @@ interface ApiService {
     @DELETE("address/{address_id}")
     suspend fun deleteAddress(@Path("address_id") addressID: String): Boolean
 
-    @HTTP(method = "DELETE", path = "address/batch", hasBody = true)
+    @POST("address/batch")
     suspend fun deleteAddresses(@Body request: DeleteAddressesRequest): Boolean
 
     //endregion

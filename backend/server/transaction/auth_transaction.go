@@ -11,6 +11,11 @@ type RegisterRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type VerifyTokenResponse struct {
+	User  model.User    `json:"user"`
+	Token TokenResponse `json:"token"`
+}
+
 type FirebaseAuthRequest struct {
 	FirebaseIDToken string  `json:"firebase_id_token" binding:"required"`
 	Username        *string `json:"username,omitempty"`
