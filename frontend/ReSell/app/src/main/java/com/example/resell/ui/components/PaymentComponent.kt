@@ -56,10 +56,12 @@ fun TotalAmountBox(totalAmount: Int) {
 @Composable
 fun OrderButton(
     text: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    enable : Boolean =false
 ) {
     Button(
         onClick = onClick,
+        enabled = enable,
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)

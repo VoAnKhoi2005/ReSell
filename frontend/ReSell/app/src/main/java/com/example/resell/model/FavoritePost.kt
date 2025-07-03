@@ -3,6 +3,6 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class FavoritePost(
-    @Json(name = "cart_id") val cardId: String,
+    @Json(name = "user_id") val userId: String,
     @Json(name = "post_id") val postId: String
 )

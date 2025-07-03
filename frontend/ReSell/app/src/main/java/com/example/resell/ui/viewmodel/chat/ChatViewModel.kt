@@ -8,7 +8,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import arrow.core.some
 import com.example.resell.R
+import com.example.resell.model.Conversation
 import com.example.resell.model.Message
 import com.example.resell.model.Post
 import com.example.resell.model.User
@@ -16,6 +18,9 @@ import com.example.resell.repository.MessageRepository
 import com.example.resell.repository.PostRepository
 import com.example.resell.store.ReactiveStore
 import com.example.resell.store.WebSocketManager
+import com.example.resell.ui.navigation.NavigationController
+import com.example.resell.ui.navigation.Screen
+import com.example.resell.ui.screen.chat.chatscreen.SellPopupState
 import com.example.resell.util.Event
 import com.example.resell.util.EventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,6 +53,13 @@ class ChatViewModel @Inject constructor(
     var conversationId: String = savedStateHandle["conversationId"] ?: ""
     private val _post = MutableStateFlow<Post?>(null)
     val post: StateFlow<Post?> = _post.asStateFlow()
+
+    private val _conversation = MutableStateFlow<Conversation?>(null)
+    val conversation: StateFlow<Conversation?> = _conversation.asStateFlow()
+
+    private val _isSeller = MutableStateFlow<Boolean>(false)
+    val isSeller: StateFlow<Boolean> = _isSeller.asStateFlow()
+
     var receiverUsername :String =""
     private val batchSize = 20
     var isMoreMessage : Boolean = false
@@ -55,6 +67,85 @@ class ChatViewModel @Inject constructor(
 
     private val _incomingMessage = MutableSharedFlow<Message>(extraBufferCapacity = 64)
     val incomingMessage: SharedFlow<Message> = _incomingMessage
+    val showSellPopup = MutableStateFlow(false)
+    val sellPopupState = MutableStateFlow(SellPopupState.EditPrice)
+
+    fun showEditPricePopup() {
+        sellPopupState.value = SellPopupState.EditPrice
+        showSellPopup.value = true
+    }
+
+    fun showConfirmPopup() {
+        sellPopupState.value = SellPopupState.ConfirmSelling
+        showSellPopup.value = true
+        Log.d("Show","Sell")
+    }
+    fun onBuyClick(){
+        ReactiveStore<Post>().set(_post.value)
+        ReactiveStore<Conversation>().set(_conversation.value)
+        NavigationController.navController.navigate(Screen.Payment.route)
+    }
+    fun hideSellPopup() {
+        showSellPopup.value = false
+    }
+
+    fun onChangePrice(price: Int) {
+        viewModelScope.launch {
+            val offer = messageRepository.updateOffer(
+                conversationID = conversation.value?.id?:"",
+                isSelling = true,
+                amount = price
+            )
+            offer.fold(
+                {
+                    Log.e("Mở bán",it.message?:"")
+                },{
+                    _conversation.value = it
+                    val systemKey : String ="system5cbb2e3d8819ef6c1769e55"
+                    sendMessage(systemKey+" ${user?.fullName} đã mở bán với giá ${price}VND")
+                }
+            )
+        }
+    }
+
+    fun onConfirmSell(price: Int) {
+        viewModelScope.launch {
+            val offer = messageRepository.updateOffer(
+                conversationID = conversation.value?.id?:"",
+                isSelling = true,
+                amount = price
+            )
+            offer.fold(
+                {
+                    Log.e("Sửa giá",it.message?:"")
+                },{
+                    _conversation.value = it
+                    val systemKey : String ="system5cbb2e3d8819ef6c1769e55"
+                    sendMessage(systemKey+" ${user?.fullName} đã sửa giá thành ${price}VND")
+                }
+            )
+        }
+        hideSellPopup()
+    }
+
+    fun onCancelSell() {
+        viewModelScope.launch {
+            val offer = messageRepository.updateOffer(
+                conversationID = conversation.value?.id?:"",
+                isSelling = false
+            )
+            offer.fold(
+                {
+                    Log.e("Hủy bán",it.message?:"")
+                },{
+                    _conversation.value = it
+                    val systemKey : String ="system5cbb2e3d8819ef6c1769e55"
+                    sendMessage(systemKey+" ${user?.fullName} đã hủy bán")
+                }
+            )
+        }
+        hideSellPopup()
+    }
 
     init {
         observeMessages()
@@ -101,7 +192,18 @@ class ChatViewModel @Inject constructor(
 
                 },
                 ifRight = { newConversation ->
-                    conversationId = newConversation.id
+                    val offer = messageRepository.updateOffer(
+                        newConversation.id,
+                        isSelling = false,
+                        amount =_post.value!!.price )
+                    offer.fold(
+                        {
+                            Log.e("ChatView", "Lỗi tạo offer: ${it.message}")
+                        },{it->
+                            conversationId = it.id
+                            _conversation.value = it
+                        }
+                    )
                 }
             )
         }
@@ -163,9 +265,13 @@ class ChatViewModel @Inject constructor(
                     Log.e("ChatHome", "Lỗi lấy conversation: ${error.message}")
                 },
                 {conversation ->
+                    _conversation.value =conversation
                     receiverUsername = if (ReactiveStore<User>().item.value!!.username == conversation.seller!!.username) {
+                        _isSeller.value = true
                         conversation.buyer!!.fullName
+
                     }else {
+                        _isSeller.value = false
                         conversation.seller.fullName
                     }
                     val getPost = postRepository.getPostByID((conversation.postId))
@@ -207,6 +313,7 @@ class ChatViewModel @Inject constructor(
         else {
             _post.value = ReactiveStore<Post>().item.value!!
             receiverUsername = _post.value?.user?.fullName?:""
+            _isSeller.value = false
         }
 
     }
