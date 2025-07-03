@@ -13,6 +13,8 @@ data class Conversation(
     @Json(name = "created_at") val createdAt: LocalDateTime?,
     @Json(name = "buyer") val buyer: User? = null,
     @Json(name = "seller") val seller: User? = null,
-    @Json(name = "post") val post: Post? = null
+    @Json(name = "post") val post: Post? = null,
+    @Json(name ="is_selling") val isSelling : Boolean?,
+    @Json(name ="offer") val offer :Int?
 )
 
