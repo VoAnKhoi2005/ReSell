@@ -27,7 +27,7 @@
       class:active={activeModule === "post"}
       on:click={() => (activeModule = "post")}>Bài đăng</a
     >
-    <a
+    <!-- <a
       class="nav-link px-4 py-2"
       class:active={activeModule === "payment"}
       on:click={() => (activeModule = "payment")}>Phương thức thanh toán</a
@@ -36,7 +36,7 @@
       class="nav-link px-4 py-2"
       class:active={activeModule === "subscription"}
       on:click={() => (activeModule = "subscription")}>Gói thành viên</a
-    >
+    > -->
     <a
       class="nav-link px-4 py-2"
       class:active={activeModule === "report"}

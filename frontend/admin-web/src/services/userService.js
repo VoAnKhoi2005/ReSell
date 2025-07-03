@@ -10,17 +10,18 @@ export async function fetchUsers(pageSize = 100, page = 1) {
 }
 
 // Ban user (có thể truyền mảng user_id, nhưng FE chỉ dùng 1 user mỗi lần)
-export async function banUser(userId) {
+export async function banUser(userId, reason, length) {
   const res = await apiFetch("/api/admin/user/ban", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       ban_user_id: userId,
-      length: 1, // length phải là 1 như backend yêu cầu
+      ban_reason: reason,
+      length: length,
     }),
   });
   if (!res.ok) throw await res.text();
-  return await res.json(); // { success: true }
+  return await res.json();
 }
 
 // Unban user

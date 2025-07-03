@@ -4,7 +4,6 @@
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
 
-
   export let user;
   export let onClose; // Expect onClose(shouldRefresh = true|false)
 
@@ -14,9 +13,20 @@
   let error = null;
   let updated = false;
 
+  let banReason = "";
+  let banDurationDays = 0;
+
   onMount(async () => {
     try {
       stat = await fetchUserStat(user.id);
+
+      // Tính số ngày bị ban nếu có
+      if (user.status === "banned" && user.ban_start && user.ban_end) {
+        const start = new Date(user.ban_start).getTime();
+        const end = new Date(user.ban_end).getTime();
+        banDurationDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+        banReason = user.ban_reason || "Không rõ";
+      }
     } catch (e) {
       error = "Lỗi khi tải thống kê.";
     } finally {
@@ -24,27 +34,40 @@
     }
   });
 
- 
   async function changeReputation(newValue) {
-  try {
-    await updateReputation(user.id, newValue);
-    reputationInput = newValue;
-    user.reputation = newValue;
-    updated = true; // ✅ báo hiệu đã cập nhật
-    dispatch("updated"); // tùy, nếu cha xài thì xài event này
-    alert("Cập nhật điểm uy tín thành công");
-  } catch (err) {
-    alert("Không thể cập nhật điểm uy tín");
+    try {
+      await updateReputation(user.id, newValue);
+      reputationInput = newValue;
+      user.reputation = newValue;
+      updated = true;
+      dispatch("updated");
+      alert("Cập nhật điểm uy tín thành công");
+    } catch (err) {
+      alert("Không thể cập nhật điểm uy tín");
+    }
   }
-}
-
 
   function handleClose() {
-    onClose(updated); // truyền true nếu đã cập nhật, false nếu không
+    onClose(updated);
   }
+  function formatDateTime(dateStr) {
+  const date = new Date(dateStr);
+  return date.toLocaleString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
 </script>
 
-<div class="modal fade show" style="display:block; background:rgba(0,0,0,0.25);" tabindex="-1">
+<div
+  class="modal fade show"
+  style="display:block; background:rgba(0,0,0,0.25);"
+  tabindex="-1"
+>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -71,6 +94,15 @@
             </button>
           </div>
         </div>
+
+        {#if user.status === "banned" && user.ban_start && user.ban_end && user.ban_reason}
+          <hr />
+          <div class="text-danger">
+            <b>Người dùng đang bị cấm</b><br />
+            Lý do: {user.ban_reason}<br />
+            Gỡ ban vào: {formatDateTime(user.ban_end)}
+          </div>
+        {/if}
 
         <hr />
 
