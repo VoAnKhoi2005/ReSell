@@ -141,7 +141,7 @@ func (r *userRepository) GetAllFollowUser(followerID *string) ([]*model.User, er
 	defer cancel()
 
 	var users []*model.User = nil
-	err := r.db.WithContext(ctx).Find(&users, "buyer_id = ?", followerID).Error
+	err := r.db.WithContext(ctx).Find(&users, "followee_id = ?", followerID).Error
 	return users, err
 }
 
@@ -150,7 +150,7 @@ func (r *userRepository) UnFollowUser(followerID *string, followeeID *string) er
 	defer cancel()
 
 	var follow *model.Follow = nil
-	err := r.db.WithContext(ctx).First(&follow, "buyer_id = ? AND seller_id = ?", followerID, followeeID).Error
+	err := r.db.WithContext(ctx).First(&follow, "follower_id = ? AND followee_id = ?", followerID, followeeID).Error
 	if err != nil {
 		return err
 	}

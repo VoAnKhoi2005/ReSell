@@ -78,7 +78,13 @@ func (rc *RecommenderController) GetCandidatePostsID(c *gin.Context) {
 		return
 	}
 
-	postsID, _, err := rc.service.GetCandidatePostsID(page, pageSize)
+	userID, err := util.GetUserID(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	postsID, _, err := rc.service.GetCandidatePostsID(userID, page, pageSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
