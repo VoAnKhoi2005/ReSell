@@ -5,6 +5,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.model.PostStatus
+import com.example.resell.ui.components.ProductPostItemHorizontalImageSimple
 import com.example.resell.ui.components.ProductPostItemHorizontalImageStatus
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.viewmodel.profile.ProfileDetailViewModel
@@ -18,17 +19,17 @@ fun ApproveScreen(isCurrentUser: Boolean, viewModel: ProfileDetailViewModel = hi
 
     LazyColumn {
         items(posts) { post ->
-            ProductPostItemHorizontalImageStatus(
+            ProductPostItemHorizontalImageSimple(
                 title = post.title,
                 time = getRelativeTime(post.createdAt),
                 imageUrl = post.thumbnail,
                 price = post.price,
-                address = post.address,
                 postStatus = PostStatus.APPROVED,
                 onClick = {
                     NavigationController.navController.navigate("productdetail_screen/${post.id}")
                 }
             )
+
         }
     }
 }
@@ -40,17 +41,17 @@ fun NotApprovedScreen(isCurrentUser: Boolean, viewModel: ProfileDetailViewModel 
 
     LazyColumn {
         items(posts) { post ->
-            ProductPostItemHorizontalImageStatus(
+            ProductPostItemHorizontalImageSimple(
                 title = post.title,
                 time = getRelativeTime(post.createdAt),
                 imageUrl = post.thumbnail,
                 price = post.price,
-                address = post.address,
-                postStatus = PostStatus.SOLD,
+                postStatus = PostStatus.APPROVED,
                 onClick = {
                     NavigationController.navController.navigate("productdetail_screen/${post.id}")
                 }
             )
+
         }
     }
 }

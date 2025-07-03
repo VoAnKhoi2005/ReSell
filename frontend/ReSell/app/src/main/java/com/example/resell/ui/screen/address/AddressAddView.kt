@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -23,6 +24,7 @@ import com.example.resell.ui.components.OrderButton
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.theme.DarkBlue
+import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.White2
 import com.example.resell.ui.viewmodel.address.AddressAddViewModel
 import com.example.resell.ui.viewmodel.components.AddressPickerViewModel
@@ -36,7 +38,6 @@ fun AddressAddScreen(
     val user by ReactiveStore<User>().item.collectAsState()
     var showPicker by remember { mutableStateOf(false) }
 
-    // Các biến lỗi cho từng trường
     var fullNameError by remember { mutableStateOf<String?>(null) }
     var phoneError by remember { mutableStateOf<String?>(null) }
     var detailError by remember { mutableStateOf<String?>(null) }
@@ -65,41 +66,31 @@ fun AddressAddScreen(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
-            OutlinedTextField(
+            EditableBoxField(
+                label = "Họ và tên",
                 value = viewModel.fullName,
                 onValueChange = {
                     viewModel.fullName = it
                     fullNameError = null
                 },
-                label = { Text("Họ và tên") },
-                isError = fullNameError != null,
-                modifier = Modifier.fillMaxWidth()
+                error = fullNameError
             )
-            if (fullNameError != null) {
-                Text(fullNameError!!, color = MaterialTheme.colorScheme.error, fontSize = MaterialTheme.typography.labelSmall.fontSize)
-            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            OutlinedTextField(
+            EditableBoxField(
+                label = "Số điện thoại",
                 value = viewModel.phoneNumber,
                 onValueChange = {
                     viewModel.phoneNumber = it
                     phoneError = null
                 },
-                label = { Text("Số điện thoại") },
-                isError = phoneError != null,
-                modifier = Modifier.fillMaxWidth()
+                error = phoneError
             )
-            if (phoneError != null) {
-                Text(phoneError!!, color = MaterialTheme.colorScheme.error, fontSize = MaterialTheme.typography.labelSmall.fontSize)
-            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            val interactionSource = remember { MutableInteractionSource() }
-
-            ReadOnlyClickableField(
+            InfoBoxField(
                 label = "Khu vực",
                 value = viewModel.getLocationString(),
                 isError = locationError != null,
@@ -109,26 +100,21 @@ fun AddressAddScreen(
                 onClick = { showPicker = true }
             )
 
-
             if (locationError != null) {
                 Text(locationError!!, color = MaterialTheme.colorScheme.error, fontSize = MaterialTheme.typography.labelSmall.fontSize)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            OutlinedTextField(
+            EditableBoxField(
+                label = "Địa chỉ chi tiết",
                 value = viewModel.detail,
                 onValueChange = {
                     viewModel.detail = it
                     detailError = null
                 },
-                label = { Text("Địa chỉ chi tiết") },
-                isError = detailError != null,
-                modifier = Modifier.fillMaxWidth()
+                error = detailError
             )
-            if (detailError != null) {
-                Text(detailError!!, color = MaterialTheme.colorScheme.error, fontSize = MaterialTheme.typography.labelSmall.fontSize)
-            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -143,12 +129,11 @@ fun AddressAddScreen(
                     onCheckedChange = { viewModel.isDefault = it },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = DarkBlue,
-                        checkedTrackColor = DarkBlue.copy(alpha = 0.54f), // viền phía sau
+                        checkedTrackColor = DarkBlue.copy(alpha = 0.54f),
                         uncheckedThumbColor = MaterialTheme.colorScheme.outline,
                         uncheckedTrackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.38f)
                     )
                 )
-
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -187,18 +172,93 @@ fun AddressAddScreen(
         AddressPickerPopup(
             viewModel = pickerViewModel,
             onDismiss = { showPicker = false },
-            onAddressSelected = { province, district, ward ->
-                val selectedProvince = pickerViewModel.selectedProvince
-                val selectedDistrict = pickerViewModel.selectedDistrict
-                val selectedWard = pickerViewModel.selectedWard
-
-                if (selectedProvince != null && selectedDistrict != null && selectedWard != null) {
-                    viewModel.updateLocation(selectedProvince, selectedDistrict, selectedWard)
+            onAddressSelected = { _, _, _ ->
+                pickerViewModel.selectedProvince?.let { p ->
+                    pickerViewModel.selectedDistrict?.let { d ->
+                        pickerViewModel.selectedWard?.let { w ->
+                            viewModel.updateLocation(p, d, w)
+                        }
+                    }
                 }
                 showPicker = false
             },
             allowAll = false
         )
+    }
+}
+
+@Composable
+fun InfoBoxField(
+    label: String,
+    value: String,
+    isError: Boolean = false,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    onClick: () -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+
+    val bgColor = if (isError)
+        MaterialTheme.colorScheme.error.copy(alpha = 0.3f)
+    else
+        GrayFont.copy(alpha = 0.3f)
+
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .clip(OutlinedTextFieldDefaults.shape)
+        .background(bgColor)
+        .clickable(
+            interactionSource = interactionSource,
+            indication = null
+        ) { onClick() }
+        .padding(12.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall.copy(color = GrayFont)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = value.ifBlank { "Chưa chọn" },
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = if (value.isBlank()) GrayFont else Color.Black
+                )
+            )
+            if (trailingIcon != null) trailingIcon()
+        }
+    }
+}
+
+@Composable
+fun EditableBoxField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    error: String? = null
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray),
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            isError = error != null,
+            modifier = Modifier.fillMaxWidth()
+        )
+        if (error != null) {
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error,
+                fontSize = MaterialTheme.typography.labelSmall.fontSize
+            )
+        }
     }
 }
 
@@ -211,12 +271,12 @@ private fun validateInput(
 ): Boolean {
     var isValid = true
 
-    if (fullname.isBlank()) {
+    if (fullname.trim().isEmpty()) {
         onError("fullname", "Họ và tên không được để trống")
         isValid = false
     }
 
-    if (phone.isBlank()) {
+    if (phone.trim().isEmpty()) {
         onError("phone", "Số điện thoại không được để trống")
         isValid = false
     } else if (!phone.matches(Regex("^0\\d{9}$"))) {
@@ -224,47 +284,15 @@ private fun validateInput(
         isValid = false
     }
 
-    if (location.isBlank()) {
+    if (location.trim().isEmpty() || location == "Chưa chọn") {
         onError("location", "Vui lòng chọn khu vực")
         isValid = false
     }
 
-    if (detail.isBlank()) {
+    if (detail.trim().isEmpty()) {
         onError("detail", "Vui lòng nhập địa chỉ chi tiết")
         isValid = false
     }
 
     return isValid
-}
-@Composable
-fun ReadOnlyClickableField(
-    label: String,
-    value: String,
-    isError: Boolean = false,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    onClick: () -> Unit
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(64.dp)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null
-            ) { onClick() },
-        contentAlignment = Alignment.Center
-    ) {
-        OutlinedTextField(
-            value = value,
-            onValueChange = {},
-            readOnly = true,
-            enabled = false,
-            label = { Text(label) },
-            trailingIcon = trailingIcon,
-            isError = isError,
-            modifier = Modifier.fillMaxSize()
-        )
-    }
 }

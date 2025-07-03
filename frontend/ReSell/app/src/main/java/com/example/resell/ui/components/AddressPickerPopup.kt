@@ -15,9 +15,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.resell.model.District
 import com.example.resell.model.Province
 import com.example.resell.model.Ward
+import com.example.resell.ui.theme.DarkBlue
+import com.example.resell.ui.theme.GrayFont
+import com.example.resell.ui.theme.LightGray
+import com.example.resell.ui.theme.MainButton
+import com.example.resell.ui.theme.White2
 import com.example.resell.ui.viewmodel.components.AddressPickerViewModel
 
 @Composable
@@ -53,27 +59,36 @@ fun AddressPickerPopup(
                 .clickable(enabled = false) {}
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                // TopBar
+
+
                 Surface(
-                    color = MaterialTheme.colorScheme.surface,
+                    color = MainButton,
                     tonalElevation = 4.dp,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(onClick = onDismiss) {
-                            Icon(Icons.Default.Close, contentDescription = "Đóng")
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Đóng",
+                                tint = DarkBlue
+                            )
                         }
                         Text(
                             text = titleText,
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                color = DarkBlue,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
                         )
-                        Spacer(modifier = Modifier.width(48.dp))
+                        Spacer(modifier = Modifier.width(48.dp)) // giữ khoảng trắng thay vì nút
                     }
                 }
 
@@ -83,11 +98,11 @@ fun AddressPickerPopup(
                     }
                 } else {
                     Column(Modifier.weight(1f)) {
-                        // Nút quay lại
+
                         if (selectionStep != AddressSelectionStep.Province) {
                             Text(
                                 text = "← Quay lại",
-                                color = MaterialTheme.colorScheme.primary,
+                                color = Color.Black,
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier
                                     .clickable { viewModel.onBackStep() }
@@ -96,7 +111,6 @@ fun AddressPickerPopup(
                         }
 
                         LazyColumn {
-                            // Tùy chọn "Tất cả"
                             if (!allowAll) {
                                 item {
                                     val label = when (selectionStep) {
@@ -132,7 +146,6 @@ fun AddressPickerPopup(
                                 }
                             }
 
-                            // Danh sách tương ứng
                             val items = when (selectionStep) {
                                 AddressSelectionStep.Province -> viewModel.provinces
                                 AddressSelectionStep.District -> viewModel.districts
@@ -180,7 +193,6 @@ fun AddressPickerPopup(
                         }
                     }
 
-                    // Nút Xong (nếu đã chọn đủ)
                     if (selectedProvince != null && selectedDistrict != null && selectedWard != null) {
                         Button(
                             onClick = {
@@ -189,7 +201,11 @@ fun AddressPickerPopup(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp)
+                                .padding(16.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = DarkBlue,
+                                contentColor = White2
+                            )
                         ) {
                             Text("Xong")
                         }
