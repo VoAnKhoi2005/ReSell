@@ -10,8 +10,6 @@ data class Conversation(
     @Json(name = "buyer_id") val buyerId: String,
     @Json(name = "seller_id") val sellerId: String,
     @Json(name = "post_id") val postId: String,
-    @Json(name = "is_selling") val isSelling: Boolean,
-    @Json(name = "offer") val offer: Int,
     @Json(name = "created_at") val createdAt: LocalDateTime?,
     @Json(name = "buyer") val buyer: User? = null,
     @Json(name = "seller") val seller: User? = null,
