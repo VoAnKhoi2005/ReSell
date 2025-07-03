@@ -27,8 +27,14 @@ class FavoriteRepositoryImpl @Inject constructor(
 
     override suspend fun unlikePost(postID: String): Either<NetworkError, Boolean> {
         return Either.catch {
-            apiService.unlikePost(postID)
-            true
+            val response = apiService.unlikePost(postID)
+            if (response.isSuccessful) {
+                true
+            } else {
+                val errorBody = response.errorBody()?.string()
+                throw Exception("API error ${response.code()}: $errorBody")
+            }
         }.mapLeft { it.toNetworkError() }
     }
+
 }

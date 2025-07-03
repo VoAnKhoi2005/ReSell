@@ -224,7 +224,7 @@ func (s *userService) UpdateUser(userID string, request *request.UpdateUserReque
 	}
 
 	if request.FullName != nil && *request.FullName != "" {
-		user.Username = *request.FullName
+		user.Fullname = *request.FullName
 	}
 
 	if request.Email != nil && *request.Email != "" {

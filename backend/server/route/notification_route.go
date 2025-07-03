@@ -23,4 +23,8 @@ func RegisterNotificationRote(rg *gin.RouterGroup, db *gorm.DB) {
 
 	notificationRoute.POST("/FCM", fb.FcmHandler.SaveFCMToken)
 	notificationRoute.DELETE("/FCM", fb.FcmHandler.DeleteFCMToken)
+
+	admin := rg.Group("/admin/notification")
+	admin.Use(middleware.AdminAuthMiddleware())
+	admin.POST("/test-notification/:user_id", notificationController.SendTestNotification)
 }

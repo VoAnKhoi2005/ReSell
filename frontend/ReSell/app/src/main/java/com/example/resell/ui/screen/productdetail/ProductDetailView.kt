@@ -84,7 +84,11 @@ fun ProductDetailScreen(
 
             LazyColumn(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
                 item {
-                    ImageCarousel(images = post?.images?.map { it.url }.orEmpty())
+                    ImageCarousel(
+                        images = post?.images?.map { it.url }.orEmpty(),
+                        onFavoriteClick = {},
+                        onReportClick = {}
+                    )
                 }
                 item {
                     Spacer(modifier = Modifier.height(12.dp))
@@ -105,13 +109,16 @@ fun ProductDetailScreen(
                             .padding(8.dp)
                     ) {
                         ProfileSimpleHeader(
-                            avatarUrl = viewModel.postDetail?.user?.avatarURL
-                                ?: stringResource(R.string.default_avatar_url),
+                            userId = post?.user?.id ?: "",
+                            avatarUrl = post?.user?.avatarURL?.takeIf { it.isNotBlank() },
                             name = post?.user?.fullName,
                             rating = (viewModel.statSeller?.averageRating as? Number)?.toFloat() ?: 5f,
                             reviewCount = viewModel.statSeller?.reviewNumber,
                             soldCount = viewModel.statSeller?.saleNumber
                         )
+
+
+
 
                     }
                 }
@@ -232,13 +239,14 @@ fun ActionButtons(onContactClick: () -> Unit, onChatClick: () -> Unit,viewModel:
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImageCarousel(images: List<String>) {
+fun ImageCarousel(images: List<String>,isFavorite: Boolean = false,
+                  onFavoriteClick:()->Unit,
+                  onReportClick: () -> Unit) {
     val pagerState = rememberPagerState(
         initialPage = 0,
-        pageCount = { images.size }
-    )
+        pageCount = { images.size },
 
-    var isFavorite by remember { mutableStateOf(false) }
+    )
 
     Column {
         Box(
@@ -270,15 +278,17 @@ fun ImageCarousel(images: List<String>) {
                 CircleIconButton(
                     iconResId = if (isFavorite) R.drawable.like else R.drawable.unlike,
                     contentDescription = "Favorite",
-                    iconTint = Color.Red
-                ) { isFavorite = !isFavorite }
+                    iconTint = Color.Red,
+                    onClick = onFavoriteClick
+                )
 
                 Spacer(modifier = Modifier.width(8.dp))
 
                 CircleIconButton(
                     iconResId = R.drawable.baseline_report_problem_24,
-                    contentDescription = "Report"
-                ) { /* TODO: Report */ }
+                    contentDescription = "Report",
+                    onClick = { onReportClick() }
+                )
 
             }
         }

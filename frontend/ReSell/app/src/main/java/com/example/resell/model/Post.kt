@@ -32,6 +32,7 @@ data class PostData(
     @Json(name = "category") val category: String,
     @Json(name = "owner") val owner: String,
     @Json(name = "fullname") val fullname: String,
+    @Json(name="user_id") val userId:String,
     @Json(name = "avatar") val avatar: String,
     @Json(name = "description") val description: String,
     @Json(name = "thumbnail") val thumbnail: String,

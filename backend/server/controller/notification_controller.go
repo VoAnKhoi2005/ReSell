@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"github.com/gin-gonic/gin"
@@ -94,4 +96,27 @@ func (n *NotificationController) GetNotificationsByType(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, notifications)
+}
+
+func (n *NotificationController) SendTestNotification(c *gin.Context) {
+	userID := c.Param("user_id")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user_id required"})
+		return
+	}
+
+	err := fb.FcmHandler.SendNotification(
+		userID,
+		"Test Title",
+		"Test Description",
+		false,
+		model.SystemNotification,
+	)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }

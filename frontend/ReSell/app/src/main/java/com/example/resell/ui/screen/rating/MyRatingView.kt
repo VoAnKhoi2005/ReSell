@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import com.example.resell.ui.screen.no_result.NoRatingScreen
 
 @Composable
-fun WaitingRatingScreen() {
+fun MyRatingScreen() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         NoRatingScreen()
 

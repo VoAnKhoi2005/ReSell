@@ -1,57 +1,45 @@
 package com.example.resell.ui.components
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RangeSlider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.draw.clip
-import com.example.resell.R
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
-import com.example.resell.ui.theme.LoginButton
 import com.example.resell.ui.theme.White
+import java.text.NumberFormat
+import java.util.*
+
+@Composable
+fun PriceTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = {
+            val digits = it.filter { it.isDigit() }
+            onValueChange(digits)
+        },
+        label = { Text(label) },
+        singleLine = true,
+        trailingIcon = {
+            Text(
+                text = "đ",
+                color = Color.Gray,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        modifier = modifier
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,12 +51,12 @@ fun PriceFilterBottomSheet(
     onDismissRequest: () -> Unit,
     onApply: (Int, Int) -> Unit
 ) {
-    // Float range cho RangeSlider
+    // Slider hiển thị theo đơn vị TRIỆU
     var priceRange by remember {
-        mutableStateOf(initialMin.toFloat()..initialMax.toFloat())
+        mutableStateOf((initialMin / 1_000_000f)..(initialMax / 1_000_000f))
     }
 
-    // TextField input (chuỗi)
+    // Hộp nhập theo đơn vị ĐỒNG
     var inputMin by remember { mutableStateOf(initialMin.toString()) }
     var inputMax by remember { mutableStateOf(initialMax.toString()) }
 
@@ -79,7 +67,7 @@ fun PriceFilterBottomSheet(
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = "Lọc theo giá",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight =  FontWeight.Bold),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
@@ -91,11 +79,11 @@ fun PriceFilterBottomSheet(
                     value = priceRange,
                     onValueChange = {
                         priceRange = it
-                        inputMin = it.start.toInt().toString()
-                        inputMax = it.endInclusive.toInt().toString()
+                        inputMin = (it.start.toInt() * 1_000_000).toString()
+                        inputMax = (it.endInclusive.toInt() * 1_000_000).toString()
                     },
-                    valueRange = minPrice.toFloat()..maxPrice.toFloat(),
-                    steps = 10,
+                    valueRange = (minPrice / 1_000_000f)..(maxPrice / 1_000_000f),
+                    steps = 100,
                     colors = SliderDefaults.colors(
                         thumbColor = GrayFont,
                         activeTrackColor = DarkBlue,
@@ -111,8 +99,8 @@ fun PriceFilterBottomSheet(
                         .padding(horizontal = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "${minPrice} đ", color = Color.Black)
-                    Text(text = "${maxPrice} đ", color = Color.Black)
+                    Text(text = "${priceRange.start.toInt()} triệu đ", color = Color.Black)
+                    Text(text = "${priceRange.endInclusive.toInt()} triệu đ", color = Color.Black)
                 }
             }
 
@@ -120,36 +108,20 @@ fun PriceFilterBottomSheet(
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                OutlinedTextField(
+                PriceTextField(
                     value = inputMin,
-                    onValueChange = {
-                        inputMin = it.filter(Char::isDigit)
-                        val min = inputMin.toFloatOrNull()?.coerceIn(minPrice.toFloat(), priceRange.endInclusive)
-                        if (min != null) {
-                            priceRange = min..priceRange.endInclusive
-                        }
-                    },
-                    label = { Text("Giá tối thiểu") },
-                    singleLine = true,
+                    onValueChange = { inputMin = it },
+                    label = "Giá tối thiểu",
                     modifier = Modifier.weight(1f)
                 )
 
-                Text(text = " - ", modifier = Modifier.padding(horizontal = 8.dp))
-
-                OutlinedTextField(
+                PriceTextField(
                     value = inputMax,
-                    onValueChange = {
-                        inputMax = it.filter(Char::isDigit)
-                        val max = inputMax.toFloatOrNull()?.coerceIn(priceRange.start, maxPrice.toFloat())
-                        if (max != null) {
-                            priceRange = priceRange.start..max
-                        }
-                    },
-                    label = { Text("Giá tối đa") },
-                    singleLine = true,
+                    onValueChange = { inputMax = it },
+                    label = "Giá tối đa",
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -158,13 +130,16 @@ fun PriceFilterBottomSheet(
 
             Button(
                 onClick = {
-                    val min = inputMin.toIntOrNull() ?: priceRange.start.toInt()
-                    val max = inputMax.toIntOrNull() ?: priceRange.endInclusive.toInt()
+                    val min = inputMin.toIntOrNull() ?: 0
+                    val max = inputMax.toIntOrNull() ?: 0
                     onApply(min, max)
                     onDismissRequest()
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = DarkBlue, contentColor = White)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = DarkBlue,
+                    contentColor = White
+                )
             ) {
                 Text("Áp dụng", color = Color.White)
             }
@@ -174,7 +149,7 @@ fun PriceFilterBottomSheet(
     }
 }
 
-@Composable//hàm hiện giá ở filterbuttong giá
+@Composable
 fun formatPrice(value: Float): String {
     return when {
         value >= 1_000_000 -> "${(value / 1_000_000).toInt()}tr"
@@ -183,3 +158,12 @@ fun formatPrice(value: Float): String {
     }
 }
 
+@Composable
+fun formatPriceWithD(input: String): String {
+    val number = input.toIntOrNull() ?: 0
+    val formatted = NumberFormat.getNumberInstance(Locale("vi", "VN")).format(number)
+    return buildString {
+        append(formatted)
+        append(" đ")
+    }
+}

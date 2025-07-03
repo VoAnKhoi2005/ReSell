@@ -21,8 +21,10 @@ func RegisterAddressRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	addressRoute.POST("/user", addressController.CreateAddress)
 	addressRoute.GET("/:address_id", addressController.GetAddressByID)
 	addressRoute.GET("/user/:user_id", addressController.GetAddressByUserID)
+	addressRoute.GET("/default", addressController.GetDefaultAddress)
 	addressRoute.PUT("/update/:address_id", addressController.UpdateAddress)
 	addressRoute.DELETE("/:address_id", addressController.DeleteAddress)
+	addressRoute.DELETE("/batch", addressController.DeleteAddresses)
 
 	addressRoute.GET("/provinces/all", addressController.GetAllProvinces)
 	addressRoute.GET("/districts/:province_id", addressController.GetDistricts)

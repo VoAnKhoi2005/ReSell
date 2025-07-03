@@ -9,7 +9,7 @@ import (
 type RecommenderService interface {
 	GetBuyerProfile(userID string) (*dto.BuyerProfile, error)
 	GetPostsFeatures(postIDs []string, userID string) ([]*dto.PostFeatures, error)
-	GetCandidatePostsID(page int, pageSize int) ([]string, int64, error)
+	GetCandidatePostsID(userID string, page int, pageSize int) ([]string, int64, error)
 
 	GetRecommendation(userID string, page int, pageSize int) ([]*dto.PostListUserDTO, int64, error)
 }
@@ -50,12 +50,12 @@ func (r *recommenderService) GetPostsFeatures(postIDs []string, userID string) (
 	return features, nil
 }
 
-func (r *recommenderService) GetCandidatePostsID(page int, pageSize int) ([]string, int64, error) {
-	return r.repo.GetCandidatePostsID(page, pageSize)
+func (r *recommenderService) GetCandidatePostsID(userID string, page int, pageSize int) ([]string, int64, error) {
+	return r.repo.GetCandidatePostsID(userID, page, pageSize)
 }
 
 func (r *recommenderService) GetRecommendation(userID string, page int, pageSize int) ([]*dto.PostListUserDTO, int64, error) {
-	candidatePostsID, total, err := r.repo.GetCandidatePostsID(page, pageSize)
+	candidatePostsID, total, err := r.repo.GetCandidatePostsID(userID, page, pageSize)
 	if err != nil {
 		return nil, 0, err
 	}

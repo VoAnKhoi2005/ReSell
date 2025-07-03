@@ -1,5 +1,6 @@
 package com.example.resell.ui.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,15 +33,22 @@ fun AddressBox(
     receiverName: String,
     phoneNumber: String,
     address: String,
-    showIcon: Boolean=false,
+    showIcon: Boolean = false,
+    isSelected: Boolean = false, // <-- mới
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = AdressBox),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() }
+            .then(
+                if (isSelected)
+                    Modifier.border(2.dp, Color.Red, RoundedCornerShape(8.dp))
+                else Modifier
+            )
     ) {
         Row(
             modifier = Modifier
@@ -48,18 +56,17 @@ fun AddressBox(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if(showIcon){
+            if (showIcon) {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = "Địa chỉ",
                     tint = DarkBlue,
-                    modifier = Modifier.run { size(24.dp) }
+                    modifier = Modifier.size(24.dp)
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
 
             Column {
-                // Tên & số điện thoại
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -70,7 +77,6 @@ fun AddressBox(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Địa chỉ cụ thể
                 Text(
                     text = address,
                     color = Color.DarkGray,

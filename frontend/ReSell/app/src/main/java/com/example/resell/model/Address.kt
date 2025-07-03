@@ -21,5 +21,10 @@ data class Address(
     var isDefault: Boolean,
 
     @Json(name = "ward")
-    val ward: Ward? = null
+    val ward: Ward? = null,
+    @Json(name = "fullname")
+    val fullname: String? = null,
+    @Json(name = "phone")
+    val phone: String? = null,
+
 )

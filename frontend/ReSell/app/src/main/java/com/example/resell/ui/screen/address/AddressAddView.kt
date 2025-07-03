@@ -14,29 +14,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.resell.model.User
+import com.example.resell.store.ReactiveStore
+import com.example.resell.ui.components.AddressPickerPopup
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
-import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.screen.payment.OrderButton
+import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.White2
+import com.example.resell.ui.viewmodel.address.AddressAddViewModel
+import com.example.resell.ui.viewmodel.components.AddressPickerViewModel
 
 @Composable
-fun AddressAddScreen() {
+fun AddressAddScreen(
+    viewModel: AddressAddViewModel = hiltViewModel(),
+    pickerViewModel: AddressPickerViewModel = hiltViewModel()
+) {
     val scrollState = rememberScrollState()
+    val user by ReactiveStore<User>().item.collectAsState()
+    var showPicker by remember { mutableStateOf(false) }
 
-    var fullName by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-    var province by remember { mutableStateOf("") }
-    var district by remember { mutableStateOf("") }
-    var ward by remember { mutableStateOf("") }
-
-    var detail by remember { mutableStateOf("") }
-    var isDefault by remember { mutableStateOf(false) }
+    // Các biến lỗi cho từng trường
+    var fullNameError by remember { mutableStateOf<String?>(null) }
+    var phoneError by remember { mutableStateOf<String?>(null) }
+    var detailError by remember { mutableStateOf<String?>(null) }
+    var locationError by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         topBar = {
             TopBar(
-                titleText = "Địa chỉ mới",
+                titleText = if (viewModel.isEditMode) "Chỉnh sửa địa chỉ" else "Địa chỉ mới",
                 showBackButton = true,
                 onBackClick = { NavigationController.navController.popBackStack() }
             )
@@ -50,7 +58,6 @@ fun AddressAddScreen() {
                 .padding(16.dp)
                 .verticalScroll(scrollState)
         ) {
-
             Text(
                 text = "Thông tin địa chỉ",
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
@@ -58,53 +65,69 @@ fun AddressAddScreen() {
             )
 
             OutlinedTextField(
-                value = fullName,
-                onValueChange = { fullName = it },
+                value = viewModel.fullName,
+                onValueChange = {
+                    viewModel.fullName = it
+                    fullNameError = null
+                },
                 label = { Text("Họ và tên") },
+                isError = fullNameError != null,
                 modifier = Modifier.fillMaxWidth()
             )
+            if (fullNameError != null) {
+                Text(fullNameError!!, color = MaterialTheme.colorScheme.error, fontSize = MaterialTheme.typography.labelSmall.fontSize)
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
-                value = phoneNumber,
-                onValueChange = { phoneNumber = it },
+                value = viewModel.phoneNumber,
+                onValueChange = {
+                    viewModel.phoneNumber = it
+                    phoneError = null
+                },
                 label = { Text("Số điện thoại") },
+                isError = phoneError != null,
                 modifier = Modifier.fillMaxWidth()
             )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            ProvinceDropdownField(
-                selectedProvince = province,
-                onClick = {
-                    NavigationController.navController.navigate(Screen.ProvinceSelect.route)
-                }
-            )
-
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-           DistrictDropdownField(
-               selectedDistrict = district,
-               onClick = {  NavigationController.navController.navigate(Screen.ProvinceSelect.route)}
-           )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-           WardDropdownField(
-               selectedWard = ward,
-               onClick = {}
-           )
+            if (phoneError != null) {
+                Text(phoneError!!, color = MaterialTheme.colorScheme.error, fontSize = MaterialTheme.typography.labelSmall.fontSize)
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
-                value = detail,
-                onValueChange = { detail = it },
+                value = viewModel.getLocationString(),
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Khu vực") },
+                trailingIcon = {
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Mở danh sách")
+                },
+                isError = locationError != null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showPicker = true }
+            )
+            if (locationError != null) {
+                Text(locationError!!, color = MaterialTheme.colorScheme.error, fontSize = MaterialTheme.typography.labelSmall.fontSize)
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = viewModel.detail,
+                onValueChange = {
+                    viewModel.detail = it
+                    detailError = null
+                },
                 label = { Text("Địa chỉ chi tiết") },
+                isError = detailError != null,
                 modifier = Modifier.fillMaxWidth()
             )
+            if (detailError != null) {
+                Text(detailError!!, color = MaterialTheme.colorScheme.error, fontSize = MaterialTheme.typography.labelSmall.fontSize)
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -113,102 +136,102 @@ fun AddressAddScreen() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "Đặt làm địa chỉ mặc định",
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                Text(text = "Đặt làm địa chỉ mặc định", style = MaterialTheme.typography.bodyLarge)
                 Switch(
-                    checked = isDefault,
-                    onCheckedChange = { isDefault = it }
+                    checked = viewModel.isDefault,
+                    onCheckedChange = { viewModel.isDefault = it },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = DarkBlue,
+                        checkedTrackColor = DarkBlue.copy(alpha = 0.54f), // viền phía sau
+                        uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                        uncheckedTrackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.38f)
+                    )
                 )
+
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             OrderButton(
-                text = "Lưu địa chỉ",
+                text = if (viewModel.isEditMode) "Cập nhật địa chỉ" else "Lưu địa chỉ",
                 onClick = {
+                    val valid = validateInput(
+                        viewModel.fullName,
+                        viewModel.phoneNumber,
+                        viewModel.detail,
+                        viewModel.getLocationString(),
+                        onError = { field, msg ->
+                            when (field) {
+                                "fullname" -> fullNameError = msg
+                                "phone" -> phoneError = msg
+                                "detail" -> detailError = msg
+                                "location" -> locationError = msg
+                            }
+                        }
+                    )
+
+                    if (valid) {
+                        viewModel.saveAddress {
+                            NavigationController.navController.previousBackStackEntry
+                                ?.savedStateHandle?.set("shouldReload", true)
+                            NavigationController.navController.popBackStack()
+                        }
+                    }
                 }
             )
         }
     }
-}
-@Composable
-fun ProvinceDropdownField(
-    selectedProvince: String?,
-    onClick: () -> Unit
-) {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .clickable { onClick() }
-    ) {
-        OutlinedTextField(
-            value = selectedProvince ?: "",
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Tỉnh/Thành phố") },
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "Mở danh sách"
-                )
+
+    if (showPicker) {
+        AddressPickerPopup(
+            viewModel = pickerViewModel,
+            onDismiss = { showPicker = false },
+            onAddressSelected = { province, district, ward ->
+                val selectedProvince = pickerViewModel.selectedProvince
+                val selectedDistrict = pickerViewModel.selectedDistrict
+                val selectedWard = pickerViewModel.selectedWard
+
+                if (selectedProvince != null && selectedDistrict != null && selectedWard != null) {
+                    viewModel.updateLocation(selectedProvince, selectedDistrict, selectedWard)
+                }
+                showPicker = false
             },
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-}
-@Composable
-fun DistrictDropdownField(
-    selectedDistrict: String?,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-    ) {
-        OutlinedTextField(
-            value = selectedDistrict ?: "",
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Quận/Huyện") },
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "Mở danh sách"
-                )
-            },
-            modifier = Modifier.fillMaxWidth()
+            allowAll = false
         )
     }
 }
 
-@Composable
-fun WardDropdownField(
-    selectedWard: String?,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-    ) {
-        OutlinedTextField(
-            value = selectedWard ?: "",
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Phường/Xã") },
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "Mở danh sách"
-                )
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
+private fun validateInput(
+    fullname: String,
+    phone: String,
+    detail: String,
+    location: String,
+    onError: (field: String, msg: String) -> Unit
+): Boolean {
+    var isValid = true
+
+    if (fullname.isBlank()) {
+        onError("fullname", "Họ và tên không được để trống")
+        isValid = false
     }
+
+    if (phone.isBlank()) {
+        onError("phone", "Số điện thoại không được để trống")
+        isValid = false
+    } else if (!phone.matches(Regex("^0\\d{9}$"))) {
+        onError("phone", "Số điện thoại phải có 10 chữ số và bắt đầu bằng 0")
+        isValid = false
+    }
+
+    if (location.isBlank()) {
+        onError("location", "Vui lòng chọn khu vực")
+        isValid = false
+    }
+
+    if (detail.isBlank()) {
+        onError("detail", "Vui lòng nhập địa chỉ chi tiết")
+        isValid = false
+    }
+
+    return isValid
 }
-
-
-
-

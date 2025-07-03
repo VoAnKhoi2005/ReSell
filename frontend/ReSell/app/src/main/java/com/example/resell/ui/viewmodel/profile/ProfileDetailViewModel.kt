@@ -8,12 +8,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.resell.model.Address
+import com.example.resell.model.GetPostsResponse
+import com.example.resell.model.PostData
 import com.example.resell.model.User
 import com.example.resell.repository.AddressRepository
+import com.example.resell.repository.PostRepository
 import com.example.resell.repository.UserRepository
 import com.example.resell.store.AuthTokenManager
 import com.example.resell.store.ReactiveStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.InputStream
@@ -40,8 +45,14 @@ data class UserProfileUiState(
 class ProfileDetailViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val authTokenManager: AuthTokenManager,
-    private val addressRepository: AddressRepository
+    private val addressRepository: AddressRepository,
+    private val postRepository: PostRepository
 ) : ViewModel() {
+    private val _userApprovedPosts = MutableStateFlow<List<PostData>>(emptyList())
+    val userApprovedPosts: StateFlow<List<PostData>> = _userApprovedPosts
+
+    private val _userSoldPosts = MutableStateFlow<List<PostData>>(emptyList())
+    val userSoldPosts: StateFlow<List<PostData>> = _userSoldPosts
 
     private val _uiState = mutableStateOf(UserProfileUiState())
     val uiState: State<UserProfileUiState> = _uiState
@@ -61,16 +72,17 @@ class ProfileDetailViewModel @Inject constructor(
                 _uiState.value = UserProfileUiState(
                     isCurrentUser = targetUserId == currentUserId,
                     userName = stat.username?:"Không rõ",
-                    name = stat.fullName ?: "Không rõ",
+                    name = stat.fullName  ,
                     avatarUrl = stat.avatarURL.orEmpty(),
                     coverUrl = stat.coverURL.orEmpty(),
-                    rating = stat.averageRating?.toString() ?: "0.0",
+                    rating = stat.averageRating.toString(),
                     reviewCount = stat.reviewNumber,
                     followerCount = stat.followerCount,
                     followingCount = stat.followeeCount,
                     responseRate = formatResponseRate(stat.chatResponsePercentage),
                     createdAt = formatCreatedAt(stat.createAt),
                 )
+                loadUserPosts(targetUserId)
             } ?: Log.e("PROFILE_VM", "UserStat result was null or left for user: $targetUserId")
         }
 
@@ -173,6 +185,71 @@ class ProfileDetailViewModel @Inject constructor(
         }
     }
 
+    fun loadUserPosts(userId: String) {
+        viewModelScope.launch {
+            if (uiState.value.isCurrentUser) {
+                // Giống PostManagementViewModel
+                var currentPage = 1
+                var isHasMore = true
+                val approved = mutableListOf<PostData>()
+                val sold = mutableListOf<PostData>()
+
+                while (isHasMore) {
+                    val result = postRepository.getOwnPosts(currentPage, 100)
+                    result.fold(
+                        { isHasMore = false },
+                        { response ->
+                            isHasMore = response.hasMore
+                            response.data?.filterIsInstance<PostData>()?.forEach {
+                                when (it.status) {
+                                    "approved" -> approved.add(it)
+                                    "sold" -> sold.add(it)
+                                }
+                            }
+                            currentPage++
+                        }
+                    )
+                }
+
+                _userApprovedPosts.value = approved
+                _userSoldPosts.value = sold
+            } else {
+                // Xem người khác thì vẫn gọi getPosts
+                loadPostsByStatus(userId, "approved", _userApprovedPosts)
+                loadPostsByStatus(userId, "sold", _userSoldPosts)
+            }
+        }
+    }
+
+
+    private suspend fun loadPostsByStatus(
+        userId: String,
+        status: String,
+        stateFlow: MutableStateFlow<List<PostData>>
+    ) {
+        val result = postRepository.getPosts(
+            page = 1,
+            limit = 50,
+            status = status,
+            userID = userId,
+            minPrice = null,
+            maxPrice = null,
+            provinceID = null,
+            districtID = null,
+            wardID = null,
+            categoryID = null,
+            search = null
+        )
+
+        result.fold(
+            { error ->
+                Log.e("PROFILE_VM", "Failed to fetch posts with status=$status: ${error.message}")
+            },
+            { response ->
+                stateFlow.value = response.data ?: emptyList()
+            }
+        )
+    }
 
 
 }

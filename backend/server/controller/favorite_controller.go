@@ -65,7 +65,7 @@ func (cart *FavoriteController) DeleteCartItem(c *gin.Context) {
 		return
 	}
 
-	postID := c.Param("post_id")
+	postID := c.Param("id")
 
 	if postID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Post ID is required"})
