@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.model.User
 import com.example.resell.store.ReactiveStore
@@ -19,7 +20,12 @@ import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.screen.payment.OrderButton
+import com.example.resell.ui.theme.AddressBoxColor
+import com.example.resell.ui.theme.Red
+import com.example.resell.ui.theme.SelectToDeleteColor
+import com.example.resell.ui.theme.White
 import com.example.resell.ui.theme.White2
+import com.example.resell.ui.theme.Yellow
 import com.example.resell.ui.viewmodel.address.AddressSetupViewModel
 
 @Composable
@@ -64,7 +70,8 @@ fun AddressSetupScreen(
                     }) {
                         Text(
                             text = if (isDeleteMode) "Hủy" else "Xóa",
-                            color = if (isDeleteMode) Color.Red else Color.White
+                            color = if (isDeleteMode) Red else White,
+                            style = MaterialTheme.typography.labelMedium.copy(fontSize = 20.sp)
                         )
                     }
                 }
@@ -83,24 +90,8 @@ fun AddressSetupScreen(
                 .sortedByDescending { it.isDefault }
                 .forEach { address ->
                 val isSelected = selectedAddressIds.contains(address.id)
-                val borderModifier = if (isDeleteMode && isSelected) {
-                    Modifier.border(2.dp, Color.Red)
-                } else Modifier
+                    val backgroundColor = if (isDeleteMode && isSelected) SelectToDeleteColor else AddressBoxColor
 
-                Box(
-                    modifier = borderModifier
-                        .fillMaxWidth()
-                        .clickable {
-                            if (isDeleteMode) {
-                                if (isSelected) selectedAddressIds.remove(address.id)
-                                else selectedAddressIds.add(address.id)
-                            } else {
-                                NavigationController.navController.navigate(
-                                    Screen.AddressAdd.route + "?id=${address.id}"
-                                )
-                            }
-                        }
-                ) {
                     AddressBox(
                         receiverName = address?.fullname ?: "Người dùng",
                         phoneNumber = address?.phone ?: "",
@@ -111,7 +102,7 @@ fun AddressSetupScreen(
                             address.ward?.district?.province?.name
                         ).joinToString(", "),
                         showIcon = address.isDefault,
-                        isSelected = isDeleteMode && selectedAddressIds.contains(address.id), // <-- truyền mới
+                        backgroundColor = backgroundColor, // TRUYỀN VÀO ĐÂY
                         onClick = {
                             if (isDeleteMode) {
                                 if (selectedAddressIds.contains(address.id)) {
@@ -125,9 +116,7 @@ fun AddressSetupScreen(
                         }
                     )
 
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
             }
 
             if (isDeleteMode && selectedAddressIds.isNotEmpty()) {
@@ -142,7 +131,7 @@ fun AddressSetupScreen(
                         )
                     }
                     ,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                    colors = ButtonDefaults.buttonColors(containerColor = Red),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp)
