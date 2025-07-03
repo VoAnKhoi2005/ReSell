@@ -159,6 +159,8 @@ interface ApiService {
         @Query("ward_id") wardID: String? = null,
         @Query("user_id") userID: String? = null,
         @Query("category_id") categoryID: String? = null,
+        @Query("is_favorite") isFavorite: Boolean? = null,
+        @Query("is_following") isFollowing: Boolean? = null,
         @Query("q") search: String? = null
     ): GetPostsResponse
 
@@ -173,6 +175,8 @@ interface ApiService {
         @Query("district_id") districtID: String? = null,
         @Query("ward_id") wardID: String? = null,
         @Query("category_id") categoryID: String? = null,
+        @Query("is_favorite") isFavorite: Boolean? = null,
+        @Query("is_following") isFollowing: Boolean? = null,
         @Query("q") search: String? = null
     ): GetPostsResponse
 

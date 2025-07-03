@@ -28,10 +28,22 @@ class PostRepositoryImpl @Inject constructor(
         wardID: String?,
         userID: String?,
         categoryID: String?,
+        isFavorite: Boolean?,
+        isFollowing: Boolean?,
         search: String?
     ): Either<NetworkError, GetPostsResponse> {
         return Either.catch {
-            apiService.getPosts(page, limit, status, minPrice, maxPrice, provinceID, districtID, wardID, userID, categoryID, search)
+            apiService.getPosts(
+                page, limit,
+                status,
+                minPrice, maxPrice,
+                provinceID, districtID, wardID,
+                userID,
+                categoryID,
+                isFavorite,
+                isFollowing,
+                search
+            )
         }.mapLeft { it.toNetworkError() }
     }
 
@@ -45,27 +57,21 @@ class PostRepositoryImpl @Inject constructor(
         districtID: String?,
         wardID: String?,
         categoryID: String?,
+        isFavorite: Boolean?,
+        isFollowing: Boolean?,
         search: String?
     ): Either<NetworkError, GetPostsResponse> {
         return Either.catch {
-            apiService.getOwnPosts(page, limit, status, minPrice, maxPrice, provinceID, districtID, wardID, categoryID, search)
-        }.mapLeft { it.toNetworkError() }
-    }
-
-    override suspend fun getFollowedPosts(
-        page: Int,
-        limit: Int,
-        status: String?,
-        minPrice: Int?,
-        maxPrice: Int?,
-        provinceID: String?,
-        districtID: String?,
-        wardID: String?,
-        categoryID: String?,
-        search: String?
-    ): Either<NetworkError, GetPostsResponse> {
-        return Either.catch {
-            apiService.getFollowedPosts(page, limit, status, minPrice, maxPrice, provinceID, districtID, wardID, categoryID, search)
+            apiService.getOwnPosts(
+                page, limit,
+                status,
+                minPrice, maxPrice,
+                provinceID, districtID, wardID,
+                categoryID,
+                isFavorite,
+                isFollowing,
+                search
+            )
         }.mapLeft { it.toNetworkError() }
     }
 

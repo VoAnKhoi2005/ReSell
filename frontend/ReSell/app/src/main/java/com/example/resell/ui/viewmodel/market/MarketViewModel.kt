@@ -73,7 +73,7 @@ class MarketViewModel @Inject constructor(
         if (isLoadingFollow) return
         isLoadingFollow = true
         viewModelScope.launch {
-            val result = repository.getFollowedPosts(page = followPage, limit = 10, status = "approved")
+            val result = repository.getPosts(page = followPage, limit = 10, status = "approved", isFollowing = true)
             result.fold(
                 {
                     Log.e("Get post",it.message?:"")
@@ -111,7 +111,7 @@ class MarketViewModel @Inject constructor(
         if (isLoadingFollow) return
         isLoadingFollow = true
         viewModelScope.launch {
-            val result = repository.getFollowedPosts(page = followPage, limit = 10, status = "approved")
+            val result = repository.getPosts(page = followPage, limit = 10, status = "approved", isFollowing = true)
             result.fold(
                 {
                     Log.e("Get post",it.message?:"")
@@ -119,7 +119,7 @@ class MarketViewModel @Inject constructor(
                         success->
                     isMoreFollow = success.hasMore
                     followPage++
-                    _followPosts.value = _followPosts.value + (success.data ?: emptyList())
+                    _followPosts.value += (success.data ?: emptyList())
                 }
             )
             isLoadingFollow = false
