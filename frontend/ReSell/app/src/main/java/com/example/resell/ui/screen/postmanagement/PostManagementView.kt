@@ -42,6 +42,7 @@ import com.example.resell.model.User
 import com.example.resell.store.ReactiveStore
 import com.example.resell.store.ReactiveStore.Companion.invoke
 import com.example.resell.ui.components.ProductPostItemHorizontalImageStatus
+import com.example.resell.ui.navigation.NavigationController
 
 @Composable
 fun PostMangamentScreen(
@@ -122,7 +123,11 @@ fun PostList(postList: List<PostData>, postStatus: PostStatus) {
                         imageUrl = post.thumbnail,
                         price = post.price,
                         address = post.address,
-                        postStatus = postStatus
+                        postStatus = postStatus,
+                        onClick = {
+                            // Điều hướng đến màn hình chi tiết bài đăng
+                            NavigationController.navController.navigate("productdetail_screen/${post.id}")
+                        }
                     )
                 }
             }
