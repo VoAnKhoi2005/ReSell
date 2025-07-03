@@ -25,7 +25,7 @@ const (
 type RecommenderRepository interface {
 	GetBuyerProfile(userID string) (*dto.BuyerProfile, error)
 	GetPostFeatures(postID string, buyerProfile *dto.BuyerProfile) (*dto.PostFeatures, error)
-	GetCandidatePostsID(page int, pageSize int) ([]string, int64, error)
+	GetCandidatePostsID(userID string, page int, pageSize int) ([]string, int64, error)
 }
 
 type recommenderRepository struct {
@@ -221,7 +221,7 @@ func (r *recommenderRepository) GetPostFeatures(postID string, buyerProfile *dto
 	return feature, nil
 }
 
-func (r *recommenderRepository) GetCandidatePostsID(page int, pageSize int) ([]string, int64, error) {
+func (r *recommenderRepository) GetCandidatePostsID(userID string, page int, pageSize int) ([]string, int64, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
@@ -236,10 +236,11 @@ func (r *recommenderRepository) GetCandidatePostsID(page int, pageSize int) ([]s
 		Joins("JOIN users ON users.id = posts.user_id").
 		Joins("JOIN post_images ON post_images.post_id = posts.id").
 		Joins("LEFT JOIN favorite_posts ON favorite_posts.post_id = posts.id").
+		Where("posts.user_id != ?", userID).
 		Where("posts.status = 'approved'").
 		Where("posts.created_at >= NOW() - INTERVAL '30 days'").
-		Where("users.reputation >= 0").
-		Group("posts.id, posts.created_at")
+		Where("users.reputation >= ?", 0).
+		Group("posts.id")
 
 	// Clone and count
 	countQuery := query.Session(&gorm.Session{})
