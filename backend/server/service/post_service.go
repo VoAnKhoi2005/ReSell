@@ -43,7 +43,6 @@ type PostService interface {
 	MarkPostAsDeleted(id string) (*model.Post, error)
 	RestoreDeletedPost(id string) (*model.Post, error)
 
-	GetFollowedPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 	GetOwnPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 	GetPostsByIdList(ownerID string, ids []string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 }
@@ -58,10 +57,6 @@ func (s *postService) GetAdminPosts(filters map[string]string, page, limit int) 
 
 func (s *postService) GetUserPosts(ownerID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
 	return s.repo.GetUserPostsByFilter(ownerID, filters, page, limit)
-}
-
-func (s *postService) GetFollowedPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
-	return s.repo.GetFollowedPosts(userID, filters, page, limit)
 }
 
 func (s *postService) GetOwnPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
@@ -98,21 +93,6 @@ func (s *postService) ApprovePost(id string) (*model.Post, error) {
 func (s *postService) RejectPost(id string) (*model.Post, error) {
 	return s.updatePostStatus(id, model.PostStatusRejected)
 }
-
-//func (s *postService) HidePost(id string) (*model.Post, error) {
-//	return s.updatePostStatus(id, model.PostStatusHidden)
-//}
-//
-//func (s *postService) UnhidePost(id string) (*model.Post, error) {
-//	post, err := s.repo.GetByID(id)
-//	if err != nil {
-//		return nil, err
-//	}
-//	if post.Status != model.PostStatusHidden {
-//		return nil, gorm.ErrRecordNotFound
-//	}
-//	return s.updatePostStatus(id, model.PostStatusApproved)
-//}
 
 func (s *postService) MarkPostAsSold(id string) (*model.Post, error) {
 	post, err := s.repo.GetByID(id)
@@ -283,10 +263,6 @@ func (s *postService) GetDeletedPostByID(id string) (*model.Post, error) {
 func NewPostService(repo repository.PostRepository) PostService {
 	return &postService{repo: repo}
 }
-
-//func (s *postService) SearchPosts(query string) ([]*dto.PostListUserDTO, error) {
-//	return s.repo.Search(query)
-//}
 
 func (s *postService) CreatePostImage(postID, url string) (*model.PostImage, error) {
 	var maxOrder uint
