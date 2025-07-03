@@ -40,7 +40,7 @@ type UserService interface {
 	SetAvatar(id string, url string) error
 	SetCover(id string, url string) error
 
-	GetStat(userID string) (*dto.UserStatDTO, error)
+	GetStat(userID string, requesterID string) (*dto.UserStatDTO, error)
 	UpdateReputation(userID string, reputation int) error
 	SearchUsername(query string) ([]*model.User, error)
 }
@@ -329,8 +329,8 @@ func (s *userService) UnBanUser(userID string) error {
 	return nil
 }
 
-func (s *userService) GetStat(userID string) (*dto.UserStatDTO, error) {
-	return s.userRepository.GetStat(userID)
+func (s *userService) GetStat(userID string, requesterID string) (*dto.UserStatDTO, error) {
+	return s.userRepository.GetStat(userID, requesterID)
 }
 
 func (s *userService) SearchUsername(query string) ([]*model.User, error) {

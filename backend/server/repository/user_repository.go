@@ -33,7 +33,7 @@ type UserRepository interface {
 	GetStripeAccountID(userID string) (string, error)
 	GetByStripeAccountID(accountID string) (*model.User, error)
 
-	GetStat(userID string) (*dto.UserStatDTO, error)
+	GetStat(userID string, requesterID string) (*dto.UserStatDTO, error)
 	SearchUsername(query string) ([]*model.User, error)
 
 	IncreaseReputation(userID string, amount int) error
@@ -178,7 +178,7 @@ func (r *userRepository) GetByStripeAccountID(accountID string) (*model.User, er
 	return &user, nil
 }
 
-func (r *userRepository) GetStat(userID string) (*dto.UserStatDTO, error) {
+func (r *userRepository) GetStat(userID string, requesterID string) (*dto.UserStatDTO, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
@@ -301,6 +301,13 @@ func (r *userRepository) GetStat(userID string) (*dto.UserStatDTO, error) {
 	} else {
 		stat.LastActivity = &lastActivity
 	}
+
+	var follow model.Follow
+	err := db.WithContext(ctx).
+		Model(&model.Follow{}).
+		Where("follower_id = ? AND followee_id = ?", requesterID, userID).
+		First(&follow).Error
+	stat.IsFollowing = err == nil
 
 	return stat, nil
 }

@@ -9,8 +9,8 @@ type UserStatDTO struct {
 	UserID                 string     `json:"user_id"`
 	Username               string     `json:"username"`
 	FullName               string     `json:"full_name"`
-	AvatarURL              *string     `json:"avatar_url"`
-	CoverURL               *string     `json:"cover_url"`
+	AvatarURL              *string    `json:"avatar_url"`
+	CoverURL               *string    `json:"cover_url"`
 	ChatResponsePercentage *float64   `json:"chat_response_percentage"`
 	Reputation             int        `json:"reputation"`
 	PostNumber             uint       `json:"post_number"`
@@ -24,6 +24,7 @@ type UserStatDTO struct {
 	AveragePostPrice       float64    `json:"average_post_price"`
 	FollowerCount          uint       `json:"follower_count"`
 	FolloweeCount          uint       `json:"followee_count"`
+	IsFollowing            bool       `json:"is_following"`
 	CreatedAt              time.Time  `json:"created_at"`
 }
 

@@ -78,6 +78,8 @@ data class UserStatResponse(
     val followerCount: Int,
     @Json(name = "followee_count")
     val followeeCount: Int,
+    @Json(name = "is_following")
+    val isFollowing: Boolean,
     @Json(name = "created_at")
     val createAt: LocalDateTime,
 )
