@@ -1,1 +1,1 @@
-alter table users drop column ban_reaseon
+alter table users drop column ban_reason
