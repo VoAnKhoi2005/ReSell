@@ -34,21 +34,16 @@ fun AddressBox(
     phoneNumber: String,
     address: String,
     showIcon: Boolean = false,
-    isSelected: Boolean = false, // <-- mới
+    backgroundColor: Color = AdressBox, // THÊM
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Card(
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = AdressBox),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor), // SỬ DỤNG
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .then(
-                if (isSelected)
-                    Modifier.border(2.dp, Color.Red, RoundedCornerShape(8.dp))
-                else Modifier
-            )
     ) {
         Row(
             modifier = Modifier
@@ -86,3 +81,4 @@ fun AddressBox(
         }
     }
 }
+
