@@ -32,7 +32,8 @@ import com.example.resell.ui.screen.productdetail.ProductDetailScreen
 import com.example.resell.ui.screen.profile.ProfileDetailScreen.ProfileDetailScreen
 import com.example.resell.ui.screen.auth.register.RegisterScreen
 import com.example.resell.ui.screen.favourite.FavoriteScreen
-import com.example.resell.ui.screen.payment.PaymentScreen
+import com.example.resell.ui.screen.payment.PaymenContentScreen
+
 import com.example.resell.ui.screen.rating.RatingScreen
 import com.example.resell.ui.screen.rating.ReviewProductScreen
 
@@ -106,7 +107,7 @@ fun SetupNavGraph(
         composable(Screen.Add.route) { AddPostScreen() }
         composable (Screen.BuyingOrder.route){ BuyingOrderScreen() }
         composable (Screen.MyOrder.route){ MyOrderScreen() }
-        composable (Screen.Payment.route){ PaymentScreen()}
+        composable (Screen.Payment.route){ PaymenContentScreen()}
         composable (Screen.AddressSetup.route){ AddressSetupScreen() }
         composable(
             route = Screen.AddressAdd.route + "?id={id}",

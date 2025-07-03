@@ -16,7 +16,6 @@ import com.example.resell.ui.components.AddressBox
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
-import com.example.resell.ui.screen.payment.OrderButton
 import com.example.resell.ui.theme.AddressBoxColor
 import com.example.resell.ui.theme.White2
 import com.example.resell.ui.viewmodel.address.AddressSetupViewModel
@@ -82,9 +81,11 @@ fun AddressChooseScreen(
                         onClick = {
                             navController.previousBackStackEntry
                                 ?.savedStateHandle
-                                ?.set("selectedAddress", address)
+                                ?.set("selectedAddressId", address.id)
                             navController.popBackStack()
                         }
+
+
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -92,12 +93,7 @@ fun AddressChooseScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            OrderButton(
-                text = "Thêm địa chỉ mới",
-                onClick = {
-                    navController.navigate(Screen.AddressAdd.route)
-                }
-            )
+
         }
     }
 }

@@ -19,9 +19,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.model.User
 import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.components.AddressPickerPopup
+import com.example.resell.ui.components.OrderButton
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
-import com.example.resell.ui.screen.payment.OrderButton
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.White2
 import com.example.resell.ui.viewmodel.address.AddressAddViewModel
