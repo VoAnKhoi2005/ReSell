@@ -12,10 +12,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.ngrok.com/ngrok/v2"
 	"log"
+	"math/rand"
 	"os"
+	"time"
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 	config.LoadEnv()
 	port := os.Getenv("PORT")
 	host := os.Getenv("HOST")

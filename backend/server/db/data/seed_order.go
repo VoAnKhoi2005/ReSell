@@ -6,6 +6,7 @@ import (
 	lorem "github.com/drhodes/golorem"
 	"github.com/google/uuid"
 	"math/rand"
+	"time"
 )
 
 // Voi moi user, tao random order cua random post (cac post khong dc lap lai) voi random payment method
@@ -64,6 +65,7 @@ func seedOrder(userIDs, addressIDs, postIDs, paymentMethodIDs []string) []string
 				Status:          status,
 				AddressId:       &addressIDs[i],
 				Total:           int(post.Price),
+				CreatedAt:       randomTimeBetween(post.CreatedAt, time.Now()),
 			}
 
 			k++
@@ -90,10 +92,11 @@ func seedReview(orderIDs []string) {
 		}
 
 		review := model.UserReview{
-			OrderId: &orderID,
-			UserId:  order.UserId,
-			Rating:  i % 5,
-			Comment: lorem.Paragraph(2, 4),
+			OrderId:   &orderID,
+			UserId:    order.UserId,
+			Rating:    i % 5,
+			Comment:   lorem.Paragraph(2, 4),
+			CreatedAt: randomTimeBetween(order.CreatedAt, time.Now()),
 		}
 
 		reviews = append(reviews, review)

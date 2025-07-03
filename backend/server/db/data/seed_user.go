@@ -35,6 +35,16 @@ func seedUser() []string {
 	return userIDs
 }
 
-func ptr[T any](v T) *T {
-	return &v
+func seedFollow(userIDs []string) {
+	var follows []model.Follow
+	for i := 0; i < len(userIDs)-3; i++ {
+		for j := i + 1; j <= i+3 && j < len(userIDs); j++ {
+			follow := model.Follow{
+				FollowerID: &userIDs[i],
+				FolloweeID: &userIDs[j],
+			}
+			follows = append(follows, follow)
+		}
+	}
+	config.DB.Create(&follows)
 }
