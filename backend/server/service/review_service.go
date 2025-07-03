@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 )
@@ -41,7 +42,27 @@ func (r *reviewService) CreateReview(review *model.UserReview) error {
 	if order.Status != model.OrderStatusCompleted {
 		return errors.New("order status is invalid for creating review")
 	}
-	return r.reviewRepository.CreateReview(review)
+	err = r.reviewRepository.CreateReview(review)
+	if err != nil {
+		return err
+	}
+
+	//Handle notification
+	sellerID, err := r.GetSellerID(*review.OrderId)
+	if err != nil {
+		return err
+	}
+	title := "You Got a New Review!"
+	description := "A buyer just left feedback on your post."
+	err = fb.FcmHandler.SendNotification(sellerID, title, description, false, model.DefaultNotification)
+
+	//Reputation
+	err = repository.GlobalRepo.IncreaseReputation(sellerID, int(5*review.Rating))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *reviewService) GetReviewByBuyerID(buyerID string) ([]*model.UserReview, error) {

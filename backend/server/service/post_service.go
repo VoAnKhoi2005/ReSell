@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/dto"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/transaction"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"log"
 	"time"
 )
 
@@ -48,23 +50,25 @@ type PostService interface {
 }
 
 type postService struct {
-	repo repository.PostRepository
+	postRepo repository.PostRepository
+	userRepo repository.UserRepository
 }
 
 func (s *postService) GetAdminPosts(filters map[string]string, page, limit int) ([]*dto.PostListAdminDTO, int64, error) {
-	return s.repo.GetAdminPostsByFilter(filters, page, limit)
+	return s.postRepo.GetAdminPostsByFilter(filters, page, limit)
 }
 
 func (s *postService) GetUserPosts(ownerID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
-	return s.repo.GetUserPostsByFilter(ownerID, filters, page, limit)
+	return s.postRepo.GetUserPostsByFilter(ownerID, filters, page, limit)
 }
 
+
 func (s *postService) GetOwnPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
-	return s.repo.GetOwnPosts(userID, filters, page, limit)
+	return s.postRepo.GetOwnPosts(userID, filters, page, limit)
 }
 
 func (s *postService) GetPostsByIdList(ownerID string, ids []string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
-	return s.repo.GetPostsByIdList(ownerID, ids, page, limit)
+	return s.postRepo.GetPostsByIdList(ownerID, ids, page, limit)
 }
 
 func (s *postService) updatePostStatus(id string, status model.PostStatus) (*model.Post, error) {
@@ -76,7 +80,7 @@ func (s *postService) updatePostStatus(id string, status model.PostStatus) (*mod
 
 	post.Status = status
 
-	err = s.repo.Update(post)
+	err = s.postRepo.Update(post)
 
 	cacheKey := "post:" + id
 	ctx, cancel := util.NewRedisContext()
@@ -87,15 +91,35 @@ func (s *postService) updatePostStatus(id string, status model.PostStatus) (*mod
 }
 
 func (s *postService) ApprovePost(id string) (*model.Post, error) {
-	return s.updatePostStatus(id, model.PostStatusApproved)
+	post, err := s.updatePostStatus(id, model.PostStatusApproved)
+	if err != nil {
+		return post, err
+	}
+
+	title := "Your post has been approved"
+	description := "Your item is now visible to all users."
+	err = fb.FcmHandler.SendNotification(*post.UserID, title, description, false, model.PostNotification)
+	log.Printf("error sending order notification %v", err)
+
+	return post, err
 }
 
 func (s *postService) RejectPost(id string) (*model.Post, error) {
-	return s.updatePostStatus(id, model.PostStatusRejected)
+	post, err := s.updatePostStatus(id, model.PostStatusRejected)
+	if err != nil {
+		return post, err
+	}
+
+	title := "Your post has been rejected"
+	description := "Make sure it follows our posting rules and try again."
+	err = fb.FcmHandler.SendNotification(*post.UserID, title, description, false, model.PostNotification)
+	log.Printf("error sending order notification %v", err)
+
+	return post, err
 }
 
 func (s *postService) MarkPostAsSold(id string) (*model.Post, error) {
-	post, err := s.repo.GetByID(id)
+	post, err := s.postRepo.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -104,12 +128,12 @@ func (s *postService) MarkPostAsSold(id string) (*model.Post, error) {
 	now := time.Now().UTC()
 	post.SoldAt = &now
 
-	err = s.repo.Update(post)
+	err = s.postRepo.Update(post)
 	return post, err
 }
 
 func (s *postService) RevertSoldStatus(id string) (*model.Post, error) {
-	post, err := s.repo.GetByID(id)
+	post, err := s.postRepo.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -117,25 +141,25 @@ func (s *postService) RevertSoldStatus(id string) (*model.Post, error) {
 	post.Status = model.PostStatusSold
 	post.SoldAt = nil
 
-	err = s.repo.Update(post)
+	err = s.postRepo.Update(post)
 	return post, err
 }
 
 func (s *postService) MarkPostAsDeleted(id string) (*model.Post, error) {
-	post, err := s.repo.GetByID(id)
+	post, err := s.postRepo.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
 
 	post.Status = model.PostStatusDeleted
-	err = s.repo.SoftDelete(post)
+	err = s.postRepo.SoftDelete(post)
 
 	return post, err
 }
 
 func (s *postService) RestoreDeletedPost(id string) (*model.Post, error) {
 	// Lấy cả bài đã bị soft delete
-	post, err := s.repo.GetDeletedByID(id)
+	post, err := s.postRepo.GetDeletedByID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +171,7 @@ func (s *postService) RestoreDeletedPost(id string) (*model.Post, error) {
 	post.Status = model.PostStatusPending
 
 	// Cập nhật lại
-	err = s.repo.Update(post)
+	err = s.postRepo.Update(post)
 	return post, err
 }
 
@@ -162,7 +186,28 @@ func (s *postService) CreatePost(req *transaction.CreatePostRequest, userID stri
 		Price:       req.Price,
 		Status:      model.PostStatusPending,
 	}
-	err := s.repo.Create(post)
+	err := s.postRepo.Create(post)
+
+	sellerID := post.UserID
+	users, err := s.userRepo.GetAllFollowUser(sellerID)
+	if err != nil {
+		return post, nil
+	}
+
+	seller, err := s.userRepo.GetByID(*sellerID)
+	if err != nil {
+		return post, nil
+	}
+
+	for _, user := range users {
+		title := "New post from " + seller.Username
+		description := "Check out what " + seller.Username + " just posted!"
+		err = fb.FcmHandler.SendNotification(user.ID, title, description, false, model.PostNotification)
+		if err != nil {
+			log.Println("FCM error:", err)
+			continue
+		}
+	}
 
 	return post, err
 }
@@ -211,7 +256,7 @@ func (s *postService) UpdatePost(id string, req *transaction.UpdatePostRequest) 
 	//post.Description = req.Description
 	//post.Price = req.Price
 
-	err = s.repo.Update(post)
+	err = s.postRepo.Update(post)
 	return post, err
 }
 
@@ -231,7 +276,7 @@ func (s *postService) GetPostByID(id string) (*model.Post, error) {
 	}
 
 	// 2. Nếu cache miss → fallback DB
-	post, err := s.repo.GetByID(id)
+	post, err := s.postRepo.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -245,23 +290,23 @@ func (s *postService) GetPostByID(id string) (*model.Post, error) {
 }
 
 func (s *postService) DeletePost(id string) error {
-	post, err := s.repo.GetDeletedByID(id)
+	post, err := s.postRepo.GetDeletedByID(id)
 	if err != nil {
 		return err
 	}
-	return s.repo.Delete(post)
+	return s.postRepo.Delete(post)
 }
 
 func (s *postService) GetAllDeletedPosts() ([]*model.Post, error) {
-	return s.repo.GetAllDeleted()
+	return s.postRepo.GetAllDeleted()
 }
 
 func (s *postService) GetDeletedPostByID(id string) (*model.Post, error) {
-	return s.repo.GetDeletedByID(id)
+	return s.postRepo.GetDeletedByID(id)
 }
 
 func NewPostService(repo repository.PostRepository) PostService {
-	return &postService{repo: repo}
+	return &postService{postRepo: repo}
 }
 
 func (s *postService) CreatePostImage(postID, url string) (*model.PostImage, error) {
@@ -280,14 +325,14 @@ func (s *postService) CreatePostImage(postID, url string) (*model.PostImage, err
 		ImageOrder: maxOrder + 1,
 	}
 
-	err = s.repo.CreatePostImage(postImage)
+	err = s.postRepo.CreatePostImage(postImage)
 	return postImage, err
 }
 
 func (s *postService) DeletePostImage(postID, url string) error {
-	postImage, err := s.repo.GetPostImage(postID, url)
+	postImage, err := s.postRepo.GetPostImage(postID, url)
 	if err != nil {
 		return err
 	}
-	return s.repo.DeletePostImage(postImage)
+	return s.postRepo.DeletePostImage(postImage)
 }

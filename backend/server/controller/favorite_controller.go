@@ -24,7 +24,7 @@ func (cart *FavoriteController) GetCartItems(c *gin.Context) {
 	userID, err := util.GetUserID(c)
 	items, err := cart.cartService.GetCartItems(userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get cart items"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, items)
@@ -52,7 +52,7 @@ func (cart *FavoriteController) CreateCartItem(c *gin.Context) {
 
 	item, err := cart.cartService.AddItemToCart(userID, req.PostID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add item to cart"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusCreated, item)
@@ -74,7 +74,7 @@ func (cart *FavoriteController) DeleteCartItem(c *gin.Context) {
 
 	err := cart.cartService.RemoveItemFromCart(userID, postID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove item from cart"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Item removed from cart"})

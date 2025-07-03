@@ -26,15 +26,18 @@ type UserRepository interface {
 
 	DeleteByID(id string) error
 
-	FollowUser(followerID *string, followedID *string) error
+	FollowUser(follow *model.Follow) error
 	GetAllFollowUser(followerID *string) ([]*model.User, error)
 	UnFollowUser(followerID *string, followedID *string) error
 
 	GetStripeAccountID(userID string) (string, error)
 	GetByStripeAccountID(accountID string) (*model.User, error)
 
-	GetStat(userID string) (*dto.UserStatDTO, error)
+	GetStat(userID string, requesterID string) (*dto.UserStatDTO, error)
 	SearchUsername(query string) ([]*model.User, error)
+
+	IncreaseReputation(userID string, amount int) error
+	DecreaseReputation(userID string, amount int) error
 }
 
 type userRepository struct {
@@ -129,11 +132,11 @@ func (r *userRepository) DeleteByID(id string) error {
 	return r.db.WithContext(ctx).Delete(&model.User{}, "id = ?", id).Error
 }
 
-func (r *userRepository) FollowUser(followerID *string, followedID *string) error {
+func (r *userRepository) FollowUser(follow *model.Follow) error {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
-	return r.db.WithContext(ctx).Create(&model.Follow{FolloweeID: followerID, FollowerID: followedID}).Error
+	return r.db.WithContext(ctx).Create(&follow).Error
 }
 
 func (r *userRepository) GetAllFollowUser(followerID *string) ([]*model.User, error) {
@@ -175,7 +178,7 @@ func (r *userRepository) GetByStripeAccountID(accountID string) (*model.User, er
 	return &user, nil
 }
 
-func (r *userRepository) GetStat(userID string) (*dto.UserStatDTO, error) {
+func (r *userRepository) GetStat(userID string, requesterID string) (*dto.UserStatDTO, error) {
 	ctx, cancel := util.NewDBContext()
 	defer cancel()
 
@@ -299,6 +302,13 @@ func (r *userRepository) GetStat(userID string) (*dto.UserStatDTO, error) {
 		stat.LastActivity = &lastActivity
 	}
 
+	var follow model.Follow
+	err := db.WithContext(ctx).
+		Model(&model.Follow{}).
+		Where("follower_id = ? AND followee_id = ?", requesterID, userID).
+		First(&follow).Error
+	stat.IsFollowing = err == nil
+
 	return stat, nil
 }
 
@@ -309,4 +319,30 @@ func (r *userRepository) SearchUsername(query string) ([]*model.User, error) {
 	var users []*model.User
 	err := r.db.WithContext(ctx).Where("username ILIKE ?", query).Find(&users).Error
 	return users, err
+}
+
+func (r *userRepository) IncreaseReputation(userID string, amount int) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	user, err := r.GetByID(userID)
+	if err != nil {
+		return err
+	}
+
+	user.Reputation = user.Reputation + amount
+	return r.db.WithContext(ctx).Save(user).Error
+}
+
+func (r *userRepository) DecreaseReputation(userID string, amount int) error {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	user, err := r.GetByID(userID)
+	if err != nil {
+		return err
+	}
+
+	user.Reputation = user.Reputation - amount
+	return r.db.WithContext(ctx).Save(user).Error
 }

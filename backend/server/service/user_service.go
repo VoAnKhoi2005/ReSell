@@ -40,7 +40,7 @@ type UserService interface {
 	SetAvatar(id string, url string) error
 	SetCover(id string, url string) error
 
-	GetStat(userID string) (*dto.UserStatDTO, error)
+	GetStat(userID string, requesterID string) (*dto.UserStatDTO, error)
 	UpdateReputation(userID string, reputation int) error
 	SearchUsername(query string) ([]*model.User, error)
 }
@@ -261,7 +261,11 @@ func (s *userService) FollowUser(followerID string, followeeID string) error {
 		return err
 	}
 
-	return s.userRepository.FollowUser(&followerID, &followeeID)
+	var follow model.Follow
+	follow.FollowerID = &followerID
+	follow.FolloweeID = &followeeID
+
+	return s.userRepository.FollowUser(&follow)
 }
 
 func (s *userService) GetAllFollowees(followerID string) ([]*model.User, error) {
@@ -289,7 +293,17 @@ func (s *userService) BanUserForDay(userID string, length uint) error {
 	user.BanEnd = &banEnd
 	user.Status = model.BannedStatus
 
-	return s.userRepository.Update(user)
+	err = s.userRepository.Update(user)
+	if err != nil {
+		return err
+	}
+
+	err = repository.GlobalRepo.DecreaseReputation(userID, 50)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *userService) UnBanUser(userID string) error {
@@ -302,11 +316,21 @@ func (s *userService) UnBanUser(userID string) error {
 	user.BanEnd = nil
 	user.Status = model.ActiveStatus
 
-	return s.userRepository.Update(user)
+	err = s.userRepository.Update(user)
+	if err != nil {
+		return err
+	}
+
+	err = repository.GlobalRepo.IncreaseReputation(userID, 50)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (s *userService) GetStat(userID string) (*dto.UserStatDTO, error) {
-	return s.userRepository.GetStat(userID)
+func (s *userService) GetStat(userID string, requesterID string) (*dto.UserStatDTO, error) {
+	return s.userRepository.GetStat(userID, requesterID)
 }
 
 func (s *userService) SearchUsername(query string) ([]*model.User, error) {

@@ -6,7 +6,6 @@ import (
 	"firebase.google.com/go/messaging"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
-	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
 	"log"
 
 	firebase "firebase.google.com/go"
@@ -41,8 +40,7 @@ func InitFirebase() {
 
 func InitFCMHandler() {
 	notificationRepo := repository.NewNotificationRepository(config.DB)
-	notificationService := service.NewNotificationService(notificationRepo)
-	FcmHandler = NewFCMHandler(notificationService)
+	FcmHandler = NewFCMHandler(notificationRepo)
 }
 
 func VerifyFirebaseIDToken(idToken string) (*auth.Token, error) {

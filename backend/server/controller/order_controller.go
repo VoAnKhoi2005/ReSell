@@ -1,13 +1,11 @@
 package controller
 
 import (
-	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/transaction"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"time"
 )
@@ -165,44 +163,8 @@ func (oc *OrderController) UpdateStatus(c *gin.Context) {
 
 	err = oc.orderService.UpdateStatus(orderID, sellerID, newStatus)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	//Handle notification
-	buyerID, err := oc.orderService.GetBuyerID(orderID)
-	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
-	}
-
-	var title, description string
-	if newStatus == model.OrderStatusShipping {
-		title, description = model.DefaultNotificationContent(model.OrderNotification)
-		err = fb.FcmHandler.SendNotification(buyerID, title, description, false, model.OrderNotification)
-		log.Printf("error sending order notification %v", err)
-	}
-
-	if newStatus == model.OrderStatusProcessing {
-		title = "Order Processing"
-		description = "Your order has been create successfully and is being processed"
-		err = fb.FcmHandler.SendNotification(buyerID, title, description, false, model.OrderNotification)
-		log.Printf("error sending order notification %v", err)
-	}
-
-	if newStatus == model.OrderStatusCancelled {
-		title = "Order Cancelled"
-		description = "Your order has been cancelled"
-		err = fb.FcmHandler.SendNotification(buyerID, title, description, false, model.OrderNotification)
-		log.Printf("error sending order notification %v", err)
-	}
-
-	if newStatus == model.OrderStatusCompleted {
-		title = "Order Completed"
-		description = "Your order has been delivered successfully"
-		err = fb.FcmHandler.SendNotification(sellerID, title, description, false, model.OrderNotification)
-		err = fb.FcmHandler.SendNotification(buyerID, title, description, false, model.OrderNotification)
-		log.Printf("error sending order notification %v", err)
 	}
 
 	c.JSON(http.StatusOK, true)

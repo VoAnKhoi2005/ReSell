@@ -90,6 +90,6 @@ func (s *categoryService) GetCategoriesByParentID(parentID string) ([]*model.Cat
 //		return nil, err
 //	}
 //	category.ImageURL = imageURL
-//	err = s.repo.Update(category)
+//	err = s.postRepo.Update(category)
 //	return category, err
 //}

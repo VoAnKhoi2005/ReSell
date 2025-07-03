@@ -299,8 +299,18 @@ func (h *UserController) UploadCover(c *gin.Context) {
 
 func (h *UserController) GetStat(c *gin.Context) {
 	userID := c.Param("id")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "userID is required"})
+		return
+	}
 
-	stat, err := h.userService.GetStat(userID)
+	requesterID, err := util.GetUserID(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	stat, err := h.userService.GetStat(userID, requesterID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
