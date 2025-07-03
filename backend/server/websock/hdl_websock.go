@@ -23,6 +23,11 @@ const (
 	maxMessageSize = 512
 )
 
+type ChatPresenceKey struct {
+	UserID         string
+	ConversationID string
+}
+
 type WSHandler struct {
 	messageService service.MessageService
 	sessions       map[string]*Session
@@ -205,7 +210,11 @@ func (h *WSHandler) handleNewMessage(sess *Session, msg *model.NewMessagePayload
 	}
 
 	//Handle notification
-	_, isInChat := h.inChatStatus.Load(recipientID)
+	key := ChatPresenceKey{
+		UserID:         recipientID,
+		ConversationID: *savedMsg.ConversationId,
+	}
+	_, isInChat := h.inChatStatus.Load(key)
 	title, desc := model.DefaultNotificationContent(model.MessageNotification)
 	if !isInChat {
 		err = fb.FcmHandler.SendNotification(recipientID, title, desc, false, model.MessageNotification)
@@ -246,7 +255,7 @@ func (h *WSHandler) handleTyping(sess *Session, payload *model.TypingIndicatorPa
 }
 
 func (h *WSHandler) handleInChatStatus(sess *Session, payload *model.InChatIndicatorPayload) {
-	conversation, err := h.messageService.GetConversationByID(payload.ConversationId)
+	_, err := h.messageService.GetConversationByID(payload.ConversationId)
 	if err != nil {
 		log.Printf("Error loading conversation %s: %v", payload.ConversationId, err)
 		h.sendError(sess, "Failed to load conversation", &payload.TempMessageID)
@@ -254,17 +263,15 @@ func (h *WSHandler) handleInChatStatus(sess *Session, payload *model.InChatIndic
 	}
 
 	senderID := sess.UserID
-	var recipientID string
-	if *conversation.BuyerId != sess.UserID {
-		recipientID = *conversation.BuyerId
-	} else {
-		recipientID = *conversation.SellerId
+	key := ChatPresenceKey{
+		UserID:         senderID,
+		ConversationID: payload.ConversationId,
 	}
 
 	if payload.IsInChat {
-		h.inChatStatus.Store(senderID, recipientID)
+		h.inChatStatus.Store(key, true)
 	} else {
-		h.inChatStatus.Delete(senderID)
+		h.inChatStatus.Delete(key)
 	}
 }
 
@@ -350,6 +357,13 @@ func (h *WSHandler) removeSession(userID string) {
 		close(session.Send)
 		_ = session.WS.Close()
 		delete(h.sessions, userID)
+
+		h.inChatStatus.Range(func(key, value any) bool {
+			if k, ok := key.(ChatPresenceKey); ok && k.UserID == userID {
+				h.inChatStatus.Delete(k)
+			}
+			return true
+		})
 	}
 }
 
