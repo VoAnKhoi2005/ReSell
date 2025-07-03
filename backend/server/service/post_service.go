@@ -45,7 +45,6 @@ type PostService interface {
 	MarkPostAsDeleted(id string) (*model.Post, error)
 	RestoreDeletedPost(id string) (*model.Post, error)
 
-	GetFollowedPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 	GetOwnPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 	GetPostsByIdList(ownerID string, ids []string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 }
@@ -63,9 +62,6 @@ func (s *postService) GetUserPosts(ownerID string, filters map[string]string, pa
 	return s.postRepo.GetUserPostsByFilter(ownerID, filters, page, limit)
 }
 
-func (s *postService) GetFollowedPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
-	return s.postRepo.GetFollowedPosts(userID, filters, page, limit)
-}
 
 func (s *postService) GetOwnPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
 	return s.postRepo.GetOwnPosts(userID, filters, page, limit)
@@ -121,21 +117,6 @@ func (s *postService) RejectPost(id string) (*model.Post, error) {
 
 	return post, err
 }
-
-//func (s *postService) HidePost(id string) (*model.Post, error) {
-//	return s.updatePostStatus(id, model.PostStatusHidden)
-//}
-//
-//func (s *postService) UnhidePost(id string) (*model.Post, error) {
-//	post, err := s.postRepo.GetByID(id)
-//	if err != nil {
-//		return nil, err
-//	}
-//	if post.Status != model.PostStatusHidden {
-//		return nil, gorm.ErrRecordNotFound
-//	}
-//	return s.updatePostStatus(id, model.PostStatusApproved)
-//}
 
 func (s *postService) MarkPostAsSold(id string) (*model.Post, error) {
 	post, err := s.postRepo.GetByID(id)
@@ -327,10 +308,6 @@ func (s *postService) GetDeletedPostByID(id string) (*model.Post, error) {
 func NewPostService(repo repository.PostRepository) PostService {
 	return &postService{postRepo: repo}
 }
-
-//func (s *postService) SearchPosts(query string) ([]*dto.PostListUserDTO, error) {
-//	return s.postRepo.Search(query)
-//}
 
 func (s *postService) CreatePostImage(postID, url string) (*model.PostImage, error) {
 	var maxOrder uint
