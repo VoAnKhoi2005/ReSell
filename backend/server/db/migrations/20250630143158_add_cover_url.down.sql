@@ -1,2 +1,2 @@
-alter table users
-    drop column cover_url varchar;
+ALTER TABLE users
+    DROP COLUMN cover_url;
