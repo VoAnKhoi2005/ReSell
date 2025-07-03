@@ -1,74 +1,78 @@
 package com.example.resell.ui.screen.payment
-import com.example.resell.R
-import android.R.attr.thickness
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.ui.components.AddressBox
+import com.example.resell.ui.components.OrderButton
+import com.example.resell.ui.components.PaymentMethodSelector
 import com.example.resell.ui.components.ProductPostItemHorizontalImage
 import com.example.resell.ui.components.TopBar
+import com.example.resell.ui.components.TotalAmountBox
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
-import com.example.resell.ui.theme.AdressBox
-import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.LightGray
-import com.example.resell.ui.theme.LoginButton
 import com.example.resell.ui.theme.White
 import com.example.resell.ui.theme.White2
-import com.example.resell.ui.theme.priceColor
+import com.example.resell.ui.viewmodel.payment.PaymentViewModel
 
 
 @Composable
-fun PaymentScreen() {
+fun PaymenContentScreen(
+     viewModel: PaymentViewModel = hiltViewModel()
+) {
     val scrollState = rememberScrollState()
+    val selectedAddress by viewModel.selectedAddress.collectAsState()
+    val navBackStackEntry = NavigationController.navController.currentBackStackEntry
+    val selectedId = navBackStackEntry?.savedStateHandle?.get<String>("selectedAddressId")
+    val alreadyFetched = remember { mutableStateOf(false) }
 
-    // Giả lập dữ liệu người nhận
-    val receiverName = "Phạm Thành Long"
-    val phoneNumber = "08366333080"
-    val address = "123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh"
-//
+    LaunchedEffect(selectedId) {
+        if (!selectedId.isNullOrBlank() && !alreadyFetched.value) {
+            viewModel.fetchAddressById(selectedId)
+            alreadyFetched.value = true
+        }
+    }
+
+    val receiverName = selectedAddress?.fullname ?: "Chưa có tên"
+    val phoneNumber = selectedAddress?.phone ?: "Chưa có số điện thoại"
+    val address = selectedAddress?.let {
+        listOfNotNull(
+            it.detail,
+            it.ward?.name,
+            it.ward?.district?.name,
+            it.ward?.district?.province?.name
+        ).joinToString(", ")
+    } ?: "Chưa chọn địa chỉ"
+
     val paymentMethods = listOf(
         "Thanh toán khi nhận hàng (COD)",
         "ZaloPay",
         "Thẻ ngân hàng (ATM / Visa / Mastercard)"
     )
-
     val selectedMethodIndex = remember { mutableStateOf(0) }
 
     Scaffold(
@@ -103,13 +107,12 @@ fun PaymentScreen() {
                     .verticalScroll(scrollState)
                     .padding(12.dp)
             ) {
-
                 AddressBox(
                     receiverName = receiverName,
                     phoneNumber = phoneNumber,
                     address = address,
                     onClick = {
-                       NavigationController.navController.navigate(Screen.AddressSetup.route)
+                        NavigationController.navController.navigate(Screen.AddressChooseScreen.route)
                     }
                 )
 
@@ -138,136 +141,21 @@ fun PaymentScreen() {
                             address = "Quận 1, TP.HCM",
                             showExtraInfo = false
                         )
-                        Divider(
-                            color = LightGray,
-                            thickness = 0.5.dp,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Divider(color = LightGray, thickness = 0.5.dp)
                         TotalAmountBox(totalAmount = 25000000)
                         PaymentMethodSelector(
                             methods = paymentMethods,
                             selectedIndex = selectedMethodIndex.value,
                             onSelect = { selectedMethodIndex.value = it }
                         )
-
-                    }
-                }
-
-                // TODO: thêm danh sách sản phẩm, voucher, tổng tiền,...
-            }
-        }
-    }
-}
-
-@Composable
-fun TotalAmountBox(totalAmount: Int) {
-
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(6.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Tổng thanh toán",
-                style = MaterialTheme.typography.labelMedium.copy( fontSize = 16.sp),
-                color = LoginButton
-            )
-            Text(
-                text = "%,d₫".format(totalAmount),
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                color = priceColor
-            )
-        }
-    }
-@Composable
-fun OrderButton(
-    text: String,
-    onClick: () -> Unit
-) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .navigationBarsPadding()
-            ,
-        shape = RoundedCornerShape(8.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelMedium.copy(color = White)
-        )
-    }
-}
-@Composable
-fun PaymentMethodSelector(
-    methods: List<String>,
-    selectedIndex: Int,
-    onSelect: (Int) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 16.dp)
-    ) {
-        Text(
-            text = "Phương thức thanh toán",
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Card(
-            shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors(containerColor = White),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column {
-                methods.forEachIndexed { index, method ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onSelect(index) }
-                            .padding(horizontal = 12.dp, vertical = 14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Icon đại diện (giả lập icon theo index)
-                        val iconRes = when {
-                            method.contains("Zalo", ignoreCase = true) -> R.drawable.zalo_pay
-                            method.contains("ngân hàng", ignoreCase = true) -> R.drawable.bank_icon
-                            else -> R.drawable.cod_icon
-                        }
-
-                        Icon(
-                            painter = painterResource(id = iconRes),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(48.dp)
-                                .padding(end = 16.dp),
-                            tint = Color.Unspecified
-                        )
-
-
-                        Text(
-                            text = method,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        RadioButton(
-                            selected = (index == selectedIndex),
-                            onClick = { onSelect(index) }
-                        )
-                    }
-
-                    if (index != methods.size - 1) {
-                        Divider(color = LightGray, thickness = 0.5.dp)
                     }
                 }
             }
         }
     }
 }
+
+
 
 
 
