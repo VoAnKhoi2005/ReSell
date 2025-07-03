@@ -13,9 +13,10 @@ type GetConversationResponse struct {
 	IsExist      bool                `json:"is_exist"`
 }
 
-type CreateOfferRequest struct {
+type UpdateOfferRequest struct {
 	ConversationID string `json:"conversation_id" binding:"required"`
-	Amount         int    `json:"amount" binding:"required"`
+	IsSelling      *bool  `json:"is_selling"`
+	Amount         *int   `json:"amount"`
 }
 
 type CreateMessageRequest struct {

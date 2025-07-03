@@ -287,8 +287,8 @@ interface ApiService {
     ): Conversation
 
     @PUT("conversation/offer")
-    suspend fun createOffer(
-        @Body request: CreateOfferRequest
+    suspend fun updateOffer(
+        @Body request: UpdateOfferRequest
     ): Conversation
 
     @GET("conversation/{conv_id}")

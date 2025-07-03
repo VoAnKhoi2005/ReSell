@@ -125,7 +125,7 @@ interface MessageRepository{
     val isTyping: StateFlow<Boolean>
 
     suspend fun createConversation(buyerID: String, sellerID: String, postID: String): Either<NetworkError, Conversation>
-    suspend fun createOffer(conversationID: String, amount: Int): Either<NetworkError, Conversation>
+    suspend fun updateOffer(conversationID: String, isSelling: Boolean? = null, amount: Int? = null): Either<NetworkError, Conversation>
     suspend fun getConversationByID(conversationID: String): Either<NetworkError, Conversation>
     suspend fun getConversationsByPostID(postID: String): Either<NetworkError, List<Conversation>>
     suspend fun getAllUserConversations(): Either<NetworkError, List<Conversation>>
