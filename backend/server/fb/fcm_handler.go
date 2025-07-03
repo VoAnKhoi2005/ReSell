@@ -5,7 +5,7 @@ import (
 	"firebase.google.com/go/messaging"
 	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
-	"github.com/VoAnKhoi2005/ReSell/backend/server/service"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -13,14 +13,14 @@ import (
 )
 
 type FCMHandler struct {
-	notificationService service.NotificationService
-	userTokens          map[string]string
+	notificationRepo repository.NotificationRepository
+	userTokens       map[string]string
 }
 
-func NewFCMHandler(notificationService service.NotificationService) *FCMHandler {
+func NewFCMHandler(notificationRepo repository.NotificationRepository) *FCMHandler {
 	return &FCMHandler{
-		notificationService: notificationService,
-		userTokens:          make(map[string]string),
+		notificationRepo: notificationRepo,
+		userTokens:       make(map[string]string),
 	}
 }
 
@@ -63,7 +63,13 @@ func (h *FCMHandler) DeleteFCMToken(c *gin.Context) {
 	c.JSON(http.StatusOK, true)
 }
 
-func (h *FCMHandler) SendNotification(userID string, title string, description string, isSilent bool, nofType model.NotificationType) error {
+func (h *FCMHandler) SendNotification(
+	userID string,
+	title string,
+	description string,
+	isSilent bool,
+	nofType model.NotificationType,
+) error {
 	notification := &model.Notification{
 		UserID:      &userID,
 		Title:       title,
@@ -74,7 +80,7 @@ func (h *FCMHandler) SendNotification(userID string, title string, description s
 		IsSent:      false,
 	}
 
-	notification, err := h.notificationService.CreateNotification(notification)
+	notification, err := h.notificationRepo.Create(notification)
 	if err != nil {
 		return err
 	}
@@ -92,7 +98,7 @@ func (h *FCMHandler) SendNotification(userID string, title string, description s
 	notification.IsSent = true
 	now := time.Now().UTC()
 	notification.SentAt = &now
-	if err = h.notificationService.UpdateNotification(notification); err != nil {
+	if err = h.notificationRepo.Update(notification); err != nil {
 		return fmt.Errorf("sent but failed to store: %w", err)
 	}
 
@@ -100,7 +106,7 @@ func (h *FCMHandler) SendNotification(userID string, title string, description s
 }
 
 func (h *FCMHandler) HandleUnsentNotification(userID string, token string) error {
-	notifications, err := h.notificationService.GetUnsentNotifications(userID)
+	notifications, err := h.notificationRepo.GetUnsentNotifications(userID)
 	if err != nil {
 		return fmt.Errorf("failed to get unsent notifications: %w", err)
 	}

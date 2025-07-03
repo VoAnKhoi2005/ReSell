@@ -168,6 +168,11 @@ func (h *AuthController) FirebaseAuth(c *gin.Context) {
 		}
 	}
 
+	if user.BanEnd.After(time.Now().UTC()) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "User is banned"})
+		return
+	}
+
 	accessToken, refreshToken, err := util.GenerateToken(user.ID, "user")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

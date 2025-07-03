@@ -7,9 +7,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/zalo"
+	"log"
 	"time"
 )
 
@@ -95,7 +97,7 @@ func (o *OderService) GetBySellerID(sellerID string) ([]*model.ShopOrder, error)
 	return o.orderRepository.GetBySellerID(sellerID)
 }
 
-func (o *OderService) UpdateStatus(orderID string, userID string, status model.OrderStatus) error {
+func (o *OderService) UpdateStatus(orderID string, sellerID string, status model.OrderStatus) error {
 	order, err := o.orderRepository.GetByID(orderID)
 	if err != nil {
 		return err
@@ -106,7 +108,7 @@ func (o *OderService) UpdateStatus(orderID string, userID string, status model.O
 		return err
 	}
 
-	if *post.UserID != userID {
+	if *post.UserID != sellerID {
 		return errors.New("unauthorized to change status of the order")
 	}
 
@@ -115,7 +117,59 @@ func (o *OderService) UpdateStatus(orderID string, userID string, status model.O
 	}
 
 	order.Status = status
-	return o.orderRepository.Update(order)
+	err = o.orderRepository.Update(order)
+	if err != nil {
+		return err
+	}
+
+	//Handle notification
+	buyerID, err := o.GetBuyerID(orderID)
+	if err != nil {
+		return err
+	}
+
+	newStatus := order.Status
+
+	var title, description string
+	if newStatus == model.OrderStatusShipping {
+		title, description = model.DefaultNotificationContent(model.OrderNotification)
+		err = fb.FcmHandler.SendNotification(buyerID, title, description, false, model.OrderNotification)
+		log.Printf("error sending order notification %v", err)
+	}
+
+	if newStatus == model.OrderStatusProcessing {
+		title = "Order Processing"
+		description = "Your order has been create successfully and is being processed"
+		err = fb.FcmHandler.SendNotification(buyerID, title, description, false, model.OrderNotification)
+		log.Printf("error sending order notification %v", err)
+	}
+
+	if newStatus == model.OrderStatusCancelled {
+		title = "Order Cancelled"
+		description = "Your order has been cancelled"
+		err = fb.FcmHandler.SendNotification(buyerID, title, description, false, model.OrderNotification)
+		log.Printf("error sending order notification %v", err)
+
+		err = repository.GlobalRepo.DecreaseReputation(sellerID, 10)
+		if err != nil {
+			return err
+		}
+	}
+
+	if newStatus == model.OrderStatusCompleted {
+		title = "Order Completed"
+		description = "Your order has been delivered successfully"
+		err = fb.FcmHandler.SendNotification(sellerID, title, description, false, model.OrderNotification)
+		err = fb.FcmHandler.SendNotification(buyerID, title, description, false, model.OrderNotification)
+		log.Printf("error sending order notification %v", err)
+
+		err = repository.GlobalRepo.IncreaseReputation(sellerID, 20)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (o *OderService) GetBuyerID(orderID string) (string, error) {
