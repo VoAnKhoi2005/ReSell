@@ -31,6 +31,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -40,6 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.resell.model.Address
 import com.example.resell.ui.components.AddressBox
 import com.example.resell.ui.components.ProductPostItemHorizontalImage
 import com.example.resell.ui.components.TopBar
@@ -58,10 +60,29 @@ import com.example.resell.ui.theme.priceColor
 fun PaymentScreen() {
     val scrollState = rememberScrollState()
 
+    val navBackStackEntry = remember {
+        NavigationController.navController.currentBackStackEntry
+    }
+
+    val selectedAddressState = navBackStackEntry
+        ?.savedStateHandle
+        ?.getStateFlow<Address?>("selectedAddress", null)
+        ?.collectAsState()
+
+    val selectedAddress = selectedAddressState?.value
+
+
     // Giả lập dữ liệu người nhận
     val receiverName = "Phạm Thành Long"
     val phoneNumber = "08366333080"
-    val address = "123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh"
+    val address = selectedAddress?.let {
+        listOfNotNull(
+            it.detail,
+            it.ward?.name,
+            it.ward?.district?.name,
+            it.ward?.district?.province?.name
+        ).joinToString(", ")
+    } ?: "Chưa chọn địa chỉ"
 //
     val paymentMethods = listOf(
         "Thanh toán khi nhận hàng (COD)",
@@ -109,7 +130,11 @@ fun PaymentScreen() {
                     phoneNumber = phoneNumber,
                     address = address,
                     onClick = {
-                       NavigationController.navController.navigate(Screen.AddressSetup.route)
+                        NavigationController.navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("selectedAddress", address)
+                        NavigationController.navController.popBackStack()
+
                     }
                 )
 
