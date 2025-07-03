@@ -81,8 +81,6 @@ interface PostRepository {
         minPrice: Int? = null, maxPrice: Int? = null,
         provinceID: String? = null, districtID: String? = null, wardID: String? = null,
         categoryID: String? = null,
-        isFavorite: Boolean? = null,
-        isFollowing: Boolean? = null,
         search: String? = null,
     ): Either<NetworkError, GetPostsResponse>
     suspend fun getRecommendationPosts(page: Int, limit: Int): Either<NetworkError, GetPostsResponse>

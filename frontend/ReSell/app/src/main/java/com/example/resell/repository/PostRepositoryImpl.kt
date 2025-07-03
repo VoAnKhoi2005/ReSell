@@ -57,8 +57,6 @@ class PostRepositoryImpl @Inject constructor(
         districtID: String?,
         wardID: String?,
         categoryID: String?,
-        isFavorite: Boolean?,
-        isFollowing: Boolean?,
         search: String?
     ): Either<NetworkError, GetPostsResponse> {
         return Either.catch {
@@ -68,8 +66,6 @@ class PostRepositoryImpl @Inject constructor(
                 minPrice, maxPrice,
                 provinceID, districtID, wardID,
                 categoryID,
-                isFavorite,
-                isFollowing,
                 search
             )
         }.mapLeft { it.toNetworkError() }
