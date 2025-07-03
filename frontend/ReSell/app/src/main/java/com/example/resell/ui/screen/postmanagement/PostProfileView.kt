@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.model.PostStatus
 import com.example.resell.ui.components.ProductPostItemHorizontalImageStatus
+import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.viewmodel.profile.ProfileDetailViewModel
 import com.example.resell.util.getRelativeTime
 
@@ -23,11 +24,15 @@ fun ApproveScreen(isCurrentUser: Boolean, viewModel: ProfileDetailViewModel = hi
                 imageUrl = post.thumbnail,
                 price = post.price,
                 address = post.address,
-                postStatus = PostStatus.APPROVED
+                postStatus = PostStatus.APPROVED,
+                onClick = {
+                    NavigationController.navController.navigate("productdetail_screen/${post.id}")
+                }
             )
         }
     }
 }
+
 
 @Composable
 fun NotApprovedScreen(isCurrentUser: Boolean, viewModel: ProfileDetailViewModel = hiltViewModel()) {
@@ -41,8 +46,12 @@ fun NotApprovedScreen(isCurrentUser: Boolean, viewModel: ProfileDetailViewModel 
                 imageUrl = post.thumbnail,
                 price = post.price,
                 address = post.address,
-                postStatus = PostStatus.SOLD
+                postStatus = PostStatus.SOLD,
+                onClick = {
+                    NavigationController.navController.navigate("productdetail_screen/${post.id}")
+                }
             )
         }
     }
 }
+

@@ -244,13 +244,15 @@ fun ProductPostItemHorizontalImageStatus(
     price: Int,
     address: String,
     postStatus: PostStatus,
-    showExtraInfo: Boolean = true
+    showExtraInfo: Boolean = true,
+    onClick: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Card(
         modifier = modifier
             .fillMaxWidth()
+            .clickable { onClick() } // 👈 thêm vào đây
             .border(0.5.dp, White1),
         shape = RoundedCornerShape(4.dp),
         colors = CardDefaults.cardColors(containerColor = White)
