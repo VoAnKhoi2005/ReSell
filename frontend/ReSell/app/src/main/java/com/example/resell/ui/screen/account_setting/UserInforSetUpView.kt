@@ -21,6 +21,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.example.resell.ui.components.PhoneVerificationPopup
+import com.example.resell.ui.screen.address.InfoBoxField
+import com.example.resell.ui.theme.Red
 
 @Composable
 fun AccountSettingScreen(
@@ -111,6 +113,16 @@ fun AccountSettingScreen(
                 onValueChange = {},
                 enabled = false
             )
+            Spacer(Modifier.height(12.dp))
+
+            InfoBoxField(
+                label = "Mật khẩu",
+                value = "********",
+                onClick = {
+                    // TODO: Navigate to password change screen
+                }
+            )
+
 
             Spacer(Modifier.height(24.dp))
 

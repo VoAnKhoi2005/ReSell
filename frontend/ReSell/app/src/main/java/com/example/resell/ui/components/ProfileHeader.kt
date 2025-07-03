@@ -278,14 +278,19 @@ fun ProfileSimpleHeaderSection(//bên profile
                 .size(100.dp)
                 .clickable { onChangeAvatarClick?.invoke() } // click toàn vùng
         ) {
+            val fallbackAvatar = painterResource(id = R.drawable.defaultavatar)
+
             AsyncImage(
-                model = avatarUrl,
+                model = avatarUrl.takeIf { !it.isNullOrBlank() },
                 contentDescription = "Avatar",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(CircleShape)
-                    .border(2.dp, Color.White, CircleShape)
+                    .border(2.dp, Color.White, CircleShape),
+                placeholder = fallbackAvatar,
+                error = fallbackAvatar,
+                fallback = fallbackAvatar
             )
 
 

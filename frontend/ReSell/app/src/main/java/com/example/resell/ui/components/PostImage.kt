@@ -332,6 +332,84 @@ fun ProductPostItemHorizontalImageStatus(
         }
     }
 }
+@Composable
+fun ProductPostItemHorizontalImageSimple(
+    title: String,
+    time: String,
+    imageUrl: String,
+    modifier: Modifier = Modifier,
+    price: Int,
+    postStatus: PostStatus,
+    showExtraInfo: Boolean = true,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .border(0.5.dp, White1),
+        shape = RoundedCornerShape(4.dp),
+        colors = CardDefaults.cardColors(containerColor = White)
+    ) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = "Product thumbnail",
+                    modifier = Modifier
+                        .size(width = 120.dp, height = 100.dp)
+                        .clip(RoundedCornerShape(4.dp)),
+                    contentScale = ContentScale.Crop
+                )
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .align(Alignment.CenterVertically)
+                ) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = formatCurrency(price),
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Medium,
+                            color = priceColor
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    if (showExtraInfo) {
+                        Text(
+                            text = time,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.Gray
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+fun formatCurrency(amount: Int): String {
+    return "%,d đ".format(amount).replace(",", ".")
+}
 
 @Composable
 fun getPostActions(postStatus: PostStatus): List<Pair<String, () -> Unit>> {
