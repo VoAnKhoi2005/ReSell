@@ -52,17 +52,23 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.asPaddingValues
 import android.net.Uri
 import android.os.Looper
+import android.util.Log
 
 
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImagePainter
 import com.example.resell.model.Post
 import com.example.resell.store.ReactiveStore
@@ -86,6 +92,11 @@ fun ChatScreen() {
     val messages by viewModel.listMessages.collectAsState()
     val listState = rememberLazyListState()
     val post by viewModel.post.collectAsState()
+    val conversation by viewModel.conversation.collectAsState()
+    val showSellPopup by viewModel.showSellPopup.collectAsState()
+    val sellPopupState by viewModel.sellPopupState.collectAsState()
+
+
     var initialScrollDone by remember { mutableStateOf(false) }
     val incomingMessage = viewModel.incomingMessage.collectAsState(initial = null)
 
@@ -193,8 +204,20 @@ fun ChatScreen() {
             receiverAvatarUrl = receiverAvatarUrl,
             post = post,
             listState = listState,
-            isTyping = true
+            isTyping = true,
+            price = "%,d ₫".format(conversation?.offer?:post?.price),
+            viewModel = viewModel
 
+        )
+    }
+    if (showSellPopup) {
+        SellPopupView(
+            price = conversation?.offer?:0,
+            state = sellPopupState,
+            onPriceChange = { newPrice -> viewModel.onChangePrice(newPrice) },
+            onSellClick = { newPrice -> viewModel.onConfirmSell(newPrice) },
+            onCancelSellClick = { viewModel.onCancelSell() },
+            onDismissRequest = { viewModel.hideSellPopup() }
         )
     }
 
@@ -205,8 +228,10 @@ fun ChatMessages(
     messages: List<Message>,
     receiverAvatarUrl: String,
     post: Post?=null,
+    price: String,
     listState: LazyListState,
-    isTyping: Boolean
+    isTyping: Boolean,
+    viewModel: ChatViewModel
 ) {
 
 
@@ -219,9 +244,10 @@ fun ChatMessages(
         stickyHeader {
             Surface(color = Color.White) {
                 OfferView(
-                    avatarUrl = "https://plus.unsplash.com/premium_photo-1666700698946-fbf7baa0134a",
+                    avatarUrl = post?.images?.get(0)?.url?:"",
                     displayName = post?.title?:"",
-                    price = post?.price.toString()
+                    price = price,
+                    chatViewModel = viewModel
                 )
             }
 
@@ -397,8 +423,10 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
     val bubbleColor = if (isCurrentUser) UserMessage else BuyerMessage
     val locationMessageKey : String = stringResource(id = R.string.location_message_key)
     val imageMessageKey : String = stringResource(id = R.string.image_message_key)
+    val systemMessageKey:  String = stringResource(id = R.string.system_message_key)
     val isLocationMessage = message.content.contains(locationMessageKey)
     val isImageMessage = message.content.contains(imageMessageKey)
+    val isSystemMessage = message.content.contains(systemMessageKey)
 
 
     Row(
@@ -408,6 +436,11 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
         horizontalArrangement = alignment,
         verticalAlignment = Alignment.Bottom
     ) {
+        if (isSystemMessage){
+            val messageText = message.content.removePrefix("$systemMessageKey ").trim()
+            SystemBubble(messageText)
+            return
+        }
         if (!isCurrentUser) {
             Image(
                 painter = rememberAsyncImagePainter(
@@ -421,7 +454,8 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
             )
             Spacer(modifier = Modifier.width(6.dp))
         }
-        if (isLocationMessage) {
+
+         if (isLocationMessage) {
             val urlStartIndex = message.content.indexOf("https://maps.google.com")
             val mapUrl = message.content.substring(urlStartIndex)
             LocaltionBubble(mapUrl)
@@ -451,6 +485,27 @@ fun ChatBubble(message: Message, receiverAvatarUrl : String) {
 
     }
 }
+@Composable
+fun SystemBubble(content: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = content,
+            style = MaterialTheme.typography.bodySmall.copy(
+                color = Color.Gray,
+                fontStyle = FontStyle.Italic
+            ),
+            modifier = Modifier
+                .background(Color(0xFFEDEDED), shape = RoundedCornerShape(8.dp))
+                .padding(horizontal = 12.dp, vertical = 6.dp)
+        )
+    }
+}
+
 @Composable
 fun LocaltionBubble(locationUrl: String) {
     val context = LocalContext.current
@@ -615,18 +670,20 @@ fun ChatTopBar(
 @Composable
 fun OfferView( avatarUrl: String,
                displayName: String,
-               price: String) {
+               price: String,
+               chatViewModel: ChatViewModel) {
+    val isSeller by chatViewModel.isSeller.collectAsState()
+    val conversation by chatViewModel.conversation.collectAsState()
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .border(1.dp, LightGray, RoundedCornerShape(0.dp))
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clickable {
-                //NavigationController.navController.navigate("chat/${conversation.id}")
-            }
     ) {
         Spacer(modifier = Modifier.width(12.dp))
+
         AsyncImage(
             model = avatarUrl,
             contentDescription = "Avatar",
@@ -638,8 +695,9 @@ fun OfferView( avatarUrl: String,
         )
 
         Spacer(modifier = Modifier.width(12.dp))
+
         Column(modifier = Modifier.padding(end = 12.dp)) {
-            Row() {
+            Row {
                 Text(
                     text = displayName,
                     style = MaterialTheme.typography.titleMedium,
@@ -647,7 +705,8 @@ fun OfferView( avatarUrl: String,
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            Row() {
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = price,
                     style = MaterialTheme.typography.titleMedium,
@@ -655,33 +714,64 @@ fun OfferView( avatarUrl: String,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.weight(1f))
-                Button(
 
-                    onClick = {
-                        NavigationController.navController.navigate(Screen.Payment.route)
-                    },
+                Spacer(modifier = Modifier.weight(1f))
+
+                // Xác định nút hiển thị
+                val buttonText: String
+                val buttonEnabled: Boolean
+                val onClickAction: () -> Unit
+
+                when {
+                    isSeller && !(conversation?.isSelling?:false) -> {
+                        buttonText = "Bán ngay"
+                        buttonEnabled = true
+                        onClickAction = {
+                            Log.d("OfferView", "Gọi showConfirmPopup()")
+                            chatViewModel.showEditPricePopup()
+                        }
+                    }
+
+                    (isSeller) -> {
+                        buttonText = "Chỉnh sửa"
+                        buttonEnabled = true
+                        onClickAction = {
+                            chatViewModel.showConfirmPopup()
+                        }
+                    }
+
+                    !isSeller && !(conversation?.isSelling?:false) -> {
+                        buttonText = "Chưa bán"
+                        buttonEnabled = false
+                        onClickAction = {}
+                    }
+
+                    else -> { // !isSeller && isSelling
+                        buttonText = "Mua ngay"
+                        buttonEnabled = true
+                        onClickAction = {
+                            chatViewModel.onBuyClick()
+                        }
+                    }
+                }
+
+                Button(
+                    onClick = onClickAction,
+                    enabled = buttonEnabled,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = GreenButton,
+                        containerColor = if (buttonEnabled) GreenButton else Color.Gray,
                         contentColor = Color.White
                     ),
                     shape = RoundedCornerShape(size = 4.dp)
-
-
                 ) {
                     Text(
-                        text = "Mua ngay",
+                        text = buttonText,
                         style = MaterialTheme.typography.labelSmall
                     )
                 }
             }
-
-
         }
-
-
     }
-
 }
 @Composable//trạng thái người bên kia
 fun TypingIndicator(avatarUrl: String) {
@@ -719,7 +809,146 @@ fun TypingIndicator(avatarUrl: String) {
         )
     }
 }
+@Composable
+fun SellPopupView(
+    price: Int,
+    state: SellPopupState,
+    onPriceChange: (Int) -> Unit,
+    onSellClick: (Int) -> Unit,
+    onCancelSellClick: () -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    var inputText by remember { mutableStateOf(price.toString()) }
+    var showError by remember { mutableStateOf(false) }
+
+    val parsedPrice = inputText.toIntOrNull()
+    val isValid = parsedPrice != null && parsedPrice in 0..100_000_000
+    showError = inputText.isNotEmpty() && !isValid
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.5f))
+            .clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {},
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.9f)
+                .background(Color.White, shape = RoundedCornerShape(16.dp))
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+
+                // TopBar
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (state == SellPopupState.EditPrice) "Sửa giá sản phẩm" else "Xác nhận bán",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    IconButton(onClick = onDismissRequest) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Đóng"
+                        )
+                    }
+                }
+
+                Divider()
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    OutlinedTextField(
+                        value = inputText,
+                        onValueChange = {
+                            inputText = it
+                        },
+                        label = { Text("Giá sản phẩm (VNĐ)") },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                        isError = showError,
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    if (showError) {
+                        Text(
+                            text = "Giá không hợp lệ (tối đa 100 triệu)",
+                            color = Color.Red,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    if (state == SellPopupState.EditPrice) {
+                        Button(
+                            onClick = {
+                                parsedPrice?.let {
+                                    if (isValid) {
+                                        onPriceChange(it) // ✅ Gọi khi sửa giá
+                                        onDismissRequest()
+                                    }
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = isValid
+                        ) {
+                            Text("Bán ngay")
+                        }
+                    } else {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            OutlinedButton(
+                                onClick = {
+                                    onCancelSellClick() // ✅ Gọi khi hủy bán
+                                    onDismissRequest()
+                                },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("Huỷ bán")
+                            }
+
+                            Button(
+                                onClick = {
+                                    parsedPrice?.let {
+                                        if (isValid) {
+                                            onSellClick(it) // ✅ Gọi khi xác nhận bán
+                                            onDismissRequest()
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.weight(1f),
+                                enabled = isValid
+                            ) {
+                                Text("Xác nhận bán")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 
 
+enum class SellPopupState {
+    EditPrice,
+    ConfirmSelling
+}
 

@@ -38,6 +38,7 @@ import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.White
 import com.example.resell.ui.theme.White2
 import com.example.resell.ui.viewmodel.payment.PaymentViewModel
+import com.example.resell.util.getRelativeTime
 
 
 @Composable
@@ -49,7 +50,8 @@ fun PaymenContentScreen(
     val navBackStackEntry = NavigationController.navController.currentBackStackEntry
     val selectedId = navBackStackEntry?.savedStateHandle?.get<String>("selectedAddressId")
     val alreadyFetched = remember { mutableStateOf(false) }
-
+    val post by viewModel.postFlow.collectAsState()
+    val conversation by viewModel.conversationFlow.collectAsState()
     LaunchedEffect(selectedId) {
         if (!selectedId.isNullOrBlank() && !alreadyFetched.value) {
             viewModel.fetchAddressById(selectedId)
@@ -70,10 +72,10 @@ fun PaymenContentScreen(
 
     val paymentMethods = listOf(
         "Thanh toán khi nhận hàng (COD)",
-        "ZaloPay",
-        "Thẻ ngân hàng (ATM / Visa / Mastercard)"
+        "ZaloPay"
     )
-    val selectedMethodIndex = remember { mutableStateOf(0) }
+    val selectedMethodIndex by viewModel.selectedPaymentMethod.collectAsState()
+
 
     Scaffold(
         topBar = {
@@ -88,8 +90,12 @@ fun PaymenContentScreen(
         bottomBar = {
             OrderButton(
                 text = "Đặt hàng",
+                enable = selectedAddress!=null,
                 onClick = {
-                    // TODO: xử lý đặt hàng
+                    when (viewModel.selectedPaymentMethod.value) {
+                        0 -> viewModel.orderWithCOD()
+                        1 -> viewModel.orderWithZaloPay()
+                    }
                 }
             )
         }
@@ -134,19 +140,20 @@ fun PaymenContentScreen(
                 ) {
                     Column {
                         ProductPostItemHorizontalImage(
-                            title = "CatPlushieee",
-                            time = "2 giờ trước",
-                            imageUrl = "https://i.pinimg.com/736x/1c/63/8f/1c638ff41962012e45d77018a7be935c.jpg",
-                            price = 25000000,
-                            address = "Quận 1, TP.HCM",
+                            title = post!!.title,
+                            time = getRelativeTime(post!!.createdAt),
+                            imageUrl = post!!.images?.get(0)?.url?:"",
+                            price = conversation!!.offer!!,
+                            address = post!!.ward?.name?:"",
                             showExtraInfo = false
                         )
                         Divider(color = LightGray, thickness = 0.5.dp)
-                        TotalAmountBox(totalAmount = 25000000)
+                        TotalAmountBox(totalAmount = conversation!!.offer!!)
                         PaymentMethodSelector(
                             methods = paymentMethods,
-                            selectedIndex = selectedMethodIndex.value,
-                            onSelect = { selectedMethodIndex.value = it }
+                            selectedIndex = selectedMethodIndex,
+                            onSelect = { viewModel.selectPaymentMethod(it) }
+
                         )
                     }
                 }

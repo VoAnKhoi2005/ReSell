@@ -17,7 +17,7 @@ class OrderRepositoryImpl @Inject constructor(
     override suspend fun createOrder(
         postID: String,
         addressID: String,
-        total: Double
+        total: Int
     ): Either<NetworkError, Boolean> {
         return Either.catch {
             val request = CreateOrderRequest(
