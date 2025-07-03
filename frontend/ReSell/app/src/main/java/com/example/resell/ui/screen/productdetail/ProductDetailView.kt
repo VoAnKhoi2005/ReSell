@@ -84,7 +84,7 @@ fun ProductDetailScreen(
 
             LazyColumn(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
                 item {
-                    ImageCarousel(images = post?.images?.map { it.url }.orEmpty())
+                    ImageCarousel(images = post?.images?.map { it.url }.orEmpty()){}
                 }
                 item {
                     Spacer(modifier = Modifier.height(12.dp))
@@ -235,13 +235,14 @@ fun ActionButtons(onContactClick: () -> Unit, onChatClick: () -> Unit,viewModel:
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImageCarousel(images: List<String>) {
+fun ImageCarousel(images: List<String>,isFavorite: Boolean = false,onFavoriteClick:()->Unit) {
     val pagerState = rememberPagerState(
         initialPage = 0,
-        pageCount = { images.size }
+        pageCount = { images.size },
+
     )
 
-    var isFavorite by remember { mutableStateOf(false) }
+
 
     Column {
         Box(
@@ -273,8 +274,9 @@ fun ImageCarousel(images: List<String>) {
                 CircleIconButton(
                     iconResId = if (isFavorite) R.drawable.like else R.drawable.unlike,
                     contentDescription = "Favorite",
-                    iconTint = Color.Red
-                ) { isFavorite = !isFavorite }
+                    iconTint = Color.Red,
+                    onClick = onFavoriteClick
+                )
 
                 Spacer(modifier = Modifier.width(8.dp))
 

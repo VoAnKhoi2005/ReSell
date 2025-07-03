@@ -86,8 +86,8 @@ interface ApiService {
     @POST("favorite")
     suspend fun likePost(@Body request: LikePostRequest): FavoritePost
 
-    @DELETE("favorite/{post_id}")
-    suspend fun unlikePost(@Path("post_id") postID: String): Response<Unit>
+    @DELETE("favorite/{id}")
+    suspend fun unlikePost(@Path("id") postID: String): Response<Unit>
 
     //endregion
 

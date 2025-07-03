@@ -72,10 +72,10 @@ class ProfileDetailViewModel @Inject constructor(
                 _uiState.value = UserProfileUiState(
                     isCurrentUser = targetUserId == currentUserId,
                     userName = stat.username?:"Không rõ",
-                    name = stat.fullName ?: "Không rõ",
+                    name = stat.fullName  ,
                     avatarUrl = stat.avatarURL.orEmpty(),
                     coverUrl = stat.coverURL.orEmpty(),
-                    rating = stat.averageRating?.toString() ?: "0.0",
+                    rating = stat.averageRating.toString(),
                     reviewCount = stat.reviewNumber,
                     followerCount = stat.followerCount,
                     followingCount = stat.followeeCount,
