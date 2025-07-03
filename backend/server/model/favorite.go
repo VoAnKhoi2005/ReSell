@@ -1,7 +1,7 @@
 package model
 
 type FavoritePost struct {
-	UserID *string `gorm:"type:uuid;primaryKey" json:"cart_id"`
+	UserID *string `gorm:"type:uuid;primaryKey" json:"user_id"`
 	PostID *string `gorm:"type:uuid;primaryKey" json:"post_id"`
 
 	User *User `json:"user,omitempty"`

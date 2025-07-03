@@ -171,15 +171,17 @@ func (h *PostController) GetUserPosts(c *gin.Context) {
 	}
 
 	type Filter struct {
-		Status     string
-		MinPrice   *uint
-		MaxPrice   *uint
-		ProvinceID string
-		DistrictID string
-		WardID     string
-		UserID     string
-		CategoryID string
-		Q          string
+		Status      string
+		MinPrice    *uint
+		MaxPrice    *uint
+		ProvinceID  string
+		DistrictID  string
+		WardID      string
+		UserID      string
+		CategoryID  string
+		Q           string
+		IsFollowing string
+		IsFavorite  string
 	}
 
 	var filter Filter
@@ -187,6 +189,14 @@ func (h *PostController) GetUserPosts(c *gin.Context) {
 	//validate q
 	if q := c.Query("q"); q != "" {
 		filter.Q = q
+	}
+
+	if isFavorite := c.Query("is_favorite"); isFavorite != "" {
+		filter.IsFavorite = isFavorite
+	}
+
+	if isFollowing := c.Query("is_following"); isFollowing != "" {
+		filter.IsFollowing = isFollowing
 	}
 
 	// Validate status
@@ -282,6 +292,8 @@ func (h *PostController) GetUserPosts(c *gin.Context) {
 	if filter.Q != "" {
 		filters["q"] = filter.Q
 	}
+	filters["is_following"] = filter.IsFollowing
+	filters["is_favorite"] = filter.IsFavorite
 
 	posts, total, err := h.service.GetUserPosts(ownerID, filters, page, limit)
 	if err != nil {

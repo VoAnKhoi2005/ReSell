@@ -390,6 +390,23 @@ func (r *postRepository) GetUserPostsByFilter(ownerID string, filters map[string
 	if q, ok := filters["q"]; ok {
 		query = query.Where("posts.title ILIKE ? OR posts.description ILIKE ?", "%"+q+"%", "%"+q+"%")
 	}
+	if isFollowing, ok := filters["is_following"]; ok {
+		switch isFollowing {
+		case "true":
+			query = query.Where("follows.follower_id IS NOT NULL")
+		case "false":
+			query = query.Where("follows.follower_id IS NULL")
+		}
+	}
+	if isFavorite, ok := filters["is_favorite"]; ok {
+		switch isFavorite {
+		case "true":
+			query = query.Where("favorite_posts.user_id IS NOT NULL")
+		case "false":
+			query = query.Where("favorite_posts.user_id IS NULL")
+		}
+	}
+
 	// ========== COUNT ==========
 	countQuery := query.Session(&gorm.Session{})
 	if err := countQuery.Count(&total).Error; err != nil {
