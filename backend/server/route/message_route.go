@@ -24,7 +24,7 @@ func RegisterMessageRote(rg *gin.RouterGroup, db *gorm.DB) {
 
 	messageRoute.POST("/upload-image", messageController.UploadImage)
 	messageRoute.POST("", messageController.CreateConversation)
-	messageRoute.PUT("/offer", messageController.CreateOffer)
+	messageRoute.PUT("/offer", messageController.UpdateOffer)
 	messageRoute.GET("/post/:post_id", messageController.GetConversationByPostID)
 	messageRoute.GET("/dto/user/all", messageController.GetConversationsStatByUserID)
 	messageRoute.GET("/user/all", messageController.GetConversationsByUserID)

@@ -47,6 +47,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun ProductPostItem(
@@ -161,6 +166,17 @@ fun ProductPostItemHorizontalImage(
     address: String,
     showExtraInfo: Boolean = true
 ) {
+    // ...
+
+    val priceFormatted = NumberFormat.getNumberInstance(Locale("vi", "VN")).format(price)
+    val annotatedPrice = buildAnnotatedString {
+        append(priceFormatted)
+        append(" ")
+        pushStyle(SpanStyle(textDecoration = TextDecoration.Underline))
+        append("đ")
+        pop()
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -171,22 +187,20 @@ fun ProductPostItemHorizontalImage(
         Row(
             modifier = Modifier.padding(4.dp)
         ) {
-            // Ảnh nằm ngang bên trái
             AsyncImage(
                 model = imageUrl,
                 contentDescription = "Product thumbnail",
                 modifier = Modifier
-                    .size(width = 120.dp, height = 100.dp) // ảnh ngang
+                    .size(width = 120.dp, height = 100.dp)
                     .clip(RoundedCornerShape(4.dp)),
                 contentScale = ContentScale.Crop
             )
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Phần nội dung bên phải
             Column(
                 modifier = Modifier
-                    .weight(1f) // chiếm phần còn lại
+                    .weight(1f)
                     .align(Alignment.CenterVertically)
             ) {
                 Text(
@@ -198,10 +212,8 @@ fun ProductPostItemHorizontalImage(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-
-
                 Text(
-                    text = price.toString(),
+                    text = annotatedPrice,
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = FontWeight.Medium,
                         color = priceColor
@@ -215,11 +227,11 @@ fun ProductPostItemHorizontalImage(
                 if (showExtraInfo) {
                     TimeInfor(time, address)
                 }
-
             }
         }
     }
 }
+
 
 
 

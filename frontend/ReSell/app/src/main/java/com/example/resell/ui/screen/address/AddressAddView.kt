@@ -2,6 +2,7 @@ package com.example.resell.ui.screen.address
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -96,19 +97,19 @@ fun AddressAddScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            OutlinedTextField(
+            val interactionSource = remember { MutableInteractionSource() }
+
+            ReadOnlyClickableField(
+                label = "Khu vực",
                 value = viewModel.getLocationString(),
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Khu vực") },
+                isError = locationError != null,
                 trailingIcon = {
                     Icon(Icons.Default.ArrowDropDown, contentDescription = "Mở danh sách")
                 },
-                isError = locationError != null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { showPicker = true }
+                onClick = { showPicker = true }
             )
+
+
             if (locationError != null) {
                 Text(locationError!!, color = MaterialTheme.colorScheme.error, fontSize = MaterialTheme.typography.labelSmall.fontSize)
             }
@@ -234,4 +235,36 @@ private fun validateInput(
     }
 
     return isValid
+}
+@Composable
+fun ReadOnlyClickableField(
+    label: String,
+    value: String,
+    isError: Boolean = false,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    onClick: () -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(64.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = {},
+            readOnly = true,
+            enabled = false,
+            label = { Text(label) },
+            trailingIcon = trailingIcon,
+            isError = isError,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }

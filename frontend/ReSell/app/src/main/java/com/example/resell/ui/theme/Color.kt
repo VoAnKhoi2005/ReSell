@@ -49,3 +49,5 @@ val ColorScheme.unfocusedTextFieldText
 val ColorScheme.textFieldContainer
     @Composable
     get() = Color(0xFFF1F5F9)
+val AddressBoxColor=Color(0xFFACBCBF)
+val SelectToDeleteColor = Color(0xFFA6A9D0)

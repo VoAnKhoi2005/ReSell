@@ -17,7 +17,7 @@ type MessageService interface {
 	GetConversationByUserAndPostID(userID string, postID string) (*model.Conversation, error)
 	GetConversationStatDTOByUserID(conversationId string) ([]*dto.ConversationStatDTO, error)
 
-	CreateOffer(conversationID string, amount int) (*model.Conversation, error)
+	UpdateOffer(conversationID string, isSelling *bool, amount *int) (*model.Conversation, error)
 
 	CreateMessage(message *model.Message) (*model.Message, error)
 	GetMessageByID(messageId string) (*model.Message, error)
@@ -63,14 +63,23 @@ func (m *messageService) GetConversationStatDTOByUserID(conversationId string) (
 	return m.messageRepository.GetConversationStatsByUserID(conversationId)
 }
 
-func (m *messageService) CreateOffer(conversationID string, amount int) (*model.Conversation, error) {
+func (m *messageService) UpdateOffer(conversationID string, isSelling *bool, amount *int) (*model.Conversation, error) {
 	conversation, err := m.messageRepository.GetConversationByID(conversationID)
 	if err != nil {
 		return nil, err
 	}
 
-	conversation.Offer = &amount
-	conversation.IsSelling = true
+	if amount != nil {
+		if *amount <= 0 {
+			return nil, errors.New("amount must be greater than zero")
+		}
+
+		conversation.Offer = amount
+	}
+
+	if isSelling != nil {
+		conversation.IsSelling = *isSelling
+	}
 
 	return m.messageRepository.UpdateConversation(conversation)
 }

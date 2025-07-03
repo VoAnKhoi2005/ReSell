@@ -267,9 +267,10 @@ data class CreateConversationRequest(
 )
 
 @JsonClass(generateAdapter = true)
-data class CreateOfferRequest(
+data class UpdateOfferRequest(
     @Json(name = "conversation_id") val conversationID: String,
-    @Json(name = "amount") val amount: Int
+    @Json(name = "is_selling") val isSelling: Boolean? = null,
+    @Json(name = "amount") val amount: Int? = null
 )
 
 enum class SocketMessageType {

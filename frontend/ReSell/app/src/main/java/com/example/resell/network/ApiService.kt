@@ -8,6 +8,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -131,8 +132,9 @@ interface ApiService {
     @DELETE("address/{address_id}")
     suspend fun deleteAddress(@Path("address_id") addressID: String): Boolean
 
-    @DELETE("address/batch")
+    @HTTP(method = "DELETE", path = "address/batch", hasBody = true)
     suspend fun deleteAddresses(@Body request: DeleteAddressesRequest): Boolean
+
     //endregion
 
     //region Category
@@ -285,8 +287,8 @@ interface ApiService {
     ): Conversation
 
     @PUT("conversation/offer")
-    suspend fun createOffer(
-        @Body request: CreateOfferRequest
+    suspend fun updateOffer(
+        @Body request: UpdateOfferRequest
     ): Conversation
 
     @GET("conversation/{conv_id}")
