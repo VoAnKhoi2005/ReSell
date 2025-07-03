@@ -266,6 +266,12 @@ data class CreateConversationRequest(
     @Json(name = "post_id") val postID: String
 )
 
+@JsonClass(generateAdapter = true)
+data class CreateOfferRequest(
+    @Json(name = "conversation_id") val conversationID: String,
+    @Json(name = "amount") val amount: Int
+)
+
 enum class SocketMessageType {
     @Json(name = "ack_message")
     ACK_MESSAGE,

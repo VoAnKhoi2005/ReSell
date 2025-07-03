@@ -15,8 +15,9 @@ type MessageService interface {
 	GetConversationsByPostID(postID string) ([]*model.Conversation, error)
 	GetConversationsByUserID(userID string) ([]*model.Conversation, error)
 	GetConversationByUserAndPostID(userID string, postID string) (*model.Conversation, error)
-
 	GetConversationStatDTOByUserID(conversationId string) ([]*dto.ConversationStatDTO, error)
+
+	CreateOffer(conversationID string, amount int) (*model.Conversation, error)
 
 	CreateMessage(message *model.Message) (*model.Message, error)
 	GetMessageByID(messageId string) (*model.Message, error)
@@ -60,6 +61,18 @@ func (m *messageService) GetConversationByID(conversationId string) (*model.Conv
 
 func (m *messageService) GetConversationStatDTOByUserID(conversationId string) ([]*dto.ConversationStatDTO, error) {
 	return m.messageRepository.GetConversationStatsByUserID(conversationId)
+}
+
+func (m *messageService) CreateOffer(conversationID string, amount int) (*model.Conversation, error) {
+	conversation, err := m.messageRepository.GetConversationByID(conversationID)
+	if err != nil {
+		return nil, err
+	}
+
+	conversation.Offer = &amount
+	conversation.IsSelling = true
+
+	return m.messageRepository.UpdateConversation(conversation)
 }
 
 func (m *messageService) GetConversationsByPostID(postID string) ([]*model.Conversation, error) {

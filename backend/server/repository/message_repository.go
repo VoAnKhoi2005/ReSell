@@ -10,6 +10,7 @@ import (
 
 type MessageRepository interface {
 	CreateConversation(conversation *model.Conversation) (*model.Conversation, error)
+	UpdateConversation(conversation *model.Conversation) (*model.Conversation, error)
 	DeleteConversation(conversation *model.Conversation) error
 
 	GetConversationByID(conversationId string) (*model.Conversation, error)
@@ -40,6 +41,18 @@ func (m *messageRepository) CreateConversation(conversation *model.Conversation)
 	defer cancel()
 
 	if err := m.db.WithContext(ctx).Create(&conversation).Error; err != nil {
+		return nil, err
+	}
+
+	return conversation, nil
+}
+
+func (m *messageRepository) UpdateConversation(conversation *model.Conversation) (*model.Conversation, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+
+	err := m.db.WithContext(ctx).Where("id = ?", conversation.ID).Updates(&conversation).Error
+	if err != nil {
 		return nil, err
 	}
 

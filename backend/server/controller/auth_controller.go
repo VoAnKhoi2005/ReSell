@@ -168,7 +168,7 @@ func (h *AuthController) FirebaseAuth(c *gin.Context) {
 		}
 	}
 
-	if user.BanEnd.After(time.Now().UTC()) {
+	if user.BanEnd != nil && user.BanEnd.After(time.Now().UTC()) {
 		c.JSON(http.StatusForbidden, gin.H{"error": "User is banned"})
 		return
 	}
@@ -203,6 +203,11 @@ func (h *AuthController) Login(c *gin.Context) {
 	user, err := h.userService.Login(request.Identifier, request.Password, request.LoginType)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if user.BanEnd != nil && user.BanEnd.After(time.Now().UTC()) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "User is banned"})
 		return
 	}
 

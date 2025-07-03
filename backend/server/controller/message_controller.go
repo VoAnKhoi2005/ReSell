@@ -164,6 +164,23 @@ func (mc *MessageController) DeleteConversation(c *gin.Context) {
 	c.JSON(http.StatusOK, true)
 }
 
+func (mc *MessageController) CreateOffer(c *gin.Context) {
+	var request transaction.CreateOfferRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	conversation, err := mc.messageService.CreateOffer(request.ConversationID, request.Amount)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, conversation)
+}
+
 func (mc *MessageController) GetLatestMessages(c *gin.Context) {
 	conversationID := c.Param("id")
 	amountStr := c.Param("amount")

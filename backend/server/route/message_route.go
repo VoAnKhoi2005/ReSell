@@ -23,12 +23,13 @@ func RegisterMessageRote(rg *gin.RouterGroup, db *gorm.DB) {
 	messageRoute.Use(middleware.AuthMiddleware())
 
 	messageRoute.POST("/upload-image", messageController.UploadImage)
-	messageRoute.POST("/create", messageController.CreateConversation)
-	messageRoute.GET("/:id", messageController.GetConversationByID)
+	messageRoute.POST("", messageController.CreateConversation)
+	messageRoute.PUT("/offer", messageController.CreateOffer)
 	messageRoute.GET("/post/:post_id", messageController.GetConversationByPostID)
 	messageRoute.GET("/dto/user/all", messageController.GetConversationsStatByUserID)
 	messageRoute.GET("/user/all", messageController.GetConversationsByUserID)
 	messageRoute.GET("/post/:post_id/user", messageController.GetConversationByUserAndPostID)
+	messageRoute.GET("/:id", messageController.GetConversationByID)
 	messageRoute.DELETE("/:id", messageController.DeleteConversation)
 
 	messageRoute.GET("/:id/messages/latest/:amount", messageController.GetLatestMessages)

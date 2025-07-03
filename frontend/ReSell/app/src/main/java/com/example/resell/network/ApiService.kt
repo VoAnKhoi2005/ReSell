@@ -178,20 +178,6 @@ interface ApiService {
         @Query("q") search: String? = null
     ): GetPostsResponse
 
-    @GET("posts/followed")
-    suspend fun getFollowedPosts(
-        @Query("page") page: Int,
-        @Query("limit") limit: Int,
-        @Query("status") status: String? = null,
-        @Query("min_price") minPrice: Int? = null,
-        @Query("max_price") maxPrice: Int? = null,
-        @Query("province_id") provinceID: String? = null,
-        @Query("district_id") districtID: String? = null,
-        @Query("ward_id") wardID: String? = null,
-        @Query("category_id") categoryID: String? = null,
-        @Query("q") search: String? = null
-    ): GetPostsResponse
-
     @GET("posts/recommender/recommendation")
     suspend fun getRecommendationPosts(
         @Query("page") page: Int,
@@ -293,9 +279,14 @@ interface ApiService {
     //endregion
 
     //region Message
-    @POST("conversation/create")
+    @POST("conversation")
     suspend fun createConversation(
         @Body request: CreateConversationRequest
+    ): Conversation
+
+    @PUT("conversation/offer")
+    suspend fun createOffer(
+        @Body request: CreateOfferRequest
     ): Conversation
 
     @GET("conversation/{conv_id}")

@@ -9,6 +9,8 @@ type Conversation struct {
 	BuyerId   *string   `gorm:"type:uuid" json:"buyer_id"`
 	SellerId  *string   `gorm:"type:uuid" json:"seller_id"`
 	PostId    *string   `gorm:"type:uuid" json:"post_id"`
+	IsSelling bool      `gorm:"type:bool" json:"is_selling"`
+	Offer     *int      `gorm:"type:int" json:"offer"`
 	CreatedAt time.Time `json:"created_at"`
 
 	Buyer  *User `json:"buyer,omitempty"`

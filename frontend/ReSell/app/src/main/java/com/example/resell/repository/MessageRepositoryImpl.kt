@@ -12,6 +12,7 @@ import kotlinx.coroutines.withTimeout
 import com.example.resell.model.Conversation
 import com.example.resell.model.ConversationStatDTO
 import com.example.resell.model.CreateConversationRequest
+import com.example.resell.model.CreateOfferRequest
 import com.example.resell.model.ErrorPayload
 import com.example.resell.model.GetConversationByPostAndUserResponse
 import com.example.resell.model.GetLatestMessagesByBatchResponse
@@ -65,6 +66,15 @@ class MessageRepositoryImpl @Inject constructor(
             )
 
             apiService.createConversation(request)
+        }.mapLeft { it.toNetworkError() }
+    }
+
+    override suspend fun createOffer(
+        conversationID: String,
+        amount: Int
+    ): Either<NetworkError, Conversation> {
+        return Either.catch {
+            apiService.createOffer(CreateOfferRequest(conversationID, amount))
         }.mapLeft { it.toNetworkError() }
     }
 
