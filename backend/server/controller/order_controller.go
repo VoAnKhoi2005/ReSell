@@ -13,10 +13,13 @@ import (
 
 type OrderController struct {
 	orderService service.OrderService
+	postService  service.PostService
 }
 
-func NewOrderController(orderService service.OrderService) *OrderController {
-	return &OrderController{orderService: orderService}
+func NewOrderController(orderService service.OrderService, postService service.PostService) *OrderController {
+	return &OrderController{orderService: orderService,
+		postService: postService,
+	}
 }
 
 func (oc *OrderController) CreateOrder(c *gin.Context) {
@@ -43,6 +46,13 @@ func (oc *OrderController) CreateOrder(c *gin.Context) {
 	}
 
 	err = oc.orderService.CreateOrder(&order)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = oc.postService.MarkPostAsSold(request.PostID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -65,6 +75,18 @@ func (oc *OrderController) DeleteOrder(c *gin.Context) {
 	}
 
 	err = oc.orderService.DeleteOrder(orderID, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	order, err := oc.orderService.GetByID(orderID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = oc.postService.RevertSoldStatus(*order.PostId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
