@@ -194,6 +194,9 @@ interface ApiService {
     @GET("posts/{post_id}")
     suspend fun getPostByID(@Path("post_id") postID: String): Post
 
+    @GET("posts/{id}/is-sold")
+    suspend fun isPostSold(@Path("id") postID: String): Boolean
+
     @POST("posts")
     suspend fun createPost(
         @Body request: CreatePostRequest

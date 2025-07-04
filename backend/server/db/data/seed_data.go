@@ -53,14 +53,14 @@ func GenerateSeedData() {
 	addressIDs := seedAddress(userIDs, wardsIDs)
 	postIDs := seedPost(userIDs, categoryIDs, wardsIDs)
 	paymentMethodIDs := seedPaymentMethod()
-	orderIDs := seedOrder(userIDs, addressIDs, postIDs, paymentMethodIDs)
-	seedReview(orderIDs)
 	seedReportPost(userIDs, postIDs)
 	seedReportUser(userIDs)
 	seedFavoritePost(userIDs, postIDs)
 	seedFollow(userIDs)
 	seedPostImage(postIDs)
 	seedNotification(userIDs)
+	orderIDs := seedOrder(userIDs, addressIDs, postIDs, paymentMethodIDs)
+	seedReview(orderIDs)
 
 	log.Println("Generated seed data successfully!")
 }

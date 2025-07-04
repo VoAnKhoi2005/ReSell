@@ -668,11 +668,14 @@ fun ChatTopBar(
     )
 }
 @Composable
-fun OfferView( avatarUrl: String,
-               displayName: String,
-               price: String,
-               chatViewModel: ChatViewModel) {
+fun OfferView(
+    avatarUrl: String,
+    displayName: String,
+    price: String,
+    chatViewModel: ChatViewModel
+) {
     val isSeller by chatViewModel.isSeller.collectAsState()
+    val isSold by chatViewModel.isSold.collectAsState()
     val conversation by chatViewModel.conversation.collectAsState()
 
     Row(
@@ -717,40 +720,45 @@ fun OfferView( avatarUrl: String,
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Xác định nút hiển thị
                 val buttonText: String
                 val buttonEnabled: Boolean
                 val onClickAction: () -> Unit
 
-                when {
-                    isSeller && !(conversation?.isSelling?:false) -> {
-                        buttonText = "Bán ngay"
-                        buttonEnabled = true
-                        onClickAction = {
-                            Log.d("OfferView", "Gọi showConfirmPopup()")
-                            chatViewModel.showEditPricePopup()
+                if (isSold) {
+                    buttonText = "Đã bán"
+                    buttonEnabled = false
+                    onClickAction = {}
+                } else {
+                    when {
+                        isSeller && !(conversation?.isSelling ?: false) -> {
+                            buttonText = "Bán ngay"
+                            buttonEnabled = true
+                            onClickAction = {
+                                Log.d("OfferView", "Gọi showEditPricePopup()")
+                                chatViewModel.showEditPricePopup()
+                            }
                         }
-                    }
 
-                    (isSeller) -> {
-                        buttonText = "Chỉnh sửa"
-                        buttonEnabled = true
-                        onClickAction = {
-                            chatViewModel.showConfirmPopup()
+                        isSeller -> {
+                            buttonText = "Chỉnh sửa"
+                            buttonEnabled = true
+                            onClickAction = {
+                                chatViewModel.showConfirmPopup()
+                            }
                         }
-                    }
 
-                    !isSeller && !(conversation?.isSelling?:false) -> {
-                        buttonText = "Chưa bán"
-                        buttonEnabled = false
-                        onClickAction = {}
-                    }
+                        !isSeller && !(conversation?.isSelling ?: false) -> {
+                            buttonText = "Chưa bán"
+                            buttonEnabled = false
+                            onClickAction = {}
+                        }
 
-                    else -> { // !isSeller && isSelling
-                        buttonText = "Mua ngay"
-                        buttonEnabled = true
-                        onClickAction = {
-                            chatViewModel.onBuyClick()
+                        else -> { // !isSeller && isSelling
+                            buttonText = "Mua ngay"
+                            buttonEnabled = true
+                            onClickAction = {
+                                chatViewModel.onBuyClick()
+                            }
                         }
                     }
                 }
@@ -773,6 +781,7 @@ fun OfferView( avatarUrl: String,
         }
     }
 }
+
 @Composable//trạng thái người bên kia
 fun TypingIndicator(avatarUrl: String) {
     var dotCount by remember { mutableStateOf(0) }
