@@ -64,18 +64,8 @@ class PaymentViewModel @Inject constructor(
                 }
             }
             .launchIn(viewModelScope)
+    }
 
-        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
-
-    }
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    fun onAppForegrounded() {
-        Log.d("ViewModel", "App quay lại foreground (toàn app)")
-    }
-    override fun onCleared() {
-        super.onCleared()
-        ProcessLifecycleOwner.get().lifecycle.removeObserver(this)
-    }
     fun fetchAddressById(addressId: String) {
         viewModelScope.launch {
             addressRepository.getAddressByID(addressId).fold(
@@ -116,8 +106,6 @@ class PaymentViewModel @Inject constructor(
                     it->
                 }
             )
-
-
         }
     }
     fun OnSuccess(message:String){
@@ -129,29 +117,56 @@ class PaymentViewModel @Inject constructor(
     }
     fun orderWithZaloPay(){
         viewModelScope.launch {
-
             val order = orderRepository.getOrderByPostID(postFlow.value!!.id)
             order.fold(
                 {
-                    Log.e("Get Order",it.message?:"")
-                },{
-                        it->
-                    val pay = paymentRepository.createZaloPayPayment(it.id)
-                    pay.fold({
-                        Log.e("Payment",it.message?:"")
-                    },{ it->
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it.paymentURL))
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // bắt buộc khi mở từ Application context
-                        getApplication<Application>().startActivity(intent)
-                    })
+                    val result = orderRepository.createOrder(postFlow.value!!.id,_selectedAddress.value?.id?:"",conversationFlow.value!!.offer!!)
+                    result.fold(
+                        {
+                            Log.e("Create Order",it.message?:"")
+                        },{
+                            val order = orderRepository.getOrderByPostID(postFlow.value!!.id)
+                            order.fold(
+                                {
 
+                                },{
+                                    it->payZalo(it.id)
+                                }
+                            )
+
+                        }
+                    )
+                },{
+                        it->payZalo(it.id)
                 }
             )
+        }
 
+    }
+    fun payZalo(id:String){
+       viewModelScope.launch {
+            val pay = paymentRepository.createZaloPayPayment(id)
+            pay.fold({
+                Log.e("Payment", it.message ?: "")
+            }, { it ->
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it.paymentURL))
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                getApplication<Application>().startActivity(intent)
+
+                val sendMessage = messageRepository.sendNewMessage(
+                    conversationFlow.value!!.id,
+                    "system5cbb2e3d8819ef6c1769e55 ${ReactiveStore<User>().item.value!!.fullName} đã mua hàng bằng phương thức Zalo Pay")
+                sendMessage.fold (
+                    {error->
+                        Log.e("ChatView", "Lỗi gửi tin nhắn: ${error.error}")
+                    },
+                    {
+                        OnSuccess("Tạo đơn hàng thành công")
+                    }
+                )
+            })
         }
     }
-
-
     private fun fetchDefaultAddress() {
         viewModelScope.launch {
             addressRepository.getDefaultAddress().fold(

@@ -60,6 +60,8 @@ class ChatViewModel @Inject constructor(
     private val _isSeller = MutableStateFlow<Boolean>(false)
     val isSeller: StateFlow<Boolean> = _isSeller.asStateFlow()
 
+    private val _isSold = MutableStateFlow<Boolean>(false)
+    val isSold: StateFlow<Boolean> = _isSold.asStateFlow()
     var receiverUsername :String =""
     private val batchSize = 20
     var isMoreMessage : Boolean = false
@@ -256,8 +258,6 @@ class ChatViewModel @Inject constructor(
     fun getMessages() {
         if(conversationId.isNotBlank()){ viewModelScope.launch {
             _isLoading.value = true
-
-
             val getConversation = messageRepository.getConversationByID(conversationId)
             getConversation.fold (
                 { error ->
@@ -286,6 +286,14 @@ class ChatViewModel @Inject constructor(
                             post ->_post.value = post
                         }
                     )
+                    val s = postRepository.isPostSold(_conversation.value!!.postId)
+                    s.fold(
+                        {},
+                        {
+                            _isSold.value = it
+                        }
+                    )
+
                 }
             )
             val result = messageRepository.getLatestMessagesByBatch(conversationId,batchSize,1)
@@ -315,6 +323,5 @@ class ChatViewModel @Inject constructor(
             receiverUsername = _post.value?.user?.fullName?:""
             _isSeller.value = false
         }
-
     }
 }
