@@ -1,10 +1,12 @@
 package data
 
 import (
+	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/model"
 	lorem "github.com/drhodes/golorem"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 	"math/rand"
 	"time"
 )
@@ -25,54 +27,57 @@ func seedOrder(userIDs, addressIDs, postIDs, paymentMethodIDs []string) []string
 	}
 
 	shuffledPostIDs := shuffleStrings(postIDs)
-
 	k := 0
 
 	for i, userID := range userIDs {
 		orderCounts := rand.Intn(4)
 
 		for j := 1; j <= orderCounts; j++ {
-
-			//Lien tuc kiem tra xem bai post co phai cua user hien tai ko
-			//Neu trung thi next qua bai tiep theo
-			var post model.Post
 			for {
-				//Neu ko con post de order thi nghi
 				if k >= len(shuffledPostIDs) {
 					config.DB.Create(&orders)
 					return orderIDs
 				}
 
-				config.DB.
-					Where("id = ?", shuffledPostIDs[k]).
-					First(&post)
+				postID := shuffledPostIDs[k]
+				k++
 
-				if *post.UserID == userID {
-					k++
-				} else {
-					break
+				post := model.Post{}
+				err := config.DB.
+					Session(&gorm.Session{NewDB: true}).
+					Model(&model.Post{}).
+					Where("id = ?", postID).
+					First(&post).Error
+
+				if err != nil {
+					fmt.Println("🔴 Không tìm thấy post:", postID)
+					continue
 				}
-			}
 
-			id := uuid.New().String()
-			paymentMethodId := randomStringIn(paymentMethodIDs)
-			status := randomStatus(orderStatusList)
-			o := model.ShopOrder{
-				ID:              id,
-				UserId:          &userID,
-				PostId:          &shuffledPostIDs[k],
-				PaymentMethodId: &paymentMethodId,
-				Status:          status,
-				AddressId:       &addressIDs[i],
-				Total:           int(post.Price),
-				CreatedAt:       randomTimeBetween(post.CreatedAt, time.Now()),
-			}
+				if post.UserID == nil || *post.UserID == userID || post.Status != model.PostStatusSold {
+					continue
+				}
 
-			k++
-			orders = append(orders, o)
-			orderIDs = append(orderIDs, id)
+				id := uuid.New().String()
+				paymentMethodId := randomStringIn(paymentMethodIDs)
+				status := randomStatus(orderStatusList)
+
+				o := model.ShopOrder{
+					ID:              id,
+					UserId:          &userID,
+					PostId:          &post.ID,
+					PaymentMethodId: &paymentMethodId,
+					Status:          status,
+					AddressId:       &addressIDs[i],
+					Total:           int(post.Price),
+					CreatedAt:       randomTimeBetween(post.CreatedAt, time.Now()),
+				}
+
+				orders = append(orders, o)
+				orderIDs = append(orderIDs, id)
+				break
+			}
 		}
-
 	}
 
 	config.DB.Create(&orders)

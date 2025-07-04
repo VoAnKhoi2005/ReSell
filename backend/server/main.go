@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/config"
+	"github.com/VoAnKhoi2005/ReSell/backend/server/db/data"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/fb"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/repository"
 	"github.com/VoAnKhoi2005/ReSell/backend/server/route"
@@ -38,7 +39,7 @@ func main() {
 	config.InitStripe()
 	config.AutoMigrate()
 
-	//gdata.GenerateSeedData()
+	data.GenerateSeedData()
 	repository.InitGlobalRepository(config.DB)
 
 	//Firebase
