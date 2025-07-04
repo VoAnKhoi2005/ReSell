@@ -31,61 +31,81 @@ import com.example.resell.ui.screen.home.HomeScreen
 import com.example.resell.ui.screen.market.MarketScreen
 import com.example.resell.ui.screen.postmanagement.PostMangamentScreen
 import com.example.resell.ui.screen.profile.ProfileScreen.ProfileScreen
+import com.example.resell.ui.viewmodel.NotificationViewModel
 
 
 @Composable
 fun MainLayout(modifier: Modifier = Modifier) {
-    val viewModel : MainLayoutViewModel = hiltViewModel()
+    val viewModel: MainLayoutViewModel = hiltViewModel()
+    val notificationViewModel: NotificationViewModel = hiltViewModel()
+
     val isOpenPopup by viewModel.isOpenPopup.collectAsState()
+    val notifications = notificationViewModel.notifications
+
+    // Auto-load notifications
+    LaunchedEffect(Unit) {
+        notificationViewModel.reloadAll()
+    }
+
     var selectedItem by remember { mutableStateOf(bottomNavItems[0]) }
     val bottomNavController = rememberNavController()
-    // LẤY THÔNG TIN VỀ ROUTE HIỆN TẠI
     val currentBackStackEntry by bottomNavController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
+
     LaunchedEffect(currentRoute) {
         bottomNavItems.find { it.screen.route == currentRoute }?.let {
             selectedItem = it
         }
     }
+
     Scaffold(
         topBar = {
             when (currentRoute) {
                 Screen.Home.route -> TopBar(
                     showSearch = true,
-                    searchQuery = "", // 👈 Không truyền query thì sẽ không hiển thị nút X
+                    searchQuery = "",
                     onSearchNavigate = {
                         NavigationController.navController.navigate(Screen.Search.route)
                     },
                     showNotificationIcon = true,
-                    showEmailIcon = true
+                    showEmailIcon = true,
+                    notifications = notifications,
+                    onMarkAsRead = { notificationViewModel.markAsRead(it) }
                 )
 
                 Screen.Manage.route -> TopBar(
                     titleText = "Quản lý tin đăng",
                     showNotificationIcon = true,
-                    showEmailIcon = true
+                    showEmailIcon = true,
+                    notifications = notifications,
+                    onMarkAsRead = { notificationViewModel.markAsRead(it) }
                 )
+
                 Screen.Market.route -> TopBar(
                     titleText = "Dạo chợ",
                     showNotificationIcon = true,
-                    showEmailIcon = true
+                    showEmailIcon = true,
+                    notifications = notifications,
+                    onMarkAsRead = { notificationViewModel.markAsRead(it) }
                 )
-                Screen.Profile.route -> TopBar(titleText = "Tài khoản")
-                else -> {}
+
+                Screen.Profile.route -> TopBar(
+                    titleText = "Tài khoản",
+                    notifications = notifications,
+                    onMarkAsRead = { notificationViewModel.markAsRead(it) }
+                )
             }
-        }
-        ,
+        },
         bottomBar = {
             BottomBar(
                 items = bottomNavItems,
                 selectedItem = selectedItem,
-                onAddClick = {viewModel.onAddClicked() },
+                onAddClick = { viewModel.onAddClicked() },
                 onItemClick = {
                     selectedItem = it
                     bottomNavController.navigate(it.screen.route) {
                         launchSingleTop = true
                         restoreState = true
-
                     }
                 }
             )
@@ -95,16 +115,16 @@ fun MainLayout(modifier: Modifier = Modifier) {
             modifier = modifier.padding(innerPadding),
             navController = bottomNavController
         )
-
     }
+
     if (isOpenPopup) {
         PhoneVerificationPopup(
             onDismiss = { viewModel.closePopUp() },
             onVerified = { viewModel.onAddPhone(it) }
         )
     }
+}
 
-    }
 @Composable
 fun DashboardScreen(modifier: Modifier, navController: NavHostController)
 {
