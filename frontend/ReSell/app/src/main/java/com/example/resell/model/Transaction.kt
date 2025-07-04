@@ -161,7 +161,7 @@ data class UpdatePostRequest(
     @Json(name = "ward_id") val wardID: String? = null,
     val title: String? = null,
     val description: String? = null,
-    val price: Double? = null
+    val price: Int? = null
 )
 
 @JsonClass(generateAdapter = true)
