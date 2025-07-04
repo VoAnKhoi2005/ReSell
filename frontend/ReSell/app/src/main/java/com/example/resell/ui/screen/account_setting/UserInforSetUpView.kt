@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -21,6 +23,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.example.resell.ui.components.PhoneVerificationPopup
+import com.example.resell.ui.navigation.Screen
+import com.example.resell.ui.screen.address.InfoBoxField
 
 @Composable
 fun AccountSettingScreen(
@@ -85,12 +89,15 @@ fun AccountSettingScreen(
                 onClick = {
                     if (isPhoneEditable) {
                         showPhoneVerification = true
+                    }else
+                    {
+                        null
                     }
                 },
                 errorText = phoneError
             )
 
-                Spacer(Modifier.height(12.dp))
+
 
             InputWithLabel(
                 label = "Email",
@@ -104,13 +111,25 @@ fun AccountSettingScreen(
                 errorText = emailError
             )
 
-                Spacer(Modifier.height(12.dp))
+
             InputWithLabel(
                 label = "Địa chỉ mặc định",
                 value = defaultAddressText,
                 onValueChange = {},
                 enabled = false
             )
+
+            InfoBoxField(
+                label = "Mật khẩu",
+                trailingIcon = {
+                    Icon(Icons.Default.ArrowForward, contentDescription = "Mở danh sách")
+                },
+                value = "********",
+                onClick = {
+                    NavigationController.navController.navigate(Screen.ChangePassWordScreen.route)
+                }
+            )
+
 
             Spacer(Modifier.height(24.dp))
 
@@ -119,7 +138,7 @@ fun AccountSettingScreen(
                     val isValid = validateProfileInput(
                         fullName = fullName,
                         email = email,
-                        phone = phone,
+                        phone = phone ?: "", // Use empty string if phone is null for validation
                         onError = { field, msg ->
                             when (field) {
                                 "name" -> nameError = msg
@@ -176,9 +195,28 @@ fun InputWithLabel(
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-        enabled = enabled,
-        readOnly = !enabled,
+        enabled = true,  // Luôn bật enabled để không bị mờ
+        readOnly = !enabled, // Nếu enabled là false (cần "disabled"), thì readOnly = true (chỉ đọc)
         isError = errorText != null,
+
+        colors = TextFieldDefaults.colors(
+
+            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+            unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            disabledIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            errorIndicatorColor = MaterialTheme.colorScheme.error,
+
+            focusedContainerColor = White,
+            unfocusedContainerColor = White,
+            disabledContainerColor = White,
+            errorContainerColor = White,
+
+            // Other colors
+            cursorColor = MaterialTheme.colorScheme.primary,
+
+            // Ensure text color doesn't change when visually "disabled" (readOnly)
+            disabledTextColor = LocalContentColor.current
+        )
     )
 
     if (!errorText.isNullOrEmpty()) {
@@ -188,8 +226,8 @@ fun InputWithLabel(
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
         )
-    }
-    else {
+    } else {
+        // Add a smaller spacer to separate fields
         Spacer(modifier = Modifier.height(12.dp))
     }
 }
@@ -212,7 +250,8 @@ private fun validateProfileInput(
         isValid = false
     }
 
-     if (!phone.matches(Regex("^0\\d{9}$"))) {
+    // Validate phone only if it's not blank
+    if (phone.isNotBlank() && !phone.matches(Regex("^0\\d{9}$"))) {
         onError("phone", "Số điện thoại phải có 10 chữ số và bắt đầu bằng 0")
         isValid = false
     }

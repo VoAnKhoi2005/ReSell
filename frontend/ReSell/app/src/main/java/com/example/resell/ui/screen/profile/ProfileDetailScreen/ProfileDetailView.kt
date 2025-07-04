@@ -77,7 +77,7 @@ fun ProfileDetailScreen(
 
     val state by viewModel.uiState
     val currentUserId = ReactiveStore<User>().item.value?.id ?: ""
-
+    val isFollow by viewModel.isFollow.collectAsState()
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { viewModel.uploadAvatar(context, it) }
@@ -88,7 +88,6 @@ fun ProfileDetailScreen(
 
     LaunchedEffect(targetUserId, currentUserId) {
         viewModel.loadProfile(targetUserId, currentUserId)
-        viewModel.loadUserPosts(targetUserId)
     }
 
     val pagerState = rememberPagerState(pageCount = { ProfileDetailTab.entries.size })
@@ -122,7 +121,8 @@ fun ProfileDetailScreen(
             } else null,
             onFollowClick = {
                 viewModel.toggleFollow()
-            }
+            },
+            isFollowing = isFollow
         )
 
         ProfileTabsPager(
@@ -207,12 +207,12 @@ fun ProfileTabsPager(
             when (pageIndex) {
                 0 -> {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        ApproveScreen(isCurrentUser = isCurrentUser)
+                        ApproveScreen(isCurrentUser = isCurrentUser,viewModel=viewModel)
                     }
                 }
                 1 -> {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        NotApprovedScreen(isCurrentUser = isCurrentUser)
+                        NotApprovedScreen(isCurrentUser = isCurrentUser,viewModel=viewModel)
                     }
                 }
             }

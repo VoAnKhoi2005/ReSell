@@ -47,10 +47,11 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
     ) {
         item {
             ProfileSimpleHeaderSection(
-                avatarUrl = ReactiveStore<User>().item.value?.avatarURL?: stringResource(R.string.default_avatar_url),
+                avatarUrl = user?.avatarURL
+                ,
                 name = user?.fullName,
                 rating = viewModel.statUser?.averageRating.toString(),
-                reviewCount = viewModel.statUser?.reviewNumber?:0,
+                reviewCount = viewModel.statUser?.reviewNumber ?: 0,
                 userName = user?.username,
                 followerCount = viewModel.statUser?.followerCount,
                 followingCount = viewModel.statUser?.followeeCount,
@@ -59,11 +60,9 @@ fun ProfileScreen(viewModel: ProfileViewModel = hiltViewModel()) {
                         Log.d("NAVIGATION", "Navigating to ProfileDetail: $userId")
                         NavigationController.navController.navigate(Screen.ProfileDetail.withId(userId))
                     }
-
-
                 }
-
             )
+
         }
 
         item {

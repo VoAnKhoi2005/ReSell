@@ -56,10 +56,17 @@ class ProfileDetailViewModel @Inject constructor(
 
     private val _uiState = mutableStateOf(UserProfileUiState())
     val uiState: State<UserProfileUiState> = _uiState
+    private val _isLoadingPosts = MutableStateFlow(false)
+    val isLoadingPosts: StateFlow<Boolean> = _isLoadingPosts
+    private val _isFollow = MutableStateFlow(false)
 
+    val isFollow: StateFlow<Boolean> = _isFollow
+    var userId :String =""
     fun loadProfile(targetUserId: String, currentUserId: String) {
         val isCurrent = targetUserId == currentUserId
         Log.d("PROFILE_VM", "Loading profile: target=$targetUserId, current=$currentUserId")
+        _userApprovedPosts.value = emptyList()
+        _userSoldPosts.value = emptyList()
         viewModelScope.launch {
             val result = runCatching {
                 userRepository.getUserStat(targetUserId)
@@ -81,7 +88,10 @@ class ProfileDetailViewModel @Inject constructor(
                     followingCount = stat.followeeCount,
                     responseRate = formatResponseRate(stat.chatResponsePercentage),
                     createdAt = formatCreatedAt(stat.createAt),
+
                 )
+                _isFollow.value = stat.isFollowing
+                userId =stat.userId
                 loadUserPosts(targetUserId)
             } ?: Log.e("PROFILE_VM", "UserStat result was null or left for user: $targetUserId")
         }
@@ -91,9 +101,21 @@ class ProfileDetailViewModel @Inject constructor(
 
 
     fun toggleFollow() {
-        // TODO: Gọi userRepository.follow hoặc unfollow nếu có
-        // Ví dụ:
-        // userRepository.follow(userId)
+        viewModelScope.launch {
+            // Gọi API
+            val success = if (_isFollow.value) {
+                userRepository.unfollowUser(userId)
+            } else {
+                userRepository.followUser(userId)
+            }
+            success.fold(
+                {
+                    Log.e("Update Follow",it.message?:"Error")
+                },{
+                   _isFollow.value =!_isFollow.value
+                }
+            )
+        }
     }
 
     private fun formatCreatedAt(dateTime: LocalDateTime?): String {
@@ -193,7 +215,7 @@ class ProfileDetailViewModel @Inject constructor(
                 var isHasMore = true
                 val approved = mutableListOf<PostData>()
                 val sold = mutableListOf<PostData>()
-
+                _isLoadingPosts.value = true
                 while (isHasMore) {
                     val result = postRepository.getOwnPosts(currentPage, 100)
                     result.fold(

@@ -62,11 +62,11 @@ class LoginViewModel @Inject constructor(
     private val _loginError = MutableStateFlow<String?>(null)
     val loginError: StateFlow<String?> = _loginError
 
-    /**
-     * Khởi chạy quá trình đăng nhập Google thông qua Credential Manager.
-     * @param onSuccess Callback khi đăng nhập Firebase thành công, trả về FirebaseUser.
-     * @param onError Callback khi có lỗi, trả về thông báo lỗi.
-     */
+   init {
+       _isLoginLoading.value = true
+       checkAutoLogin()
+       _isLoginLoading.value = false
+   }
     fun launchUsernameSignIn(identifier: String, password: String){
         viewModelScope.launch {
             _isLoginLoading.value = true
@@ -145,7 +145,21 @@ class LoginViewModel @Inject constructor(
 
         return fbIDToken
     }
-
+    private suspend fun autoSaveToDB(firebaseIdToken: String) {
+        _isLoginLoading.value = false
+        val response = userRepository.firebaseAuth(firebaseIdToken)
+        response.fold(
+            ifLeft = { error ->
+                Log.e("Login", "Login failed: ${error.message}")
+                onError("Đăng nhập thất bại: ${error.message}")
+            },
+            ifRight = { fbAuthResponse ->
+                if (!fbAuthResponse.firstTimeLogin) {
+                    onSuccess(fbAuthResponse.user)
+                }
+            }
+        )
+    }
     private suspend fun saveToDB(firebaseIdToken: String) {
         val response = userRepository.firebaseAuth(firebaseIdToken)
         response.fold(
@@ -174,12 +188,13 @@ class LoginViewModel @Inject constructor(
                     ifLeft = { onError("Phiên đăng nhập hết hạn") },
                     ifRight = { response -> onSuccess(response.user) }
                 )
-            } else {
+            }
+            else {
                 val firebaseUser = Firebase.auth.currentUser
                 if (firebaseUser != null) {
                     val idToken = firebaseUser.getIdToken(true).await()?.token
                     if (idToken != null) {
-                        saveToDB(idToken)
+                        autoSaveToDB(idToken)
                     }
                 }
             }
@@ -191,18 +206,11 @@ class LoginViewModel @Inject constructor(
         webSocketManager.connect()
         fcmTokenManager.fetchAndSendToken()
         ReactiveStore<User>().set(user);
-        NavigationController.navController.navigate(Screen.Main.route)
-
-        val addressIDs = listOf("fsfsfsf", "fsdfsfsds")
-        val response = repo.deleteAddresses(addressIDs)
-        response.fold(
-            ifLeft = { error ->
-                Log.e("Testing", "Error: ${error.message}")
-            },
-            ifRight = { apiObject ->
-                val temp = apiObject
+        NavigationController.navController.navigate(Screen.Main.route){
+            popUpTo("login") {
+                inclusive = true // Xóa luôn cả login khỏi stack
             }
-        )
+        }
     }
     //TODO: Xử lý đăng nhập với firebase thất bại
     private fun onError(message : String){

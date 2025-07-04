@@ -79,7 +79,11 @@ class RegisterViewModel @Inject constructor(
         webSocketManager.connect()
         fcmTokenManager.fetchAndSendToken()
         ReactiveStore<User>().set(user);
-        NavigationController.navController.navigate(Screen.Main.route)
+        NavigationController.navController.navigate(Screen.Main.route){
+            popUpTo("login") {
+                inclusive = true // Xóa luôn cả login khỏi stack
+            }
+        }
     }
     //TODO: Xử lý đăng nhập với firebase thất bại
     private fun onError(message : String){

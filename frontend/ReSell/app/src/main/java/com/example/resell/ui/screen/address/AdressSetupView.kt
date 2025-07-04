@@ -16,10 +16,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.model.User
 import com.example.resell.store.ReactiveStore
 import com.example.resell.ui.components.AddressBox
+import com.example.resell.ui.components.OrderButton
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
-import com.example.resell.ui.screen.payment.OrderButton
+
 import com.example.resell.ui.theme.AddressBoxColor
 import com.example.resell.ui.theme.Red
 import com.example.resell.ui.theme.SelectToDeleteColor
@@ -144,6 +145,7 @@ fun AddressSetupScreen(
 
             if (!isDeleteMode) {
                 OrderButton(
+                    enable = true,
                     text = "Thêm địa chỉ mới",
                     onClick = {
                         NavigationController.navController.navigate(Screen.AddressAdd.route)

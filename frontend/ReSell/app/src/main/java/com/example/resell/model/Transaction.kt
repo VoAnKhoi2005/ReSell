@@ -184,7 +184,7 @@ data class DeletePostImagesRequest(
 data class CreateOrderRequest(
     @Json(name = "post_id") val postID: String,
     @Json(name = "address_id") val addressID: String,
-    val total: Double
+    val total: Int
 )
 
 // endregion

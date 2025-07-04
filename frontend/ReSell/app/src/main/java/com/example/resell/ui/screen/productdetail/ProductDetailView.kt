@@ -42,6 +42,7 @@ import com.example.resell.ui.components.IconButtonHorizontal
 import com.example.resell.ui.components.IconWithTextRow
 import com.example.resell.ui.components.ProductPostItem
 import com.example.resell.ui.components.ProfileSimpleHeader
+import com.example.resell.ui.components.ReportPostPopup
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
@@ -51,6 +52,7 @@ import com.example.resell.ui.theme.PhoneBox
 import com.example.resell.ui.theme.White
 import com.example.resell.ui.theme.White2
 import com.example.resell.ui.theme.priceColor
+import com.example.resell.ui.viewmodel.components.ReportPostViewModel
 import com.example.resell.ui.viewmodel.productDetail.ProductDetailViewModel
 import com.example.resell.util.getRelativeTime
 import kotlin.collections.joinToString
@@ -62,6 +64,9 @@ fun ProductDetailScreen(
     viewModel: ProductDetailViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val reportPopupViewModel: ReportPostViewModel = hiltViewModel()
+    var showReportPopup by remember { mutableStateOf(false) }
+    val isFavorite by viewModel.isFavorite.collectAsState()
     val post = viewModel.postDetail
     val isLoading by viewModel.isLoading.collectAsState()
     if (isLoading) {
@@ -86,8 +91,13 @@ fun ProductDetailScreen(
                 item {
                     ImageCarousel(
                         images = post?.images?.map { it.url }.orEmpty(),
-                        onFavoriteClick = {},
-                        onReportClick = {}
+                        isFavorite = isFavorite,
+                        onFavoriteClick = {
+                            viewModel.toggleFavorite()
+                        },
+                        onReportClick = {
+                            showReportPopup = true
+                        }
                     )
                 }
                 item {
@@ -166,6 +176,17 @@ fun ProductDetailScreen(
                 }
 
             }
+        }
+        if (showReportPopup ) {
+            ReportPostPopup(
+                onDismiss = { showReportPopup = false },
+                onSubmit = { reason, detail ->
+                    reportPopupViewModel.report(post!!.id, reason, detail)
+                    if (reportPopupViewModel.reportResult.value==true)
+                        showReportPopup = false
+
+                }
+            )
         }
     }
 }

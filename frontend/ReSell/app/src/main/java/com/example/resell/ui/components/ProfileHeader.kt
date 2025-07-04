@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -42,7 +43,10 @@ import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
+import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.LoginButton
+import com.example.resell.ui.theme.UserMessage
+import com.example.resell.ui.theme.White2
 import com.example.resell.ui.theme.Yellow
 import com.example.resell.ui.viewmodel.profile.UserProfileUiState
 
@@ -50,10 +54,10 @@ import com.example.resell.ui.viewmodel.profile.UserProfileUiState
 fun ProfileHeaderSection(
     state: UserProfileUiState,
     onEditClick: (() -> Unit)? = null,
-    onShareClick: (() -> Unit)? = null,
     onChangeCoverClick: (() -> Unit)? = null,
     onChangeAvatarClick: (() -> Unit)? = null,
-    onFollowClick: () -> Unit = {}
+    onFollowClick: () -> Unit = {},
+    isFollowing: Boolean=false
 ) {
     Box(
         modifier = Modifier
@@ -180,17 +184,19 @@ fun ProfileHeaderSection(
             } else {
                 Button(
                     onClick = onFollowClick,
-                    modifier = Modifier.height(28.dp),
-                    shape = RoundedCornerShape(4.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = DarkBlue,
-                        contentColor = Color.White
-                    ),
-                    contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
+                    modifier = Modifier
+                        .height(32.dp)
+                        .defaultMinSize(minWidth = 90.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = if (isFollowing)
+                        ButtonDefaults.buttonColors(containerColor = LightGray, contentColor = Color.Black)
+                    else
+                        ButtonDefaults.buttonColors(containerColor = UserMessage, contentColor = White2),
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp)
                 ) {
                     Text(
-                        "Theo dõi",
-                        style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp)
+                        text = if (isFollowing) "Đang theo dõi" else "+ Theo dõi",
+                        style = MaterialTheme.typography.labelMedium.copy(fontSize = 13.sp)
                     )
                 }
             }
@@ -278,14 +284,19 @@ fun ProfileSimpleHeaderSection(//bên profile
                 .size(100.dp)
                 .clickable { onChangeAvatarClick?.invoke() } // click toàn vùng
         ) {
+            val fallbackAvatar = painterResource(id = R.drawable.defaultavatar)
+
             AsyncImage(
-                model = avatarUrl,
+                model = avatarUrl.takeIf { !it.isNullOrBlank() },
                 contentDescription = "Avatar",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(CircleShape)
-                    .border(2.dp, Color.White, CircleShape)
+                    .border(2.dp, Color.White, CircleShape),
+                placeholder = fallbackAvatar,
+                error = fallbackAvatar,
+                fallback = fallbackAvatar
             )
 
 
