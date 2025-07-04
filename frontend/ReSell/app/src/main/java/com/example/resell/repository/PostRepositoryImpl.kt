@@ -86,21 +86,29 @@
             }.mapLeft { it.toNetworkError() }
         }
 
-        override suspend fun createPost(
-            title: String,
-            description: String,
-            categoryID: String,
-            addressID: String,
-            price: Int
-        ): Either<NetworkError, Post> {
-            return Either.catch {
-                val request = CreatePostRequest(
-                    title = title,
-                    description = description,
-                    categoryID = categoryID,
-                    wardID = addressID,
-                    price = price
-                )
+
+    override suspend fun isPostSold(postID: String): Either<NetworkError, Boolean> {
+        return Either.catch {
+            apiService.isPostSold(postID)
+        }.mapLeft { it.toNetworkError() }
+    }
+
+    override suspend fun createPost(
+        title: String,
+        description: String,
+        categoryID: String,
+        addressID: String,
+        price: Int
+    ): Either<NetworkError, Post> {
+        return Either.catch {
+            val request = CreatePostRequest(
+                title = title,
+                description = description,
+                categoryID = categoryID,
+                wardID = addressID,
+                price = price
+            )
+
 
                 apiService.createPost(request)
             }.mapLeft { it.toNetworkError() }
