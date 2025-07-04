@@ -48,13 +48,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import com.example.resell.ui.viewmodel.order.MyOrder.OrderWithPost
 import java.text.NumberFormat
 import java.util.Locale
 
+@Composable
+fun formattedPriceText(price: Int): AnnotatedString {
+    val formattedNumber = "%,d".format(price).replace(",", ".")
+    return buildAnnotatedString {
+        append(formattedNumber)
+        append(" ")
+        withStyle(style = SpanStyle(textDecoration = TextDecoration.Underline)) {
+            append("đ")
+        }
+    }
+}
 @Composable
 fun ProductPostItem(
     title: String,
@@ -113,7 +126,7 @@ fun ProductPostItem(
 
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = price.toString(),
+                text = formattedPriceText(price),
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

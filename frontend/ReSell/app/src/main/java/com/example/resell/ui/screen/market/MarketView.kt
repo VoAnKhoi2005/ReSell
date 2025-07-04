@@ -73,6 +73,7 @@ import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.UserMessage
 import com.example.resell.ui.theme.White2
+import com.example.resell.ui.theme.priceColor
 import com.example.resell.ui.viewmodel.components.ReportPostViewModel
 import com.example.resell.ui.viewmodel.market.MarketViewModel
 import com.example.resell.util.Event
@@ -291,7 +292,7 @@ fun PostItemView(
                         Text(
                             text = "%,d ₫".format(postData.price),
                             style = MaterialTheme.typography.titleMedium.copy(
-                                color = DarkBlue,
+                                color = priceColor,
                                 fontWeight = FontWeight.Bold
                             )
                         )
