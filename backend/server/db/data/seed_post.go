@@ -93,7 +93,7 @@ func seedPost(userIDs, categoryIDs, wardsIDs []string) []string {
 
 	for i, userID := range userIDs {
 
-		postCount := rand.Intn(6)
+		postCount := rand.Intn(3) + 3
 		for j := 1; j <= postCount; j++ {
 			id := uuid.New().String()
 			categoryID := randomStringIn(categoryIDs)
