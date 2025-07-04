@@ -239,7 +239,7 @@ func (r *recommenderRepository) GetCandidatePostsID(userID string, page int, pag
 		Where("posts.user_id != ?", userID).
 		Where("posts.status = 'approved'").
 		Where("posts.created_at >= NOW() - INTERVAL '30 days'").
-		Where("users.reputation >= ?", 0).
+		Where("users.reputation >= ?", 60).
 		Group("posts.id")
 
 	// Clone and count

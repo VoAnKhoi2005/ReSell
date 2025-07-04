@@ -13,6 +13,7 @@ type ConversationStatDTO struct {
 	PostID         string    `json:"post_id"`
 	PostTitle      string    `json:"post_title"`
 	PostThumbnail  string    `json:"post_thumbnail"`
+	IsPostSold     bool      `json:"is_post_sold"`
 	LastMessage    string    `json:"last_message"`
 	CreatedAt      time.Time `json:"created_at"`
 	LastUpdatedAt  time.Time `json:"last_updated_at"`

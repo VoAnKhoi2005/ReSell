@@ -87,30 +87,34 @@ func (m *messageRepository) GetConversationStatsByUserID(userID string) ([]*dto.
 		Select("DISTINCT ON (conversation_id) conversation_id, content, created_at").
 		Order("conversation_id, created_at DESC")
 
+	subImage := m.db.
+		Table("post_images").
+		Select("DISTINCT ON (post_id) post_id, image_url").
+		Order("post_id, image_order")
+
 	err := m.db.
 		Table("conversations").
 		Select(`
-			conversations.id AS conversation_id,
-			seller.id AS seller_id,
-			seller.fullname AS seller_full_name,
-			seller.avatar_url AS seller_avatar,
-			buyer.id AS buyer_id,
-			buyer.fullname AS buyer_full_name,
-			buyer.avatar_url AS buyer_avatar,
-			posts.id AS post_id,
-			posts.title AS post_title,
-			post_images.image_url AS post_thumbnail,
-			messages.content AS last_message,
-			messages.created_at AS last_updated_at,
-			conversations.created_at
-		`).
+		conversations.id AS conversation_id,
+		seller.id AS seller_id,
+		seller.fullname AS seller_full_name,
+		seller.avatar_url AS seller_avatar,
+		buyer.id AS buyer_id,
+		buyer.fullname AS buyer_full_name,
+		buyer.avatar_url AS buyer_avatar,
+		posts.id AS post_id,
+		posts.title AS post_title,
+		post_images.image_url AS post_thumbnail,
+		messages.content AS last_message,
+		messages.created_at AS last_updated_at,
+		CASE WHEN posts.sold_at IS NULL THEN FALSE ELSE TRUE END AS is_post_sold,
+		conversations.created_at`).
 		Joins("LEFT JOIN users AS seller ON seller.id = conversations.seller_id").
 		Joins("LEFT JOIN users AS buyer ON buyer.id = conversations.buyer_id").
 		Joins("LEFT JOIN posts ON posts.id = conversations.post_id").
-		Joins("LEFT JOIN post_images ON post_images.post_id = posts.id").
+		Joins("LEFT JOIN (?) AS post_images ON post_images.post_id = posts.id", subImage).
 		Joins("LEFT JOIN (?) AS messages ON messages.conversation_id = conversations.id", subQuery).
 		Where("conversations.buyer_id = ? OR conversations.seller_id = ?", userID, userID).
-		Group("conversations.id, seller.id, buyer.id, posts.id, post_images.image_url, messages.content, messages.created_at").
 		Scan(&results).Error
 
 	return results, err

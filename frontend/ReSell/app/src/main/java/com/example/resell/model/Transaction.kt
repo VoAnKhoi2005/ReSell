@@ -248,6 +248,8 @@ data class ConversationStatDTO(
     val postThumbnail: String,
     @Json(name = "last_message")
     val lastMessage: String,
+    @Json(name = "is_post_sold")
+    val isPostSold: String,
     @Json(name = "created_at")
     val createdAt: LocalDateTime,
     @Json(name = "last_updated_at")
