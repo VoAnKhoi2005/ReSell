@@ -1,5 +1,6 @@
 package com.example.resell.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -50,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import com.example.resell.ui.viewmodel.order.MyOrder.OrderWithPost
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -434,5 +436,42 @@ fun getPostActions(postStatus: PostStatus): List<Pair<String, () -> Unit>> {
             "Hiển thị lại" to { /* TODO */ },
             "Xoá" to { /* TODO */ }
         )
+    }
+}
+@Composable
+fun OrderWithPostItem(item: OrderWithPost) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            // Ảnh
+            val firstImage = item.post.images?.firstOrNull()?.url
+
+            if (!firstImage.isNullOrEmpty()) {
+                AsyncImage(
+                    model = firstImage,
+                    contentDescription = item.post.title ?: "Ảnh sản phẩm",
+                    modifier = Modifier
+                        .width(80.dp)
+                        .height(80.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                )
+            }
+
+
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = item.post.title ?: "Không có tiêu đề", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = "Trạng thái: ${item.order.status}", style = MaterialTheme.typography.bodySmall)
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(text = "Tổng tiền: ${item.order.total} đ", style = MaterialTheme.typography.bodySmall)
+            }
+        }
     }
 }

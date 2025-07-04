@@ -41,6 +41,8 @@ import com.example.resell.ui.components.AddressPickerPopup
 import com.example.resell.ui.components.CategoryPickerPopup
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.screen.home.HomeContent
+import com.example.resell.ui.theme.DarkBlue
+import com.example.resell.ui.theme.White2
 import com.example.resell.ui.viewmodel.addpost.AddPostViewModel
 import com.example.resell.ui.viewmodel.components.AddressPickerViewModel
 import com.example.resell.ui.viewmodel.components.CategoryPickerViewModel
@@ -81,9 +83,9 @@ fun AddPostScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
+                    containerColor = DarkBlue,
+                    titleContentColor = White2,
+                    navigationIconContentColor = White2
                 )
             )
         },

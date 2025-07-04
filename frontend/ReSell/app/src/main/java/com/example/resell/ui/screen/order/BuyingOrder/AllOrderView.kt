@@ -35,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.resell.model.ShopOrder
 import com.example.resell.model.User
 import com.example.resell.store.ReactiveStore
+import com.example.resell.ui.components.OrderWithPostItem
 import com.example.resell.ui.components.ProductPostItemHorizontalImage
 import com.example.resell.ui.screen.home.ProductPost
 import com.example.resell.ui.theme.CancelButton
@@ -48,17 +49,8 @@ import com.example.resell.ui.viewmodel.order.MyOrder.MyOrderViewModel
 fun AllOrderScreen(
     viewModel: MyOrderViewModel = hiltViewModel()
 ) {
-    // ✅ Lấy buyerId từ ReactiveStore (người dùng hiện tại)
-    val currentUser = ReactiveStore<User>().item.collectAsState()
-    val buyerId = currentUser.value?.id
-
-    // ⏳ Load đơn khi có buyerId
-    LaunchedEffect(buyerId) {
-        buyerId?.let { viewModel.loadOrders(it) }
-    }
-
     val isLoading = viewModel.isLoading
-    val orders = viewModel.orders
+    val ordersWithPosts = viewModel.ordersWithPosts
 
     when {
         isLoading -> {
@@ -66,25 +58,21 @@ fun AllOrderScreen(
                 CircularProgressIndicator()
             }
         }
-
-        orders.isEmpty() -> {
+        ordersWithPosts.isEmpty() -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text("Bạn chưa có đơn hàng nào.")
             }
         }
-
         else -> {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(12.dp)
-            ) {
-                items(orders) { order ->
-                    OrderItemWithActions(order = order)
+            LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(12.dp)) {
+                items(ordersWithPosts) { orderWithPost ->
+                    OrderWithPostItem(orderWithPost)
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun OrderItemWithActions(order: ShopOrder) {
