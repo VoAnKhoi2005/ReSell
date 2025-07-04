@@ -37,4 +37,10 @@ class FavoriteRepositoryImpl @Inject constructor(
         }.mapLeft { it.toNetworkError() }
     }
 
+    override suspend fun isFavorite(postID: String): Either<NetworkError, Boolean> {
+        return Either.catch {
+            apiService.isFavorite(postID)
+        }.mapLeft { it.toNetworkError() }
+    }
+
 }

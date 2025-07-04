@@ -92,6 +92,9 @@ interface ApiService {
     @DELETE("favorite/{id}")
     suspend fun unlikePost(@Path("id") postID: String): Response<Unit>
 
+    @GET("favorite/{id}")
+    suspend fun isFavorite(@Path("id") postID: String): Boolean
+
     //endregion
 
     //region Payment
