@@ -731,3 +731,20 @@ func (h *PostController) GetOwnPosts(c *gin.Context) {
 		"has_more": int64(page*limit) < total,
 	})
 }
+
+func (h *PostController) IsSold(c *gin.Context) {
+	postID := c.Param("id")
+
+	if postID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "post id is required"})
+		return
+	}
+
+	isSold, err := h.service.IsSold(postID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, isSold)
+}

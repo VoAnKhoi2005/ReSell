@@ -51,6 +51,9 @@ BASE_URL=https://xxx.ngrok-free.app/api/
 
 5. Build app Android là xài được  
 
+>[!TIP] 
+> - Backend: http://localhost:8080 
+> - Admin web: http://localhost:5173
 
 <br>  
 <br>
