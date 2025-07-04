@@ -17,18 +17,41 @@ class ChangePasswordViewModel @Inject constructor(
     var newPassword by mutableStateOf("")
     var confirmPassword by mutableStateOf("")
 
+    var currentPasswordError by mutableStateOf<String?>(null)
+    var newPasswordError by mutableStateOf<String?>(null)
+    var confirmPasswordError by mutableStateOf<String?>(null)
+
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
     var successMessage by mutableStateOf<String?>(null)
 
-    fun changePassword() {
-        // Kiểm tra mật khẩu mới nhập lại có trùng không
-        if (newPassword != confirmPassword) {
-            errorMessage = "Mật khẩu mới không khớp"
-            return
-        }
+    private fun validate(): Boolean {
+        var valid = true
 
-        // Gọi API
+        if (currentPassword.isBlank()) {
+            currentPasswordError = "Vui lòng nhập mật khẩu hiện tại"
+            valid = false
+        } else currentPasswordError = null
+
+        if (newPassword.isBlank()) {
+            newPasswordError = "Vui lòng nhập mật khẩu mới"
+            valid = false
+        } else newPasswordError = null
+
+        if (confirmPassword.isBlank()) {
+            confirmPasswordError = "Vui lòng nhập lại mật khẩu mới"
+            valid = false
+        } else if (newPassword != confirmPassword) {
+            confirmPasswordError = "Mật khẩu không khớp"
+            valid = false
+        } else confirmPasswordError = null
+
+        return valid
+    }
+
+    fun changePassword() {
+        if (!validate()) return
+
         viewModelScope.launch {
             isLoading = true
             errorMessage = null
@@ -44,9 +67,13 @@ class ChangePasswordViewModel @Inject constructor(
                 { success ->
                     if (success) {
                         successMessage = "Đổi mật khẩu thành công"
+                        // Reset fields và errors
                         currentPassword = ""
                         newPassword = ""
                         confirmPassword = ""
+                        currentPasswordError = null
+                        newPasswordError = null
+                        confirmPasswordError = null
                     } else {
                         errorMessage = "Mật khẩu cũ không chính xác"
                     }

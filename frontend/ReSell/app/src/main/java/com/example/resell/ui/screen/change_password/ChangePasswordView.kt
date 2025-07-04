@@ -11,33 +11,38 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.resell.R
 import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.theme.DarkBlue
+import com.example.resell.ui.theme.LightGray
+import com.example.resell.ui.theme.MainButton
 import com.example.resell.ui.theme.White
 import com.example.resell.ui.theme.White2
-import kotlinx.coroutines.delay
+import com.example.resell.ui.viewmodel.ChangePasswordViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun ChangePasswordScreen() {
-    var currentPassword by remember { mutableStateOf("") }
-    var newPassword by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+fun ChangePasswordScreen(
+) {
+    val viewModel: ChangePasswordViewModel = hiltViewModel()
+    val currentPassword by remember { derivedStateOf { viewModel.currentPassword } }
+    val newPassword by remember { derivedStateOf { viewModel.newPassword } }
+    val confirmPassword by remember { derivedStateOf { viewModel.confirmPassword } }
 
-    var currentPasswordError by remember { mutableStateOf<String?>(null) }
-    var newPasswordError by remember { mutableStateOf<String?>(null) }
-    var confirmPasswordError by remember { mutableStateOf<String?>(null) }
+    val currentPasswordError by remember { derivedStateOf { viewModel.currentPasswordError } }
+    val newPasswordError by remember { derivedStateOf { viewModel.newPasswordError } }
+    val confirmPasswordError by remember { derivedStateOf { viewModel.confirmPasswordError } }
+
+    val isLoading by remember { derivedStateOf { viewModel.isLoading } }
+    val errorMessage by remember { derivedStateOf { viewModel.errorMessage } }
+    val successMessage by remember { derivedStateOf { viewModel.successMessage } }
 
     var currentVisible by remember { mutableStateOf(false) }
     var newVisible by remember { mutableStateOf(false) }
     var confirmVisible by remember { mutableStateOf(false) }
-
-    var isLoading by remember { mutableStateOf(false) }
-    var successMessage by remember { mutableStateOf<String?>(null) }
-
-    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -60,10 +65,7 @@ fun ChangePasswordScreen() {
             PasswordField(
                 label = "Mật khẩu hiện tại",
                 password = currentPassword,
-                onPasswordChange = {
-                    currentPassword = it
-                    currentPasswordError = null
-                },
+                onPasswordChange = { viewModel.currentPassword = it },
                 isVisible = currentVisible,
                 onToggleVisibility = { currentVisible = !currentVisible },
                 error = currentPasswordError
@@ -74,10 +76,7 @@ fun ChangePasswordScreen() {
             PasswordField(
                 label = "Mật khẩu mới",
                 password = newPassword,
-                onPasswordChange = {
-                    newPassword = it
-                    newPasswordError = null
-                },
+                onPasswordChange = { viewModel.newPassword = it },
                 isVisible = newVisible,
                 onToggleVisibility = { newVisible = !newVisible },
                 error = newPasswordError
@@ -88,10 +87,7 @@ fun ChangePasswordScreen() {
             PasswordField(
                 label = "Nhập lại mật khẩu mới",
                 password = confirmPassword,
-                onPasswordChange = {
-                    confirmPassword = it
-                    confirmPasswordError = null
-                },
+                onPasswordChange = { viewModel.confirmPassword = it },
                 isVisible = confirmVisible,
                 onToggleVisibility = { confirmVisible = !confirmVisible },
                 error = confirmPasswordError
@@ -99,39 +95,27 @@ fun ChangePasswordScreen() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage!!,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+            }
+
             if (successMessage != null) {
-                Text(text = successMessage!!, color = Color(0xFF00C853))
-                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = successMessage!!,
+                    color = Color(0xFF00C853),
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
             }
 
             Button(
-                onClick = {
-                    val isValid = validatePasswordFields(
-                        currentPassword,
-                        newPassword,
-                        confirmPassword
-                    ) { field, message ->
-                        when (field) {
-                            "current" -> currentPasswordError = message
-                            "new" -> newPasswordError = message
-                            "confirm" -> confirmPasswordError = message
-                        }
-                    }
-
-                    if (isValid) {
-                        scope.launch {
-                            isLoading = true
-                            delay(1000) // giả lập gọi API
-                            isLoading = false
-                            successMessage = "Đổi mật khẩu thành công"
-                            currentPassword = ""
-                            newPassword = ""
-                            confirmPassword = ""
-                        }
-                    }
-                },
+                onClick = { viewModel.changePassword() },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
+                colors = ButtonDefaults.buttonColors(containerColor = DarkBlue),
+                enabled = !isLoading
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
@@ -165,15 +149,33 @@ fun PasswordField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
+            colors = TextFieldDefaults.colors(
+
+                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                disabledIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                errorIndicatorColor = MaterialTheme.colorScheme.error,
+
+                focusedContainerColor = White,
+                unfocusedContainerColor = White,
+                disabledContainerColor = White,
+                errorContainerColor = White,
+
+                // Other colors
+                cursorColor = MaterialTheme.colorScheme.primary,
+
+                // Ensure text color doesn't change when visually "disabled" (readOnly)
+                disabledTextColor = LocalContentColor.current
+            ),
             visualTransformation = if (isVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
                 IconButton(onClick = onToggleVisibility) {
                     Icon(
                         painter = painterResource(
-                            id = if (isVisible) R.drawable.eye_off_1 else R.drawable.eye_1
+                            id = if (isVisible) R.drawable.eye_1 else R.drawable.eye_off_1
                         ),
                         contentDescription = if (isVisible) "Ẩn mật khẩu" else "Hiện mật khẩu",
-                        tint = DarkBlue
+                        tint = if (isVisible) MainButton else LightGray
                     )
                 }
             },
