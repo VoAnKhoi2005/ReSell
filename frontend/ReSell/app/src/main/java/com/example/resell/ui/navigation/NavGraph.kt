@@ -31,6 +31,8 @@ import com.example.resell.ui.screen.productdetail.ProductDetailScreen
 
 import com.example.resell.ui.screen.profile.ProfileDetailScreen.ProfileDetailScreen
 import com.example.resell.ui.screen.auth.register.RegisterScreen
+import com.example.resell.ui.screen.change_password.ChangePasswordScreen
+
 import com.example.resell.ui.screen.favourite.FavoriteScreen
 import com.example.resell.ui.screen.payment.PaymenContentScreen
 
@@ -192,6 +194,9 @@ fun SetupNavGraph(
 
         composable(Screen.AddressChooseScreen.route) {
             AddressChooseScreen()
+        }
+        composable(Screen.ChangePassWordScreen.route) {
+            ChangePasswordScreen()
         }
 
     }

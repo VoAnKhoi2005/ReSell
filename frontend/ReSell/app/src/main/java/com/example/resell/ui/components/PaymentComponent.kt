@@ -57,7 +57,7 @@ fun TotalAmountBox(totalAmount: Int) {
 fun OrderButton(
     text: String,
     onClick: () -> Unit,
-    enable : Boolean =false
+    enable : Boolean =true
 ) {
     Button(
         onClick = onClick,
