@@ -33,7 +33,7 @@ class MyOrderViewModel @Inject constructor(
         viewModelScope.launch {
             isLoading = true
             orderRepository.getOrderByBuyerID(buyerId).fold(
-                ifLeft = { /* xử lý lỗi nếu cần */ },
+                ifLeft = {  },
                 ifRight = { orders ->
                     val ordersPosts = mutableListOf<OrderWithPost>()
                     for (order in orders) {
@@ -43,7 +43,7 @@ class MyOrderViewModel @Inject constructor(
                                 ordersPosts.add(OrderWithPost(order, post))
                             }
                             is Either.Left -> {
-                                // Xử lý nếu không lấy được bài đăng, có thể bỏ qua hoặc log
+
                             }
                         }
                     }

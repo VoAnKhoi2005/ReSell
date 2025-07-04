@@ -42,6 +42,7 @@ import com.example.resell.ui.components.CategoryPickerPopup
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.screen.home.HomeContent
 import com.example.resell.ui.theme.DarkBlue
+import com.example.resell.ui.theme.GrayFont
 import com.example.resell.ui.theme.White2
 import com.example.resell.ui.viewmodel.addpost.AddPostViewModel
 import com.example.resell.ui.viewmodel.components.AddressPickerViewModel
@@ -102,7 +103,11 @@ fun AddPostScreen(
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = viewModel.isReadyToSubmit
+                    enabled = viewModel.isReadyToSubmit,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (viewModel.isReadyToSubmit) DarkBlue else GrayFont,
+                        contentColor = if (viewModel.isReadyToSubmit) White2 else Color.Black
+                    )
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(
