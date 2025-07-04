@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 )
@@ -64,6 +65,8 @@ func CreateZaloPayOrder(appTransID, appUser string, amount int) (string, string,
 		BankCode:    "zalopayapp",
 		CallbackURL: callbackURL,
 	}
+
+	log.Println("Zalo Callback URL:", callbackURL)
 
 	// MAC: app_id|app_trans_id|app_user|amount|app_time|embed_data|item
 	rawMac := fmt.Sprintf("%d|%s|%s|%d|%d|%s|%s", req.AppID, req.AppTransID, req.AppUser, req.Amount, req.AppTime, req.EmbedData, req.Item)
