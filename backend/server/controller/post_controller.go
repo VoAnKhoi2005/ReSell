@@ -403,7 +403,7 @@ func (h *PostController) DeletePost(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Post deleted permanently"})
+	c.JSON(http.StatusOK, true)
 }
 
 func (h *PostController) ApprovePost(c *gin.Context) {
