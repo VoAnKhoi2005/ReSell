@@ -93,11 +93,6 @@
         }.mapLeft { it.toNetworkError() }
     }
 
-    override suspend fun isPostSold(postID: String): Either<NetworkError, Boolean> {
-        return Either.catch {
-            apiService.isPostSold(postID)
-        }.mapLeft { it.toNetworkError() }
-    }
 
     override suspend fun createPost(
         title: String,

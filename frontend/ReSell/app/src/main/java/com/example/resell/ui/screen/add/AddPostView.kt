@@ -43,6 +43,7 @@ import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.screen.home.HomeContent
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
+import com.example.resell.ui.theme.LightGray
 import com.example.resell.ui.theme.White2
 import com.example.resell.ui.viewmodel.addpost.AddPostViewModel
 import com.example.resell.ui.viewmodel.components.AddressPickerViewModel
@@ -98,16 +99,20 @@ fun AddPostScreen(
             ) {
                 Button(
                     onClick = {
-                        viewModel.viewModelScope.launch {
-                            viewModel.submitPost()
+                        viewModel.validateInputs()
+
+                        if (viewModel.isReadyToSubmit) {
+                            viewModel.viewModelScope.launch {
+                                viewModel.submitPost()
+                            }
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = viewModel.isReadyToSubmit,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (viewModel.isReadyToSubmit) DarkBlue else GrayFont,
+                        containerColor = if (viewModel.isReadyToSubmit) DarkBlue else LightGray,
                         contentColor = if (viewModel.isReadyToSubmit) White2 else Color.Black
-                    )
+                    ),
+                    enabled = true
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(
@@ -121,6 +126,8 @@ fun AddPostScreen(
                         Text("Đăng tin")
                     }
                 }
+
+
             }
         }
     ) { paddingValues ->

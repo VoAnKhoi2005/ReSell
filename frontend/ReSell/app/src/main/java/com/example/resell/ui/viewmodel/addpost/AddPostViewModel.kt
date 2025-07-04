@@ -144,7 +144,7 @@ class AddPostViewModel @Inject constructor(
         }
     }
 
-    private fun validateInputs() {
+    fun validateInputs() {
         if (title.isBlank()) titleError = "Không được để trống tiêu đề"
         if (description.isBlank()) descriptionError = "Không được để trống mô tả"
         if (priceText.isBlank()) priceError = "Không được để trống giá"
