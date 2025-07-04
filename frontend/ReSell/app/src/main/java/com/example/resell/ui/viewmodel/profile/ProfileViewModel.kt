@@ -16,6 +16,7 @@ import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
 import com.example.resell.util.Event
 import com.example.resell.util.EventBus
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -47,6 +48,8 @@ class ProfileViewModel @Inject constructor(
         ReactiveStore.clearAll()
         NavigationController.navController.navigate(Screen.Login.route)
         authTokenManager.clearToken()
+        val auth = FirebaseAuth.getInstance()
+        auth.signOut()
         viewModelScope.launch {
             EventBus.sendEvent(Event.Toast("Đăng xuất thành công"))
         }

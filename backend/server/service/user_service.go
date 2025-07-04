@@ -148,10 +148,6 @@ func (s *userService) ChangePassword(userID string, oldPassword string, newPassw
 		return err
 	}
 
-	if user.AuthProvider != model.PhoneAuth {
-		return errors.New("cannot change password for google auth user")
-	}
-
 	if newPassword == user.Password {
 		return errors.New("new password cannot be the same as old password")
 	}
