@@ -33,7 +33,9 @@
             android:name=".ui.MainActivity"
             android:windowSoftInputMode="adjustPan"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.ReSell">
+
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
