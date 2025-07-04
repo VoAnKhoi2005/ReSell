@@ -1,7 +1,9 @@
 package com.example.resell.ui.viewmodel
 
 
+import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.SavedStateHandle
@@ -11,50 +13,54 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.setValue
+import com.example.resell.model.Category
+import com.example.resell.model.District
+import com.example.resell.model.Province
+import com.example.resell.model.UpdatePostRequest
+import com.example.resell.model.Ward
 import com.example.resell.repository.PostRepository
 
 
 import com.example.resell.ui.navigation.NavigationController
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import java.io.File
 
 @HiltViewModel
 class EditPostViewModel @Inject constructor(
     private val repository: PostRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    private val _deletedImageUrls = mutableStateOf<List<String>>(emptyList())
+    val deletedImageUrls: State<List<String>> = _deletedImageUrls
+    val postId: String = savedStateHandle["id"] ?: ""
 
-    // --- Input ---
-    val postId: String = savedStateHandle["postId"] ?: ""
+    var title by mutableStateOf("")
+    var description by mutableStateOf("")
+    var priceText by mutableStateOf("")
+    val imageUrls = mutableStateListOf<Uri>()
+    val existingImageUrls = mutableStateListOf<String>()
 
-    private val _existingImageUrls = mutableStateOf<List<String>>(emptyList())
-    val existingImageUrls: State<List<String>> = _existingImageUrls
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val _newImageUris = mutableStateOf<List<Uri>>(emptyList())
-    val newImageUris: State<List<Uri>> = _newImageUris
+    var titleError by mutableStateOf("")
+    var descriptionError by mutableStateOf("")
+    var priceError by mutableStateOf("")
+    var addressError by mutableStateOf("")
+    var categoryError by mutableStateOf("")
 
-    private val _title = mutableStateOf("")
-    val title: State<String> = _title
+    var selectedProvince by mutableStateOf<Province?>(null)
+    var selectedDistrict by mutableStateOf<District?>(null)
+    var selectedWard by mutableStateOf<Ward?>(null)
+    var selectedCategory by mutableStateOf<Category?>(null)
+    var categoryName by mutableStateOf("")
 
-    private val _description = mutableStateOf("")
-    val description: State<String> = _description
-
-    private val _priceText = mutableStateOf("")
-    val priceText: State<String> = _priceText
-
-    private val _addressName = mutableStateOf("")
-    val addressName: State<String> = _addressName
-
-    private val _categoryName = mutableStateOf("")
-    val categoryName: State<String> = _categoryName
-
-    // --- Error states ---
-    val titleError = mutableStateOf("")
-    val descriptionError = mutableStateOf("")
-    val priceError = mutableStateOf("")
-    val addressError = mutableStateOf("")
-    val categoryError = mutableStateOf("")
-
-    // --- Loading ---
-    val isLoading = mutableStateOf(false)
+    val addressName: String
+        get() = listOfNotNull(selectedWard?.name, selectedDistrict?.name, selectedProvince?.name).joinToString(", ")
 
     init {
         loadPost()
@@ -62,78 +68,120 @@ class EditPostViewModel @Inject constructor(
 
     private fun loadPost() {
         viewModelScope.launch {
-            val post = repository.getPostByID(postId)
-//            _existingImageUrls.value = post.imageUrls
-//            _title.value = post.title
-//            _description.value = post.description
-//            _priceText.value = post.price.toString()
-//            _addressName.value = post.address
-//            _categoryName.value = post.categoryPath
+            val result = repository.getPostByID(postId)
+            result.fold(
+                { Log.e("EditPost", it.message ?: "") },
+                {
+                    title = it.title
+                    description = it.description ?: ""
+                    priceText = it.price.toString()
+                    selectedWard = it.ward
+                    selectedDistrict = it.ward?.district
+                    selectedProvince = it.ward?.district?.province
+                    selectedCategory = it.category
+                    categoryName = it.category?.name ?: ""
+                    existingImageUrls.clear()
+                    existingImageUrls.addAll(it.images?.map { img -> img.url } ?: emptyList())
+                }
+            )
         }
     }
 
-    fun addNewImages(uris: List<Uri>) {
-        val availableSlots = 6 - (_existingImageUrls.value.size + _newImageUris.value.size)
-        _newImageUris.value = _newImageUris.value + uris.take(availableSlots)
+    fun onTitleChange(newValue: String) {
+        title = newValue.take(50)
+        titleError = if (title.isBlank()) "Không được để trống tiêu đề" else ""
     }
 
-    fun removeExistingImageAt(index: Int) {
-        _existingImageUrls.value = _existingImageUrls.value.toMutableList().apply {
-            removeAt(index)
-        }
+    fun onDescriptionChange(newValue: String) {
+        description = newValue.take(1500)
+        descriptionError = if (description.isBlank()) "Không được để trống mô tả" else ""
     }
 
-    fun removeNewImageAt(index: Int) {
-        _newImageUris.value = _newImageUris.value.toMutableList().apply {
-            removeAt(index)
-        }
-    }
-
-    fun onTitleChange(newTitle: String) {
-        _title.value = newTitle
-        titleError.value = if (newTitle.length > 50) "Tối đa 50 ký tự" else ""
-    }
-
-    fun onDescriptionChange(newDesc: String) {
-        _description.value = newDesc
-        descriptionError.value = if (newDesc.length > 1500) "Tối đa 1500 ký tự" else ""
-    }
-
-    fun onPriceChange(newPrice: String) {
-        _priceText.value = newPrice
-        priceError.value = when {
-            newPrice.isBlank() -> "Vui lòng nhập giá"
-            newPrice.toLongOrNull() == null -> "Giá không hợp lệ"
-            newPrice.toLong() > 100_000_000 -> "Tối đa 100 triệu"
+    fun onPriceChange(newValue: String) {
+        priceText = newValue.filter { it.isDigit() }
+        priceError = when {
+            priceText.isBlank() -> "Không được để trống giá"
+            priceText.toLongOrNull()?.let { it > 100_000_000 } == true -> "Giá tối đa là 100 triệu"
             else -> ""
         }
     }
 
-    fun setAddress(address: String) {
-        _addressName.value = address
-        addressError.value = ""
+    fun setCategory(category: Category?, name: String?) {
+        selectedCategory = category
+        categoryName = name ?: ""
+        categoryError = ""
     }
 
-    fun setCategory(name: String) {
-        _categoryName.value = name
-        categoryError.value = ""
+    fun setAddress(province: Province?, district: District?, ward: Ward?) {
+        selectedProvince = province
+        selectedDistrict = district
+        selectedWard = ward
+        addressError = ""
+    }
+
+    fun addNewImages(uris: List<Uri>) {
+        val availableSlots = 6 - (existingImageUrls.size + imageUrls.size)
+        imageUrls.addAll(uris.take(availableSlots))
+    }
+
+    fun removeExistingImageAt(index: Int) {
+        val removedUrl = existingImageUrls.removeAt(index)
+        _deletedImageUrls.value = _deletedImageUrls.value + removedUrl
+    }
+
+    fun removeNewImageAt(index: Int) {
+        if (index in imageUrls.indices) {
+            imageUrls.removeAt(index)
+        }
+    }
+
+    fun validateInputs() {
+        if (title.isBlank()) titleError = "Không được để trống tiêu đề"
+        if (description.isBlank()) descriptionError = "Không được để trống mô tả"
+        if (priceText.isBlank()) priceError = "Không được để trống giá"
+        else if (priceText.toLongOrNull()?.let { it > 100_000_000 } == true) priceError = "Giá tối đa là 100 triệu"
+        if (existingImageUrls.isEmpty() && imageUrls.isEmpty()) imageUrls.clear()
+        if (selectedProvince == null || selectedDistrict == null || selectedWard == null) addressError = "Vui lòng chọn đầy đủ địa chỉ"
+        if (selectedCategory == null) categoryError = "Vui lòng chọn danh mục"
     }
 
     val isReadyToSubmit: Boolean
-        get() = _title.value.isNotBlank()
-                && _description.value.isNotBlank()
-                && _priceText.value.toLongOrNull() != null
-                && _addressName.value.isNotBlank()
-                && _categoryName.value.isNotBlank()
-                && (_existingImageUrls.value + _newImageUris.value).isNotEmpty()
+        get() = title.isNotBlank()
+                && description.isNotBlank()
+                && priceText.toLongOrNull()?.let { it <= 100_000_000 } == true
+                && (imageUrls.isNotEmpty() || existingImageUrls.isNotEmpty())
+                && selectedProvince != null && selectedDistrict != null && selectedWard != null && selectedCategory != null
 
     fun submitPost() {
         viewModelScope.launch {
-            isLoading.value = true
-            delay(1000) // Mô phỏng upload + API gọi
-            // TODO: gọi repository.updatePost(...) tại đây
-            isLoading.value = false
+            validateInputs()
+            if (!isReadyToSubmit) return@launch
+            _isLoading.value = true
+
+            repository.deletePostImages(postId,_deletedImageUrls.value)
+            val postUpdate = UpdatePostRequest(
+                categoryID = selectedCategory?.id,
+                wardID = selectedWard?.id,
+                title = title,
+                description = description,
+                price = priceText.toIntOrNull()
+            )
+            repository.updatePost(postId,postUpdate)
+         //   repository.uploadPostImage(postId,imageUrls)
+            _isLoading.value = false
             NavigationController.navController.popBackStack()
         }
+    }
+}
+private fun uriToFile(context: Context, uri: Uri): File? {
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+        val tempFile = File.createTempFile("image", ".jpg", context.cacheDir)
+        tempFile.outputStream().use { output ->
+            inputStream.copyTo(output)
+        }
+        tempFile
+    } catch (e: Exception) {
+        null
     }
 }

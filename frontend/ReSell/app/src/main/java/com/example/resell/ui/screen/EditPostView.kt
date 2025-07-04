@@ -54,10 +54,9 @@ fun EditPostScreen(
         viewModel.addNewImages(uris)
     }
 
-    val existingImageUrls = viewModel.existingImageUrls.value
-    val newImageUris = viewModel.newImageUris.value
-
-    val isLoading = viewModel.isLoading.value
+    val existingImageUrls = viewModel.existingImageUrls
+    val newImageUris = viewModel.imageUrls
+    val isLoading by viewModel.isLoading.collectAsState()
 
     Scaffold(
         topBar = {
@@ -121,21 +120,21 @@ fun EditPostScreen(
                     .clickable { showCategoryPicker = true }
             ) {
                 OutlinedTextField(
-                    value = viewModel.categoryName.value.ifBlank { "Chọn danh mục" },
+                    value = viewModel.categoryName.ifBlank { "Chọn danh mục" },
                     onValueChange = {},
                     readOnly = true,
                     enabled = false,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = if (viewModel.categoryName.value.isBlank()) Color.Gray else LocalContentColor.current,
+                        disabledTextColor = if (viewModel.categoryName.isBlank()) Color.Gray else LocalContentColor.current,
                         disabledBorderColor = MaterialTheme.colorScheme.outline,
                         disabledLabelColor = MaterialTheme.colorScheme.outline
                     )
                 )
             }
-            if (viewModel.categoryError.value.isNotBlank()) {
+            if (viewModel.categoryError.isNotBlank()) {
                 Text(
-                    viewModel.categoryError.value,
+                    viewModel.categoryError,
                     color = Color.Red,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -146,7 +145,6 @@ fun EditPostScreen(
             LazyRow(modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)) {
-                // Nút thêm ảnh
                 item {
                     Box(
                         modifier = Modifier
@@ -159,8 +157,6 @@ fun EditPostScreen(
                         Text("+", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                     }
                 }
-
-                // Ảnh từ URL
                 itemsIndexed(existingImageUrls) { index, url ->
                     Box(modifier = Modifier.padding(start = 8.dp)) {
                         Box {
@@ -186,8 +182,6 @@ fun EditPostScreen(
                         }
                     }
                 }
-
-                // Ảnh từ máy
                 itemsIndexed(newImageUris) { index, uri ->
                     Box(modifier = Modifier.padding(start = 8.dp)) {
                         Box {
@@ -220,15 +214,15 @@ fun EditPostScreen(
             // Tiêu đề
             RequiredLabel("Tiêu đề")
             OutlinedTextField(
-                value = viewModel.title.value,
+                value = viewModel.title,
                 onValueChange = { viewModel.onTitleChange(it) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Tối đa 50 ký tự") },
-                isError = viewModel.titleError.value.isNotBlank()
+                isError = viewModel.titleError.isNotBlank()
             )
-            if (viewModel.titleError.value.isNotBlank()) {
-                Text(viewModel.titleError.value, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+            if (viewModel.titleError.isNotBlank()) {
+                Text(viewModel.titleError, color = Color.Red, style = MaterialTheme.typography.bodySmall)
             }
 
             Spacer(Modifier.height(16.dp))
@@ -236,16 +230,16 @@ fun EditPostScreen(
             // Mô tả
             RequiredLabel("Mô tả chi tiết")
             OutlinedTextField(
-                value = viewModel.description.value,
+                value = viewModel.description,
                 onValueChange = { viewModel.onDescriptionChange(it) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp),
                 placeholder = { Text("Tối đa 1500 ký tự") },
-                isError = viewModel.descriptionError.value.isNotBlank()
+                isError = viewModel.descriptionError.isNotBlank()
             )
-            if (viewModel.descriptionError.value.isNotBlank()) {
-                Text(viewModel.descriptionError.value, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+            if (viewModel.descriptionError.isNotBlank()) {
+                Text(viewModel.descriptionError, color = Color.Red, style = MaterialTheme.typography.bodySmall)
             }
 
             Spacer(Modifier.height(16.dp))
@@ -253,15 +247,15 @@ fun EditPostScreen(
             // Giá
             RequiredLabel("Giá sản phẩm")
             OutlinedTextField(
-                value = viewModel.priceText.value,
+                value = viewModel.priceText,
                 onValueChange = { viewModel.onPriceChange(it) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                 placeholder = { Text("Tối đa 100 triệu") },
-                isError = viewModel.priceError.value.isNotBlank()
+                isError = viewModel.priceError.isNotBlank()
             )
-            if (viewModel.priceError.value.isNotBlank()) {
-                Text(viewModel.priceError.value, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+            if (viewModel.priceError.isNotBlank()) {
+                Text(viewModel.priceError, color = Color.Red, style = MaterialTheme.typography.bodySmall)
             }
 
             Spacer(Modifier.height(16.dp))
@@ -275,20 +269,20 @@ fun EditPostScreen(
                     .clickable { showAddressPicker = true }
             ) {
                 OutlinedTextField(
-                    value = viewModel.addressName.value.ifBlank { "Chọn địa chỉ" },
+                    value = viewModel.addressName.ifBlank { "Chọn địa chỉ" },
                     onValueChange = {},
                     readOnly = true,
                     enabled = false,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = if (viewModel.addressName.value.isBlank()) Color.Gray else LocalContentColor.current,
+                        disabledTextColor = if (viewModel.addressName.isBlank()) Color.Gray else LocalContentColor.current,
                         disabledBorderColor = MaterialTheme.colorScheme.outline,
                         disabledLabelColor = MaterialTheme.colorScheme.outline
                     )
                 )
             }
-            if (viewModel.addressError.value.isNotBlank()) {
-                Text(viewModel.addressError.value, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+            if (viewModel.addressError.isNotBlank()) {
+                Text(viewModel.addressError, color = Color.Red, style = MaterialTheme.typography.bodySmall)
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -299,7 +293,7 @@ fun EditPostScreen(
         AddressPickerPopup(
             onDismiss = { showAddressPicker = false },
             onAddressSelected = { province, district, ward ->
-                viewModel.setAddress("$ward, $district, $province")
+                viewModel.setAddress(province, district, ward)
                 showAddressPicker = false
             },
             viewModel = hiltViewModel()
@@ -310,7 +304,7 @@ fun EditPostScreen(
         CategoryPickerPopup(
             onDismiss = { showCategoryPicker = false },
             onCategorySelected = { category ->
-                viewModel.setCategory(category?.name?:"")
+                viewModel.setCategory(category, category?.name)
                 showCategoryPicker = false
             },
             viewModel = hiltViewModel(),
