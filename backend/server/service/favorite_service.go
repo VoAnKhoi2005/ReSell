@@ -9,6 +9,7 @@ type FavoriteService interface {
 	AddItemToCart(userID string, postID string) (*model.FavoritePost, error)
 	RemoveItemFromCart(userID string, postID string) error
 	GetCartItems(userID string) ([]*model.FavoritePost, error)
+	IsFavorite(userID string, postID string) (bool, error)
 }
 
 type favoriteService struct {
@@ -42,4 +43,10 @@ func (s *favoriteService) RemoveItemFromCart(userID string, postID string) error
 
 func (s *favoriteService) GetCartItems(userID string) ([]*model.FavoritePost, error) {
 	return s.repo.GetByUserID(userID)
+}
+
+func (s *favoriteService) IsFavorite(userID string, postID string) (bool, error) {
+	isFavorite, _ := s.repo.IsFavorite(userID, postID)
+	return isFavorite, nil
+
 }

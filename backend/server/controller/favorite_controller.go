@@ -79,3 +79,20 @@ func (cart *FavoriteController) DeleteCartItem(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Item removed from cart"})
 }
+
+func (cart *FavoriteController) IsFavorite(c *gin.Context) {
+	userID, _ := util.GetUserID(c)
+	postID := c.Param("id")
+	if postID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Post ID is required"})
+		return
+	}
+	isFavorite, err := cart.cartService.IsFavorite(userID, postID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	
+	c.JSON(http.StatusOK, isFavorite)
+
+}
