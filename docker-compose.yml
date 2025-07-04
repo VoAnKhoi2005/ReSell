@@ -31,15 +31,15 @@ services:
     networks:
       - resell_net
 
-  # python:
-  #   build: ./backend/python_server
-  #   container_name: dev-python
-  #   volumes:
-  #     - ./backend/python_server:/app
-  #   ports:
-  #     - "5000"
-  #   networks:
-  #     - resell_net
+  python:
+    build: ./backend/python_server
+    container_name: dev-python
+    volumes:
+      - ./backend/python_server:/app
+    ports:
+      - "5000"
+    networks:
+      - resell_net
 
 networks:
   resell_net:
