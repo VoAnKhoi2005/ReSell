@@ -54,7 +54,5 @@ enum class PostStatus {
     @Json(name = "rejected")
     REJECTED,
     @Json(name = "sold")
-    SOLD,
-    @Json(name = "deleted")
-    DELETED
+    SOLD
 }

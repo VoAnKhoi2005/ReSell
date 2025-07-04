@@ -56,7 +56,6 @@ fun AddPostScreen(
     modifier: Modifier = Modifier,
     viewModel: AddPostViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     val scrollState = rememberScrollState()
     val addressPickerViewModel: AddressPickerViewModel = hiltViewModel()
     val categoryPickerViewModel: CategoryPickerViewModel = hiltViewModel()

@@ -1,5 +1,6 @@
 package com.example.resell.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.resell.model.Post
@@ -29,7 +30,6 @@ class PostManagementViewModel @Inject constructor(
     val approvedPosts = _posts.map { it.filter { post -> post.status == "approved" } }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     val rejectedPosts = _posts.map { it.filter { post -> post.status == "rejected" } }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     val soldPosts = _posts.map { it.filter { post -> post.status == "sold" } }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-    val hidePosts = _posts.map { it.filter { post -> post.status ==  "deleted" } }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     fun getPosts() {
         viewModelScope.launch {
             var currentPage = 1
@@ -55,5 +55,22 @@ class PostManagementViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun onEdit(id:String){
+
+    }
+    fun onDelete(id:String){
+        viewModelScope.launch{
+            val result = postRepository.hardDeletePost(id)
+            result.fold(
+                {
+                    Log.e("XÓA",it.message?:"")
+                },{
+                    getPosts()
+                }
+            )
+        }
+
     }
     }

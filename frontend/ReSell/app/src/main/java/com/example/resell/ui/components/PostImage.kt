@@ -247,14 +247,15 @@ fun ProductPostItemHorizontalImageStatus(
     address: String,
     postStatus: PostStatus,
     showExtraInfo: Boolean = true,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    getActions: () -> List<Pair<String, () -> Unit>>
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onClick() } // 👈 thêm vào đây
+            .clickable { onClick() }
             .border(0.5.dp, White1),
         shape = RoundedCornerShape(4.dp),
         colors = CardDefaults.cardColors(containerColor = White)
@@ -319,7 +320,7 @@ fun ProductPostItemHorizontalImageStatus(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        getPostActions(postStatus).forEach { (label, action) ->
+                        getActions().forEach { (label, action) ->
                             DropdownMenuItem(
                                 text = { Text(label) },
                                 onClick = {
@@ -413,28 +414,25 @@ fun formatCurrency(amount: Int): String {
     return "%,d đ".format(amount).replace(",", ".")
 }
 
-@Composable
-fun getPostActions(postStatus: PostStatus): List<Pair<String, () -> Unit>> {
+fun getPostActions(
+    postStatus: PostStatus,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+): List<Pair<String, () -> Unit>> {
     return when (postStatus) {
         PostStatus.PENDING -> listOf(
-            "Chỉnh sửa" to { /* TODO */ },
-            "Xoá" to { /* TODO */ }
+            "Chỉnh sửa" to onEdit,
+            "Xoá" to onDelete
         )
         PostStatus.APPROVED -> listOf(
-            "Chỉnh sửa" to { /* TODO */ },
-            "Đánh dấu đã bán" to { /* TODO */ },
-            "Ẩn bài" to { /* TODO */ }
+            "Chỉnh sửa" to onEdit
         )
         PostStatus.SOLD -> listOf(
-            "Đăng lại" to { /* TODO */ }
+
         )
         PostStatus.REJECTED -> listOf(
-            "Xem lý do" to { /* TODO */ },
-            "Chỉnh sửa lại" to { /* TODO */ }
-        )
-        PostStatus.DELETED -> listOf(
-            "Hiển thị lại" to { /* TODO */ },
-            "Xoá" to { /* TODO */ }
+            "Chỉnh sửa lại" to onEdit,
+            "Xóa" to onDelete
         )
     }
 }

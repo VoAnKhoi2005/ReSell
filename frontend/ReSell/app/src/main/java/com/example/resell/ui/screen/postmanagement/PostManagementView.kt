@@ -1,5 +1,6 @@
 package com.example.resell.ui.screen.postmanagement
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,6 +36,7 @@ import com.example.resell.util.getRelativeTime
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.resell.R
 import com.example.resell.model.PostData
 import com.example.resell.model.PostStatus
@@ -42,6 +44,7 @@ import com.example.resell.model.User
 import com.example.resell.store.ReactiveStore
 import com.example.resell.store.ReactiveStore.Companion.invoke
 import com.example.resell.ui.components.ProductPostItemHorizontalImageStatus
+import com.example.resell.ui.components.getPostActions
 import com.example.resell.ui.navigation.NavigationController
 
 @Composable
@@ -57,7 +60,6 @@ fun PostMangamentScreen(
     val approvedPosts by viewModel.approvedPosts.collectAsState()
     val rejectedPosts by viewModel.rejectedPosts.collectAsState()
     val soldPosts by viewModel.soldPosts.collectAsState()
-    val hidePosts by viewModel.hidePosts.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.getPosts()
     }
@@ -81,7 +83,6 @@ fun PostMangamentScreen(
                             HomeTabs.Approved -> approvedPosts.size
                             HomeTabs.NotApproved -> rejectedPosts.size
                             HomeTabs.Sold -> soldPosts.size
-                            HomeTabs.Deleted -> hidePosts.size
                         }
                         Text("${tab.label} ($count)", style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp))
                     }
@@ -92,18 +93,17 @@ fun PostMangamentScreen(
         // Nội dung theo tab
         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().weight(1f)) { pageIndex ->
             when (HomeTabs.entries[pageIndex]) {
-                HomeTabs.Pending -> PostList(postList = pendingPosts, PostStatus.PENDING)
-                HomeTabs.Approved -> PostList(postList = approvedPosts, PostStatus.APPROVED)
-                HomeTabs.NotApproved -> PostList(postList = rejectedPosts, PostStatus.REJECTED)
-                HomeTabs.Sold -> PostList(postList = soldPosts, PostStatus.SOLD)
-                HomeTabs.Deleted -> PostList(postList = hidePosts, PostStatus.DELETED)
+                HomeTabs.Pending -> PostList(postList = pendingPosts, PostStatus.PENDING,viewModel)
+                HomeTabs.Approved -> PostList(postList = approvedPosts, PostStatus.APPROVED,viewModel)
+                HomeTabs.NotApproved -> PostList(postList = rejectedPosts, PostStatus.REJECTED,viewModel)
+                HomeTabs.Sold -> PostList(postList = soldPosts, PostStatus.SOLD,viewModel)
             }
         }
     }
 }
 
 @Composable
-fun PostList(postList: List<PostData>, postStatus: PostStatus) {
+fun PostList(postList: List<PostData>, postStatus: PostStatus, viewModel: PostManagementViewModel) {
     Box(modifier = Modifier.fillMaxSize()) {
         if (postList.isEmpty()) {
             // Chỉ phần Text được căn giữa
@@ -127,6 +127,14 @@ fun PostList(postList: List<PostData>, postStatus: PostStatus) {
                         onClick = {
                             // Điều hướng đến màn hình chi tiết bài đăng
                             NavigationController.navController.navigate("productdetail_screen/${post.id}")
+                        },
+                        getActions = {
+                            getPostActions(
+                                postStatus = postStatus,
+                                onEdit = { viewModel.onEdit(post.id) },
+                                onDelete = { viewModel.onDelete(post.id) }
+
+                            )
                         }
                     )
                 }
@@ -140,6 +148,5 @@ enum class HomeTabs(val label: String) {
     Approved("ĐANG BÁN"),
     Sold("ĐÃ BÁN"),
     NotApproved("BỊ TỪ CHỐI"),
-    Deleted("ĐÃ ẨN"),
 
 }
