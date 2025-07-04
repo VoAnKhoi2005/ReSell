@@ -247,6 +247,8 @@ func (s *postService) UpdatePost(id string, req *transaction.UpdatePostRequest) 
 		isChange = true
 	}
 
+	post.Status = model.PostStatusPending
+
 	if !isChange {
 		return nil, errors.New("no change")
 	}
