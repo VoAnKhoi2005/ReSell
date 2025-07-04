@@ -47,6 +47,8 @@ type PostService interface {
 
 	GetOwnPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
 	GetPostsByIdList(ownerID string, ids []string, page, limit int) ([]*dto.PostListUserDTO, int64, error)
+
+	IsSold(postID string) (bool, error)
 }
 
 type postService struct {
@@ -61,7 +63,6 @@ func (s *postService) GetAdminPosts(filters map[string]string, page, limit int) 
 func (s *postService) GetUserPosts(ownerID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
 	return s.postRepo.GetUserPostsByFilter(ownerID, filters, page, limit)
 }
-
 
 func (s *postService) GetOwnPosts(userID string, filters map[string]string, page, limit int) ([]*dto.PostListUserDTO, int64, error) {
 	return s.postRepo.GetOwnPosts(userID, filters, page, limit)
@@ -335,4 +336,14 @@ func (s *postService) DeletePostImage(postID, url string) error {
 		return err
 	}
 	return s.postRepo.DeletePostImage(postImage)
+}
+func (s *postService) IsSold(postID string) (bool, error) {
+	post, err := s.postRepo.GetByID(postID)
+	if err != nil {
+		return false, err
+	}
+	if post.Status == model.PostStatusSold {
+		return true, nil
+	}
+	return false, nil
 }
