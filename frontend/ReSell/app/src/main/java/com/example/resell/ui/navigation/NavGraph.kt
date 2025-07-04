@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.navigation.Screen
+import com.example.resell.ui.screen.EditPostScreen
 import com.example.resell.ui.screen.account_setting.AccountSettingScreen
 import com.example.resell.ui.screen.add.AddPostScreen
 import com.example.resell.ui.screen.order.BuyingOrder.BuyingOrderScreen
@@ -55,6 +56,14 @@ fun SetupNavGraph(
             route = Screen.Login.route
         ) {
             LoginScreen()
+        }
+        composable(
+            route ="editPost/{id}",
+            arguments = listOf(
+                navArgument("id"){type = NavType.StringType}
+            )
+        ) {
+            EditPostScreen()
         }
         composable(
             route = Screen.Register.route+"/{type}/{id}",

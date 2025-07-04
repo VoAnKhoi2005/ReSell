@@ -2,6 +2,7 @@ package com.example.resell.ui.viewmodel
 
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.SavedStateHandle
@@ -63,12 +64,18 @@ class EditPostViewModel @Inject constructor(
     private fun loadPost() {
         viewModelScope.launch {
             val post = repository.getPostByID(postId)
-//            _existingImageUrls.value = post.imageUrls
-//            _title.value = post.title
-//            _description.value = post.description
-//            _priceText.value = post.price.toString()
-//            _addressName.value = post.address
-//            _categoryName.value = post.categoryPath
+            post.fold(
+                {
+                    Log.e("ccccd",it.message?:"")
+                },{
+                    _existingImageUrls.value = it.images?.map { image -> image.url } ?:emptyList()
+                    _title.value = it.title
+                    _description.value = it.description?:""
+                    _priceText.value = it.price.toString()
+                    _addressName.value =listOfNotNull(it.ward?.name,it?.ward?.district?.name,it?.ward?.district?.province?.name).joinToString(", ")
+                    _categoryName.value = it.category?.name?:""
+                }
+            )
         }
     }
 

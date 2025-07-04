@@ -9,6 +9,7 @@ import com.example.resell.model.PostStatus
 import com.example.resell.model.User
 import com.example.resell.repository.PostRepository
 import com.example.resell.store.ReactiveStore
+import com.example.resell.ui.navigation.NavigationController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -58,7 +59,7 @@ class PostManagementViewModel @Inject constructor(
     }
 
     fun onEdit(id:String){
-
+        NavigationController.navController.navigate( "editPost/${id}")
     }
     fun onDelete(id:String){
         viewModelScope.launch{
