@@ -38,7 +38,7 @@ func main() {
 	config.InitStripe()
 	config.AutoMigrate()
 
-	//data.GenerateSeedData()
+	//gdata.GenerateSeedData()
 	repository.InitGlobalRepository(config.DB)
 
 	//Firebase

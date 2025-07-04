@@ -14,6 +14,7 @@ type FavouriteRepository interface {
 
 	GetByUserID(userID string) ([]*model.FavoritePost, error)
 	GetByUserIDAndPostID(userID string, postID string) (*model.FavoritePost, error)
+	IsFavorite(userID string, postID string) (bool, error)
 }
 
 type favoriteRepository struct {
@@ -45,4 +46,15 @@ func (r *favoriteRepository) GetByUserIDAndPostID(userID string, postID string) 
 		return nil, err
 	}
 	return &item, nil
+}
+
+func (r *favoriteRepository) IsFavorite(userID string, postID string) (bool, error) {
+	ctx, cancel := util.NewDBContext()
+	defer cancel()
+	var item model.FavoritePost
+	err := r.db.WithContext(ctx).Where("user_id = ? AND post_id = ?", userID, postID).First(&item).Error
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
