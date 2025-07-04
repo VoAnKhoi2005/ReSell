@@ -39,6 +39,7 @@ interface FavoriteRepository{
     suspend fun getFavoritePosts(): Either<NetworkError, List<FavoritePost>>
     suspend fun likePost(postID: String): Either<NetworkError, FavoritePost>
     suspend fun unlikePost(postID: String): Either<NetworkError, Boolean>
+    suspend fun isFavorite(postID: String): Either<NetworkError, Boolean>
 }
 
 interface PaymentRepository{

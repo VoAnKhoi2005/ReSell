@@ -25,6 +25,7 @@ import com.example.resell.ui.components.TopBar
 import com.example.resell.ui.navigation.NavigationController
 import com.example.resell.ui.theme.DarkBlue
 import com.example.resell.ui.theme.GrayFont
+import com.example.resell.ui.theme.White
 import com.example.resell.ui.theme.White2
 import com.example.resell.ui.viewmodel.address.AddressAddViewModel
 import com.example.resell.ui.viewmodel.components.AddressPickerViewModel
@@ -139,6 +140,7 @@ fun AddressAddScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             OrderButton(
+                enable = true,
                 text = if (viewModel.isEditMode) "Cập nhật địa chỉ" else "Lưu địa chỉ",
                 onClick = {
                     val valid = validateInput(
@@ -250,7 +252,25 @@ fun EditableBoxField(
             value = value,
             onValueChange = onValueChange,
             isError = error != null,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.colors(
+
+                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                disabledIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                errorIndicatorColor = MaterialTheme.colorScheme.error,
+
+                focusedContainerColor = White,
+                unfocusedContainerColor = White,
+                disabledContainerColor = White,
+                errorContainerColor = White,
+
+                // Other colors
+                cursorColor = MaterialTheme.colorScheme.primary,
+
+                // Ensure text color doesn't change when visually "disabled" (readOnly)
+                disabledTextColor = LocalContentColor.current
+            )
         )
         if (error != null) {
             Text(

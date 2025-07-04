@@ -14,7 +14,7 @@ import com.example.resell.util.getRelativeTime
 
 
 @Composable
-fun ApproveScreen(isCurrentUser: Boolean, viewModel: ProfileDetailViewModel = hiltViewModel()) {
+fun ApproveScreen(isCurrentUser: Boolean, viewModel: ProfileDetailViewModel) {
     val posts by viewModel.userApprovedPosts.collectAsState()
 
     LazyColumn {
@@ -36,7 +36,7 @@ fun ApproveScreen(isCurrentUser: Boolean, viewModel: ProfileDetailViewModel = hi
 
 
 @Composable
-fun NotApprovedScreen(isCurrentUser: Boolean, viewModel: ProfileDetailViewModel = hiltViewModel()) {
+fun NotApprovedScreen(isCurrentUser: Boolean, viewModel: ProfileDetailViewModel) {
     val posts by viewModel.userSoldPosts.collectAsState()
 
     LazyColumn {

@@ -111,4 +111,5 @@ dependencies {
 
     implementation(libs.logging.interceptor)
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.lifecycle:lifecycle-process:2.9.1")
 }

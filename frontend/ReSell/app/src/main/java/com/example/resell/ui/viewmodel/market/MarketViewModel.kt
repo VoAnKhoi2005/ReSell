@@ -55,7 +55,7 @@ class MarketViewModel @Inject constructor(
         if (isLoadingRecommended) return
         isLoadingRecommended = true
         viewModelScope.launch {
-            val result = repository.getRecommendationPosts(page = recommendedPage, limit = 10)
+            val result = repository.getRecommendationPosts(page = recommendedPage, limit = 5)
             result.fold(
                 {
                     Log.e("Get post",it.message?:"")
@@ -130,7 +130,7 @@ class MarketViewModel @Inject constructor(
         if(isLoadingRecommended) return
         isLoadingRecommended=true
         viewModelScope.launch {
-            val result = repository.getRecommendationPosts(page=recommendedPage, limit = 10)
+            val result = repository.getRecommendationPosts(page=recommendedPage, limit = 5)
             result.fold(
                 {
                     Log.e("Get post",it.message?:"")

@@ -88,7 +88,6 @@ fun ProfileDetailScreen(
 
     LaunchedEffect(targetUserId, currentUserId) {
         viewModel.loadProfile(targetUserId, currentUserId)
-        viewModel.loadUserPosts(targetUserId)
     }
 
     val pagerState = rememberPagerState(pageCount = { ProfileDetailTab.entries.size })
@@ -208,12 +207,12 @@ fun ProfileTabsPager(
             when (pageIndex) {
                 0 -> {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        ApproveScreen(isCurrentUser = isCurrentUser)
+                        ApproveScreen(isCurrentUser = isCurrentUser,viewModel=viewModel)
                     }
                 }
                 1 -> {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        NotApprovedScreen(isCurrentUser = isCurrentUser)
+                        NotApprovedScreen(isCurrentUser = isCurrentUser,viewModel=viewModel)
                     }
                 }
             }

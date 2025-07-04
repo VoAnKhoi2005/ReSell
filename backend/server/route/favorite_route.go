@@ -20,7 +20,7 @@ func RegisterFavoriteRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	favorite.Use(middleware.AuthMiddleware())
 
 	favorite.GET("", cartController.GetCartItems) // Get all items in the favorite
-	favorite.GET(":id", cartController.IsFavorite)
+	favorite.GET("/:id", cartController.IsFavorite)
 	favorite.POST("", cartController.CreateCartItem)       // Add an item to the favorite
 	favorite.DELETE("/:id", cartController.DeleteCartItem) // RemoveSession an item from the carts
 }

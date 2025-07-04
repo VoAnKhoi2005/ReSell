@@ -89,13 +89,12 @@ class ProductDetailViewModel @Inject constructor(
                     _isLoading.value = false
                 }
             )
-            favoriteRepository.getFavoritePosts().fold(
+            favoriteRepository.isFavorite(postId).fold(
                 {
-
                 },
                 {
                     it->
-                    _isFavorite.value= it.any { it.postId == postId }
+                    _isFavorite.value= it
                 }
             )
 
