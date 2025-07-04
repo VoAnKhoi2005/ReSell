@@ -14,7 +14,8 @@ func RegisterOrderRoutes(rg *gin.RouterGroup, db *gorm.DB) {
 	postRepo := repository.NewPostRepository(db)
 	addressRepo := repository.NewAddressRepository(db)
 	orderService := service.NewOrderService(orderRepository, postRepo, addressRepo)
-	orderController := controller.NewOrderController(orderService)
+	postService := service.NewPostService(postRepo)
+	orderController := controller.NewOrderController(orderService, postService)
 
 	orderRoute := rg.Group("/order")
 

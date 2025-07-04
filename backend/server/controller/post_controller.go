@@ -447,27 +447,6 @@ func (h *PostController) RestoreDeletedPost(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"id": post.ID, "message": "Post restored"})
 }
 
-func (h *PostController) MarkPostAsSold(c *gin.Context) {
-	id := c.Param("id")
-	post, err := h.service.MarkPostAsSold(id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"id": post.ID, "message": "Post marked as sold"})
-
-}
-
-func (h *PostController) RevertSoldStatus(c *gin.Context) {
-	id := c.Param("id")
-	post, err := h.service.RevertSoldStatus(id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"id": post.ID, "message": "Post sold status reverted"})
-}
-
 func (h *PostController) GetAllDeletedPosts(c *gin.Context) {
 	posts, err := h.service.GetAllDeletedPosts()
 	if err != nil {
