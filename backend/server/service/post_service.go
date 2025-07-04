@@ -293,7 +293,7 @@ func (s *postService) GetPostByID(id string) (*model.Post, error) {
 }
 
 func (s *postService) DeletePost(id string) error {
-	post, err := s.postRepo.GetDeletedByID(id)
+	post, err := s.postRepo.GetByID(id)
 	if err != nil {
 		return err
 	}
